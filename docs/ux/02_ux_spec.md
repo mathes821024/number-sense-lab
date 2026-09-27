@@ -4,7 +4,7 @@
 
 状态：U0 交互建议，供 Owner 与 ChatGPT 做 UX Gate Review。
 
-本文不是 Contract Freeze。它不改写已经通过 P0 的产品原则。产品基线是 `docs/product/01_prd.md`（`docs/product-prd-v01` @ `2d60bf1170d908ff1d483f50693444200117e907`）。本分支从当时的最新 `main`（`947c960`）切出，不修改 PRD。
+本文不是 Contract Freeze。它不改写已经通过 P0 的产品原则。产品基线是已经进入 `main` 的 `docs/product/01_prd.md`（内容提交 `2d60bf1170d908ff1d483f50693444200117e907`，经 PR #2 合并）。治理基线是已经进入 `main` 的 `docs/governance/collaboration.md`。本分支已包含这两份基线，不修改它们。
 
 若下文与产品基线冲突，以产品基线为准，并在第 18 节标明。
 
