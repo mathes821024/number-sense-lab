@@ -22,3 +22,11 @@ Initial focus:
 ## Development Approach
 
 Product Definition → UX → UI → Technical Design → Contract Freeze → Build → Verify
+
+## Collaboration
+
+GitHub is the source of truth.
+
+The Owner has authorized Cursor to commit and push documentation without asking again. Documentation goes on a `docs/*` branch and a pull request. ChatGPT reviews. After Contract Freeze, Grok Bot implements against the frozen contract.
+
+Details: [`docs/governance/collaboration.md`](docs/governance/collaboration.md).
