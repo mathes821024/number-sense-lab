@@ -25,17 +25,19 @@ The standing authorization does not allow:
 ## Flow
 
 ```text
-Professional roles decide
+Professional roles analyze, design, and propose
         ↓
 contract-document-editor organizes the documents
         ↓
 docs/* branch → commit → push → Pull Request
         ↓
-ChatGPT Gate Review → Owner Decision
+ChatGPT orchestrates and reviews
+        ↓
+Owner decides
         ↓
 Contract Freeze
         ↓
-Grok Bot implements against the frozen contract
+Grok Bot builds against the frozen contract
 ```
 
 Documentation work uses a branch such as `docs/governance-v01`. A documentation change is ready for review when that branch is pushed and a pull request is open.
@@ -44,11 +46,13 @@ After Contract Freeze, Grok Bot is the implementation agent. If implementation c
 
 ## Roles
 
-- Professional roles get the thinking right.
-- `contract-document-editor` gets the documents consistent.
-- ChatGPT reviews.
+- Professional roles analyze, design, and propose.
+- `contract-document-editor` organizes the documents.
+- ChatGPT orchestrates and reviews.
 - Grok Bot builds.
 - GitHub keeps the evidence.
 - The Owner decides.
 
-`contract-document-editor` organizes existing decisions. It does not redefine the product, change UX, UI, or architecture conclusions, write business code, or merge to `main`.
+Professional roles do not hold final decision authority. The Owner decides.
+
+`contract-document-editor` organizes documents produced by professional roles. It does not decide, redefine the product, change UX, UI, or architecture conclusions, write business code, or merge to `main`.

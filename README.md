@@ -27,6 +27,6 @@ Product Definition → UX → UI → Technical Design → Contract Freeze → Bu
 
 GitHub is the source of truth.
 
-The Owner has authorized Cursor to commit and push documentation without asking again. Documentation goes on a `docs/*` branch and a pull request. ChatGPT reviews. After Contract Freeze, Grok Bot implements against the frozen contract.
+Project design and implementation follow a contract-driven workflow based on pull requests, review gates, and Contract Freeze.
 
-Details: [`docs/governance/collaboration.md`](docs/governance/collaboration.md).
+See [`docs/governance/collaboration.md`](docs/governance/collaboration.md) for details.
