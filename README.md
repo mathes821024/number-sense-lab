@@ -22,3 +22,11 @@ Initial focus:
 ## Development Approach
 
 Product Definition → UX → UI → Technical Design → Contract Freeze → Build → Verify
+
+## Collaboration
+
+GitHub is the source of truth.
+
+Project design and implementation follow a contract-driven workflow based on pull requests, review gates, and Contract Freeze.
+
+See [`docs/governance/collaboration.md`](docs/governance/collaboration.md) for details.
