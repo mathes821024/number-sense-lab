@@ -61,9 +61,11 @@ Grok Bot 按契约实施
 
 ---
 
-# 2. 已落地的 11 个角色
+# 2. 已确认的 11 个本地规则角色
 
-这里的「已落地」按这次协作里已经明确使用、并且 Owner 计入核心角色的名单。第 13 节会分开写：哪些在这台电脑上已经有 Cursor 规则文件，哪些是协作中在用、但还没有单独的规则文件。不要把规则文件和业务代码混成一件事。
+Confirmed Local Rule Roles: 11
+
+当前已经形成 11 个核心专业职责，并且这 11 个都已经有可调用的本地 Cursor Rule。`alwaysApply: false`，只有被点名时才启用。规则文件留在本机，不进入公开仓库。第 12 节列出文件位置。第 4 节的流程角色仍然不算已安装。
 
 ## 1. Product Manager（产品经理）
 
@@ -554,19 +556,30 @@ UI、Brand Guardian、Visual Storyteller、Whimsy Injector。
 
 Role definition（角色定义）不是项目业务源码。
 
-本机 Cursor 规则目前能对上文件的有：
+Confirmed Local Rule Roles: 11
+
+1. Product Manager
+2. UX Architect
+3. UI Designer
+4. Backend Architect
+5. Contract Document Editor
+6. Brand Guardian
+7. Visual Storyteller
+8. Whimsy Injector
+9. Image Prompt Engineer
+10. CS Learning Designer
+11. Math Learning Designer
 
 | 规则文件 | 在哪 | 是否进公开仓库 |
 | --- | --- | --- |
+| product-manager、ux-architect、backend-architect | 本项目 `.cursor/rules/` | 否。改编自 The Agency，并加了本项目范围 |
 | ui-designer、brand-guardian、visual-storyteller、whimsy-injector、image-prompt-engineer | 本项目 `.cursor/rules/` | 否 |
 | cs-learning-designer、math-learning-designer | 本项目 `.cursor/rules/` | 否。学习设计角色含改写与项目专用内容 |
 | contract-document-editor | 上一级工作区 `.cursor/rules/` | 否。它服务这一组公开项目，不属于某一个仓库 |
 
-Product Manager、UX Architect、Backend Architect 在协作政策里被当作 Cursor 的专业角色使用。写这份手册时，这台电脑上没有找到它们单独的 `.mdc` 规则文件。所以第 2 节把它们算进已使用的核心角色，第 4 节没有把它们再算进「未安装」。缺的是规则文件，不是「这个职责不存在」。
-
 换电脑时，角色文件不会跟着 GitHub 仓库走。这份手册负责把职责带走。规则文件要另存，不要为了备份把 `.cursor/rules/` 提交进公开仓库。
 
-许可证：cs-learning-designer 的概念来自 Amin Borghei 的仓库，许可证是 Commons Clause + MIT。education-agent-skills 的技能正文是 CC BY-SA 4.0，作者 Gareth Manning。公开文档只写结论和出处，不复制那些 SKILL.md 原文。
+许可证：Product Manager、UX Architect、Backend Architect 以及已安装的设计角色，来自 The Agency（https://github.com/msitarzewski/agency-agents），MIT License，Copyright (c) 2025 AgentLand Contributors。UX Architect 的上游文本还讨论 CSS 基础；在本项目里，颜色、字体和视觉样式仍归 UI Designer，体验路径归 UX Architect。cs-learning-designer 的概念来自 Amin Borghei 的仓库，许可证是 Commons Clause + MIT。education-agent-skills 的技能正文是 CC BY-SA 4.0，作者 Gareth Manning。公开文档只写结论和出处，不复制那些 SKILL.md 原文。
 
 ---
 
