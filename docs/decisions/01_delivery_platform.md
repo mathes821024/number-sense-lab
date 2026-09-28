@@ -177,4 +177,4 @@ H5 / PC Web 是一等客户端，不是退路，也不是另一个产品。它�
 
 Product and learning contracts belong to the core layer; platform APIs belong to adapters.
 
-`docs/product/01_prd.md` 第 18 节仍写首版平台是 Responsive H5。本节不改那份契约。三处措辞如何对齐，留给后续 Gate Review。
+`docs/product/01_prd.md` 第 18 节和第 22 节已按这个解释做了契约对齐：微信小程序是 v0.1 首发，H5 / PC 是一等客户端方向，抖音和支付宝是后续适配方向。上文从「Decision」到原「Status」仍是当时的原文，包括曾经把 H5 / Web 写成后续兼容和后备运行面。历史不改写成仿佛没有先考虑过 H5。
