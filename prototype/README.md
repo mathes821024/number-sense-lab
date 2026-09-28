@@ -13,14 +13,14 @@ Sample questions are prototype-only.
 Product / UX / UI docs remain the contract source.
 
 For a Chinese step-by-step experience and learning guide, see:
-docs/prototype/05_prototype_user_guide.md
+[中文原型体验与学习指南](../docs/prototype/05_prototype_user_guide.md)
 
 ## 怎么打开
 
 在仓库根目录执行：
 
 ```bash
-python3 -m http.server 8765
+python3 -m http.server 8765 --bind 127.0.0.1
 ```
 
 然后打开 `http://127.0.0.1:8765/prototype/`。
