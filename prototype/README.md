@@ -12,6 +12,9 @@ Sample questions are prototype-only.
 
 Product / UX / UI docs remain the contract source.
 
+For a Chinese step-by-step experience and learning guide, see:
+docs/prototype/05_prototype_user_guide.md
+
 ## 怎么打开
 
 在仓库根目录执行：
