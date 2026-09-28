@@ -6,9 +6,9 @@
 
 NOT CONTRACT FREEZE（不是契约冻结）。本文不是 Build Instruction（实施说明），也不选定框架。
 
-它不改写已经在 `main` 上的 Product Contract（产品契约）、UX Contract（体验契约）和 UI Contract（界面契约）。学习反馈方向仍在单独评审中，本文不改那份学习契约。
+本轮为了消除已确认的交付决定与旧 PRD、旧 UX 里的平台表述冲突，对 Product Contract 和 UX Contract 做了平台语义对齐。不改变目标用户、三个训练域、大约 5～10 分钟、掌握原则、学习价值，也不扩大产品范围。UI Contract 未改。学习反馈方向仍在单独评审中，本文不改那份学习契约。
 
-本轮只澄清以后代码应该怎么分层，避免每个平台各写一套学习逻辑。
+本轮同时澄清以后代码应该怎么分层，避免每个平台各写一套学习逻辑。
 
 ---
 
@@ -411,12 +411,20 @@ content/
 
 ---
 
-# What this document does not change
+# What this round changes
 
-## 本文没有改什么
+## 本轮改了什么，没改什么
 
-- 产品契约：未改。
-- 体验契约：未改。
+Product Scope Changed（产品范围改变）：NO
+
+Product Contract Platform Alignment（产品契约的平台语义对齐）：YES
+
+UX Contract Platform Alignment（体验契约的平台语义对齐）：YES
+
+Architecture Direction Added（新增架构方向）：YES
+
+没有改变：目标用户、三个训练域、大约 5～10 分钟、掌握原则、学习价值、产品范围。
+
 - 界面契约：未改。
 - 学习契约：未改。
 - 原型：未改。
