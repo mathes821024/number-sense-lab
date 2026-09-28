@@ -23,6 +23,8 @@ Initial focus:
 
 Product Definition → UX → UI → Technical Design → Contract Freeze → Build → Verify
 
+Delivery direction: WeChat Mini Program first; see [`docs/decisions/01_delivery_platform.md`](docs/decisions/01_delivery_platform.md).
+
 ## Collaboration
 
 GitHub is the source of truth.
