@@ -115,7 +115,17 @@ function boot() {
 
 function demoSaved() {
   const queue = queueFromIds(DAILY_IDS);
-  return { kind: "daily", queue, index: 2, correct: 1, total: 2, familiar: ["12²"] };
+  return {
+    kind: "daily",
+    queue,
+    index: 2,
+    correct: 1,
+    total: 2,
+    familiar: ["12²"],
+    phase: "ask",
+    answer: "",
+    wrongValue: "",
+  };
 }
 
 function allItems() {
@@ -247,6 +257,7 @@ function resumeSession() {
   }
   clearAdvance();
   const saved = store.saved;
+  const phase = saved.phase === "correct" || saved.phase === "wrong" ? saved.phase : "ask";
   session = {
     kind: saved.kind,
     queue: saved.queue,
@@ -254,26 +265,41 @@ function resumeSession() {
     correct: saved.correct,
     total: saved.total,
     familiar: saved.familiar || [],
-    phase: "ask",
-    answer: "",
+    phase,
+    answer: saved.answer || "",
     emptyHint: false,
-    wrongValue: "",
+    wrongValue: saved.wrongValue || "",
   };
   screen = { name: "train" };
   render();
+  if (phase === "correct") scheduleAdvance();
 }
 
-function rememberProgress() {
-  store.homeMode = "paused";
-  store.saved = {
+/* Prototype-only snapshot. Not a data contract or architecture decision. */
+function snapshotSession() {
+  return {
     kind: session.kind,
     queue: session.queue,
     index: session.index,
     correct: session.correct,
     total: session.total,
     familiar: session.familiar,
+    phase: session.phase,
+    answer: session.answer,
+    wrongValue: session.wrongValue,
   };
+}
+
+function rememberProgress() {
+  store.homeMode = "paused";
+  store.saved = snapshotSession();
   persist();
+}
+
+function scheduleAdvance() {
+  const wait = reducedMotion() ? 80 : params.delay;
+  clearAdvance();
+  advanceTimer = setTimeout(advance, wait);
 }
 
 function current() {
@@ -291,6 +317,7 @@ function typeChar(key) {
   if (session.answer.length >= 8) return;
   session.answer += key;
   session.emptyHint = false;
+  rememberProgress();
   render();
 }
 
@@ -298,6 +325,7 @@ function backspace() {
   if (!session || session.phase !== "ask" || !session.answer) return;
   session.answer = session.answer.slice(0, -1);
   session.emptyHint = false;
+  rememberProgress();
   render();
 }
 
@@ -333,9 +361,7 @@ function showCorrect(entry) {
   rememberProgress();
   render();
   if (store.sound) beep();
-  const wait = reducedMotion() ? 80 : params.delay;
-  clearAdvance();
-  advanceTimer = setTimeout(advance, wait);
+  scheduleAdvance();
 }
 
 function showWrong(entry) {
@@ -381,6 +407,7 @@ function openPause() {
   if (!session) return;
   clearAdvance();
   session.pausedFrom = session.phase;
+  rememberProgress();
   screen = { name: "pause" };
   render();
 }
@@ -390,9 +417,7 @@ function closePause() {
   screen = { name: "train" };
   if (session.pausedFrom === "correct") {
     session.phase = "correct";
-    const wait = reducedMotion() ? 80 : params.delay;
-    clearAdvance();
-    advanceTimer = setTimeout(advance, wait);
+    scheduleAdvance();
   }
   render();
 }
@@ -419,14 +444,7 @@ function finish(kind) {
   });
   store.lastResult = result;
   store.homeMode = kind === "done" ? "done" : "paused";
-  store.saved = kind === "done" ? null : {
-    kind: session.kind,
-    queue: session.queue,
-    index: session.index,
-    correct: session.correct,
-    total: session.total,
-    familiar: session.familiar,
-  };
+  store.saved = kind === "done" ? null : snapshotSession();
   persist();
   session = null;
   screen = { name: "end", result };
