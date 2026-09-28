@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数感训练场 · UI1 视觉比较</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; font-family: "Sora", "PingFang SC", sans-serif; background: #ece7df; color: #1c1915; }
+    header { padding: 28px 24px 8px; max-width: 1280px; margin: 0 auto; }
+    h1 { margin: 0; font-size: 28px; letter-spacing: -0.03em; }
+    p { color: #5c564e; }
+    .switch { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 24px 0; max-width: 1280px; margin: 0 auto; }
+    button { border: 0; border-radius: 999px; padding: 10px 14px; font: inherit; background: white; cursor: pointer; }
+    button.on { background: #1c1915; color: white; }
+    .board { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 16px; padding: 20px 24px 40px; max-width: 1280px; margin: 0 auto; }
+    figure { margin: 0; }
+    figcaption { font-size: 13px; margin-bottom: 8px; }
+    iframe { width: 100%; height: 780px; border: 0; border-radius: 28px; background: white; box-shadow: 0 16px 40px rgba(28,25,21,0.08); }
+    @media (max-width: 980px) { .board { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .board { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>三个视觉方向</h1>
+    <p>只比较长相。流程、文案和原型都没有改。请看哪一个让你想点进去，又仍然适合 12～15 岁。</p>
+  </header>
+  <div class="switch" role="tablist">
+    <button class="on" data-opt="option-a">A 澄蓝实验室</button>
+    <button data-opt="option-b">B 暖数方块</button>
+    <button data-opt="option-c">C 数感工作室</button>
+  </div>
+  <div class="board" id="board"></div>
+  <script>
+    const screens = [
+      ["home.html", "首页"],
+      ["training.html", "做题"],
+      ["wrong.html", "答错"],
+      ["end.html", "练完"]
+    ];
+    const board = document.getElementById("board");
+    function show(opt) {
+      board.innerHTML = screens.map(([file, name]) =>
+        `<figure><figcaption>${name}</figcaption><iframe title="${name}" src="${opt}/${file}"></iframe></figure>`
+      ).join("");
+      document.querySelectorAll(".switch button").forEach((b) => b.classList.toggle("on", b.dataset.opt === opt));
+    }
+    document.querySelector(".switch").addEventListener("click", (e) => {
+      const opt = e.target.dataset && e.target.dataset.opt;
+      if (opt) show(opt);
+    });
+    show("option-a");
+  </script>
+</body>
+</html>
