@@ -4,6 +4,8 @@
 
 本文不是 Contract Freeze，不是 Technical Architecture，也不是 Build Instruction。它不改写已经通过的 Product Contract 和 UX Contract。
 
+2026-09-28 补充：从「Decision」到文末原有的「Status」保持这次交付决定的原文。原文之后的「Updated Interpretation」只补充后来的解释，不擦掉「微信小程序优先」。完整分层见 `docs/architecture/00_multi_client_direction.md`。那份文件是架构方向，不是契约冻结。
+
 # Decision
 
 v0.1 首发实现：WeChat Mini Program First（微信小程序优先）。
@@ -147,3 +149,32 @@ Technical Architect 之后需要考虑：
 它不是 Contract Freeze。
 它不是 Technical Architecture。
 它不是 Build Instruction。
+
+# Updated Interpretation
+
+日期：2026-09-28。
+
+这一节是对上文的解释，不是替换。上文「微信小程序优先」和「不因为小程序提前增加登录、后端或云同步」仍然有效。上文把 Responsive H5 / Web 写成后续兼容和后备运行面，那是当时的原文，保留不删。
+
+更新后的解释：
+
+WeChat Mini Program First does NOT mean WeChat Mini Program Only.
+
+微信小程序优先，不等于只有微信小程序。
+
+H5 / PC Web 是一等客户端，不是退路，也不是另一个产品。它和微信小程序使用同一套学习核心。电脑端更适合键盘、大屏、打印、家长或老师在旁边看，以及以后的关系可视化。小程序更适合随手打开和每天练习。
+
+以后的支持方向是：
+
+- WeChat Mini Program（微信小程序）
+- Douyin Mini Program（抖音小程序）
+- Alipay Mini Program（支付宝小程序）
+- H5 / PC Web（H5 / PC 浏览器端）
+
+抖音和支付宝本轮不进入实现。H5 / PC 的架构地位提升，也不表示本轮开始写生产代码。
+
+产品契约和学习契约属于核心层，平台 API 属于适配层。
+
+Product and learning contracts belong to the core layer; platform APIs belong to adapters.
+
+`docs/product/01_prd.md` 第 18 节和第 22 节已按这个解释做了契约对齐：微信小程序是 v0.1 首发，H5 / PC 是一等客户端方向，抖音和支付宝是后续适配方向。上文从「Decision」到原「Status」仍是当时的原文，包括曾经把 H5 / Web 写成后续兼容和后备运行面。历史不改写成仿佛没有先考虑过 H5。
