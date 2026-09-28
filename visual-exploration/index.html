@@ -3,54 +3,62 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>数感训练场 · UI1 视觉比较</title>
+  <title>数感训练场 · A+ 澄蓝数学实验室</title>
   <style>
     :root { color-scheme: light; }
-    body { margin: 0; font-family: "Sora", "PingFang SC", sans-serif; background: #ece7df; color: #1c1915; }
-    header { padding: 28px 24px 8px; max-width: 1280px; margin: 0 auto; }
+    body { margin: 0; font-family: "Sora", "PingFang SC", sans-serif; background: #e7f6f4; color: #102033; }
+    header { padding: 28px 24px 8px; max-width: 1400px; margin: 0 auto; }
     h1 { margin: 0; font-size: 28px; letter-spacing: -0.03em; }
-    p { color: #5c564e; }
-    .switch { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 24px 0; max-width: 1280px; margin: 0 auto; }
+    p { color: #4d6474; }
+    a { color: #0c7c86; }
+    .switch { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 24px 0; max-width: 1400px; margin: 0 auto; }
     button { border: 0; border-radius: 999px; padding: 10px 14px; font: inherit; background: white; cursor: pointer; }
-    button.on { background: #1c1915; color: white; }
-    .board { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 16px; padding: 20px 24px 40px; max-width: 1280px; margin: 0 auto; }
+    button.on { background: #0c7c86; color: white; }
+    .board { display: grid; grid-template-columns: repeat(4, minmax(240px, 1fr)); gap: 16px; padding: 20px 24px 48px; max-width: 1400px; margin: 0 auto; }
     figure { margin: 0; }
     figcaption { font-size: 13px; margin-bottom: 8px; }
-    iframe { width: 100%; height: 780px; border: 0; border-radius: 28px; background: white; box-shadow: 0 16px 40px rgba(28,25,21,0.08); }
-    @media (max-width: 980px) { .board { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 640px) { .board { grid-template-columns: 1fr; } }
+    iframe { width: 100%; height: 860px; border: 0; border-radius: 28px; background: #e7f6f4; box-shadow: 0 16px 40px rgba(16, 32, 51, 0.08); }
+    @media (max-width: 1100px) { .board { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px) { .board { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <header>
-    <h1>三个视觉方向</h1>
-    <p>只比较长相。流程、文案和原型都没有改。请看哪一个让你想点进去，又仍然适合 12～15 岁。</p>
+    <h1>A+ 澄蓝数学实验室</h1>
+    <p>Owner 选定的方向。首页负责想进去，做题页负责静下来。整数题没有小数点，分数题才有。流程和原型都没改。<a href="archive.html">上一轮 A/B/C</a></p>
   </header>
   <div class="switch" role="tablist">
-    <button class="on" data-opt="option-a">A 澄蓝实验室</button>
-    <button data-opt="option-b">B 暖数方块</button>
-    <button data-opt="option-c">C 数感工作室</button>
+    <button class="on" data-set="core">训练六屏</button>
+    <button data-set="more">进度与打印</button>
   </div>
   <div class="board" id="board"></div>
   <script>
-    const screens = [
-      ["home.html", "首页"],
-      ["training.html", "做题"],
-      ["wrong.html", "答错"],
-      ["end.html", "练完"]
-    ];
+    const sets = {
+      core: [
+        ["home.html", "首页"],
+        ["integer.html", "整数题"],
+        ["decimal.html", "分数到小数"],
+        ["correct.html", "做对"],
+        ["wrong.html", "答错"],
+        ["end.html", "练完"]
+      ],
+      more: [
+        ["progress.html", "进度"],
+        ["print.html", "打印"]
+      ]
+    };
     const board = document.getElementById("board");
-    function show(opt) {
-      board.innerHTML = screens.map(([file, name]) =>
-        `<figure><figcaption>${name}</figcaption><iframe title="${name}" src="${opt}/${file}"></iframe></figure>`
+    function show(name) {
+      board.innerHTML = sets[name].map(([file, label]) =>
+        `<figure><figcaption>${label}</figcaption><iframe title="${label}" src="a-plus/${file}"></iframe></figure>`
       ).join("");
-      document.querySelectorAll(".switch button").forEach((b) => b.classList.toggle("on", b.dataset.opt === opt));
+      document.querySelectorAll(".switch button").forEach((b) => b.classList.toggle("on", b.dataset.set === name));
     }
     document.querySelector(".switch").addEventListener("click", (e) => {
-      const opt = e.target.dataset && e.target.dataset.opt;
-      if (opt) show(opt);
+      const name = e.target.dataset && e.target.dataset.set;
+      if (name) show(name);
     });
-    show("option-a");
+    show("core");
   </script>
 </body>
 </html>

@@ -196,11 +196,7 @@ Owner 看比较页时可以回答：
 - 哪一个在真正做题时仍然安静？
 - 哪一个以后能认出是数感训练场？
 
-尚未决定，因此也不写入 UI0 正文：
-
-- 最终采用 A、B、C，还是 A 的首页加 C 的做题页这类混合。混合可以以后再提，本轮先看三个完整方向。
-- 主视觉里的示例数字是否固定为 `15²`，或只是示意。
-- 打印页是否跟随所选方向的颜色，或一律收成黑白细线。
+这些问题已由第 10 节的 Owner 决定回答：主方向是 A，并深化为 A+。主视觉里的 `15² → 225` 是示意，不是题库。打印页沿用同一套青绿，纸上只有题目。UI0 正文仍不在本轮改写。
 
 # 9. DESIGN_RECOMMENDATION
 
@@ -212,9 +208,39 @@ Owner 看比较页时可以回答：
 
 若 A 的青绿让 Owner 觉得冷，B 是更暖的备选，但要接受「必须继续压住幼稚」这个成本。C 适合作为做题页的冷静参照，不建议单独作为整个产品的下一版长相，除非 Owner 认为吸引力已经够了、只是要更有气质。
 
-这不是最终选择。Owner 选定后，才进入原型视觉改版。未选定前不改 `prototype/`，不合并 PR #6。
+这不是当时的最终选择。Owner 随后做了人类视觉评审，决定见下一节。未选定前不改 `prototype/`，不合并 PR #6。这一句仍然有效：A+ 也还不改原型。
 
-# 10. Cross-media Design Capability
+# 10. OWNER_VISUAL_DECISION
+
+`OWNER_VISUAL_DECISION`
+
+Selected: Option A 澄蓝实验室
+
+Refinement: A+ Math Lab / 澄蓝数学实验室
+
+Reason: Owner human visual review。A 最成熟，适合初中，数学身份更清楚，有吸引力，也不会变幼稚，并且能往数学可视化长。Owner 希望再多一点科技感和空间感。这里的科技感是数学几何、浅层空间和可控的光，不是深色大屏或霓虹。
+
+长期原则：首页负责「让我想进去」，做题页负责「让我静下来」。
+
+Borrowed selectively:
+
+- B：按下时 1–2px 的厚度。不借暖色教具，也不借幼儿感。
+- C：标题层级和留白。不把 A 做成编辑海报。
+
+Rejected as main directions:
+
+- B 暖数方块。整体偏幼稚，不作为 12～15 岁主品牌。
+- C 数感工作室。排版克制，但作为每天训练的产品，情绪和视觉资产太少。C 更适合以后的数学文章、PPT、知识卡片。
+
+B 和 C 的页面与 `DESIGN.md` 不删除，留在 `visual-exploration/option-b/`、`visual-exploration/option-c/` 和 `visual-exploration/archive.html`，作为这轮证据。
+
+A+ 补上了分数到小数的键盘。整数题 `15² = ?` 仍然没有小数点。`3/4 = ?` 才出现「.」，并且和整数题的 0、删除、提交对齐，避免键盘跳动。
+
+Three.js：只保留视觉语言，方便以后从 SVG 走到 Canvas，再走到 WebGL。本轮不写 Three.js，也不把它当成架构决定。
+
+选定候选写在 `design/selected/DESIGN.md`。它还不是 Contract Freeze。
+
+# 11. Cross-media Design Capability
 
 这次补上的角色不只服务当前界面。以后按任务调用，不必每次七个角色一起上。
 
@@ -231,16 +257,23 @@ Owner 看比较页时可以回答：
 
 本文件只记录这套能力。不在这里设计课件、海报或视频。
 
-# 11. Files in this round
+# 12. Files in this round
 
-- `docs/ui/04_visual_direction.md`
+探索证据：
+
 - `design/option-a/DESIGN.md`
 - `design/option-b/DESIGN.md`
 - `design/option-c/DESIGN.md`
-- `visual-exploration/index.html`
 - `visual-exploration/option-a/`
 - `visual-exploration/option-b/`
 - `visual-exploration/option-c/`
+- `visual-exploration/archive.html`
+
+A+：
+
+- `design/selected/DESIGN.md`
+- `visual-exploration/index.html`
+- `visual-exploration/a-plus/`
 
 角色规则装在本机 `.cursor/rules/`，不进入公开仓库。
 
