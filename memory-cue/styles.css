@@ -27,7 +27,7 @@ body {
     var(--bg);
   background-size: auto, auto, 28px 28px, 28px 28px, auto;
 }
-.stage { width: min(100%, 440px); margin: 0 auto; padding: 22px 20px 24px; }
+.stage { width: min(100%, 440px); margin: 0 auto; padding: 16px 20px 12px; }
 .kicker {
   margin: 0 0 8px;
   font-size: 11px;
@@ -47,9 +47,9 @@ h1 {
 .lede { margin: 10px 0 0; color: var(--soft); font-size: 15px; line-height: 1.5; }
 .hero {
   position: relative;
-  margin-top: 22px;
+  margin-top: 14px;
   overflow: hidden;
-  min-height: 200px;
+  min-height: 168px;
   border-radius: 28px;
   color: white;
   background:
@@ -237,7 +237,7 @@ h1 {
   .cube { animation: none; }
 }
 .banner {
-  margin: 0 0 14px;
+  margin: 0 0 6px;
   font-size: 12px;
   line-height: 1.45;
   color: var(--notice);
