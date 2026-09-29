@@ -3,9 +3,11 @@
  * - storage key stays `nsl-v01-state`
  * - learner_id is created here (crypto.randomUUID with fallbacks) and handed to Core
  * - migration v1 → v2 → v3 runs in Core; written back only after it succeeds
- * - unreadable JSON / unknown version / failed migration: the original text is
- *   never overwritten by the read. If the learner later saves, the original is
- *   first copied to `<key>.unreadable` (once) so it is still recoverable.
+ * - unreadable JSON / unknown version / failed migration: the stored learning
+ *   record is never overwritten. read() hands back a temporary empty v3 and the
+ *   store instance becomes write-protected: later write()/clear() calls leave
+ *   the primary key untouched (write() returns false), so the original record
+ *   stays exactly as it was. The app keeps working in memory only.
  */
 import { upgradeState, MigrationError } from "../core/migrate.js";
 import { emptyState } from "../core/store.js";
@@ -48,23 +50,27 @@ export function localDay(date = new Date()) {
 export function createBrowserStore(storage = globalThis.localStorage, key = KEY, deps = {}) {
   const createId = deps.createId || (() => createLearnerId());
   const today = deps.today || (() => localDay());
-  const backupKey = `${key}.unreadable`;
-  /** Raw text we could not read; kept so a later save cannot erase it. */
-  let unreadableRaw = null;
+  /**
+   * Set when read() could not use what is stored. From then on this instance
+   * never replaces or removes the primary key.
+   */
+  let writeProtected = false;
 
   const store = {
     key,
-    backupKey,
     /** "unreadable" | "unknown-version" | "migration-failed" | null */
     lastReadProblem: null,
+    /** True once read() hit a record it must not overwrite. */
+    get writeProtected() {
+      return writeProtected;
+    },
     read() {
       store.lastReadProblem = null;
       let raw = null;
       try {
         raw = storage.getItem(key);
       } catch {
-        store.lastReadProblem = "unreadable";
-        return emptyState({ learnerId: createId(), createdOn: today() });
+        return failRead("unreadable");
       }
       if (raw === null || raw === undefined || raw === "") {
         // New device: write v3 directly, with its one learner_id.
@@ -76,7 +82,7 @@ export function createBrowserStore(storage = globalThis.localStorage, key = KEY,
       try {
         parsed = JSON.parse(raw);
       } catch {
-        return failRead(raw, "unreadable");
+        return failRead("unreadable");
       }
       try {
         const result = upgradeState(parsed, { createLearnerId: createId, today: today() });
@@ -87,30 +93,27 @@ export function createBrowserStore(storage = globalThis.localStorage, key = KEY,
           error instanceof MigrationError && /unknown version/.test(error.message)
             ? "unknown-version"
             : "migration-failed";
-        return failRead(raw, reason);
+        return failRead(reason);
       }
     },
+    /** @returns {boolean} true if saved; false if refused (write-protected). */
     write(state) {
-      if (unreadableRaw !== null) {
-        try {
-          if (storage.getItem(backupKey) === null) storage.setItem(backupKey, unreadableRaw);
-        } catch {
-          // If we cannot keep the original, do not overwrite it either.
-          return;
-        }
-        unreadableRaw = null;
-      }
+      if (writeProtected) return false;
       storage.setItem(key, JSON.stringify(state));
+      return true;
     },
+    /** @returns {boolean} true if removed; false if refused (write-protected). */
     clear() {
+      if (writeProtected) return false;
       storage.removeItem(key);
+      return true;
     },
   };
 
-  function failRead(raw, reason) {
-    unreadableRaw = raw;
+  function failRead(reason) {
+    writeProtected = true;
     store.lastReadProblem = reason;
-    // Same failure mode as before: hand back an empty record, write nothing.
+    // Hand back a temporary empty record; the stored one is left untouched.
     return emptyState({ learnerId: createId(), createdOn: today() });
   }
 

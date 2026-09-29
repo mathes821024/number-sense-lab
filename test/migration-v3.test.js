@@ -159,15 +159,16 @@ test("adapter: v2 in storage → v3, then write/read keeps the learner and histo
   assert.equal(getActiveLearner(back).relations["product-13-7"].attempts.length, 3);
 });
 
-test("adapter: bad JSON is not overwritten by read; a later save keeps a copy first", () => {
+test("adapter: bad JSON is not overwritten by read, nor by a later save", () => {
   const storage = memoryStorage([[KEY, "{not-json"]]);
   const store = createBrowserStore(storage, KEY, { createId: () => "tmp" });
   const loaded = store.read();
   assert.equal(loaded.version, 3);
   assert.equal(store.lastReadProblem, "unreadable");
   assert.equal(storage.raw(KEY), "{not-json", "read never overwrites");
-  store.write(loaded);
-  assert.equal(storage.raw(store.backupKey), "{not-json", "original preserved before any save");
+  assert.equal(store.write(loaded), false, "write refused");
+  assert.equal(storage.raw(KEY), "{not-json", "save never overwrites either");
+  assert.deepEqual(storage.keys(), [KEY], "no second key");
 });
 
 test("adapter: unknown future version is not overwritten", () => {
