@@ -78,7 +78,7 @@ learner_id  ↔  wechat openid | douyin openid | alipay user id
 | 已恢复 | 是历史错题，且 `status` 为 `stable` |
 | 不是错题 | 没有答错记录。含未练，以及只有答对的 `learning` |
 
-空提交不成行，因此也不会进入错题。这沿用现有判题，不另加条件。
+空提交不成行，因此也不会进入错题。值对但还没约成最简同样不成行：不追加 `attempts`，不改 `status`，不改 `schedule`。只有 `correct` 和 `incorrect` 写入作答。这沿用现有判题边界，不另造错题状态。
 
 当前错题的打印列表使用上面的谓词，顺序与现有 `listUnstableIds` 的目录顺序一致。`listUnstableIds` 本身不改，原来的 A4 仍是 `learning` 与 `shaky`，不论有没有答错过。
 
