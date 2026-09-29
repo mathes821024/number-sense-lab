@@ -27,6 +27,7 @@ import { buildA4Sheet } from "../src/core/a4.js";
 import { createBrowserStore } from "../src/adapter/browser-store.js";
 import { createCue } from "./sound.js";
 import { formatMath } from "./math-text.js";
+import { playScreen, pressControl } from "./motion-ui.js";
 
 const DOMAIN_ICONS = {
   squares: "square",
@@ -108,7 +109,7 @@ function formatDay(iso) {
   return `${Number(m)}月${Number(d)}日`;
 }
 
-function render() {
+function render(intent = "enter") {
   if (screenName === "home") app.innerHTML = renderHome();
   else if (screenName === "focus-confirm") app.innerHTML = renderFocusConfirm();
   else if (screenName === "train") app.innerHTML = renderTrain();
@@ -120,6 +121,7 @@ function render() {
   else if (screenName === "a4") app.innerHTML = renderA4();
   else app.innerHTML = renderHome();
   bind();
+  playScreen(screenName, intent);
 }
 
 function renderHome() {
@@ -187,9 +189,9 @@ function renderHome() {
 function renderFocusConfirm() {
   const items = filterByDomain(focusedDomain, catalog);
   const summary = summarizeDomain(items, state.relations);
-  return `<section class="screen">
+  return `<section class="screen" id="focus">
     <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
-    <h1 class="title" style="margin-top:24px">${domainLabel(focusedDomain)}</h1>
+    <h1 class="title">${domainLabel(focusedDomain)}</h1>
     <p class="lede">只练这一块，同样是一小段，不是一直刷。</p>
     <p class="body">${summary}</p>
     <button class="cta" type="button" data-action="start-focus">开始这一小段</button>
@@ -219,7 +221,7 @@ function renderTrain() {
       ${[1,2,3,4,5,6,7,8,9].map((n) => `<button class="key" type="button" data-digit="${n}">${n}</button>`).join("")}
       ${dotKey}
       <button class="key" type="button" data-digit="0">0</button>
-      <button class="key" type="button" data-action="del" style="font-size:15px">删除</button>
+      <button class="key" type="button" data-action="del">删除</button>
       <button class="key go" type="button" data-action="submit">提交</button>
     </div>
   </section>`;
@@ -248,7 +250,7 @@ function renderWrong() {
       <p class="see">○ 看这里</p>
       <div class="pattern" ${expandedPattern ? "" : "hidden"}>
         <p class="check">${formatMath(pattern.check || "")}</p>
-        <p class="family">${(pattern.family || []).map((l) => `<b>${formatMath(l)}</b>`).join("<br>")}</p>
+        <p class="family">${(pattern.family || []).map((l) => `<b class="kin">${formatMath(l)}</b>`).join("")}</p>
       </div>
       <div class="frames" ${expandedFrames ? "" : "hidden"}>
         ${frames
@@ -337,11 +339,11 @@ function renderProgress() {
           })
           .join("")}</ul>`;
 
-  return `<section class="screen">
+  return `<section class="screen" id="progress">
     <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
-    <h1 class="title" style="margin-top:20px">最近练得怎么样</h1>
+    <h1 class="title">最近练得怎么样</h1>
     ${history}
-    <p class="body" style="margin-top:24px">还要再见到的</p>
+    <p class="section-kicker">还要再见到的</p>
     ${unstableList}
     <p class="fine">有一些已经很稳：${stableCount} 条。</p>
     <div class="links">
@@ -357,9 +359,9 @@ function renderA4() {
   });
 
   if (sheet.empty) {
-    return `<section class="screen no-print">
+    return `<section class="screen no-print" id="a4">
       <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
-      <h1 class="title" style="margin-top:20px">印到纸上</h1>
+      <h1 class="title">印到纸上</h1>
       <p class="lede">${sheet.emptyMessage}</p>
       <button class="cta" type="button" data-action="home">先练一小段</button>
     </section>`;
@@ -396,10 +398,10 @@ function renderA4() {
         .join("")}</ol>
     </div>`;
 
-  return `<section class="screen">
+  return `<section class="screen" id="a4">
     <div class="no-print">
       <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
-      <h1 class="title" style="margin-top:20px">印到纸上</h1>
+      <h1 class="title">印到纸上</h1>
       <p class="lede">${showAnswers ? "这一页只有答案。写完题目再看。" : sheet.subtitle}</p>
       <div class="filters" role="group" aria-label="打印范围">${filters}</div>
     </div>
@@ -524,6 +526,7 @@ function onAction(event) {
   }
   if (action === "del") {
     inputModes.add("onscreen_keypad");
+    pressControl(event.currentTarget);
     answer = answer.slice(0, -1);
     syncAnswer();
     return;
@@ -535,12 +538,12 @@ function onAction(event) {
   }
   if (action === "expand-pattern") {
     expandedPattern = true;
-    render();
+    render("pattern");
     return;
   }
   if (action === "expand-frames") {
     expandedFrames = true;
-    render();
+    render("frames");
     return;
   }
 }
@@ -548,6 +551,7 @@ function onAction(event) {
 function onDigit(event) {
   const digit = event.currentTarget.getAttribute("data-digit");
   inputModes.add("onscreen_keypad");
+  pressControl(event.currentTarget);
   appendDigit(digit);
 }
 
@@ -569,9 +573,6 @@ function syncAnswer() {
   const el = document.getElementById("answer");
   if (el) {
     el.textContent = answer;
-    el.classList.remove("tick");
-    void el.offsetWidth;
-    el.classList.add("tick");
   }
   const nudge = document.getElementById("nudge");
   if (nudge) nudge.textContent = "";

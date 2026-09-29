@@ -11,6 +11,7 @@
     "check": "node --test test/*.test.js"
   },
   "dependencies": {
-    "@phosphor-icons/web": "^2.1.2"
+    "@phosphor-icons/web": "^2.1.2",
+    "motion": "^13.4.5"
   }
 }
