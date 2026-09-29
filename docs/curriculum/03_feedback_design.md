@@ -121,7 +121,7 @@ v0.1 的 75 条关系中没有使用人工口诀（Rhythm / Verbal Cue）。它�
 
 **Spaced Practice（间隔练习）【研究】**：Cepeda 等（2006）综合 254 项研究，分散练习稳定优于集中练习。对应产品的「稳定必须跨天」「答对一次不算掌握」。注意：**Content Tier ≠ Review Interval**——内容的 tier 只表示进入顺序与初始教学建议，复习间隔应由运行时根据学生表现动态决定，不由内容层冻结。
 
-**Interleaving（交错练习）【研究】**：Rohrer & Taylor（2007）最早在数学练习中验证交错优于分块；Rohrer、Dedrick & Hartwig（2020）的随机课堂实验进一步显示，一个月后未预告测试中交错组 61% 对分块组 38%。对应今日训练三域混抽，而不是一次只刷一个域。
+**Interleaving（交错练习）【研究】**：Rohrer & Taylor（2007）最早在数学练习中验证交错优于分块；Rohrer、Dedrick、Hartwig 与 Cheung（2020）的大型随机课堂对照实验进一步显示，一个月后未预告测试中交错组 61% 对分块组 38%（效应量 d = 0.83）。对应今日训练三域混抽，而不是一次只刷一个域。
 
 **Desirable Difficulties（合意困难）【研究】**：Bjork & Bjork（2011）——提取时略感吃力的条件产生更持久的记忆。对应「错题隔开若干题再出现，而不是紧接着连打」。
 
@@ -149,7 +149,7 @@ v0.1 的 75 条关系中没有使用人工口诀（Rhythm / Verbal Cue）。它�
 - Karpicke, J. D., & Roediger, H. L. (2008). The critical importance of retrieval for learning. *Science*, 319(5865), 966–968.
 - Cepeda, N. J., et al. (2006). Distributed practice in verbal recall tasks. *Psychological Bulletin*, 132(3), 354–380.
 - Rohrer, D., & Taylor, K. (2007). The shuffling of mathematics problems improves learning. *Instructional Science*, 35, 481–498.
-- Rohrer, D., Dedrick, R. F., & Hartwig, M. K. (2020). The scarcity of interleaved practice in mathematics textbooks. *Educational Psychology Review*, 32, 873–883.
+- Rohrer, D., Dedrick, R. F., Hartwig, M. K., & Cheung, C.-N. (2020). A randomized controlled trial of interleaved mathematics practice. *Journal of Educational Psychology*, 112(1), 40–52.
 - Dunlosky, J., et al. (2013). Improving students' learning with effective learning techniques. *Psychological Science in the Public Interest*, 14(1), 4–58.
 - Bjork, E. L., & Bjork, R. A. (2011). Making things hard on yourself, but in a good way: Creating desirable difficulties.
 

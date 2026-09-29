@@ -101,8 +101,7 @@ FIX 2 学生版 Hook 审计：共修订 6 条（8²、12²、13²、14²、16²�
 
 # 9. Decisions & Remaining Actions
 
-**Q1｜平方范围：RESOLVED（已批准）。** Squares Core Recall = 6²–20² + 25²；Knowledge Map = 1²–100²。
-⚠️ 遗留动作（Content Freeze 前）：对 PRD 做一次小型对齐修订——默认平方范围 6²–20² → 6²–20² + 25²。属产品契约修订，需 Owner 授权后由文档流程执行，不在本次内容交付范围内。
+**Q1｜平方范围：RESOLVED（已批准并完成对齐）。** Squares Core Recall = 6²–20² + 25²；Knowledge Map = 1²–100²。PRD 对齐修订已完成（CONTENT FREEZE FINAL ALIGNMENT，2026-09-29）：`docs/product/01_prd.md` 第 9 节默认平方范围已更新为「6² 到 20²，外加 25²」，待验证问题 6 同步更新；未改动 PRD 其他任何内容。
 
 **Q2｜答案等价形式：RESOLVED（已批准）。** 按数学等价值判题，统一 normalization，展示 canonical_answer；不逐条枚举 accepted forms。已写入 01 第 7 节接口表。
 
