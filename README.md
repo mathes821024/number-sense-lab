@@ -10,7 +10,7 @@ Runnable local-first H5 / PC client with Core Learning Engine:
 - Daily practice interleaves squares, products, and fraction-to-decimal. Focused practice stays in one domain.
 - A4 preview shows prompts or answers, never both. Printing uses A4 pages; a long list continues on the next page.
 - Judging, mastery, wrong-item reappear, and progress stay local to this browser.
-- Practice plays a short cue when sound is on. Home has a sound switch, saved on this device. Screen changes are brief, and reduced-motion settings turn them off.
+- Practice plays a short cue when sound is on. Home has a sound switch, saved on this device. Motion shows a relation being built (the wrong-answer steps, then its family). Presses and screen changes stay short. Reduced motion turns every animation off, and none of them delay the next question.
 - Every screen uses the same quiet paper layout: hairline rows, a deep teal primary button, and no answer preview on the home page. v0.1.1 only tightens type and whitespace so the relation stays in front.
 - Fractions the student sees use a horizontal bar, as in a textbook. Stored prompts stay `1/2`, and answers are still decimals.
 - No backend, no login, no cloud sync

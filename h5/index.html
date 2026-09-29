@@ -7,6 +7,20 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/node_modules/@phosphor-icons/web/src/regular/style.css">
   <link rel="stylesheet" href="./styles.css">
+  <script>
+    /* Motion's browser ESM still reads process.env. This page has no bundler. */
+    globalThis.process = { env: { NODE_ENV: "production" } };
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "motion": "/node_modules/motion/dist/es/index.mjs",
+        "framer-motion/dom": "/node_modules/framer-motion/dist/es/dom.mjs",
+        "motion-dom": "/node_modules/motion-dom/dist/es/index.mjs",
+        "motion-utils": "/node_modules/motion-utils/dist/es/index.mjs"
+      }
+    }
+  </script>
 </head>
 <body>
   <main class="stage" id="app">

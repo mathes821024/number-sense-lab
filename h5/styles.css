@@ -38,28 +38,7 @@ body {
   .stage { padding: 32px 24px 40px; }
 }
 
-.screen { animation: rise .32s cubic-bezier(0.16, 1, 0.3, 1); }
-.question { animation: rise .36s cubic-bezier(0.16, 1, 0.3, 1); }
-#correct .ok { animation: pop .38s cubic-bezier(0.16, 1, 0.3, 1); }
-#wrong .panel { animation: rise .32s cubic-bezier(0.16, 1, 0.3, 1); }
-.answer.tick { animation: tick .14s ease; }
 .key { transition: transform .12s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes rise {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes pop {
-  from { opacity: 0; transform: scale(0.72); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes tick {
-  from { transform: scale(0.96); }
-  to { transform: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .screen, .question, #correct .ok, #wrong .panel, .answer.tick { animation: none; }
-  .key { transition: none; }
-}
 
 .kicker {
   margin: 0 0 8px;
@@ -522,7 +501,16 @@ button:focus-visible {
 .more:hover { border-color: var(--teal); }
 .pattern, .frames { margin-top: 12px; }
 .pattern .check { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink); }
-.pattern .family { margin: 8px 0 0; font-size: 14px; line-height: 1.6; color: var(--soft); }
+.pattern .family {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.pattern .kin { font-weight: 700; }
 .frame {
   display: flex;
   gap: 12px;
@@ -538,7 +526,7 @@ button:focus-visible {
   display: inline-flex; align-items: center; justify-content: center;
   background: transparent; color: var(--teal); font-size: 14px; font-weight: 700; flex: none;
 }
-.frame b { display: block; font-size: 14px; }
+.frame b { display: block; font-size: 22px; font-weight: 700; letter-spacing: 0; }
 .frame span { display: block; font-size: 13px; color: var(--soft); margin-top: 2px; }
 
 .ok {
