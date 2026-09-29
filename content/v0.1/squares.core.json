@@ -1,0 +1,526 @@
+{
+  "domain": "squares",
+  "version": "0.1.0",
+  "relations": [
+    {
+      "id": "square-6",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "retrieval_anchor",
+      "prompt": "6² = ?",
+      "canonical_answer": "36",
+      "answer_type": "integer",
+      "relation": "6² = 36",
+      "hook": "六六三十六，小九九里的老朋友。",
+      "pattern": {
+        "check": "36 在 25（5²）和 49（7²）之间。",
+        "family": [
+          "7² = 49",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "6 × 6",
+          "detail": "小九九里的六六三十六"
+        },
+        {
+          "title": "36",
+          "detail": "6² = 36"
+        }
+      ]
+    },
+    {
+      "id": "square-7",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "retrieval_anchor",
+      "prompt": "7² = ?",
+      "canonical_answer": "49",
+      "answer_type": "integer",
+      "relation": "7² = 49",
+      "hook": "七七四十九，小九九里的老朋友。",
+      "pattern": {
+        "check": "49 在 36（6²）和 64（8²）之间。",
+        "family": [
+          "6² = 36",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "7 × 7",
+          "detail": "小九九里的七七四十九"
+        },
+        {
+          "title": "49",
+          "detail": "7² = 49"
+        }
+      ]
+    },
+    {
+      "id": "square-8",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "relation_network",
+      "prompt": "8² = ?",
+      "canonical_answer": "64",
+      "answer_type": "integer",
+      "relation": "8² = 64",
+      "hook": "八八六十四；64 还是 2 连乘 6 次（2⁶）。",
+      "pattern": {
+        "check": "64 在 49（7²）和 81（9²）之间。",
+        "family": [
+          "2⁶ = 64",
+          "16² = 256"
+        ]
+      },
+      "frames": [
+        {
+          "title": "8 × 8",
+          "detail": "八八六十四"
+        },
+        {
+          "title": "64 = 2⁶",
+          "detail": "2 连乘 6 次也是 64"
+        },
+        {
+          "title": "64",
+          "detail": "8² = 64"
+        }
+      ]
+    },
+    {
+      "id": "square-9",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "retrieval_anchor",
+      "prompt": "9² = ?",
+      "canonical_answer": "81",
+      "answer_type": "integer",
+      "relation": "9² = 81",
+      "hook": "九九八十一，小九九里的老朋友。",
+      "pattern": {
+        "check": "81 在 64（8²）和 100（10²）之间。",
+        "family": [
+          "8² = 64",
+          "10² = 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "9 × 9",
+          "detail": "小九九里的九九八十一"
+        },
+        {
+          "title": "81",
+          "detail": "9² = 81"
+        }
+      ]
+    },
+    {
+      "id": "square-10",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "10² = ?",
+      "canonical_answer": "100",
+      "answer_type": "integer",
+      "relation": "10² = 100",
+      "hook": "整十平方：1 后面接两个 0。",
+      "pattern": {
+        "check": "整十的平方一定是整百。",
+        "family": [
+          "20² = 400",
+          "30² = 900"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1² = 1",
+          "detail": "先算十位的平方"
+        },
+        {
+          "title": "1 | 00",
+          "detail": "后面接两个 0"
+        },
+        {
+          "title": "100",
+          "detail": "10² = 100"
+        }
+      ]
+    },
+    {
+      "id": "square-11",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "11² = ?",
+      "canonical_answer": "121",
+      "answer_type": "integer",
+      "relation": "11² = 121",
+      "hook": "(10+1)² = 100 + 20 + 1 = 121。",
+      "pattern": {
+        "check": "离 10 很近的数，借 10² 来算。",
+        "family": [
+          "12² = 144",
+          "21² = 441"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10² = 100",
+          "detail": "先借整十"
+        },
+        {
+          "title": "+20 +1",
+          "detail": "加上 2×10×1 和 1²"
+        },
+        {
+          "title": "121",
+          "detail": "11² = 121"
+        }
+      ]
+    },
+    {
+      "id": "square-12",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "retrieval_anchor",
+      "prompt": "12² = ?",
+      "canonical_answer": "144",
+      "answer_type": "integer",
+      "relation": "12² = 144",
+      "hook": "144 是「一打的平方」，初中极高频，直接记住。",
+      "pattern": {
+        "check": "144 在 121（11²）和 169（13²）之间。",
+        "family": [
+          "11² = 121",
+          "13² = 169"
+        ]
+      },
+      "frames": [
+        {
+          "title": "12 × 12",
+          "detail": "一打的平方"
+        },
+        {
+          "title": "144",
+          "detail": "12² = 144"
+        }
+      ]
+    },
+    {
+      "id": "square-13",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "reasonableness",
+      "prompt": "13² = ?",
+      "canonical_answer": "169",
+      "answer_type": "integer",
+      "relation": "13² = 169",
+      "hook": "169 和 196 是一对易混兄弟：13²=169，14²=196。",
+      "pattern": {
+        "check": "169 < 196。尾数 3²=9，所以 13² 个位是 9。",
+        "family": [
+          "14² = 196",
+          "12² = 144"
+        ]
+      },
+      "frames": [
+        {
+          "title": "13 × 13",
+          "detail": "先想到 169 还是 196？"
+        },
+        {
+          "title": "个位是 9",
+          "detail": "3×3=9，个位一定是 9"
+        },
+        {
+          "title": "169",
+          "detail": "13² = 169"
+        }
+      ]
+    },
+    {
+      "id": "square-14",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "reasonableness",
+      "prompt": "14² = ?",
+      "canonical_answer": "196",
+      "answer_type": "integer",
+      "relation": "14² = 196",
+      "hook": "196 和 169 是一对易混兄弟：14²=196，13²=169。",
+      "pattern": {
+        "check": "196 接近 200，比 13² 的 169 大。",
+        "family": [
+          "13² = 169",
+          "15² = 225"
+        ]
+      },
+      "frames": [
+        {
+          "title": "14 × 14",
+          "detail": "接近 200"
+        },
+        {
+          "title": "个位是 6",
+          "detail": "4×4=16，个位一定是 6"
+        },
+        {
+          "title": "196",
+          "detail": "14² = 196"
+        }
+      ]
+    },
+    {
+      "id": "square-15",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "15² = ?",
+      "canonical_answer": "225",
+      "answer_type": "integer",
+      "relation": "15² = 225",
+      "hook": "1 × 2 = 2，后面接 25。",
+      "pattern": {
+        "check": "末位是 5 的整数平方，一定以 25 结尾。225 在 100 和 400 之间。",
+        "family": [
+          "25² = 625",
+          "35² = 1225"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 × 2",
+          "detail": "先看 5 前面的 1"
+        },
+        {
+          "title": "2",
+          "detail": "1 × 2 得到前面这一截"
+        },
+        {
+          "title": "2 | 25",
+          "detail": "后面接上 25"
+        },
+        {
+          "title": "225",
+          "detail": "15² = 225"
+        }
+      ]
+    },
+    {
+      "id": "square-16",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "16² = ?",
+      "canonical_answer": "256",
+      "answer_type": "integer",
+      "relation": "16² = 256",
+      "hook": "256 = 2⁸，2 的连乘家族，计算机里天天见。",
+      "pattern": {
+        "check": "256 在 225（15²）和 289（17²）之间。",
+        "family": [
+          "2⁸ = 256",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "16 = 2⁴",
+          "detail": "16 是 2 连乘 4 次"
+        },
+        {
+          "title": "(2⁴)² = 2⁸",
+          "detail": "平方就是指数翻倍"
+        },
+        {
+          "title": "256",
+          "detail": "16² = 256"
+        }
+      ]
+    },
+    {
+      "id": "square-17",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "17² = ?",
+      "canonical_answer": "289",
+      "answer_type": "integer",
+      "relation": "17² = 289",
+      "hook": "289 没有好口诀，是值得反复提取的锚点。",
+      "pattern": {
+        "check": "289 在 256（16²）和 324（18²）之间，个位是 9。",
+        "family": [
+          "16² = 256",
+          "18² = 324"
+        ]
+      },
+      "frames": [
+        {
+          "title": "17 × 17",
+          "detail": "夹在 256 和 324 之间"
+        },
+        {
+          "title": "个位是 9",
+          "detail": "7×7=49，个位一定是 9"
+        },
+        {
+          "title": "289",
+          "detail": "17² = 289"
+        }
+      ]
+    },
+    {
+      "id": "square-18",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "18² = ?",
+      "canonical_answer": "324",
+      "answer_type": "integer",
+      "relation": "18² = 324",
+      "hook": "(20−2)² = 400 − 80 + 4 = 324。",
+      "pattern": {
+        "check": "离 20 很近的数，借 20² 往回算。",
+        "family": [
+          "19² = 361",
+          "20² = 400"
+        ]
+      },
+      "frames": [
+        {
+          "title": "20² = 400",
+          "detail": "先借 20²"
+        },
+        {
+          "title": "−80 +4",
+          "detail": "减去 2×20×2，加回 2²"
+        },
+        {
+          "title": "324",
+          "detail": "18² = 324"
+        }
+      ]
+    },
+    {
+      "id": "square-19",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "19² = ?",
+      "canonical_answer": "361",
+      "answer_type": "integer",
+      "relation": "19² = 361",
+      "hook": "(20−1)² = 400 − 40 + 1 = 361。",
+      "pattern": {
+        "check": "离 20 最近的数，借 20² 往回算。",
+        "family": [
+          "18² = 324",
+          "20² = 400"
+        ]
+      },
+      "frames": [
+        {
+          "title": "20² = 400",
+          "detail": "先借 20²"
+        },
+        {
+          "title": "−40 +1",
+          "detail": "减去 2×20×1，加回 1²"
+        },
+        {
+          "title": "361",
+          "detail": "19² = 361"
+        }
+      ]
+    },
+    {
+      "id": "square-20",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "20² = ?",
+      "canonical_answer": "400",
+      "answer_type": "integer",
+      "relation": "20² = 400",
+      "hook": "整十平方：2²=4，后面接两个 0。",
+      "pattern": {
+        "check": "整十的平方一定是整百。",
+        "family": [
+          "10² = 100",
+          "30² = 900"
+        ]
+      },
+      "frames": [
+        {
+          "title": "2² = 4",
+          "detail": "先算十位的平方"
+        },
+        {
+          "title": "4 | 00",
+          "detail": "后面接两个 0"
+        },
+        {
+          "title": "400",
+          "detail": "20² = 400"
+        }
+      ]
+    },
+    {
+      "id": "square-25",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "25² = ?",
+      "canonical_answer": "625",
+      "answer_type": "integer",
+      "relation": "25² = 625",
+      "hook": "2 × 3 = 6，后面接 25。",
+      "pattern": {
+        "check": "末位是 5 的整数平方，一定以 25 结尾。625 在 400 和 900 之间。",
+        "family": [
+          "15² = 225",
+          "35² = 1225"
+        ]
+      },
+      "frames": [
+        {
+          "title": "2 × 3",
+          "detail": "先看 5 前面的 2"
+        },
+        {
+          "title": "6",
+          "detail": "2 × 3 得到前面这一截"
+        },
+        {
+          "title": "6 | 25",
+          "detail": "后面接上 25"
+        },
+        {
+          "title": "625",
+          "detail": "25² = 625"
+        }
+      ]
+    }
+  ]
+}
