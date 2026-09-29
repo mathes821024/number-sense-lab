@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数感训练场</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Sora:wght@400;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage">
+    <section id="home" class="screen">
+      <p class="kicker">Number Sense Lab</p>
+      <h1>数感训练场</h1>
+      <p class="lede">把常会用到的数字关系，<br>练到能直接想起来。</p>
+      <button class="cta" id="start" type="button">开始今天的练习<small>大约 5～10 分钟</small></button>
+      <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
+    </section>
+
+    <section id="train" class="screen" hidden>
+      <div class="top">
+        <button class="quiet" type="button" data-pause="1">先停一下</button>
+        <span class="pill">平方</span>
+      </div>
+      <h1 class="question">15² = ?</h1>
+      <div class="answer" id="answer" aria-live="polite"></div>
+      <p class="nudge" id="nudge"></p>
+      <div class="keys">
+        <button class="key" type="button" data-digit="1">1</button>
+        <button class="key" type="button" data-digit="2">2</button>
+        <button class="key" type="button" data-digit="3">3</button>
+        <button class="key" type="button" data-digit="4">4</button>
+        <button class="key" type="button" data-digit="5">5</button>
+        <button class="key" type="button" data-digit="6">6</button>
+        <button class="key" type="button" data-digit="7">7</button>
+        <button class="key" type="button" data-digit="8">8</button>
+        <button class="key" type="button" data-digit="9">9</button>
+        <span class="key ghost" aria-hidden="true"></span>
+        <button class="key" type="button" data-digit="0">0</button>
+        <button class="key" type="button" id="del" style="font-size:15px">删除</button>
+        <button class="key go" type="button" id="submit">提交</button>
+      </div>
+    </section>
+
+    <section id="pause" class="screen" hidden>
+      <div class="dialog">
+        <p class="ask">先停在这里？</p>
+        <p class="stay">已经做的会留下。</p>
+        <button class="cta" type="button" id="resume">继续做</button>
+        <button class="quiet" type="button" id="stop">先停</button>
+      </div>
+    </section>
+
+    <section id="wrong" class="screen" hidden>
+      <button class="quiet" type="button" data-pause="1">先停一下</button>
+      <p class="demoted">15² = ?</p>
+      <div class="panel">
+        <p class="eq"></p>
+        <p class="hook"></p>
+        <p class="see">○ 看这里</p>
+        <div id="pattern" hidden>
+          <p class="check"></p>
+          <p class="family"></p>
+        </div>
+        <div class="frames" id="frames" hidden></div>
+      </div>
+      <button class="more" type="button" id="show-pattern">看看这个规律</button>
+      <button class="more" type="button" id="show-frames">看看这几步</button>
+      <button class="cta" type="button" id="next">下一题</button>
+    </section>
+
+    <section id="correct" class="screen" hidden>
+      <div class="ok" aria-hidden="true">✓</div>
+      <p class="correct-eq"></p>
+      <p class="word">对</p>
+    </section>
+
+    <section id="end" class="screen" hidden>
+      <div class="orb" aria-hidden="true"></div>
+      <h1>先到这里</h1>
+      <p class="body" id="end-copy"></p>
+      <button class="cta" type="button" id="home-again">先到这里</button>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
