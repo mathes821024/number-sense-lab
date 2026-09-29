@@ -1,0 +1,889 @@
+{
+  "domain": "fraction_decimal",
+  "version": "0.1.0",
+  "relations": [
+    {
+      "id": "fraction-1-2",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "retrieval_anchor",
+      "prompt": "1/2 = ?",
+      "canonical_answer": "0.5",
+      "answer_type": "decimal",
+      "relation": "1/2 = 0.5",
+      "hook": "一半就是 0.5。",
+      "pattern": {
+        "check": "0.5 × 2 = 1，正好回到 1。",
+        "family": [
+          "1/4 = 0.25",
+          "2/4 = 1/2"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 平均分成 2 份",
+          "detail": "每份是一半"
+        },
+        {
+          "title": "0.5",
+          "detail": "1/2 = 0.5"
+        }
+      ]
+    },
+    {
+      "id": "fraction-1-4",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "1/4 = ?",
+      "canonical_answer": "0.25",
+      "answer_type": "decimal",
+      "relation": "1/4 = 0.25",
+      "hook": "1/2 的一半：0.5 ÷ 2 = 0.25。",
+      "pattern": {
+        "check": "0.25 × 4 = 1；0.25 就是 25 分（1 元的 1/4）。",
+        "family": [
+          "1/2 = 0.5",
+          "3/4 = 0.75"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/2 = 0.5",
+          "detail": "先想一半"
+        },
+        {
+          "title": "再一半",
+          "detail": "0.5 ÷ 2"
+        },
+        {
+          "title": "0.25",
+          "detail": "1/4 = 0.25"
+        }
+      ]
+    },
+    {
+      "id": "fraction-3-4",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "3/4 = ?",
+      "canonical_answer": "0.75",
+      "answer_type": "decimal",
+      "relation": "3/4 = 0.75",
+      "hook": "3 个 0.25：0.25 × 3 = 0.75。",
+      "pattern": {
+        "check": "也可以 1 − 1/4 = 1 − 0.25 = 0.75，互相印证。",
+        "family": [
+          "1/4 = 0.25",
+          "1/2 = 0.5"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/4 = 0.25",
+          "detail": "先锚住 1/4"
+        },
+        {
+          "title": "× 3",
+          "detail": "3 个 1/4"
+        },
+        {
+          "title": "0.75",
+          "detail": "3/4 = 0.75"
+        }
+      ]
+    },
+    {
+      "id": "fraction-1-5",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "1/5 = ?",
+      "canonical_answer": "0.2",
+      "answer_type": "decimal",
+      "relation": "1/5 = 0.2",
+      "hook": "1 元分 5 份，每份 2 毛：1/5 = 0.2。",
+      "pattern": {
+        "check": "分子分母同乘 2 → 2/10 = 0.2。",
+        "family": [
+          "2/5 = 0.4",
+          "1/10 = 0.1"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×2 → 2/10",
+          "detail": "分母凑成 10"
+        },
+        {
+          "title": "2/10 = 0.2",
+          "detail": "十分之几就是一位小数"
+        },
+        {
+          "title": "0.2",
+          "detail": "1/5 = 0.2"
+        }
+      ]
+    },
+    {
+      "id": "fraction-2-5",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "2/5 = ?",
+      "canonical_answer": "0.4",
+      "answer_type": "decimal",
+      "relation": "2/5 = 0.4",
+      "hook": "2 个 0.2：0.2 × 2 = 0.4。",
+      "pattern": {
+        "check": "同乘 2 → 4/10 = 0.4，互相印证。",
+        "family": [
+          "1/5 = 0.2",
+          "3/5 = 0.6"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/5 = 0.2",
+          "detail": "先锚住 1/5"
+        },
+        {
+          "title": "× 2",
+          "detail": "2 个 1/5"
+        },
+        {
+          "title": "0.4",
+          "detail": "2/5 = 0.4"
+        }
+      ]
+    },
+    {
+      "id": "fraction-3-5",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "3/5 = ?",
+      "canonical_answer": "0.6",
+      "answer_type": "decimal",
+      "relation": "3/5 = 0.6",
+      "hook": "3 个 0.2：0.2 × 3 = 0.6。",
+      "pattern": {
+        "check": "同乘 2 → 6/10 = 0.6，互相印证。",
+        "family": [
+          "1/5 = 0.2",
+          "4/5 = 0.8"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/5 = 0.2",
+          "detail": "先锚住 1/5"
+        },
+        {
+          "title": "× 3",
+          "detail": "3 个 1/5"
+        },
+        {
+          "title": "0.6",
+          "detail": "3/5 = 0.6"
+        }
+      ]
+    },
+    {
+      "id": "fraction-4-5",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "4/5 = ?",
+      "canonical_answer": "0.8",
+      "answer_type": "decimal",
+      "relation": "4/5 = 0.8",
+      "hook": "4 个 0.2 = 0.8；也可以 1 − 0.2 = 0.8。",
+      "pattern": {
+        "check": "比 1 少一个 1/5：1 − 0.2 = 0.8。",
+        "family": [
+          "1/5 = 0.2",
+          "3/5 = 0.6"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 − 1/5",
+          "detail": "4/5 比 1 少 1/5"
+        },
+        {
+          "title": "1 − 0.2",
+          "detail": "用锚点来算"
+        },
+        {
+          "title": "0.8",
+          "detail": "4/5 = 0.8"
+        }
+      ]
+    },
+    {
+      "id": "fraction-1-8",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "anchor",
+      "prompt": "1/8 = ?",
+      "canonical_answer": "0.125",
+      "answer_type": "decimal",
+      "relation": "1/8 = 0.125",
+      "hook": "1/4 的一半：0.25 ÷ 2 = 0.125。",
+      "pattern": {
+        "check": "0.125 × 8 = 1；连续对半：1 → 0.5 → 0.25 → 0.125。",
+        "family": [
+          "1/4 = 0.25",
+          "3/8 = 0.375"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/4 = 0.25",
+          "detail": "先锚住 1/4"
+        },
+        {
+          "title": "再一半",
+          "detail": "0.25 ÷ 2"
+        },
+        {
+          "title": "0.125",
+          "detail": "1/8 = 0.125"
+        }
+      ]
+    },
+    {
+      "id": "fraction-3-8",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "anchor",
+      "prompt": "3/8 = ?",
+      "canonical_answer": "0.375",
+      "answer_type": "decimal",
+      "relation": "3/8 = 0.375",
+      "hook": "3 个 0.125：0.125 × 3 = 0.375。",
+      "pattern": {
+        "check": "0.375 在 0.25 和 0.5 之间，合理。",
+        "family": [
+          "1/8 = 0.125",
+          "5/8 = 0.625"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/8 = 0.125",
+          "detail": "先锚住 1/8"
+        },
+        {
+          "title": "× 3",
+          "detail": "3 个 1/8"
+        },
+        {
+          "title": "0.375",
+          "detail": "3/8 = 0.375"
+        }
+      ]
+    },
+    {
+      "id": "fraction-5-8",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "anchor",
+      "prompt": "5/8 = ?",
+      "canonical_answer": "0.625",
+      "answer_type": "decimal",
+      "relation": "5/8 = 0.625",
+      "hook": "5 个 0.125 = 0.625；也可以 1/2 + 1/8 = 0.5 + 0.125。",
+      "pattern": {
+        "check": "0.625 比 0.5 多 0.125，合理。",
+        "family": [
+          "1/8 = 0.125",
+          "1/2 = 0.5"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/2 + 1/8",
+          "detail": "5/8 拆成 4/8 + 1/8"
+        },
+        {
+          "title": "0.5 + 0.125",
+          "detail": "两个锚点相加"
+        },
+        {
+          "title": "0.625",
+          "detail": "5/8 = 0.625"
+        }
+      ]
+    },
+    {
+      "id": "fraction-7-8",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "anchor",
+      "prompt": "7/8 = ?",
+      "canonical_answer": "0.875",
+      "answer_type": "decimal",
+      "relation": "7/8 = 0.875",
+      "hook": "比 1 少一个 1/8：1 − 0.125 = 0.875。",
+      "pattern": {
+        "check": "0.875 接近 1，合理。",
+        "family": [
+          "1/8 = 0.125",
+          "5/8 = 0.625"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 − 1/8",
+          "detail": "7/8 比 1 少 1/8"
+        },
+        {
+          "title": "1 − 0.125",
+          "detail": "用锚点来算"
+        },
+        {
+          "title": "0.875",
+          "detail": "7/8 = 0.875"
+        }
+      ]
+    },
+    {
+      "id": "fraction-1-10",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "1/10 = ?",
+      "canonical_answer": "0.1",
+      "answer_type": "decimal",
+      "relation": "1/10 = 0.1",
+      "hook": "十分之一就是 0.1。",
+      "pattern": {
+        "check": "0.1 × 10 = 1。",
+        "family": [
+          "1/5 = 0.2",
+          "3/10 = 0.3"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 平均分成 10 份",
+          "detail": "每份是十分之一"
+        },
+        {
+          "title": "0.1",
+          "detail": "1/10 = 0.1"
+        }
+      ]
+    },
+    {
+      "id": "fraction-3-10",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "3/10 = ?",
+      "canonical_answer": "0.3",
+      "answer_type": "decimal",
+      "relation": "3/10 = 0.3",
+      "hook": "3 个 0.1 就是 0.3。",
+      "pattern": {
+        "check": "十分之几直接写成一位小数。",
+        "family": [
+          "1/10 = 0.1",
+          "7/10 = 0.7"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/10 = 0.1",
+          "detail": "先锚住 1/10"
+        },
+        {
+          "title": "× 3",
+          "detail": "3 个 1/10"
+        },
+        {
+          "title": "0.3",
+          "detail": "3/10 = 0.3"
+        }
+      ]
+    },
+    {
+      "id": "fraction-7-10",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "7/10 = ?",
+      "canonical_answer": "0.7",
+      "answer_type": "decimal",
+      "relation": "7/10 = 0.7",
+      "hook": "7 个 0.1 就是 0.7。",
+      "pattern": {
+        "check": "十分之几直接写成一位小数。",
+        "family": [
+          "1/10 = 0.1",
+          "3/10 = 0.3"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1/10 = 0.1",
+          "detail": "先锚住 1/10"
+        },
+        {
+          "title": "× 7",
+          "detail": "7 个 1/10"
+        },
+        {
+          "title": "0.7",
+          "detail": "7/10 = 0.7"
+        }
+      ]
+    },
+    {
+      "id": "fraction-1-20",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "1/20 = ?",
+      "canonical_answer": "0.05",
+      "answer_type": "decimal",
+      "relation": "1/20 = 0.05",
+      "hook": "分子分母同乘 5 → 5/100 = 0.05。",
+      "pattern": {
+        "check": "分母 20 乘 5 凑成 100，百分之几就是两位小数。",
+        "family": [
+          "1/10 = 0.1",
+          "1/25 = 0.04"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×5 → 5/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "5/100 = 0.05",
+          "detail": "百分之几是两位小数"
+        },
+        {
+          "title": "0.05",
+          "detail": "1/20 = 0.05"
+        }
+      ]
+    },
+    {
+      "id": "fraction-3-20",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "3/20 = ?",
+      "canonical_answer": "0.15",
+      "answer_type": "decimal",
+      "relation": "3/20 = 0.15",
+      "hook": "同乘 5 → 15/100 = 0.15。",
+      "pattern": {
+        "check": "0.15 = 0.1 + 0.05，合理。",
+        "family": [
+          "1/20 = 0.05",
+          "3/25 = 0.12"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×5 → 15/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "15/100 = 0.15",
+          "detail": "百分之十五"
+        },
+        {
+          "title": "0.15",
+          "detail": "3/20 = 0.15"
+        }
+      ]
+    },
+    {
+      "id": "fraction-7-20",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "7/20 = ?",
+      "canonical_answer": "0.35",
+      "answer_type": "decimal",
+      "relation": "7/20 = 0.35",
+      "hook": "同乘 5 → 35/100 = 0.35。",
+      "pattern": {
+        "check": "0.35 在 0.25（1/4）和 0.5（1/2）之间，合理。",
+        "family": [
+          "1/4 = 0.25",
+          "9/20 = 0.45"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×5 → 35/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "35/100 = 0.35",
+          "detail": "百分之三十五"
+        },
+        {
+          "title": "0.35",
+          "detail": "7/20 = 0.35"
+        }
+      ]
+    },
+    {
+      "id": "fraction-9-20",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "9/20 = ?",
+      "canonical_answer": "0.45",
+      "answer_type": "decimal",
+      "relation": "9/20 = 0.45",
+      "hook": "同乘 5 → 45/100 = 0.45。",
+      "pattern": {
+        "check": "0.45 接近 0.5（1/2），合理。",
+        "family": [
+          "7/20 = 0.35",
+          "1/2 = 0.5"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×5 → 45/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "45/100 = 0.45",
+          "detail": "百分之四十五"
+        },
+        {
+          "title": "0.45",
+          "detail": "9/20 = 0.45"
+        }
+      ]
+    },
+    {
+      "id": "fraction-11-20",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "11/20 = ?",
+      "canonical_answer": "0.55",
+      "answer_type": "decimal",
+      "relation": "11/20 = 0.55",
+      "hook": "同乘 5 → 55/100 = 0.55。",
+      "pattern": {
+        "check": "0.55 比 0.5 多一点，合理——11/20 比一半多 1/20。",
+        "family": [
+          "1/2 = 0.5",
+          "13/20 = 0.65"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×5 → 55/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "55/100 = 0.55",
+          "detail": "百分之五十五"
+        },
+        {
+          "title": "0.55",
+          "detail": "11/20 = 0.55"
+        }
+      ]
+    },
+    {
+      "id": "fraction-13-20",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "13/20 = ?",
+      "canonical_answer": "0.65",
+      "answer_type": "decimal",
+      "relation": "13/20 = 0.65",
+      "hook": "同乘 5 → 65/100 = 0.65。",
+      "pattern": {
+        "check": "0.65 在 0.5 和 0.75 之间，合理。",
+        "family": [
+          "11/20 = 0.55",
+          "3/4 = 0.75"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×5 → 65/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "65/100 = 0.65",
+          "detail": "百分之六十五"
+        },
+        {
+          "title": "0.65",
+          "detail": "13/20 = 0.65"
+        }
+      ]
+    },
+    {
+      "id": "fraction-1-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "1/25 = ?",
+      "canonical_answer": "0.04",
+      "answer_type": "decimal",
+      "relation": "1/25 = 0.04",
+      "hook": "分子分母同乘 4 → 4/100 = 0.04。",
+      "pattern": {
+        "check": "分母 25 乘 4 凑成 100。",
+        "family": [
+          "1/20 = 0.05",
+          "2/25 = 0.08"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 4/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "4/100 = 0.04",
+          "detail": "百分之四"
+        },
+        {
+          "title": "0.04",
+          "detail": "1/25 = 0.04"
+        }
+      ]
+    },
+    {
+      "id": "fraction-2-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "2/25 = ?",
+      "canonical_answer": "0.08",
+      "answer_type": "decimal",
+      "relation": "2/25 = 0.08",
+      "hook": "同乘 4 → 8/100 = 0.08。",
+      "pattern": {
+        "check": "0.08 = 2 × 0.04，与 1/25 互相印证。",
+        "family": [
+          "1/25 = 0.04",
+          "3/25 = 0.12"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 8/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "8/100 = 0.08",
+          "detail": "百分之八"
+        },
+        {
+          "title": "0.08",
+          "detail": "2/25 = 0.08"
+        }
+      ]
+    },
+    {
+      "id": "fraction-3-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "3/25 = ?",
+      "canonical_answer": "0.12",
+      "answer_type": "decimal",
+      "relation": "3/25 = 0.12",
+      "hook": "同乘 4 → 12/100 = 0.12。",
+      "pattern": {
+        "check": "0.12 = 3 × 0.04，与 1/25 互相印证。",
+        "family": [
+          "2/25 = 0.08",
+          "1/8 = 0.125"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 12/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "12/100 = 0.12",
+          "detail": "百分之十二"
+        },
+        {
+          "title": "0.12",
+          "detail": "3/25 = 0.12"
+        }
+      ]
+    },
+    {
+      "id": "fraction-4-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "4/25 = ?",
+      "canonical_answer": "0.16",
+      "answer_type": "decimal",
+      "relation": "4/25 = 0.16",
+      "hook": "同乘 4 → 16/100 = 0.16。",
+      "pattern": {
+        "check": "0.16 = 4 × 0.04；4/25 与 1/6 无关，别和 0.166… 混。",
+        "family": [
+          "3/25 = 0.12",
+          "1/4 = 0.25"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 16/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "16/100 = 0.16",
+          "detail": "百分之十六"
+        },
+        {
+          "title": "0.16",
+          "detail": "4/25 = 0.16"
+        }
+      ]
+    },
+    {
+      "id": "fraction-6-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "6/25 = ?",
+      "canonical_answer": "0.24",
+      "answer_type": "decimal",
+      "relation": "6/25 = 0.24",
+      "hook": "同乘 4 → 24/100 = 0.24。",
+      "pattern": {
+        "check": "0.24 接近 0.25（1/4），合理。",
+        "family": [
+          "1/4 = 0.25",
+          "4/25 = 0.16"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 24/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "24/100 = 0.24",
+          "detail": "百分之二十四"
+        },
+        {
+          "title": "0.24",
+          "detail": "6/25 = 0.24"
+        }
+      ]
+    },
+    {
+      "id": "fraction-8-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "8/25 = ?",
+      "canonical_answer": "0.32",
+      "answer_type": "decimal",
+      "relation": "8/25 = 0.32",
+      "hook": "同乘 4 → 32/100 = 0.32。",
+      "pattern": {
+        "check": "0.32 在 0.25 和 0.5 之间，合理。",
+        "family": [
+          "6/25 = 0.24",
+          "1/4 = 0.25"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 32/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "32/100 = 0.32",
+          "detail": "百分之三十二"
+        },
+        {
+          "title": "0.32",
+          "detail": "8/25 = 0.32"
+        }
+      ]
+    },
+    {
+      "id": "fraction-12-25",
+      "domain": "fraction_decimal",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "12/25 = ?",
+      "canonical_answer": "0.48",
+      "answer_type": "decimal",
+      "relation": "12/25 = 0.48",
+      "hook": "同乘 4 → 48/100 = 0.48。",
+      "pattern": {
+        "check": "0.48 接近 0.5（1/2），合理——12/25 比一半少 0.5/25。",
+        "family": [
+          "1/2 = 0.5",
+          "8/25 = 0.32"
+        ]
+      },
+      "frames": [
+        {
+          "title": "×4 → 48/100",
+          "detail": "分母凑成 100"
+        },
+        {
+          "title": "48/100 = 0.48",
+          "detail": "百分之四十八"
+        },
+        {
+          "title": "0.48",
+          "detail": "12/25 = 0.48"
+        }
+      ]
+    }
+  ]
+}

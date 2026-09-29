@@ -1,0 +1,650 @@
+{
+  "domain": "squares",
+  "version": "0.1.0",
+  "entries": [
+    {
+      "n": 1,
+      "square": 1,
+      "relation": "1² = 1",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "n": 2,
+      "square": 4,
+      "relation": "2² = 4",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "n": 3,
+      "square": 9,
+      "relation": "3² = 9",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "n": 4,
+      "square": 16,
+      "relation": "4² = 16",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "n": 5,
+      "square": 25,
+      "relation": "5² = 25",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "n": 6,
+      "square": 36,
+      "relation": "6² = 36",
+      "level": "core_recall"
+    },
+    {
+      "n": 7,
+      "square": 49,
+      "relation": "7² = 49",
+      "level": "core_recall"
+    },
+    {
+      "n": 8,
+      "square": 64,
+      "relation": "8² = 64",
+      "level": "core_recall"
+    },
+    {
+      "n": 9,
+      "square": 81,
+      "relation": "9² = 81",
+      "level": "core_recall"
+    },
+    {
+      "n": 10,
+      "square": 100,
+      "relation": "10² = 100",
+      "level": "core_recall"
+    },
+    {
+      "n": 11,
+      "square": 121,
+      "relation": "11² = 121",
+      "level": "core_recall"
+    },
+    {
+      "n": 12,
+      "square": 144,
+      "relation": "12² = 144",
+      "level": "core_recall"
+    },
+    {
+      "n": 13,
+      "square": 169,
+      "relation": "13² = 169",
+      "level": "core_recall"
+    },
+    {
+      "n": 14,
+      "square": 196,
+      "relation": "14² = 196",
+      "level": "core_recall"
+    },
+    {
+      "n": 15,
+      "square": 225,
+      "relation": "15² = 225",
+      "level": "core_recall"
+    },
+    {
+      "n": 16,
+      "square": 256,
+      "relation": "16² = 256",
+      "level": "core_recall"
+    },
+    {
+      "n": 17,
+      "square": 289,
+      "relation": "17² = 289",
+      "level": "core_recall"
+    },
+    {
+      "n": 18,
+      "square": 324,
+      "relation": "18² = 324",
+      "level": "core_recall"
+    },
+    {
+      "n": 19,
+      "square": 361,
+      "relation": "19² = 361",
+      "level": "core_recall"
+    },
+    {
+      "n": 20,
+      "square": 400,
+      "relation": "20² = 400",
+      "level": "core_recall"
+    },
+    {
+      "n": 21,
+      "square": 441,
+      "relation": "21² = 441",
+      "level": "structured_practice",
+      "strategy": "近 20：(20+1)² = 400 + 40 + 1。"
+    },
+    {
+      "n": 22,
+      "square": 484,
+      "relation": "22² = 484",
+      "level": "structured_practice",
+      "strategy": "近 20：(20+2)² = 400 + 80 + 4。"
+    },
+    {
+      "n": 23,
+      "square": 529,
+      "relation": "23² = 529",
+      "level": "structured_practice",
+      "strategy": "近 20：(20+3)² = 400 + 120 + 9。"
+    },
+    {
+      "n": 24,
+      "square": 576,
+      "relation": "24² = 576",
+      "level": "structured_practice",
+      "strategy": "近 20：(20+4)² = 400 + 160 + 16。"
+    },
+    {
+      "n": 25,
+      "square": 625,
+      "relation": "25² = 625",
+      "level": "core_recall"
+    },
+    {
+      "n": 26,
+      "square": 676,
+      "relation": "26² = 676",
+      "level": "reference"
+    },
+    {
+      "n": 27,
+      "square": 729,
+      "relation": "27² = 729",
+      "level": "reference"
+    },
+    {
+      "n": 28,
+      "square": 784,
+      "relation": "28² = 784",
+      "level": "reference"
+    },
+    {
+      "n": 29,
+      "square": 841,
+      "relation": "29² = 841",
+      "level": "reference"
+    },
+    {
+      "n": 30,
+      "square": 900,
+      "relation": "30² = 900",
+      "level": "structured_practice",
+      "strategy": "整十平方：3² = 9，后面接两个 0。"
+    },
+    {
+      "n": 31,
+      "square": 961,
+      "relation": "31² = 961",
+      "level": "reference"
+    },
+    {
+      "n": 32,
+      "square": 1024,
+      "relation": "32² = 1024",
+      "level": "reference"
+    },
+    {
+      "n": 33,
+      "square": 1089,
+      "relation": "33² = 1089",
+      "level": "reference"
+    },
+    {
+      "n": 34,
+      "square": 1156,
+      "relation": "34² = 1156",
+      "level": "reference"
+    },
+    {
+      "n": 35,
+      "square": 1225,
+      "relation": "35² = 1225",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：3×4 = 12，后面接 25。"
+    },
+    {
+      "n": 36,
+      "square": 1296,
+      "relation": "36² = 1296",
+      "level": "reference"
+    },
+    {
+      "n": 37,
+      "square": 1369,
+      "relation": "37² = 1369",
+      "level": "recognition_estimate",
+      "reasonableness": "900 < 37² < 1600（30² 与 40² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 38,
+      "square": 1444,
+      "relation": "38² = 1444",
+      "level": "reference"
+    },
+    {
+      "n": 39,
+      "square": 1521,
+      "relation": "39² = 1521",
+      "level": "reference"
+    },
+    {
+      "n": 40,
+      "square": 1600,
+      "relation": "40² = 1600",
+      "level": "structured_practice",
+      "strategy": "整十平方：4² = 16，后面接两个 0。"
+    },
+    {
+      "n": 41,
+      "square": 1681,
+      "relation": "41² = 1681",
+      "level": "reference"
+    },
+    {
+      "n": 42,
+      "square": 1764,
+      "relation": "42² = 1764",
+      "level": "recognition_estimate",
+      "reasonableness": "1600 < 42² < 2500（40² 与 50² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 43,
+      "square": 1849,
+      "relation": "43² = 1849",
+      "level": "reference"
+    },
+    {
+      "n": 44,
+      "square": 1936,
+      "relation": "44² = 1936",
+      "level": "reference"
+    },
+    {
+      "n": 45,
+      "square": 2025,
+      "relation": "45² = 2025",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：4×5 = 20，后面接 25。"
+    },
+    {
+      "n": 46,
+      "square": 2116,
+      "relation": "46² = 2116",
+      "level": "reference"
+    },
+    {
+      "n": 47,
+      "square": 2209,
+      "relation": "47² = 2209",
+      "level": "reference"
+    },
+    {
+      "n": 48,
+      "square": 2304,
+      "relation": "48² = 2304",
+      "level": "reference"
+    },
+    {
+      "n": 49,
+      "square": 2401,
+      "relation": "49² = 2401",
+      "level": "structured_practice",
+      "strategy": "近 50：(50−1)² = 2500 − 100 + 1。"
+    },
+    {
+      "n": 50,
+      "square": 2500,
+      "relation": "50² = 2500",
+      "level": "structured_practice",
+      "strategy": "整十平方：5² = 25，后面接两个 0。"
+    },
+    {
+      "n": 51,
+      "square": 2601,
+      "relation": "51² = 2601",
+      "level": "structured_practice",
+      "strategy": "近 50：(50+1)² = 2500 + 100 + 1。"
+    },
+    {
+      "n": 52,
+      "square": 2704,
+      "relation": "52² = 2704",
+      "level": "reference"
+    },
+    {
+      "n": 53,
+      "square": 2809,
+      "relation": "53² = 2809",
+      "level": "reference"
+    },
+    {
+      "n": 54,
+      "square": 2916,
+      "relation": "54² = 2916",
+      "level": "reference"
+    },
+    {
+      "n": 55,
+      "square": 3025,
+      "relation": "55² = 3025",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：5×6 = 30，后面接 25。"
+    },
+    {
+      "n": 56,
+      "square": 3136,
+      "relation": "56² = 3136",
+      "level": "reference"
+    },
+    {
+      "n": 57,
+      "square": 3249,
+      "relation": "57² = 3249",
+      "level": "reference"
+    },
+    {
+      "n": 58,
+      "square": 3364,
+      "relation": "58² = 3364",
+      "level": "recognition_estimate",
+      "reasonableness": "2500 < 58² < 3600（50² 与 60² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 59,
+      "square": 3481,
+      "relation": "59² = 3481",
+      "level": "reference"
+    },
+    {
+      "n": 60,
+      "square": 3600,
+      "relation": "60² = 3600",
+      "level": "structured_practice",
+      "strategy": "整十平方：6² = 36，后面接两个 0。"
+    },
+    {
+      "n": 61,
+      "square": 3721,
+      "relation": "61² = 3721",
+      "level": "reference"
+    },
+    {
+      "n": 62,
+      "square": 3844,
+      "relation": "62² = 3844",
+      "level": "reference"
+    },
+    {
+      "n": 63,
+      "square": 3969,
+      "relation": "63² = 3969",
+      "level": "recognition_estimate",
+      "reasonableness": "3600 < 63² < 4900（60² 与 70² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 64,
+      "square": 4096,
+      "relation": "64² = 4096",
+      "level": "reference"
+    },
+    {
+      "n": 65,
+      "square": 4225,
+      "relation": "65² = 4225",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：6×7 = 42，后面接 25。"
+    },
+    {
+      "n": 66,
+      "square": 4356,
+      "relation": "66² = 4356",
+      "level": "reference"
+    },
+    {
+      "n": 67,
+      "square": 4489,
+      "relation": "67² = 4489",
+      "level": "reference"
+    },
+    {
+      "n": 68,
+      "square": 4624,
+      "relation": "68² = 4624",
+      "level": "reference"
+    },
+    {
+      "n": 69,
+      "square": 4761,
+      "relation": "69² = 4761",
+      "level": "reference"
+    },
+    {
+      "n": 70,
+      "square": 4900,
+      "relation": "70² = 4900",
+      "level": "structured_practice",
+      "strategy": "整十平方：7² = 49，后面接两个 0。"
+    },
+    {
+      "n": 71,
+      "square": 5041,
+      "relation": "71² = 5041",
+      "level": "reference"
+    },
+    {
+      "n": 72,
+      "square": 5184,
+      "relation": "72² = 5184",
+      "level": "reference"
+    },
+    {
+      "n": 73,
+      "square": 5329,
+      "relation": "73² = 5329",
+      "level": "recognition_estimate",
+      "reasonableness": "4900 < 73² < 6400（70² 与 80² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 74,
+      "square": 5476,
+      "relation": "74² = 5476",
+      "level": "reference"
+    },
+    {
+      "n": 75,
+      "square": 5625,
+      "relation": "75² = 5625",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：7×8 = 56，后面接 25。"
+    },
+    {
+      "n": 76,
+      "square": 5776,
+      "relation": "76² = 5776",
+      "level": "reference"
+    },
+    {
+      "n": 77,
+      "square": 5929,
+      "relation": "77² = 5929",
+      "level": "recognition_estimate",
+      "reasonableness": "4900 < 77² < 6400（70² 与 80² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 78,
+      "square": 6084,
+      "relation": "78² = 6084",
+      "level": "reference"
+    },
+    {
+      "n": 79,
+      "square": 6241,
+      "relation": "79² = 6241",
+      "level": "reference"
+    },
+    {
+      "n": 80,
+      "square": 6400,
+      "relation": "80² = 6400",
+      "level": "structured_practice",
+      "strategy": "整十平方：8² = 64，后面接两个 0。"
+    },
+    {
+      "n": 81,
+      "square": 6561,
+      "relation": "81² = 6561",
+      "level": "reference"
+    },
+    {
+      "n": 82,
+      "square": 6724,
+      "relation": "82² = 6724",
+      "level": "reference"
+    },
+    {
+      "n": 83,
+      "square": 6889,
+      "relation": "83² = 6889",
+      "level": "recognition_estimate",
+      "reasonableness": "6400 < 83² < 8100（80² 与 90² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 84,
+      "square": 7056,
+      "relation": "84² = 7056",
+      "level": "reference"
+    },
+    {
+      "n": 85,
+      "square": 7225,
+      "relation": "85² = 7225",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：8×9 = 72，后面接 25。"
+    },
+    {
+      "n": 86,
+      "square": 7396,
+      "relation": "86² = 7396",
+      "level": "reference"
+    },
+    {
+      "n": 87,
+      "square": 7569,
+      "relation": "87² = 7569",
+      "level": "recognition_estimate",
+      "reasonableness": "6400 < 87² < 8100（80² 与 90² 之间）。",
+      "strategy": "直接记忆收益低；会估数量级、会用 (a+b)² 推导即可。"
+    },
+    {
+      "n": 88,
+      "square": 7744,
+      "relation": "88² = 7744",
+      "level": "reference"
+    },
+    {
+      "n": 89,
+      "square": 7921,
+      "relation": "89² = 7921",
+      "level": "reference"
+    },
+    {
+      "n": 90,
+      "square": 8100,
+      "relation": "90² = 8100",
+      "level": "structured_practice",
+      "strategy": "整十平方：9² = 81，后面接两个 0。"
+    },
+    {
+      "n": 91,
+      "square": 8281,
+      "relation": "91² = 8281",
+      "level": "reference"
+    },
+    {
+      "n": 92,
+      "square": 8464,
+      "relation": "92² = 8464",
+      "level": "reference"
+    },
+    {
+      "n": 93,
+      "square": 8649,
+      "relation": "93² = 8649",
+      "level": "reference"
+    },
+    {
+      "n": 94,
+      "square": 8836,
+      "relation": "94² = 8836",
+      "level": "reference"
+    },
+    {
+      "n": 95,
+      "square": 9025,
+      "relation": "95² = 9025",
+      "level": "structured_practice",
+      "strategy": "尾 5 平方：9×10 = 90，后面接 25。"
+    },
+    {
+      "n": 96,
+      "square": 9216,
+      "relation": "96² = 9216",
+      "level": "reference"
+    },
+    {
+      "n": 97,
+      "square": 9409,
+      "relation": "97² = 9409",
+      "level": "reference"
+    },
+    {
+      "n": 98,
+      "square": 9604,
+      "relation": "98² = 9604",
+      "level": "structured_practice",
+      "strategy": "近 100：(100−2)² = 10000 − 400 + 4。"
+    },
+    {
+      "n": 99,
+      "square": 9801,
+      "relation": "99² = 9801",
+      "level": "structured_practice",
+      "strategy": "近 100：(100−1)² = 10000 − 200 + 1。"
+    },
+    {
+      "n": 100,
+      "square": 10000,
+      "relation": "100² = 10000",
+      "level": "structured_practice",
+      "strategy": "整十平方：10² = 100，后面接两个 0。"
+    }
+  ]
+}
