@@ -296,6 +296,45 @@ test("stable due yields while unpracticed relations can fill the session", () =>
   assert.equal(queue.includes("square-15"), false);
 });
 
+test("same-day corrects after stable-wrong do not restore stable", () => {
+  const item = catalog.find((entry) => entry.id === "square-15");
+  let state = emptyState();
+  function answer(day, raw) {
+    const result = submitAnswer({
+      item,
+      state,
+      session: startSession({
+        mode: "focused",
+        domain: "squares",
+        day,
+        size: 1,
+        catalog,
+        relations: state.relations,
+      }),
+      raw,
+      meta: { day, inputMode: "onscreen_keypad", elapsedMs: 800 },
+    });
+    state = result.state;
+    return state.relations["square-15"];
+  }
+
+  for (const day of ["2026-10-01", "2026-10-02", "2026-10-04"]) answer(day, "225");
+  assert.equal(state.relations["square-15"].status, MASTERY.STABLE);
+
+  assert.equal(answer("2026-10-10", "1").status, MASTERY.SHAKY);
+  assert.notEqual(answer("2026-10-10", "225").status, MASTERY.STABLE);
+  const sameDay = answer("2026-10-10", "225");
+  assert.notEqual(sameDay.status, MASTERY.STABLE);
+  assert.equal(sameDay.schedule.bucket, "1d");
+
+  const later = "2026-10-11";
+  const restored = answer(later, "225");
+  assert.equal(restored.status, MASTERY.STABLE);
+  assert.equal(restored.schedule.reason, "became-stable");
+  assert.equal(restored.schedule.bucket, "5-7d");
+  assert.equal(restored.schedule.due_day, "2026-10-16");
+});
+
 test("a not-yet-due relation stays out, and focused practice stays in one domain", () => {
   const relations = {
     "square-15": {
