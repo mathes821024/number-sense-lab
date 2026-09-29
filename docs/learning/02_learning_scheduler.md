@@ -53,7 +53,7 @@ schedule = {
 
 `reason` 只允许：
 
-`first-correct`、`same-day-correct`、`correct-new-day`、`became-stable`、`stable-maintenance`、`slow-correct`、`wrong`、`stable-wrong`。
+`first-correct`、`same-day-correct`、`correct-after-wrong`、`correct-new-day`、`became-stable`、`stable-maintenance`、`slow-correct`、`wrong`、`stable-wrong`。
 
 间隔用固定天数，取建议区间的短端，避免再做一个隐藏的随机或公式：
 
@@ -70,15 +70,16 @@ schedule = {
 
 一天指本地日历日，不是满 24 小时。
 
-阶梯只在「新的一天、答对、且不快」时前进一步：`1d` → `2-3d` → `5-7d` → `maintenance`。同一天再答对不前进。答对但慢不前进，也不把已经拉长的间隔缩短到比明天更近。
+阶梯只在「新的一天、答对、且不慢」时前进一步：`1d` → `2-3d` → `5-7d` → `maintenance`。同一天再答对不前进。同日纠错成功也不前进：它只说明刚刚答对，下一次仍要到明天。答对但慢不前进，也不把已经拉长的间隔缩短到比明天更近。
 
 | 事件 | 掌握状态 | `due_day` | bucket | reason |
 | --- | --- | --- | --- | --- |
 | 从未练过，第一次答对 | 变为 `learning` | 明天 | `1d` | `first-correct` |
 | 同一天再次答对，且上一次也是答对 | 不变 | 保持原到期日 | 不变 | `same-day-correct` |
+| 同一天答对，且上一次是答错 | 按现有掌握规则更新，不因此进入 `stable` | 明天 | `1d` | `correct-after-wrong` |
 | 新的一天答对，仍未进入 `stable` | 保持 `learning` | 今天 + 下一档 | 前进一步 | `correct-new-day` |
 | 这一次答对使状态进入 `stable` | 变为 `stable` | 今天 + 5 天 | `5-7d` | `became-stable` |
-| 已经是 `stable`，新的一天再答对且不快 | 保持 `stable` | 今天 + 7 天 | `maintenance` | `stable-maintenance` |
+| 已经是 `stable`，新的一天再答对且不慢 | 保持 `stable` | 今天 + 7 天 | `maintenance` | `stable-maintenance` |
 | 答对但慢 | 按原掌握规则，不因此降级 | 若今天已到期，则改为明天；若到期日还在未来，则保持 | 不变 | `slow-correct` |
 | `learning` 或未练时答错 | 变为或保持 `learning` | 明天 | `1d` | `wrong` |
 | `stable` 时答错 | 变为 `shaky` | 今天 | `1d` | `stable-wrong` |
@@ -86,8 +87,9 @@ schedule = {
 
 补充：
 
-- 答错后，本节内仍按原规则隔 2 题再出现一次。第二次再错，本节不再插入。明天的队列会优先见到它。
-- `stable` 答错后阶梯清零。在再次进入 `stable` 之前，按 `learning` / `shaky` 的短间隔走。变回 `stable` 时使用 `became-stable`，不是继续原来的 7 天。
+- 答错后，本节内仍按原规则隔 2 题再出现一次。这次再现若答对，用 `correct-after-wrong`：到期日是明天，bucket 仍是 `1d`，不进入 `2-3d` 或更长。这次再现若再错，本节不再插入，明天的队列会优先见到它。
+- 同日纠错这条优先于 `slow-correct` 和 `same-day-correct`。就算这次答对偏慢，到期日仍是明天，reason 仍是 `correct-after-wrong`。
+- `stable` 答错后变为 `shaky`，阶梯清零。同一天再答对同样用 `correct-after-wrong`：不回到 `stable`，也不恢复原来的 7 天。变回 `stable` 仍须跨天，那时才用 `became-stable`。
 - 还没到期就被抽到并答对：不前进阶梯，保留原 `due_day`。答错则按答错规则重排。
 - 长时间未见只提高「已到期」的优先级，不把状态改成 `shaky`。缺席不是答错。
 
@@ -109,7 +111,7 @@ schedule = {
 
 专项训练：同一套顺序，只看一个域，不轮流。
 
-没有任何到期题、也没有未练题时，本节仍可以开始：取到期日最近的 `stable`。答对且不快才按维护间隔后推；提前答对不额外加长。
+没有任何到期题、也没有未练题时，本节仍可以开始：取到期日最近的 `stable`。答对且不慢才按维护间隔后推；提前答对不额外加长。
 
 未到期的 `learning` 不因为「今天想多练」被提前抽进正常队列。
 
@@ -140,12 +142,13 @@ v0.1 的状态是 `version: 1`，关系里只有 `status` 和 `attempts`。升�
 - 保留 `attempts`、`status`、`sessions`、`activeSession`、`prefs`。
 - 不重建正在进行的一节。这一节做完后，下一节才用新规则选题。
 - 还没有作答的关系：`schedule` 为 `null`。
-- 已有作答的关系，只根据最后一次作答和已保存的 `status` 补 `schedule`：
+- 已有作答的关系，只根据最后一次作答和已保存的 `status` 补 `schedule`。下表自上而下，命中第一条即停止：
 
 | 已保存状态与最后一次作答 | `due_day` | bucket | reason |
 | --- | --- | --- | --- |
 | 最后一次答错，状态是 `shaky` | 最后作答日 | `1d` | `stable-wrong` |
 | 最后一次答错，状态不是 `shaky` | 最后作答日 + 1 | `1d` | `wrong` |
+| 最后一次答对，且同一天更早有答错；状态不是 `stable` | 最后作答日 + 1 | `1d` | `correct-after-wrong` |
 | 最后一次答对但慢 | 最后作答日 + 1 | `1d` | `slow-correct` |
 | `learning`，非慢答对只出现在 1 个日期 | 最后作答日 + 1 | `1d` | `first-correct` |
 | `learning`，非慢答对出现在 2 个日期 | 最后作答日 + 2 | `2-3d` | `correct-new-day` |
@@ -156,7 +159,7 @@ v0.1 的状态是 `version: 1`，关系里只有 `status` 和 `attempts`。升�
 
 ## 7. 验收例子
 
-日期都是客户端传入的本地日期。三次都假设不快、输入方式不变。掌握状态沿用第 0 节的现行规则。
+日期都是客户端传入的本地日期。除单独写明外，都假设不慢、输入方式不变。掌握状态沿用第 0 节的现行规则。
 
 ### Case 1：`square-15`（15²）分三天答对
 
@@ -176,6 +179,14 @@ v0.1 的状态是 `version: 1`，关系里只有 `status` 和 `attempts`。升�
 
 下一次见到它，是下一个本地日期的练习，排在「已到期且最后一次答错」里，先于未练，也先于最后一次答对的 `learning`。
 
+### Case 4：`fraction-1-8`（1/8）同一天先错、隔两题再答对
+
+2026-10-01 第一次答错：状态变为 `learning`，本节隔 2 题再出现，`due_day` 为 2026-10-02，bucket `1d`，reason `wrong`。
+
+同日这次再现答对：状态仍是 `learning`。`due_day` 仍是 2026-10-02，bucket 仍是 `1d`，reason `correct-after-wrong`。不进入 `2-3d`。下一次要到 2026-10-02，并且那天答对且不慢，间隔才前进。
+
+`stable` 答错变成 `shaky` 后，同一天隔两题再答对，用同一条：状态保持 `shaky`，`due_day` 改为明天，bucket `1d`，reason `correct-after-wrong`。不回到 `stable`，也不恢复答错前的维护间隔。
+
 ### Case 3：已经 `stable` 的关系，两周后答错
 
 假设 `due_day` 是 14 天前，期间没有作答。状态仍是 `stable`，只是选择时视为逾期维护，不降级。
@@ -186,7 +197,7 @@ v0.1 的状态是 `version: 1`，关系里只有 `status` 和 `attempts`。升�
 - `due_day` 改为今天，bucket `1d`，reason `stable-wrong`。原来的 7 天间隔作废。
 - 本节内隔 2 题再出现一次。
 - 今天若再开一节，它排在该域的 `shaky` 组最前。
-- 同一天随后答对，不能回到 `stable`，也不能跳过 `1d`。要再次 `stable`，仍须满足第 0 节的跨天规则；那时 reason 才是 `became-stable`，到期日为那天之后的 5 天。
+- 同一天随后答对，使用 Case 4 的 `correct-after-wrong`：状态保持 `shaky`，`due_day` 改为明天，bucket 为 `1d`。不回到 `stable`，也不恢复 7 天。要再次 `stable`，仍须满足第 0 节的跨天规则；那时 reason 才是 `became-stable`，到期日为那天之后的 5 天。
 
 ## 8. 契约核对
 
