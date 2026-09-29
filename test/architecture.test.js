@@ -34,3 +34,14 @@ test("prototype firstSliceCatalog is not the formal content source", () => {
     assert.equal(source.includes("firstSliceCatalog"), false, file);
   }
 });
+
+test("core never creates learner ids or reads randomness on its own", () => {
+  const banned = ["randomUUID", "getRandomValues", "crypto", "Math.random", "openid"];
+  const files = readdirSync(coreDir).filter((f) => f.endsWith(".js"));
+  for (const file of files) {
+    const source = readFileSync(join(coreDir, file), "utf8");
+    for (const token of banned) {
+      assert.equal(source.includes(token), false, `${file} contains ${token}`);
+    }
+  }
+});

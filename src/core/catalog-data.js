@@ -1,4 +1,4 @@
-/** Auto-synced from content/v0.1/*.core.json — do not edit by hand. */
+/** Auto-synced from content/v0.1 + content/v0.2c *.core.json — do not edit by hand. */
 export const CORE_RELATIONS = [
   {
     "id": "square-6",
@@ -26,6 +26,14 @@ export const CORE_RELATIONS = [
       {
         "title": "36",
         "detail": "6² = 36"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-6",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-6"
       }
     ]
   },
@@ -55,6 +63,14 @@ export const CORE_RELATIONS = [
       {
         "title": "49",
         "detail": "7² = 49"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-7",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-7"
       }
     ]
   },
@@ -89,6 +105,14 @@ export const CORE_RELATIONS = [
         "title": "64",
         "detail": "8² = 64"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-8",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-8"
+      }
     ]
   },
   {
@@ -117,6 +141,14 @@ export const CORE_RELATIONS = [
       {
         "title": "81",
         "detail": "9² = 81"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-9",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-9"
       }
     ]
   },
@@ -151,6 +183,14 @@ export const CORE_RELATIONS = [
         "title": "100",
         "detail": "10² = 100"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-10",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-10"
+      }
     ]
   },
   {
@@ -184,6 +224,14 @@ export const CORE_RELATIONS = [
         "title": "121",
         "detail": "11² = 121"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-11",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-11"
+      }
     ]
   },
   {
@@ -212,6 +260,14 @@ export const CORE_RELATIONS = [
       {
         "title": "144",
         "detail": "12² = 144"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-12",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-12"
       }
     ]
   },
@@ -246,6 +302,14 @@ export const CORE_RELATIONS = [
         "title": "169",
         "detail": "13² = 169"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-13",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-13"
+      }
     ]
   },
   {
@@ -278,6 +342,14 @@ export const CORE_RELATIONS = [
       {
         "title": "196",
         "detail": "14² = 196"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-14",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-14"
       }
     ]
   },
@@ -316,6 +388,14 @@ export const CORE_RELATIONS = [
         "title": "225",
         "detail": "15² = 225"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-15",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-15"
+      }
     ]
   },
   {
@@ -348,6 +428,14 @@ export const CORE_RELATIONS = [
       {
         "title": "256",
         "detail": "16² = 256"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-16",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-16"
       }
     ]
   },
@@ -382,6 +470,14 @@ export const CORE_RELATIONS = [
         "title": "289",
         "detail": "17² = 289"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-17",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-17"
+      }
     ]
   },
   {
@@ -414,6 +510,14 @@ export const CORE_RELATIONS = [
       {
         "title": "324",
         "detail": "18² = 324"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-18",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-18"
       }
     ]
   },
@@ -448,6 +552,14 @@ export const CORE_RELATIONS = [
         "title": "361",
         "detail": "19² = 361"
       }
+    ],
+    "families": [
+      {
+        "id": "sq-19",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-19"
+      }
     ]
   },
   {
@@ -480,6 +592,14 @@ export const CORE_RELATIONS = [
       {
         "title": "400",
         "detail": "20² = 400"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-20"
       }
     ]
   },
@@ -517,6 +637,14 @@ export const CORE_RELATIONS = [
       {
         "title": "625",
         "detail": "25² = 625"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "isquare-25"
       }
     ]
   },
@@ -1603,6 +1731,14 @@ export const CORE_RELATIONS = [
         "title": "0.5",
         "detail": "1/2 = 0.5"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-1-2",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-2"
+      }
     ]
   },
   {
@@ -1635,6 +1771,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.25",
         "detail": "1/4 = 0.25"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-4",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-4"
       }
     ]
   },
@@ -1669,6 +1813,14 @@ export const CORE_RELATIONS = [
         "title": "0.75",
         "detail": "3/4 = 0.75"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-3-4",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-3-4"
+      }
     ]
   },
   {
@@ -1701,6 +1853,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.2",
         "detail": "1/5 = 0.2"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-5",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-5"
       }
     ]
   },
@@ -1735,6 +1895,14 @@ export const CORE_RELATIONS = [
         "title": "0.4",
         "detail": "2/5 = 0.4"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-2-5",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-2-5"
+      }
     ]
   },
   {
@@ -1767,6 +1935,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.6",
         "detail": "3/5 = 0.6"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-5",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-3-5"
       }
     ]
   },
@@ -1801,6 +1977,14 @@ export const CORE_RELATIONS = [
         "title": "0.8",
         "detail": "4/5 = 0.8"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-4-5",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-4-5"
+      }
     ]
   },
   {
@@ -1833,6 +2017,19 @@ export const CORE_RELATIONS = [
       {
         "title": "0.125",
         "detail": "1/8 = 0.125"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-8",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-8"
+      },
+      {
+        "id": "eighths",
+        "type": "scaling",
+        "role": "member"
       }
     ]
   },
@@ -1867,6 +2064,19 @@ export const CORE_RELATIONS = [
         "title": "0.375",
         "detail": "3/8 = 0.375"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-3-8",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-3-8"
+      },
+      {
+        "id": "eighths",
+        "type": "scaling",
+        "role": "member"
+      }
     ]
   },
   {
@@ -1899,6 +2109,19 @@ export const CORE_RELATIONS = [
       {
         "title": "0.625",
         "detail": "5/8 = 0.625"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-5-8",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-5-8"
+      },
+      {
+        "id": "eighths",
+        "type": "scaling",
+        "role": "member"
       }
     ]
   },
@@ -1933,6 +2156,19 @@ export const CORE_RELATIONS = [
         "title": "0.875",
         "detail": "7/8 = 0.875"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-7-8",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-7-8"
+      },
+      {
+        "id": "eighths",
+        "type": "scaling",
+        "role": "member"
+      }
     ]
   },
   {
@@ -1961,6 +2197,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.1",
         "detail": "1/10 = 0.1"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-10",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-10"
       }
     ]
   },
@@ -1995,6 +2239,14 @@ export const CORE_RELATIONS = [
         "title": "0.3",
         "detail": "3/10 = 0.3"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-3-10",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-3-10"
+      }
     ]
   },
   {
@@ -2027,6 +2279,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.7",
         "detail": "7/10 = 0.7"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-7-10",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-7-10"
       }
     ]
   },
@@ -2061,6 +2321,14 @@ export const CORE_RELATIONS = [
         "title": "0.05",
         "detail": "1/20 = 0.05"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-1-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-20"
+      }
     ]
   },
   {
@@ -2093,6 +2361,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.15",
         "detail": "3/20 = 0.15"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-3-20"
       }
     ]
   },
@@ -2127,6 +2403,14 @@ export const CORE_RELATIONS = [
         "title": "0.35",
         "detail": "7/20 = 0.35"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-7-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-7-20"
+      }
     ]
   },
   {
@@ -2159,6 +2443,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.45",
         "detail": "9/20 = 0.45"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-9-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-9-20"
       }
     ]
   },
@@ -2193,6 +2485,14 @@ export const CORE_RELATIONS = [
         "title": "0.55",
         "detail": "11/20 = 0.55"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-11-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-11-20"
+      }
     ]
   },
   {
@@ -2225,6 +2525,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.65",
         "detail": "13/20 = 0.65"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-13-20",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-13-20"
       }
     ]
   },
@@ -2259,6 +2567,14 @@ export const CORE_RELATIONS = [
         "title": "0.04",
         "detail": "1/25 = 0.04"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-1-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-1-25"
+      }
     ]
   },
   {
@@ -2291,6 +2607,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.08",
         "detail": "2/25 = 0.08"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-2-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-2-25"
       }
     ]
   },
@@ -2325,6 +2649,14 @@ export const CORE_RELATIONS = [
         "title": "0.12",
         "detail": "3/25 = 0.12"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-3-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-3-25"
+      }
     ]
   },
   {
@@ -2357,6 +2689,14 @@ export const CORE_RELATIONS = [
       {
         "title": "0.16",
         "detail": "4/25 = 0.16"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-4-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-4-25"
       }
     ]
   },
@@ -2391,6 +2731,14 @@ export const CORE_RELATIONS = [
         "title": "0.24",
         "detail": "6/25 = 0.24"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-6-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-6-25"
+      }
     ]
   },
   {
@@ -2424,6 +2772,14 @@ export const CORE_RELATIONS = [
         "title": "0.32",
         "detail": "8/25 = 0.32"
       }
+    ],
+    "families": [
+      {
+        "id": "fr-8-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-8-25"
+      }
     ]
   },
   {
@@ -2456,6 +2812,2075 @@ export const CORE_RELATIONS = [
       {
         "title": "0.48",
         "detail": "12/25 = 0.48"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-12-25",
+        "type": "inverse_pair",
+        "role": "forward",
+        "counterpart": "ifraction-12-25"
+      }
+    ]
+  },
+  {
+    "id": "isquare-6",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 36？",
+    "canonical_answer": "6",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "6² = 36",
+    "hook": "六六三十六，小九九老朋友。",
+    "pattern": {
+      "check": "36 在 25（5²）和 49（7²）之间。",
+      "family": [
+        "7² = 49",
+        "8² = 64"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 36",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "6 × 6",
+        "detail": "小九九里的六六三十六"
+      },
+      {
+        "title": "36",
+        "detail": "6² = 36"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-6",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-6"
+      }
+    ],
+    "entry_after": "square-6"
+  },
+  {
+    "id": "isquare-7",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 49？",
+    "canonical_answer": "7",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "7² = 49",
+    "hook": "七七四十九，小九九老朋友。",
+    "pattern": {
+      "check": "49 在 36（6²）和 64（8²）之间。",
+      "family": [
+        "6² = 36",
+        "8² = 64"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 49",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "7 × 7",
+        "detail": "小九九里的七七四十九"
+      },
+      {
+        "title": "49",
+        "detail": "7² = 49"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-7",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-7"
+      }
+    ],
+    "entry_after": "square-7"
+  },
+  {
+    "id": "isquare-8",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 64？",
+    "canonical_answer": "8",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "8² = 64",
+    "hook": "八八六十四，小九九老朋友。",
+    "pattern": {
+      "check": "64 在 49（7²）和 81（9²）之间。",
+      "family": [
+        "2⁶ = 64",
+        "16² = 256"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 64",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "8 × 8",
+        "detail": "八八六十四"
+      },
+      {
+        "title": "64 = 2⁶",
+        "detail": "2 连乘 6 次也是 64"
+      },
+      {
+        "title": "64",
+        "detail": "8² = 64"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-8",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-8"
+      }
+    ],
+    "entry_after": "square-8"
+  },
+  {
+    "id": "isquare-9",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 81？",
+    "canonical_answer": "9",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "9² = 81",
+    "hook": "九九八十一，小九九老朋友。",
+    "pattern": {
+      "check": "81 在 64（8²）和 100（10²）之间。",
+      "family": [
+        "8² = 64",
+        "10² = 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 81",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "9 × 9",
+        "detail": "小九九里的九九八十一"
+      },
+      {
+        "title": "81",
+        "detail": "9² = 81"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-9",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-9"
+      }
+    ],
+    "entry_after": "square-9"
+  },
+  {
+    "id": "isquare-10",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 100？",
+    "canonical_answer": "10",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "10² = 100",
+    "hook": "整百想整十：10² = 100。",
+    "pattern": {
+      "check": "整十的平方一定是整百。",
+      "family": [
+        "20² = 400",
+        "30² = 900"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 100",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "1² = 1",
+        "detail": "先算十位的平方"
+      },
+      {
+        "title": "1 | 00",
+        "detail": "后面接两个 0"
+      },
+      {
+        "title": "100",
+        "detail": "10² = 100"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-10",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-10"
+      }
+    ],
+    "entry_after": "square-10"
+  },
+  {
+    "id": "isquare-15",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 225？",
+    "canonical_answer": "15",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "15² = 225",
+    "hook": "225 以 25 结尾，想尾 5 的平方：15² = 225。",
+    "pattern": {
+      "check": "末位是 5 的整数平方，一定以 25 结尾。225 在 100 和 400 之间。",
+      "family": [
+        "25² = 625",
+        "35² = 1225"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 225",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "1 × 2",
+        "detail": "先看 5 前面的 1"
+      },
+      {
+        "title": "2",
+        "detail": "1 × 2 得到前面这一截"
+      },
+      {
+        "title": "2 | 25",
+        "detail": "后面接上 25"
+      },
+      {
+        "title": "225",
+        "detail": "15² = 225"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-15",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-15"
+      }
+    ],
+    "entry_after": "square-15"
+  },
+  {
+    "id": "isquare-20",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 400？",
+    "canonical_answer": "20",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "20² = 400",
+    "hook": "整百想整十：20² = 400。",
+    "pattern": {
+      "check": "整十的平方一定是整百。",
+      "family": [
+        "10² = 100",
+        "30² = 900"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 400",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "2² = 4",
+        "detail": "先算十位的平方"
+      },
+      {
+        "title": "4 | 00",
+        "detail": "后面接两个 0"
+      },
+      {
+        "title": "400",
+        "detail": "20² = 400"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-20"
+      }
+    ],
+    "entry_after": "square-20"
+  },
+  {
+    "id": "isquare-11",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 121？",
+    "canonical_answer": "11",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "11² = 121",
+    "hook": "121 = 100 + 20 + 1：(10+1)²。",
+    "pattern": {
+      "check": "离 10 很近的数，借 10² 来算。",
+      "family": [
+        "12² = 144",
+        "21² = 441"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 121",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "10² = 100",
+        "detail": "先借整十"
+      },
+      {
+        "title": "+20 +1",
+        "detail": "加上 2×10×1 和 1²"
+      },
+      {
+        "title": "121",
+        "detail": "11² = 121"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-11",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-11"
+      }
+    ],
+    "entry_after": "square-11"
+  },
+  {
+    "id": "isquare-12",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 144？",
+    "canonical_answer": "12",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "12² = 144",
+    "hook": "直接锚住：12² = 144。",
+    "pattern": {
+      "check": "144 在 121（11²）和 169（13²）之间。",
+      "family": [
+        "11² = 121",
+        "13² = 169"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 144",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "12 × 12",
+        "detail": "没有捷径，直接提取"
+      },
+      {
+        "title": "144",
+        "detail": "12² = 144"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-12",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-12"
+      }
+    ],
+    "entry_after": "square-12"
+  },
+  {
+    "id": "isquare-13",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "reasonableness",
+    "prompt": "哪个数的平方是 169？",
+    "canonical_answer": "13",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "13² = 169",
+    "hook": "169 个位是 9：13² = 169。",
+    "pattern": {
+      "check": "169 在 144（12²）和 196（14²）之间；注意别和 14²=196 混淆。",
+      "family": [
+        "12² = 144",
+        "14² = 196"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 169",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "13 × 13",
+        "detail": "直接提取"
+      },
+      {
+        "title": "个位是 9",
+        "detail": "3×3=9，个位一定是 9"
+      },
+      {
+        "title": "169",
+        "detail": "13² = 169"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-13",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-13"
+      }
+    ],
+    "entry_after": "square-13"
+  },
+  {
+    "id": "isquare-14",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "reasonableness",
+    "prompt": "哪个数的平方是 196？",
+    "canonical_answer": "14",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "14² = 196",
+    "hook": "196 接近 200，个位是 6：14² = 196。",
+    "pattern": {
+      "check": "196 接近 200；注意别和 13²=169 混淆。",
+      "family": [
+        "13² = 169",
+        "15² = 225"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 196",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "14 × 14",
+        "detail": "接近 200"
+      },
+      {
+        "title": "个位是 6",
+        "detail": "4×4=16，个位一定是 6"
+      },
+      {
+        "title": "196",
+        "detail": "14² = 196"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-14",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-14"
+      }
+    ],
+    "entry_after": "square-14"
+  },
+  {
+    "id": "isquare-16",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 256？",
+    "canonical_answer": "16",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "16² = 256",
+    "hook": "直接锚住：16² = 256。",
+    "pattern": {
+      "check": "256 在 225（15²）和 289（17²）之间。",
+      "family": [
+        "2⁸ = 256",
+        "8² = 64"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 256",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "16 = 2⁴",
+        "detail": "16 是 2 连乘 4 次"
+      },
+      {
+        "title": "(2⁴)² = 2⁸",
+        "detail": "平方就是指数翻倍"
+      },
+      {
+        "title": "256",
+        "detail": "16² = 256"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-16",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-16"
+      }
+    ],
+    "entry_after": "square-16"
+  },
+  {
+    "id": "isquare-25",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 625？",
+    "canonical_answer": "25",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "25² = 625",
+    "hook": "625 以 25 结尾，尾 5 平方：25² = 625。",
+    "pattern": {
+      "check": "末位是 5 的整数平方，一定以 25 结尾。625 在 400 和 900 之间。",
+      "family": [
+        "15² = 225",
+        "35² = 1225"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 625",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "2 × 3",
+        "detail": "先看 5 前面的 2"
+      },
+      {
+        "title": "6",
+        "detail": "2 × 3 得到前面这一截"
+      },
+      {
+        "title": "6 | 25",
+        "detail": "后面接上 25"
+      },
+      {
+        "title": "625",
+        "detail": "25² = 625"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-25"
+      }
+    ],
+    "entry_after": "square-25"
+  },
+  {
+    "id": "isquare-17",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "哪个数的平方是 289？",
+    "canonical_answer": "17",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "17² = 289",
+    "hook": "289 在 256 和 324 之间：17² = 289。",
+    "pattern": {
+      "check": "289 在 256（16²）和 324（18²）之间，个位是 9。",
+      "family": [
+        "16² = 256",
+        "18² = 324"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 289",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "17 × 17",
+        "detail": "夹在 256 和 324 之间"
+      },
+      {
+        "title": "个位是 9",
+        "detail": "7×7=49，个位一定是 9"
+      },
+      {
+        "title": "289",
+        "detail": "17² = 289"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-17",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-17"
+      }
+    ],
+    "entry_after": "square-17"
+  },
+  {
+    "id": "isquare-18",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 324？",
+    "canonical_answer": "18",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "18² = 324",
+    "hook": "324 = 400 − 80 + 4：(20−2)²。",
+    "pattern": {
+      "check": "离 20 很近的数，借 20² 往回算。",
+      "family": [
+        "19² = 361",
+        "20² = 400"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 324",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "20² = 400",
+        "detail": "先借 20²"
+      },
+      {
+        "title": "−80 +4",
+        "detail": "减去 2×20×2，加回 2²"
+      },
+      {
+        "title": "324",
+        "detail": "18² = 324"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-18",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-18"
+      }
+    ],
+    "entry_after": "square-18"
+  },
+  {
+    "id": "isquare-19",
+    "domain": "squares",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "哪个数的平方是 361？",
+    "canonical_answer": "19",
+    "answer_type": "integer",
+    "direction": "inverse",
+    "relation": "19² = 361",
+    "hook": "361 = 400 − 40 + 1：(20−1)²。",
+    "pattern": {
+      "check": "离 20 最近的数，借 20² 往回算。",
+      "family": [
+        "18² = 324",
+        "20² = 400"
+      ]
+    },
+    "frames": [
+      {
+        "title": "? × ? = 361",
+        "detail": "想哪个数自己乘自己"
+      },
+      {
+        "title": "20² = 400",
+        "detail": "先借 20²"
+      },
+      {
+        "title": "−40 +1",
+        "detail": "减去 2×20×1，加回 1²"
+      },
+      {
+        "title": "361",
+        "detail": "19² = 361"
+      }
+    ],
+    "families": [
+      {
+        "id": "sq-19",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "square-19"
+      }
+    ],
+    "entry_after": "square-19"
+  },
+  {
+    "id": "ifraction-1-2",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "retrieval_anchor",
+    "prompt": "0.5 是哪个分数？",
+    "canonical_answer": "1/2",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.5 = 1/2",
+    "hook": "一半就是 1/2。",
+    "pattern": {
+      "check": "0.5 × 2 = 1，正好回到 1。",
+      "family": [
+        "1/4 = 0.25",
+        "2/4 = 1/2"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 平均分成 2 份",
+        "detail": "每份是一半"
+      },
+      {
+        "title": "0.5",
+        "detail": "1/2 = 0.5"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-2",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-2"
+      }
+    ],
+    "entry_after": "fraction-1-2"
+  },
+  {
+    "id": "ifraction-1-4",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "anchor",
+    "prompt": "0.25 是哪个分数？",
+    "canonical_answer": "1/4",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.25 = 1/4",
+    "hook": "0.25 是 0.5 的一半：1/4。",
+    "pattern": {
+      "check": "0.25 × 4 = 1；0.25 就是 25 分（1 元的 1/4）。",
+      "family": [
+        "1/2 = 0.5",
+        "3/4 = 0.75"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/2 = 0.5",
+        "detail": "先想一半"
+      },
+      {
+        "title": "再一半",
+        "detail": "0.5 ÷ 2"
+      },
+      {
+        "title": "0.25",
+        "detail": "1/4 = 0.25"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-4",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-4"
+      }
+    ],
+    "entry_after": "fraction-1-4"
+  },
+  {
+    "id": "ifraction-3-4",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "anchor",
+    "prompt": "0.75 是哪个分数？",
+    "canonical_answer": "3/4",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.75 = 3/4",
+    "hook": "3 个 0.25：3/4。",
+    "pattern": {
+      "check": "也可以 1 − 1/4 = 1 − 0.25 = 0.75，互相印证。",
+      "family": [
+        "1/4 = 0.25",
+        "1/2 = 0.5"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/4 = 0.25",
+        "detail": "先锚住 1/4"
+      },
+      {
+        "title": "× 3",
+        "detail": "3 个 1/4"
+      },
+      {
+        "title": "0.75",
+        "detail": "3/4 = 0.75"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-4",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-3-4"
+      }
+    ],
+    "entry_after": "fraction-3-4"
+  },
+  {
+    "id": "ifraction-1-5",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "0.2 是哪个分数？",
+    "canonical_answer": "1/5",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.2 = 1/5",
+    "hook": "0.2 是五分之一：1/5。",
+    "pattern": {
+      "check": "分子分母同乘 2 → 2/10 = 0.2。",
+      "family": [
+        "2/5 = 0.4",
+        "1/10 = 0.1"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×2 → 2/10",
+        "detail": "分母凑成 10"
+      },
+      {
+        "title": "2/10 = 0.2",
+        "detail": "十分之几就是一位小数"
+      },
+      {
+        "title": "0.2",
+        "detail": "1/5 = 0.2"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-5",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-5"
+      }
+    ],
+    "entry_after": "fraction-1-5"
+  },
+  {
+    "id": "ifraction-2-5",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "anchor",
+    "prompt": "0.4 是哪个分数？",
+    "canonical_answer": "2/5",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.4 = 2/5",
+    "hook": "2 个 0.2：2/5。",
+    "pattern": {
+      "check": "同乘 2 → 4/10 = 0.4，互相印证。",
+      "family": [
+        "1/5 = 0.2",
+        "3/5 = 0.6"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/5 = 0.2",
+        "detail": "先锚住 1/5"
+      },
+      {
+        "title": "× 2",
+        "detail": "2 个 1/5"
+      },
+      {
+        "title": "0.4",
+        "detail": "2/5 = 0.4"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-2-5",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-2-5"
+      }
+    ],
+    "entry_after": "fraction-2-5"
+  },
+  {
+    "id": "ifraction-3-5",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "anchor",
+    "prompt": "0.6 是哪个分数？",
+    "canonical_answer": "3/5",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.6 = 3/5",
+    "hook": "3 个 0.2：3/5。",
+    "pattern": {
+      "check": "同乘 2 → 6/10 = 0.6，互相印证。",
+      "family": [
+        "1/5 = 0.2",
+        "4/5 = 0.8"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/5 = 0.2",
+        "detail": "先锚住 1/5"
+      },
+      {
+        "title": "× 3",
+        "detail": "3 个 1/5"
+      },
+      {
+        "title": "0.6",
+        "detail": "3/5 = 0.6"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-5",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-3-5"
+      }
+    ],
+    "entry_after": "fraction-3-5"
+  },
+  {
+    "id": "ifraction-4-5",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "anchor",
+    "prompt": "0.8 是哪个分数？",
+    "canonical_answer": "4/5",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.8 = 4/5",
+    "hook": "比 1 少 0.2：4/5。",
+    "pattern": {
+      "check": "比 1 少一个 1/5：1 − 0.2 = 0.8。",
+      "family": [
+        "1/5 = 0.2",
+        "3/5 = 0.6"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 − 1/5",
+        "detail": "4/5 比 1 少 1/5"
+      },
+      {
+        "title": "1 − 0.2",
+        "detail": "用锚点来算"
+      },
+      {
+        "title": "0.8",
+        "detail": "4/5 = 0.8"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-4-5",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-4-5"
+      }
+    ],
+    "entry_after": "fraction-4-5"
+  },
+  {
+    "id": "ifraction-1-10",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "0.1 是哪个分数？",
+    "canonical_answer": "1/10",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.1 = 1/10",
+    "hook": "十分之一就是 1/10。",
+    "pattern": {
+      "check": "0.1 × 10 = 1。",
+      "family": [
+        "1/5 = 0.2",
+        "3/10 = 0.3"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 平均分成 10 份",
+        "detail": "每份是十分之一"
+      },
+      {
+        "title": "0.1",
+        "detail": "1/10 = 0.1"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-10",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-10"
+      }
+    ],
+    "entry_after": "fraction-1-10"
+  },
+  {
+    "id": "ifraction-3-10",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "0.3 是哪个分数？",
+    "canonical_answer": "3/10",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.3 = 3/10",
+    "hook": "3 个 0.1：3/10。",
+    "pattern": {
+      "check": "十分之几直接写成一位小数。",
+      "family": [
+        "1/10 = 0.1",
+        "7/10 = 0.7"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/10 = 0.1",
+        "detail": "先锚住 1/10"
+      },
+      {
+        "title": "× 3",
+        "detail": "3 个 1/10"
+      },
+      {
+        "title": "0.3",
+        "detail": "3/10 = 0.3"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-10",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-3-10"
+      }
+    ],
+    "entry_after": "fraction-3-10"
+  },
+  {
+    "id": "ifraction-7-10",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "0.7 是哪个分数？",
+    "canonical_answer": "7/10",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.7 = 7/10",
+    "hook": "7 个 0.1：7/10。",
+    "pattern": {
+      "check": "十分之几直接写成一位小数。",
+      "family": [
+        "1/10 = 0.1",
+        "3/10 = 0.3"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/10 = 0.1",
+        "detail": "先锚住 1/10"
+      },
+      {
+        "title": "× 7",
+        "detail": "7 个 1/10"
+      },
+      {
+        "title": "0.7",
+        "detail": "7/10 = 0.7"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-7-10",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-7-10"
+      }
+    ],
+    "entry_after": "fraction-7-10"
+  },
+  {
+    "id": "ifraction-1-8",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "anchor",
+    "prompt": "0.125 是哪个分数？",
+    "canonical_answer": "1/8",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.125 = 1/8",
+    "hook": "0.125 是 0.25 的一半：1/8。",
+    "pattern": {
+      "check": "0.125 × 8 = 1；连续对半：1 → 0.5 → 0.25 → 0.125。",
+      "family": [
+        "1/4 = 0.25",
+        "3/8 = 0.375"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/4 = 0.25",
+        "detail": "先锚住 1/4"
+      },
+      {
+        "title": "再一半",
+        "detail": "0.25 ÷ 2"
+      },
+      {
+        "title": "0.125",
+        "detail": "1/8 = 0.125"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-8",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-8"
+      }
+    ],
+    "entry_after": "fraction-1-8"
+  },
+  {
+    "id": "ifraction-3-8",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "anchor",
+    "prompt": "0.375 是哪个分数？",
+    "canonical_answer": "3/8",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.375 = 3/8",
+    "hook": "3 个 0.125：3/8。",
+    "pattern": {
+      "check": "0.375 在 0.25 和 0.5 之间，合理。",
+      "family": [
+        "1/8 = 0.125",
+        "5/8 = 0.625"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/8 = 0.125",
+        "detail": "先锚住 1/8"
+      },
+      {
+        "title": "× 3",
+        "detail": "3 个 1/8"
+      },
+      {
+        "title": "0.375",
+        "detail": "3/8 = 0.375"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-8",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-3-8"
+      }
+    ],
+    "entry_after": "fraction-3-8"
+  },
+  {
+    "id": "ifraction-5-8",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "anchor",
+    "prompt": "0.625 是哪个分数？",
+    "canonical_answer": "5/8",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.625 = 5/8",
+    "hook": "0.5 加 0.125：5/8。",
+    "pattern": {
+      "check": "0.625 比 0.5 多 0.125，合理。",
+      "family": [
+        "1/8 = 0.125",
+        "1/2 = 0.5"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/2 + 1/8",
+        "detail": "5/8 拆成 4/8 + 1/8"
+      },
+      {
+        "title": "0.5 + 0.125",
+        "detail": "两个锚点相加"
+      },
+      {
+        "title": "0.625",
+        "detail": "5/8 = 0.625"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-5-8",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-5-8"
+      }
+    ],
+    "entry_after": "fraction-5-8"
+  },
+  {
+    "id": "ifraction-7-8",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "anchor",
+    "prompt": "0.875 是哪个分数？",
+    "canonical_answer": "7/8",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.875 = 7/8",
+    "hook": "比 1 少 0.125：7/8。",
+    "pattern": {
+      "check": "0.875 接近 1，合理。",
+      "family": [
+        "1/8 = 0.125",
+        "5/8 = 0.625"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 − 1/8",
+        "detail": "7/8 比 1 少 1/8"
+      },
+      {
+        "title": "1 − 0.125",
+        "detail": "用锚点来算"
+      },
+      {
+        "title": "0.875",
+        "detail": "7/8 = 0.875"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-7-8",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-7-8"
+      }
+    ],
+    "entry_after": "fraction-7-8"
+  },
+  {
+    "id": "ifraction-1-20",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.05 是哪个分数？",
+    "canonical_answer": "1/20",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.05 = 1/20",
+    "hook": "5/100 约到最简：1/20。",
+    "pattern": {
+      "check": "分母 20 乘 5 凑成 100，百分之几就是两位小数。",
+      "family": [
+        "1/10 = 0.1",
+        "1/25 = 0.04"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×5 → 5/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "5/100 = 0.05",
+        "detail": "百分之几是两位小数"
+      },
+      {
+        "title": "0.05",
+        "detail": "1/20 = 0.05"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-20"
+      }
+    ],
+    "entry_after": "fraction-1-20"
+  },
+  {
+    "id": "ifraction-3-20",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.15 是哪个分数？",
+    "canonical_answer": "3/20",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.15 = 3/20",
+    "hook": "15/100 约到最简：3/20。",
+    "pattern": {
+      "check": "0.15 = 0.1 + 0.05，合理。",
+      "family": [
+        "1/20 = 0.05",
+        "3/25 = 0.12"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×5 → 15/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "15/100 = 0.15",
+        "detail": "百分之十五"
+      },
+      {
+        "title": "0.15",
+        "detail": "3/20 = 0.15"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-3-20"
+      }
+    ],
+    "entry_after": "fraction-3-20"
+  },
+  {
+    "id": "ifraction-7-20",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.35 是哪个分数？",
+    "canonical_answer": "7/20",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.35 = 7/20",
+    "hook": "35/100 约到最简：7/20。",
+    "pattern": {
+      "check": "0.35 在 0.25（1/4）和 0.5（1/2）之间，合理。",
+      "family": [
+        "1/4 = 0.25",
+        "9/20 = 0.45"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×5 → 35/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "35/100 = 0.35",
+        "detail": "百分之三十五"
+      },
+      {
+        "title": "0.35",
+        "detail": "7/20 = 0.35"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-7-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-7-20"
+      }
+    ],
+    "entry_after": "fraction-7-20"
+  },
+  {
+    "id": "ifraction-1-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.04 是哪个分数？",
+    "canonical_answer": "1/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.04 = 1/25",
+    "hook": "4/100 约到最简：1/25。",
+    "pattern": {
+      "check": "分母 25 乘 4 凑成 100。",
+      "family": [
+        "1/20 = 0.05",
+        "2/25 = 0.08"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 4/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "4/100 = 0.04",
+        "detail": "百分之四"
+      },
+      {
+        "title": "0.04",
+        "detail": "1/25 = 0.04"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-1-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-1-25"
+      }
+    ],
+    "entry_after": "fraction-1-25"
+  },
+  {
+    "id": "ifraction-2-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.08 是哪个分数？",
+    "canonical_answer": "2/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.08 = 2/25",
+    "hook": "8/100 约到最简：2/25。",
+    "pattern": {
+      "check": "0.08 = 2 × 0.04，与 1/25 互相印证。",
+      "family": [
+        "1/25 = 0.04",
+        "3/25 = 0.12"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 8/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "8/100 = 0.08",
+        "detail": "百分之八"
+      },
+      {
+        "title": "0.08",
+        "detail": "2/25 = 0.08"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-2-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-2-25"
+      }
+    ],
+    "entry_after": "fraction-2-25"
+  },
+  {
+    "id": "ifraction-9-20",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.45 是哪个分数？",
+    "canonical_answer": "9/20",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.45 = 9/20",
+    "hook": "45/100 约到最简：9/20。",
+    "pattern": {
+      "check": "0.45 接近 0.5（1/2），合理。",
+      "family": [
+        "7/20 = 0.35",
+        "1/2 = 0.5"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×5 → 45/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "45/100 = 0.45",
+        "detail": "百分之四十五"
+      },
+      {
+        "title": "0.45",
+        "detail": "9/20 = 0.45"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-9-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-9-20"
+      }
+    ],
+    "entry_after": "fraction-9-20"
+  },
+  {
+    "id": "ifraction-11-20",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.55 是哪个分数？",
+    "canonical_answer": "11/20",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.55 = 11/20",
+    "hook": "55/100 约到最简：11/20。",
+    "pattern": {
+      "check": "0.55 比 0.5 多一点，合理——11/20 比一半多 1/20。",
+      "family": [
+        "1/2 = 0.5",
+        "13/20 = 0.65"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×5 → 55/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "55/100 = 0.55",
+        "detail": "百分之五十五"
+      },
+      {
+        "title": "0.55",
+        "detail": "11/20 = 0.55"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-11-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-11-20"
+      }
+    ],
+    "entry_after": "fraction-11-20"
+  },
+  {
+    "id": "ifraction-13-20",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.65 是哪个分数？",
+    "canonical_answer": "13/20",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.65 = 13/20",
+    "hook": "65/100 约到最简：13/20。",
+    "pattern": {
+      "check": "0.65 在 0.5 和 0.75 之间，合理。",
+      "family": [
+        "11/20 = 0.55",
+        "3/4 = 0.75"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×5 → 65/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "65/100 = 0.65",
+        "detail": "百分之六十五"
+      },
+      {
+        "title": "0.65",
+        "detail": "13/20 = 0.65"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-13-20",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-13-20"
+      }
+    ],
+    "entry_after": "fraction-13-20"
+  },
+  {
+    "id": "ifraction-3-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.12 是哪个分数？",
+    "canonical_answer": "3/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.12 = 3/25",
+    "hook": "12/100 约到最简：3/25。",
+    "pattern": {
+      "check": "0.12 = 3 × 0.04，与 1/25 互相印证。",
+      "family": [
+        "2/25 = 0.08",
+        "1/8 = 0.125"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 12/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "12/100 = 0.12",
+        "detail": "百分之十二"
+      },
+      {
+        "title": "0.12",
+        "detail": "3/25 = 0.12"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-3-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-3-25"
+      }
+    ],
+    "entry_after": "fraction-3-25"
+  },
+  {
+    "id": "ifraction-4-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.16 是哪个分数？",
+    "canonical_answer": "4/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.16 = 4/25",
+    "hook": "16/100 约到最简：4/25。",
+    "pattern": {
+      "check": "0.16 = 4 × 0.04；4/25 与 1/6 无关，别和 0.166… 混。",
+      "family": [
+        "3/25 = 0.12",
+        "1/4 = 0.25"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 16/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "16/100 = 0.16",
+        "detail": "百分之十六"
+      },
+      {
+        "title": "0.16",
+        "detail": "4/25 = 0.16"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-4-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-4-25"
+      }
+    ],
+    "entry_after": "fraction-4-25"
+  },
+  {
+    "id": "ifraction-6-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.24 是哪个分数？",
+    "canonical_answer": "6/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.24 = 6/25",
+    "hook": "24/100 约到最简：6/25。",
+    "pattern": {
+      "check": "0.24 接近 0.25（1/4），合理。",
+      "family": [
+        "1/4 = 0.25",
+        "4/25 = 0.16"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 24/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "24/100 = 0.24",
+        "detail": "百分之二十四"
+      },
+      {
+        "title": "0.24",
+        "detail": "6/25 = 0.24"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-6-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-6-25"
+      }
+    ],
+    "entry_after": "fraction-6-25"
+  },
+  {
+    "id": "ifraction-8-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.32 是哪个分数？",
+    "canonical_answer": "8/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.32 = 8/25",
+    "hook": "32/100 约到最简：8/25。",
+    "pattern": {
+      "check": "0.32 在 0.25 和 0.5 之间，合理。",
+      "family": [
+        "6/25 = 0.24",
+        "1/4 = 0.25"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 32/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "32/100 = 0.32",
+        "detail": "百分之三十二"
+      },
+      {
+        "title": "0.32",
+        "detail": "8/25 = 0.32"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-8-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-8-25"
+      }
+    ],
+    "entry_after": "fraction-8-25"
+  },
+  {
+    "id": "ifraction-12-25",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "transformation",
+    "prompt": "0.48 是哪个分数？",
+    "canonical_answer": "12/25",
+    "answer_type": "fraction",
+    "direction": "inverse",
+    "relation": "0.48 = 12/25",
+    "hook": "48/100 约到最简：12/25。",
+    "pattern": {
+      "check": "0.48 接近 0.5（1/2），合理——12/25 比一半少 0.5/25。",
+      "family": [
+        "1/2 = 0.5",
+        "8/25 = 0.32"
+      ]
+    },
+    "frames": [
+      {
+        "title": "×4 → 48/100",
+        "detail": "分母凑成 100"
+      },
+      {
+        "title": "48/100 = 0.48",
+        "detail": "百分之四十八"
+      },
+      {
+        "title": "0.48",
+        "detail": "12/25 = 0.48"
+      }
+    ],
+    "families": [
+      {
+        "id": "fr-12-25",
+        "type": "inverse_pair",
+        "role": "inverse",
+        "counterpart": "fraction-12-25"
+      }
+    ],
+    "entry_after": "fraction-12-25"
+  },
+  {
+    "id": "fraction-1-3",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "1/3 = ?",
+    "canonical_answer": "0.(3)",
+    "answer_type": "decimal_repeating",
+    "direction": "forward",
+    "relation": "1/3 = 0.(3)",
+    "hook": "1÷3 永远余 1，所以 3 无限循环。",
+    "pattern": {
+      "check": "0.(3) × 3 = 0.(9)，也就是 1。",
+      "family": [
+        "2/3 = 0.(6)",
+        "1/9 = 0.(1)"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 ÷ 3",
+        "detail": "每一步都余 1"
+      },
+      {
+        "title": "0.333…",
+        "detail": "3 一直重复"
+      },
+      {
+        "title": "0.(3)",
+        "detail": "1/3 = 0.(3)"
+      }
+    ],
+    "families": [
+      {
+        "id": "thirds",
+        "type": "scaling",
+        "role": "member"
+      }
+    ]
+  },
+  {
+    "id": "fraction-2-3",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "2/3 = ?",
+    "canonical_answer": "0.(6)",
+    "answer_type": "decimal_repeating",
+    "direction": "forward",
+    "relation": "2/3 = 0.(6)",
+    "hook": "2 个 0.(3) 就是 0.(6)。",
+    "pattern": {
+      "check": "0.(6) 比 0.5 大，比 0.7 小。",
+      "family": [
+        "1/3 = 0.(3)",
+        "1 − 1/3 = 2/3"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1/3 = 0.(3)",
+        "detail": "先想 1/3"
+      },
+      {
+        "title": "2 个 1/3",
+        "detail": "0.(3) + 0.(3)"
+      },
+      {
+        "title": "0.(6)",
+        "detail": "2/3 = 0.(6)"
+      }
+    ],
+    "families": [
+      {
+        "id": "thirds",
+        "type": "scaling",
+        "role": "member"
+      }
+    ]
+  },
+  {
+    "id": "fraction-1-9",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "1/9 = ?",
+    "canonical_answer": "0.(1)",
+    "answer_type": "decimal_repeating",
+    "direction": "forward",
+    "relation": "1/9 = 0.(1)",
+    "hook": "1÷9 永远余 1，1 无限循环。",
+    "pattern": {
+      "check": "n/9 = 0.(n)：2/9 = 0.(2)，5/9 = 0.(5)。",
+      "family": [
+        "2/9 = 0.(2)",
+        "1/3 = 3/9 = 0.(3)"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 ÷ 9",
+        "detail": "每一步都余 1"
+      },
+      {
+        "title": "0.111…",
+        "detail": "1 一直重复"
+      },
+      {
+        "title": "0.(1)",
+        "detail": "1/9 = 0.(1)"
+      }
+    ],
+    "families": [
+      {
+        "id": "ninths",
+        "type": "scaling",
+        "role": "member"
+      }
+    ]
+  },
+  {
+    "id": "fraction-1-7",
+    "domain": "fraction_decimal",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "1/7 = ?",
+    "canonical_answer": "0.(142857)",
+    "answer_type": "decimal_repeating",
+    "direction": "forward",
+    "relation": "1/7 = 0.(142857)",
+    "hook": "142857 是「走马灯数」：记住 142｜857 这一圈。",
+    "pattern": {
+      "check": "1/7 比 1/8 = 0.125 大一点：0.142… 说得通。",
+      "family": [
+        "2/7 = 0.(285714)",
+        "3/7 = 0.(428571)"
+      ]
+    },
+    "frames": [
+      {
+        "title": "1 ÷ 7",
+        "detail": "余数开始循环"
+      },
+      {
+        "title": "142 | 857",
+        "detail": "循环节分两块记"
+      },
+      {
+        "title": "0.(142857)",
+        "detail": "1/7 = 0.(142857)"
+      }
+    ],
+    "families": [
+      {
+        "id": "cyc-7",
+        "type": "cyclic_rotation",
+        "role": "member"
       }
     ]
   }

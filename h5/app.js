@@ -1,6 +1,7 @@
 /**
- * H5 / PC Client Shell for Number Sense Lab v0.1
+ * H5 / PC Client Shell for Number Sense Lab (v0.3)
  * Core Learning Engine stays platform-free; persistence via adapter.
+ * State v3: one active learner; this shell only reads/writes that learner.
  */
 import {
   loadCoreCatalog,
@@ -9,7 +10,11 @@ import {
   DOMAIN_ORDER,
   filterByDomain,
 } from "../src/core/content.js";
-import { createMemoryStore, emptyState } from "../src/core/store.js";
+import {
+  createMemoryStore,
+  getActiveLearner,
+  withActiveLearner,
+} from "../src/core/store.js";
 import {
   startSession,
   submitAnswer,
@@ -24,7 +29,9 @@ import {
   MASTERY,
 } from "../src/core/mastery.js";
 import { buildA4Sheet } from "../src/core/a4.js";
-import { createBrowserStore } from "../src/adapter/browser-store.js";
+import { buildMistakeBook } from "../src/core/mistakes.js";
+import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
+import { createBrowserStore, localDay } from "../src/adapter/browser-store.js";
 import { createCue } from "./sound.js";
 import { formatMath } from "./math-text.js";
 
@@ -47,8 +54,11 @@ verifyContentCounts(catalog);
 
 const memory = createMemoryStore();
 const browserStore = createBrowserStore();
-let state = browserStore.read();
-memory.write(state);
+/** Full v3 record (all learners). */
+let root = browserStore.read();
+/** The active learner's record: relations / sessions / activeSession / prefs. */
+let state = getActiveLearner(root);
+memory.write(root);
 const cue = createCue(() => state.prefs?.sound !== false);
 
 const app = document.getElementById("app");
@@ -66,23 +76,25 @@ let correctTimer = 0;
 let screenName = "home";
 let focusedDomain = null;
 let a4Domain = null;
+/** "unstable" (home 「印到纸上」) | "mistakes" (错题本 「印这些题」) */
+let a4Scope = "unstable";
+/** Nudge under the answer box; the simplification hint stays until resubmit. */
+let nudgeHtml = "";
+let nudgeSticky = false;
 let showAnswers = false;
 let expandedPattern = false;
 let expandedFrames = false;
 let lastFeedback = null;
 
 function today() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return localDay();
 }
 
 function persist(next) {
   state = next;
-  memory.write(next);
-  browserStore.write(next);
+  root = withActiveLearner(root, next);
+  memory.write(root);
+  browserStore.write(root);
 }
 
 function resolveInputMode() {
@@ -97,7 +109,11 @@ function resolveInputMode() {
 
 function homeMode() {
   if (state.activeSession && state.activeSession.answered > 0) return "paused";
-  const last = state.lastResult;
+  // A voluntary Mistake Book session does not count as today's practice.
+  const sessions = state.sessions || [];
+  const last =
+    [...sessions].reverse().find((s) => s.mode !== MISTAKE_BOOK_SOURCE) ||
+    (state.lastResult && state.lastResult.mode !== MISTAKE_BOOK_SOURCE ? state.lastResult : null);
   if (last && last.day === today() && last.completed) return "done";
   return "default";
 }
@@ -118,6 +134,7 @@ function render() {
   else if (screenName === "end") app.innerHTML = renderEnd();
   else if (screenName === "progress") app.innerHTML = renderProgress();
   else if (screenName === "a4") app.innerHTML = renderA4();
+  else if (screenName === "mistakes") app.innerHTML = renderMistakes();
   else app.innerHTML = renderHome();
   bind();
 }
@@ -178,6 +195,7 @@ function renderHome() {
     <div class="domains">${domains}</div>
     <nav class="home-links">
       <button type="button" data-action="progress">最近练得怎么样</button>
+      <button type="button" data-action="mistakes">错题本</button>
       <button type="button" data-action="a4">印到纸上</button>
     </nav>
     <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
@@ -202,10 +220,14 @@ function renderTrain() {
       <button class="cta" type="button" data-action="home">回首页</button></section>`;
   }
   const pill = nearEnd ? "快完成了" : revisit ? "再试一次" : domainLabel(currentItem.domain);
-  const needsDot = currentItem.needsDecimalPoint;
-  const dotKey = needsDot
+  // Integer: empty slot. Plain decimal: 「.」. Fraction: 「/」 in the same slot.
+  // Repeating decimal: no new key; the answer box itself is 0.( … ).
+  const dotKey = currentItem.needsDecimalPoint
     ? `<button class="key" type="button" data-digit=".">.</button>`
-    : `<span class="key ghost" aria-hidden="true"></span>`;
+    : currentItem.needsSlash
+      ? `<button class="key" type="button" data-digit="/" aria-label="分数线">/</button>`
+      : `<span class="key ghost" aria-hidden="true"></span>`;
+  const answerClass = currentItem.repeatingBlock ? "answer answer-repeating" : "answer";
 
   return `<section class="screen" id="train">
     <div class="top">
@@ -213,8 +235,8 @@ function renderTrain() {
       <span class="pill">${pill}</span>
     </div>
     <h1 class="question">${formatMath(currentItem.prompt)}</h1>
-    <div class="answer" id="answer" aria-live="polite">${escapeHtml(answer)}</div>
-    <p class="nudge" id="nudge"></p>
+    <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>
+    <p class="nudge" id="nudge">${nudgeHtml}</p>
     <div class="keys" id="keys">
       ${[1,2,3,4,5,6,7,8,9].map((n) => `<button class="key" type="button" data-digit="${n}">${n}</button>`).join("")}
       ${dotKey}
@@ -350,18 +372,57 @@ function renderProgress() {
   </section>`;
 }
 
+function renderMistakes() {
+  const book = buildMistakeBook(catalog, state.relations, studentLabel);
+  const back = `<button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>`;
+  if (book.empty) {
+    return `<section class="screen" id="mistakes">
+      ${back}
+      <h1 class="title" style="margin-top:20px">${book.title}</h1>
+      <p class="lede">${book.emptyMessage}</p>
+      <button class="cta" type="button" data-action="home">回首页</button>
+    </section>`;
+  }
+  const groups = book.groups
+    .map(
+      (group) => `<p class="body group-label">${domainLabel(group.domain)}</p>
+      <ul class="list">${group.items
+        .map(
+          (item) =>
+            `<li data-id="${item.id}"><span>${formatMath(item.prompt.replace(" = ?", ""))}</span><span class="meta">${item.label}</span></li>`,
+        )
+        .join("")}</ul>`,
+    )
+    .join("");
+  return `<section class="screen" id="mistakes">
+    ${back}
+    <h1 class="title" style="margin-top:20px">${book.title}</h1>
+    <p class="lede">${book.lede}</p>
+    ${groups}
+    <button class="cta" type="button" data-action="start-mistakes">练这些错题</button>
+    <div class="links">
+      <button class="link row" type="button" data-action="a4-mistakes">${mark("printer")}印这些题</button>
+    </div>
+  </section>`;
+}
+
 function renderA4() {
   const sheet = buildA4Sheet(catalog, state.relations, {
     domain: a4Domain,
     day: formatDay(today()),
+    scope: a4Scope,
   });
+  const fromMistakes = a4Scope === "mistakes";
+  const backLink = fromMistakes
+    ? `<button class="quiet back" type="button" data-action="mistakes">${mark("arrow-left")}回错题本</button>`
+    : `<button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>`;
 
   if (sheet.empty) {
     return `<section class="screen no-print">
-      <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
+      ${backLink}
       <h1 class="title" style="margin-top:20px">印到纸上</h1>
       <p class="lede">${sheet.emptyMessage}</p>
-      <button class="cta" type="button" data-action="home">先练一小段</button>
+      <button class="cta" type="button" data-action="home">${fromMistakes ? "回首页" : "先练一小段"}</button>
     </section>`;
   }
 
@@ -396,9 +457,9 @@ function renderA4() {
         .join("")}</ol>
     </div>`;
 
-  return `<section class="screen">
+  return `<section class="screen" id="a4" data-scope="${a4Scope}">
     <div class="no-print">
-      <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
+      ${backLink}
       <h1 class="title" style="margin-top:20px">印到纸上</h1>
       <p class="lede">${showAnswers ? "这一页只有答案。写完题目再看。" : sheet.subtitle}</p>
       <div class="filters" role="group" aria-label="打印范围">${filters}</div>
@@ -412,6 +473,29 @@ function renderA4() {
       <p class="fine">若当前环境打不开打印，可用浏览器的「打印」或「存储为 PDF」把题目带出去。</p>
     </div>
   </section>`;
+}
+
+/** Answer box content: plain digits, a textbook fraction, or 0.( block ). */
+function answerHtml() {
+  if (currentItem?.repeatingBlock) {
+    return `<span class="rep-frame" aria-hidden="true">0.(</span><span class="rep-block">${
+      escapeHtml(answer) || "&#8203;"
+    }</span><span class="rep-frame" aria-hidden="true">)</span>`;
+  }
+  if (currentItem?.needsSlash) {
+    const match = /^(\d+)\/(\d+)$/.exec(answer);
+    if (match) {
+      return `<span class="frac answer-frac" aria-label="${match[1]}/${match[2]}"><span class="num">${match[1]}</span><span class="den">${match[2]}</span></span>`;
+    }
+  }
+  return escapeHtml(answer);
+}
+
+function setNudge(html, sticky = false) {
+  nudgeHtml = html;
+  nudgeSticky = sticky;
+  const nudge = document.getElementById("nudge");
+  if (nudge) nudge.innerHTML = html;
 }
 
 function escapeHtml(value) {
@@ -484,6 +568,24 @@ function onAction(event) {
   }
   if (action === "a4") {
     a4Domain = null;
+    a4Scope = "unstable";
+    showAnswers = false;
+    screenName = "a4";
+    render();
+    return;
+  }
+  if (action === "mistakes") {
+    screenName = "mistakes";
+    render();
+    return;
+  }
+  if (action === "start-mistakes") {
+    beginSession(MISTAKE_BOOK_SOURCE, null);
+    return;
+  }
+  if (action === "a4-mistakes") {
+    a4Domain = null;
+    a4Scope = "mistakes";
     showAnswers = false;
     screenName = "a4";
     render();
@@ -523,6 +625,7 @@ function onAction(event) {
     return;
   }
   if (action === "del") {
+    if (screenName !== "train" || submitting) return;
     inputModes.add("onscreen_keypad");
     answer = answer.slice(0, -1);
     syncAnswer();
@@ -557,8 +660,13 @@ function appendDigit(digit) {
     if (!currentItem?.needsDecimalPoint) return;
     if (answer.includes(".")) return;
     answer += ".";
+  } else if (digit === "/") {
+    // Only fraction answers take 「/」, and only one of it.
+    if (!currentItem?.needsSlash) return;
+    if (answer.includes("/")) return;
+    answer += "/";
   } else {
-    if (answer.replace(".", "").length >= 8) return;
+    if (answer.replace(/[./]/g, "").length >= 8) return;
     answer += digit;
   }
   syncAnswer();
@@ -568,13 +676,17 @@ function appendDigit(digit) {
 function syncAnswer() {
   const el = document.getElementById("answer");
   if (el) {
-    el.textContent = answer;
+    el.innerHTML = answerHtml();
     el.classList.remove("tick");
     void el.offsetWidth;
     el.classList.add("tick");
   }
-  const nudge = document.getElementById("nudge");
-  if (nudge) nudge.textContent = "";
+  if (!nudgeSticky) setNudge("");
+}
+
+function sessionSeed(mode, domain) {
+  // Shell-provided seed: a new order each session, reproducible inside Core.
+  return `${today()}|${mode}|${domain || ""}|${(state.sessions || []).length}|${Date.now()}`;
 }
 
 function beginSession(mode, domain) {
@@ -584,7 +696,15 @@ function beginSession(mode, domain) {
     day: today(),
     relations: state.relations,
     catalog,
+    seed: sessionSeed(mode, domain),
   });
+  if (mode === MISTAKE_BOOK_SOURCE && session.queue.length === 0) {
+    // No current mistakes: nothing to start, no fallback queue.
+    session = null;
+    screenName = "mistakes";
+    render();
+    return;
+  }
   persist({ ...state, activeSession: session });
   if (session.finished || session.queue.length === 0) {
     // All stable or empty — still create a short confirmation queue from catalog
@@ -595,6 +715,7 @@ function beginSession(mode, domain) {
       relations: {},
       catalog,
       size: 6,
+      seed: sessionSeed(mode, domain),
     });
     persist({ ...state, activeSession: session });
   }
@@ -613,6 +734,8 @@ function showQuestion() {
     return;
   }
   answer = "";
+  nudgeHtml = "";
+  nudgeSticky = false;
   inputModes = new Set();
   startedAt = performance.now();
   submitting = false;
@@ -641,11 +764,13 @@ function doSubmit() {
   });
 
   if (!result.feedback.record) {
+    // Not an attempt (empty / malformed / needs_simplification): stay here,
+    // keep the answer editable, nothing recorded.
     submitting = false;
-    const nudge = document.getElementById("nudge");
-    if (nudge) nudge.textContent = result.feedback.message;
+    setNudge(formatMath(result.feedback.message), Boolean(result.feedback.needsSimplification));
     return;
   }
+  setNudge("");
 
   persist(result.state);
   session = result.session;
@@ -703,8 +828,13 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     inputModes.add("physical_keyboard");
     appendDigit(".");
+  } else if (event.key === "/" || event.key === "Divide") {
+    event.preventDefault();
+    inputModes.add("physical_keyboard");
+    appendDigit("/");
   } else if (event.key === "Backspace") {
     event.preventDefault();
+    if (submitting) return;
     inputModes.add("physical_keyboard");
     answer = answer.slice(0, -1);
     syncAnswer();

@@ -9,7 +9,7 @@ import {
 import { loadCoreCatalog } from "../src/core/content.js";
 import { MASTERY } from "../src/core/mastery.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
-import { emptyState } from "../src/core/store.js";
+import { emptyLearner } from "../src/core/store.js";
 
 const catalog = loadCoreCatalog();
 
@@ -36,7 +36,7 @@ test("wrong item reappears later, not immediately", () => {
   });
   const firstId = session.queue[0];
   const item = catalog.find((r) => r.id === firstId);
-  let state = emptyState();
+  let state = emptyLearner();
 
   const wrong = submitAnswer({
     item,

@@ -287,7 +287,9 @@ h1, .title {
 }
 .home-links {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, auto);
+  justify-content: space-between;
+  column-gap: 16px;
   margin-top: 8px;
   border-top: 0;
 }
@@ -303,7 +305,8 @@ h1, .title {
   text-align: left;
   cursor: pointer;
 }
-.home-links button + button { text-align: right; }
+.home-links button:nth-child(2) { text-align: center; }
+.home-links button:last-child { text-align: right; }
 .quiet:hover, .link:hover { color: var(--ink); }
 .quiet:hover { border-color: var(--teal); }
 .quiet:active, .chip:active { transform: translateY(1px); }
@@ -641,3 +644,31 @@ button:focus-visible {
   }
   .sheet .blank { min-width: 18mm; }
 }
+
+/* v0.3 — Mistake Book list (same paper column as progress; no badges) */
+#mistakes .group-label {
+  margin-top: 22px;
+  color: var(--soft);
+  font-size: 14px;
+  font-weight: 600;
+}
+#mistakes .list { margin-top: 6px; }
+#mistakes .cta { margin-top: 28px; }
+
+/* v0.3 — fraction answers use a textbook bar inside the answer box */
+.answer .answer-frac { font-size: 0.72em; }
+.answer .answer-frac .num,
+.answer .answer-frac .den { min-width: 1.4em; }
+
+/* v0.3 — repeating decimal: fixed 0.( … ) frame, student types only the block */
+.answer-repeating { gap: 2px; }
+.answer-repeating .rep-frame { color: var(--soft); font-weight: 500; }
+.answer-repeating .rep-block {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 4px;
+  border-bottom: 1.5px dashed rgba(28, 25, 21, 0.35);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.nudge .frac { font-size: 0.9em; }

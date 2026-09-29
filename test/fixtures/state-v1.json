@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "relations": {
+    "square-15": {
+      "status": "stable",
+      "attempts": [
+        { "correct": true, "day": "2026-09-20", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1800, "mixedInput": false },
+        { "correct": true, "day": "2026-09-21", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1500, "mixedInput": false },
+        { "correct": true, "day": "2026-09-23", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1300, "mixedInput": false }
+      ]
+    },
+    "square-12": {
+      "status": "stable",
+      "attempts": [
+        { "correct": false, "day": "2026-09-20", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 4100, "mixedInput": false },
+        { "correct": true, "day": "2026-09-20", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 2100, "mixedInput": false },
+        { "correct": true, "day": "2026-09-21", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 1900, "mixedInput": false },
+        { "correct": true, "day": "2026-09-23", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 1700, "mixedInput": false }
+      ]
+    },
+    "fraction-1-8": {
+      "status": "shaky",
+      "attempts": [
+        { "correct": true, "day": "2026-09-20", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 2400, "mixedInput": false },
+        { "correct": true, "day": "2026-09-21", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 2000, "mixedInput": false },
+        { "correct": true, "day": "2026-09-23", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1900, "mixedInput": false },
+        { "correct": false, "day": "2026-09-27", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 5200, "mixedInput": false }
+      ]
+    },
+    "product-12-7": {
+      "status": "learning",
+      "attempts": [
+        { "correct": true, "day": "2026-09-26", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 2600, "mixedInput": false },
+        { "correct": false, "day": "2026-09-27", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 3900, "mixedInput": false }
+      ]
+    },
+    "square-6": {
+      "status": "learning",
+      "attempts": [
+        { "correct": true, "day": "2026-09-27", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 900, "mixedInput": false }
+      ]
+    },
+    "fraction-1-2": { "status": "unpracticed", "attempts": [] }
+  },
+  "sessions": [
+    { "id": "s-2026-09-20-1", "day": "2026-09-20", "mode": "daily", "domain": null, "correct": 8, "total": 10, "completed": true, "earlyStop": false, "grewFamiliar": [] },
+    { "id": "s-2026-09-27-1", "day": "2026-09-27", "mode": "focused", "domain": "squares", "correct": 3, "total": 5, "completed": false, "earlyStop": true, "grewFamiliar": ["6² = 36"] }
+  ],
+  "activeSession": {
+    "id": "s-2026-09-28-1",
+    "mode": "daily",
+    "domain": null,
+    "day": "2026-09-28",
+    "queue": ["square-7", "product-11-12", "fraction-1-4", "square-8", "product-12-6"],
+    "cursor": 2,
+    "answered": 2,
+    "correctCount": 1,
+    "targetCount": 5,
+    "finished": false,
+    "earlyStop": false,
+    "reappearPlan": { "product-11-12": 4 },
+    "reappearCount": { "product-11-12": 1 },
+    "outcomes": [
+      { "id": "square-7", "correct": true, "elapsedMs": 1200, "inputMode": "onscreen_keypad" },
+      { "id": "product-11-12", "correct": false, "elapsedMs": 4000, "inputMode": "onscreen_keypad" }
+    ],
+    "grewFamiliar": []
+  },
+  "prefs": { "sound": false },
+  "lastResult": { "id": "s-2026-09-27-1", "day": "2026-09-27", "mode": "focused", "domain": "squares", "correct": 3, "total": 5, "completed": false, "earlyStop": true, "grewFamiliar": ["6² = 36"] }
+}

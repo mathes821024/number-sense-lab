@@ -1,6 +1,11 @@
 /**
  * Mathematical answer judging via unified normalization.
  * Display always uses canonical_answer from content.
+ *
+ * Judged kinds:
+ *   empty | invalid          → not an attempt (no record)
+ *   needs_simplification     → not an attempt (fraction value right, not lowest terms)
+ *   correct | wrong          → recorded attempt (outcome correct | incorrect)
  */
 
 /**
@@ -42,18 +47,96 @@ export function normalizeAnswer(raw, answerType) {
   return `${whole}.${frac}`;
 }
 
+function gcd(a, b) {
+  let x = a;
+  let y = b;
+  while (y) [x, y] = [y, x % y];
+  return x;
+}
+
 /**
- * @param {{ answer_type?: string, canonical_answer: string, integerOnly?: boolean }} item
+ * Parse "numerator/denominator". Both parts must be positive integers,
+ * exactly one "/", denominator ≠ 0.
+ * @returns {{ numerator: number, denominator: number, text: string }|null}
+ */
+export function parseFraction(raw) {
+  const text = String(raw ?? "").trim();
+  if ((text.match(/\//g) || []).length !== 1) return null;
+  const match = /^(\d+)\/(\d+)$/.exec(text);
+  if (!match) return null;
+  const numerator = Number(match[1]);
+  const denominator = Number(match[2]);
+  if (!Number.isSafeInteger(numerator) || !Number.isSafeInteger(denominator)) return null;
+  if (numerator <= 0 || denominator <= 0) return null;
+  return { numerator, denominator, text: `${numerator}/${denominator}` };
+}
+
+/** "0.(142857)" → "142857"; null when not a repeating canonical form. */
+export function repeatingBlockOf(canonical) {
+  const match = /^0\.\((\d+)\)$/.exec(String(canonical ?? "").trim());
+  return match ? match[1] : null;
+}
+
+function judgeFraction(item, text) {
+  if (!text) return { kind: "empty", normalized: null };
+  const given = parseFraction(text);
+  if (!given) return { kind: "invalid", normalized: null };
+  const expected = parseFraction(item.canonical_answer);
+  if (!expected) return { kind: "invalid", normalized: given.text };
+  const sameValue =
+    given.numerator * expected.denominator === expected.numerator * given.denominator;
+  if (!sameValue) return { kind: "wrong", normalized: given.text };
+  if (gcd(given.numerator, given.denominator) === 1) {
+    return { kind: "correct", normalized: given.text };
+  }
+  return {
+    kind: "needs_simplification",
+    normalized: given.text,
+    simplest: expected.text,
+  };
+}
+
+function judgeRepeating(item, text) {
+  const expected = repeatingBlockOf(item.canonical_answer);
+  // The student types only the repeating block. A full "0.(3)" is also read.
+  const block = repeatingBlockOf(text) ?? text;
+  if (!block) return { kind: "empty", normalized: null };
+  if (!/^\d+$/.test(block)) return { kind: "invalid", normalized: null };
+  if (expected === null) return { kind: "invalid", normalized: null };
+  const normalized = `0.(${block})`;
+  return block === expected
+    ? { kind: "correct", normalized }
+    : { kind: "wrong", normalized };
+}
+
+/** Frozen outcome names for recorded / unrecorded submissions. */
+export function outcomeOf(kind) {
+  if (kind === "correct") return "correct";
+  if (kind === "wrong") return "incorrect";
+  if (kind === "needs_simplification") return "needs_simplification";
+  return null;
+}
+
+/**
+ * @param {{ answer_type?: string, canonical_answer: string, integerOnly?: boolean, needsDecimalPoint?: boolean }} item
  * @param {string} raw
- * @returns {{ kind: 'empty'|'invalid'|'correct'|'wrong', normalized: string|null }}
+ * @returns {{ kind: 'empty'|'invalid'|'correct'|'wrong'|'needs_simplification', normalized: string|null, simplest?: string, outcome: string|null }}
  */
 export function judgeAnswer(item, raw) {
+  const result = judgeRaw(item, raw);
+  return { ...result, outcome: outcomeOf(result.kind) };
+}
+
+function judgeRaw(item, raw) {
+  const text = String(raw ?? "").trim();
+  if (item.answer_type === "fraction") return judgeFraction(item, text);
+  if (item.answer_type === "decimal_repeating") return judgeRepeating(item, text);
+
   const answerType =
     item.answer_type === "decimal" || item.needsDecimalPoint
       ? "decimal"
       : "integer";
 
-  const text = String(raw ?? "").trim();
   if (!text || text === ".") {
     return { kind: "empty", normalized: null };
   }

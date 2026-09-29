@@ -1,7 +1,9 @@
 /**
  * Content loader for Core Recall relations.
- * Source of truth: content/v0.1/*.core.json (synced into catalog-data.js).
- * Supporting examples in pattern.family are NOT trainable and have no mastery.
+ * Source of truth: content/v0.1/*.core.json + content/v0.2c/*.core.json
+ * (synced into catalog-data.js by scripts/sync-content.mjs).
+ * Supporting examples in pattern.family, knowledge maps and Structured
+ * Practice entries are NOT trainable and have no mastery.
  */
 import { CORE_RELATIONS } from "./catalog-data.js";
 
@@ -13,6 +15,10 @@ export const DOMAIN_LABELS = {
 
 export const DOMAIN_ORDER = ["squares", "products", "fraction_decimal"];
 
+export const ANSWER_TYPES = ["integer", "decimal", "fraction", "decimal_repeating"];
+
+/** @typedef {{ id: string, type: 'inverse_pair'|'cyclic_rotation'|'scaling', role?: string, counterpart?: string }} RelationFamily */
+
 /** @typedef {{
  *  id: string,
  *  domain: 'squares'|'products'|'fraction_decimal',
@@ -21,20 +27,28 @@ export const DOMAIN_ORDER = ["squares", "products", "fraction_decimal"];
  *  hook_type: string,
  *  prompt: string,
  *  canonical_answer: string,
- *  answer_type: 'integer'|'decimal',
+ *  answer_type: 'integer'|'decimal'|'fraction'|'decimal_repeating',
+ *  direction: 'forward'|'inverse',
+ *  families: RelationFamily[],
+ *  entry_after: string|null,
  *  relation: string,
  *  hook: string,
  *  pattern: { check: string, family: string[] },
  *  frames: { title: string, detail: string }[],
  *  integerOnly: boolean,
  *  needsDecimalPoint: boolean,
+ *  needsSlash: boolean,
+ *  repeatingBlock: boolean,
  * }} RelationItem */
+
+let cachedCatalog = null;
 
 /**
  * @returns {RelationItem[]}
  */
 export function loadCoreCatalog() {
-  return CORE_RELATIONS.map(normalizeRelation);
+  if (!cachedCatalog) cachedCatalog = CORE_RELATIONS.map(normalizeRelation);
+  return cachedCatalog.map((item) => item);
 }
 
 /**
@@ -42,12 +56,17 @@ export function loadCoreCatalog() {
  * @returns {RelationItem}
  */
 export function normalizeRelation(raw) {
-  const answerType = raw.answer_type === "decimal" ? "decimal" : "integer";
+  const answerType = ANSWER_TYPES.includes(raw.answer_type) ? raw.answer_type : "integer";
   return {
     ...raw,
     answer_type: answerType,
+    direction: raw.direction === "inverse" ? "inverse" : "forward",
+    families: Array.isArray(raw.families) ? raw.families : [],
+    entry_after: raw.entry_after || null,
     integerOnly: answerType === "integer",
     needsDecimalPoint: answerType === "decimal",
+    needsSlash: answerType === "fraction",
+    repeatingBlock: answerType === "decimal_repeating",
   };
 }
 
@@ -68,22 +87,67 @@ export function filterByDomain(domain, catalog = loadCoreCatalog()) {
   return catalog.filter((item) => item.domain === domain);
 }
 
+/** Family ids a relation belongs to (content layer only). */
+export function familyIds(item) {
+  return (item?.families || []).map((family) => family.id);
+}
+
+/** Two relations are one relation family when any family id matches. */
+export function sharesFamily(a, b) {
+  if (!a || !b) return false;
+  const ids = new Set(familyIds(a));
+  return familyIds(b).some((id) => ids.has(id));
+}
+
+/**
+ * entry_after is a first-entry unlock only (v0.2C OQ2):
+ * - no entry_after → always available
+ * - the relation already has any attempt → independent, always available
+ * - otherwise the counterpart must be stable
+ * @param {RelationItem} item
+ * @param {Record<string, {status?: string, attempts?: object[]}>} relations
+ */
+export function isEntryUnlocked(item, relations = {}) {
+  if (!item?.entry_after) return true;
+  const own = relations[item.id];
+  if (own && Array.isArray(own.attempts) && own.attempts.length > 0) return true;
+  return relations[item.entry_after]?.status === "stable";
+}
+
+export const FROZEN_COUNTS = {
+  squares: 32,
+  products: 32,
+  fraction_decimal: 58,
+  total: 122,
+  v01: 75,
+  v02c: 47,
+};
+
 /**
  * Verify frozen Core Recall counts. Throws on mismatch for CONTRACT_CONFLICT.
+ * v0.1: squares 16, products 32, fraction→decimal 27 (= 75)
+ * v0.2C: inverse squares 16, decimal→fraction 27, repeating 4 (= 47)
  */
 export function verifyContentCounts(catalog = loadCoreCatalog()) {
-  const counts = {
-    squares: 0,
-    products: 0,
-    fraction_decimal: 0,
-  };
+  const counts = { squares: 0, products: 0, fraction_decimal: 0 };
+  const parts = { inverseSquares: 0, decimalToFraction: 0, repeating: 0 };
+  const ids = new Set();
   for (const item of catalog) {
     if (!(item.domain in counts)) {
       throw new Error(`CONTRACT_CONFLICT: unknown domain ${item.domain}`);
     }
+    if (ids.has(item.id)) throw new Error(`CONTENT_ID_CONFLICT: duplicate ${item.id}`);
+    ids.add(item.id);
     counts[item.domain] += 1;
+    if (item.direction === "inverse" && item.domain === "squares") parts.inverseSquares += 1;
+    if (item.direction === "inverse" && item.answer_type === "fraction") parts.decimalToFraction += 1;
+    if (item.answer_type === "decimal_repeating") parts.repeating += 1;
   }
-  const expected = { squares: 16, products: 32, fraction_decimal: 27 };
+  const expected = {
+    squares: FROZEN_COUNTS.squares,
+    products: FROZEN_COUNTS.products,
+    fraction_decimal: FROZEN_COUNTS.fraction_decimal,
+  };
   for (const key of Object.keys(expected)) {
     if (counts[key] !== expected[key]) {
       throw new Error(
@@ -91,11 +155,20 @@ export function verifyContentCounts(catalog = loadCoreCatalog()) {
       );
     }
   }
-  const total = catalog.length;
-  if (total !== 75) {
-    throw new Error(`CONTRACT_CONFLICT: total expected 75, got ${total}`);
+  const expectedParts = { inverseSquares: 16, decimalToFraction: 27, repeating: 4 };
+  for (const key of Object.keys(expectedParts)) {
+    if (parts[key] !== expectedParts[key]) {
+      throw new Error(
+        `CONTRACT_CONFLICT: ${key} expected ${expectedParts[key]}, got ${parts[key]}`,
+      );
+    }
   }
-  return { ...counts, total };
+  const total = catalog.length;
+  if (total !== FROZEN_COUNTS.total) {
+    throw new Error(`CONTRACT_CONFLICT: total expected ${FROZEN_COUNTS.total}, got ${total}`);
+  }
+  const v02c = parts.inverseSquares + parts.decimalToFraction + parts.repeating;
+  return { ...counts, ...parts, v01: total - v02c, v02c, total };
 }
 
 export function domainLabel(domain) {

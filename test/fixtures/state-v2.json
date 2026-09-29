@@ -1,0 +1,64 @@
+{
+  "version": 2,
+  "relations": {
+    "square-15": {
+      "status": "stable",
+      "attempts": [
+        { "correct": true, "day": "2026-09-20", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1800, "mixedInput": false },
+        { "correct": true, "day": "2026-09-21", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1500, "mixedInput": false },
+        { "correct": true, "day": "2026-09-23", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1300, "mixedInput": false }
+      ],
+      "schedule": { "due_day": "2026-09-28", "bucket": "5-7d", "reason": "became-stable" }
+    },
+    "fraction-1-2": {
+      "status": "stable",
+      "attempts": [
+        { "correct": true, "day": "2026-09-19", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1100, "mixedInput": false },
+        { "correct": true, "day": "2026-09-20", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1000, "mixedInput": false },
+        { "correct": true, "day": "2026-09-22", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 900, "mixedInput": false }
+      ],
+      "schedule": { "due_day": "2026-09-27", "bucket": "5-7d", "reason": "became-stable" }
+    },
+    "fraction-1-8": {
+      "status": "shaky",
+      "attempts": [
+        { "correct": true, "day": "2026-09-20", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 2400, "mixedInput": false },
+        { "correct": true, "day": "2026-09-21", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 2000, "mixedInput": false },
+        { "correct": true, "day": "2026-09-23", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1900, "mixedInput": false },
+        { "correct": false, "day": "2026-09-27", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 5200, "mixedInput": false }
+      ],
+      "schedule": { "due_day": "2026-09-27", "bucket": "1d", "reason": "stable-wrong" }
+    },
+    "product-12-7": {
+      "status": "learning",
+      "attempts": [
+        { "correct": true, "day": "2026-09-26", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 2600, "mixedInput": false },
+        { "correct": false, "day": "2026-09-27", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 3900, "mixedInput": false }
+      ],
+      "schedule": { "due_day": "2026-09-28", "bucket": "1d", "reason": "wrong" }
+    },
+    "product-13-7": {
+      "status": "learning",
+      "attempts": [
+        { "correct": false, "day": "2026-09-28", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 4200, "mixedInput": false },
+        { "correct": true, "day": "2026-09-28", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 2200, "mixedInput": false },
+        { "correct": true, "day": "2026-09-29", "slow": false, "inputMode": "physical_keyboard", "elapsedMs": 1900, "mixedInput": false }
+      ],
+      "schedule": { "due_day": "2026-10-01", "bucket": "2-3d", "reason": "correct-new-day" }
+    },
+    "square-6": {
+      "status": "learning",
+      "attempts": [
+        { "correct": true, "day": "2026-09-27", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 900, "mixedInput": false }
+      ],
+      "schedule": { "due_day": "2026-09-28", "bucket": "1d", "reason": "first-correct" }
+    }
+  },
+  "sessions": [
+    { "id": "s-2026-09-27-1", "day": "2026-09-27", "mode": "daily", "domain": null, "correct": 7, "total": 10, "completed": true, "earlyStop": false, "grewFamiliar": ["1/2 = 0.5"] },
+    { "id": "s-2026-09-28-1", "day": "2026-09-28", "mode": "daily", "domain": null, "correct": 9, "total": 10, "completed": true, "earlyStop": false, "grewFamiliar": [] }
+  ],
+  "activeSession": null,
+  "prefs": { "sound": true },
+  "lastResult": { "id": "s-2026-09-28-1", "day": "2026-09-28", "mode": "daily", "domain": null, "correct": 9, "total": 10, "completed": true, "earlyStop": false, "grewFamiliar": [] }
+}
