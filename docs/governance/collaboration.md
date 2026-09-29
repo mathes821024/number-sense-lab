@@ -44,6 +44,19 @@ Documentation work uses a branch such as `docs/governance-v01`. A documentation 
 
 After Contract Freeze, Grok Bot is the implementation agent. If implementation conflicts with a frozen contract, report `CONTRACT_CONFLICT`. Do not silently redesign the product.
 
+## Branch hygiene
+
+分支卫生。新分支必须从该工作的正确目标基线创建，不从其他进行中的 feature/docs 分支顺手切出。
+
+开 PR 前必须确认：
+
+- base / merge-base 正确；
+- `git diff <base>...HEAD --name-only` 只包含本 PR 预期文件；
+- docs PR 不夹带 build 代码；
+- build PR 不夹带未授权的 contract 修改。
+
+文件范围超出预期时，先重建干净分支，再开 PR。PR 前必须完成核对动作；必要时在 PR 描述中注明文件清单，但不强制每次都附完整清单。
+
 ## Roles
 
 - Professional roles analyze, design, and propose.
