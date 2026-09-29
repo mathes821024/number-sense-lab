@@ -70,12 +70,19 @@ body {
   font-weight: 600;
 }
 h1, .title {
-  margin: 0;
+  margin: 28px 0 0;
   font-family: "Outfit", "PingFang SC", "Noto Sans SC", sans-serif;
   font-weight: 700;
-  font-size: 34px;
+  font-size: 40px;
   letter-spacing: 0;
-  line-height: 1.2;
+  line-height: 1.15;
+}
+.section-kicker {
+  margin: 36px 0 0;
+  color: var(--teal);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 #home {
   margin: -16px -20px -28px;
@@ -121,10 +128,10 @@ h1, .title {
 }
 .sound-toggle .ph { font-size: 18px; }
 .home-headline {
-  margin: 22px 0 0;
-  font-size: 48px;
+  margin: 28px 0 0;
+  font-size: 52px;
   font-weight: 700;
-  line-height: 1.08;
+  line-height: 1.05;
   letter-spacing: 0;
 }
 .home-note { max-width: 22em; margin-top: 14px; }
@@ -277,8 +284,8 @@ h1, .title {
   box-shadow: none;
   gap: 10px;
 }
-#home .domain .ph { font-size: 18px; color: var(--ink); }
-#home .domain-name { font-weight: 600; }
+#home .domain .ph { font-size: 16px; color: var(--soft); }
+#home .domain-name { font-size: 17px; font-weight: 600; }
 #home .domain small {
   margin-left: auto;
   color: var(--soft);
@@ -380,9 +387,9 @@ button:focus-visible {
   padding: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--soft);
-  font-size: 13px;
-  font-weight: 600;
+  color: var(--teal);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .frac {
@@ -408,25 +415,25 @@ button:focus-visible {
 .panel .eq .frac { font-size: 0.62em; }
 
 .question {
-  margin: 28px 0 16px;
+  margin: 56px 0 12px;
   font-family: "Outfit", "PingFang SC", "Noto Sans SC", sans-serif;
-  font-size: clamp(36px, 9vw, 52px);
+  font-size: clamp(44px, 12vw, 64px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.35;
+  line-height: 1.12;
 }
 .answer {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 64px;
+  min-height: 72px;
   border-radius: 0;
   background: transparent;
   border: 0;
-  border-bottom: 1.5px solid rgba(28, 25, 21, 0.35);
+  border-bottom: 1px solid rgba(28, 25, 21, 0.28);
   box-shadow: none;
   font-family: "Outfit", "PingFang SC", "Noto Sans SC", sans-serif;
-  font-size: 36px;
+  font-size: 40px;
   letter-spacing: 0;
 }
 .answer.locked { opacity: 0.72; }
@@ -435,30 +442,33 @@ button:focus-visible {
 .keys {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 28px;
 }
 .key {
   min-height: 56px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 2px;
   background: transparent;
   box-shadow: none;
   font: inherit;
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
   cursor: pointer;
 }
+.key[data-action="del"] { font-size: 15px; font-weight: 600; }
 .key:active { transform: translateY(1px) scale(0.97); box-shadow: none; }
 .key.ghost { background: transparent; border-color: transparent; box-shadow: none; pointer-events: none; }
 .key.go {
   grid-column: 1 / -1;
   background: var(--teal);
   border-color: var(--teal);
+  border-radius: 2px;
   color: white;
   box-shadow: none;
   font-size: 16px;
+  font-weight: 600;
 }
 .key:disabled { opacity: 0.45; cursor: default; }
 
@@ -472,23 +482,25 @@ button:focus-visible {
 .ask { margin: 0; font-family: "Outfit", "PingFang SC", "Noto Sans SC", sans-serif; font-size: 28px; }
 .stay { margin: 8px 0 0; color: var(--soft); }
 
-.demoted { margin: 18px 0 8px; color: var(--soft); font-size: 18px; }
+.demoted { margin: 28px 0 0; color: var(--soft); font-size: 16px; }
 .panel {
-  padding: 18px 0;
+  padding: 28px 0 4px;
   border-radius: 0;
   background: transparent;
   border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
   box-shadow: none;
 }
 .panel .eq {
   margin: 0;
   font-family: "Outfit", "PingFang SC", "Noto Sans SC", sans-serif;
-  font-size: clamp(28px, 7vw, 34px);
-  letter-spacing: -0.03em;
+  font-size: clamp(40px, 11vw, 60px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0;
 }
-.panel .hook { margin: 10px 0 0; font-size: 15px; line-height: 1.5; }
-.see { margin: 14px 0 0; color: var(--notice); font-size: 13px; font-weight: 600; }
+.panel .hook { margin: 16px 0 0; font-size: 16px; line-height: 1.6; }
+.see { margin: 18px 0 0; color: var(--teal); font-size: 14px; font-weight: 700; }
 .more {
   display: flex;
   align-items: center;
@@ -499,11 +511,11 @@ button:focus-visible {
   border-bottom: 1px solid var(--line);
   border-radius: 0;
   background: transparent;
-  color: var(--ink);
+  color: var(--soft);
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  min-height: 48px;
+  min-height: 52px;
   text-align: left;
   cursor: pointer;
 }
@@ -522,9 +534,9 @@ button:focus-visible {
   border-top: 1px solid var(--line);
 }
 .frame .n {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: auto; height: auto; border-radius: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  background: var(--teal); color: white; font-size: 12px; font-weight: 700; flex: none;
+  background: transparent; color: var(--teal); font-size: 14px; font-weight: 700; flex: none;
 }
 .frame b { display: block; font-size: 14px; }
 .frame span { display: block; font-size: 13px; color: var(--soft); margin-top: 2px; }
@@ -567,17 +579,18 @@ button:focus-visible {
 .list li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 14px;
+  font-size: 16px;
 }
 .list li:last-child { border-bottom: 0; }
 .list .meta { color: var(--soft); }
 
 .sheet {
-  margin-top: 16px;
-  padding: 20px 18px;
+  margin-top: 28px;
+  padding: 28px 22px 22px;
   border-radius: 0;
   background: white;
   color: #111;
@@ -587,9 +600,12 @@ button:focus-visible {
 .sheet h2 {
   margin: 0;
   font-family: "Outfit", "PingFang SC", "Noto Sans SC", sans-serif;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.25;
 }
+.sheet .frac { font-size: 1em; }
 .sheet .sub { margin: 6px 0 0; font-size: 13px; color: #444; }
 .sheet ol {
   margin: 12px 0 0;
