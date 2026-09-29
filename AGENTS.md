@@ -1,19 +1,44 @@
 # Repository instructions
 
-GitHub is the source of truth. Local checkouts are working copies. If they conflict, GitHub wins.
+Number Sense Lab inherits the workspace governance in the parent `AGENTS.md`. On GitHub, this file and [`docs/governance/collaboration.md`](docs/governance/collaboration.md) are the rules agents follow. Documentation authorization and branch hygiene stay in that collaboration document. This file adds only this repository's execution rules.
 
-## Documentation authorization
+## Authority
 
-The Owner has authorized Cursor to commit and push documentation without asking again.
+Frozen contracts merged into `main` are authoritative. Conversation instructions may guide work but must not silently override frozen repository contracts.
 
-This covers product, UX, UI, architecture, and API contracts, plus README, CHANGELOG, CONTRIBUTING, governance docs, and docs indexes.
+Implementation must not silently redesign Product, UX, Curriculum, or Architecture contracts.
 
-It does not cover business code, direct commits to `main`, merging without Owner approval, or implementation before Contract Freeze.
+## Current assignment
 
-The full rule is [`docs/governance/collaboration.md`](docs/governance/collaboration.md).
+- Implementation: Grok Bot
+- Pull requests and GitHub collaboration: Cursor
+- Curriculum and learning content: Kimi
+- Gate review: ChatGPT
+- Product, experience, merge, and release: Owner
+
+Kimi designs course expansion, relation families, memory hooks, visual chains and frames, and Core Recall / Structured Practice content. Product, UX, and runtime contracts stay with their owning roles.
 
 ## Flow
 
-Use a `docs/*` branch, then commit, push, and open a pull request. ChatGPT reviews. The Owner decides. After Contract Freeze, Grok Bot implements against the frozen contract.
+```text
+Define → Specify → Freeze → Concentrated Build → ChatGPT Milestone Review → Owner Human Experience Review → Merge / Release
+```
 
-If implementation conflicts with a frozen contract, report `CONTRACT_CONFLICT`. Do not silently redesign the product.
+Grok Bot delivers the branch, the commits, and a suggested pull-request title and body. Cursor opens and maintains the pull request. Missing pull-request permission is not a build blocker.
+
+## Data
+
+State migration must preserve learner history. A relation id is persistent data identity.
+
+## Stop
+
+Stop and report only when one of these is true:
+
+- `CONTRACT_CONFLICT`
+- `DATA_MIGRATION_RISK`
+- `CONTENT_ID_CONFLICT`
+- backward compatibility cannot be preserved
+- security or irreversible-data risk
+- a true execution blocker
+
+Otherwise finish the concentrated task, then report.
