@@ -18,7 +18,11 @@ const types = {
 createServer((req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${port}`);
   let path = decodeURIComponent(url.pathname);
-  if (path === "/") path = "/h5/index.html";
+  if (path === "/") {
+    res.writeHead(302, { Location: "/h5/index.html" });
+    res.end();
+    return;
+  }
   const file = normalize(join(root, path.replace(/^\//, "")));
   if (!file.startsWith(root) || !existsSync(file) || statSync(file).isDirectory()) {
     res.writeHead(404);

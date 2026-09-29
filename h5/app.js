@@ -25,6 +25,22 @@ import {
 } from "../src/core/mastery.js";
 import { buildA4Sheet } from "../src/core/a4.js";
 import { createBrowserStore } from "../src/adapter/browser-store.js";
+import { createCue } from "./sound.js";
+import { formatMath } from "./math-text.js";
+
+const DOMAIN_ICONS = {
+  squares: "square",
+  products: "x",
+  fraction_decimal: "percent",
+};
+
+function icon(name) {
+  return `<i class="ph ph-${name}" aria-hidden="true"></i>`;
+}
+
+function mark(name) {
+  return `<span class="mark">${icon(name)}</span>`;
+}
 
 const catalog = loadCoreCatalog();
 verifyContentCounts(catalog);
@@ -33,6 +49,7 @@ const memory = createMemoryStore();
 const browserStore = createBrowserStore();
 let state = browserStore.read();
 memory.write(state);
+const cue = createCue(() => state.prefs?.sound !== false);
 
 const app = document.getElementById("app");
 
@@ -108,7 +125,7 @@ function render() {
 function renderHome() {
   const mode = homeMode();
   let title = "数感训练场";
-  let lede = "把常会用到的数字关系，练到能直接想起来。";
+  let lede = "把常会用到的数字关系，<br>练到能直接想起来。";
   let ctaLabel = "开始今天的练习";
   let ctaSub = "大约 5～10 分钟";
   let ctaAction = "start-daily";
@@ -131,30 +148,38 @@ function renderHome() {
     const items = filterByDomain(domain, catalog);
     const summary = summarizeDomain(items, state.relations);
     return `<button class="domain" type="button" data-action="focus" data-domain="${domain}">
-      <div>${domainLabel(domain)}<span>${summary}</span></div>
+      ${icon(DOMAIN_ICONS[domain])}
+      <span class="domain-name">${domainLabel(domain)}</span>
+      <small>${summary}</small>
     </button>`;
   }).join("");
 
   const extra =
     mode === "paused"
-      ? `<button class="link" type="button" data-action="restart-daily">重新开始一小段</button>`
+      ? `<button class="home-secondary" type="button" data-action="restart-daily">重新开始一小段</button>`
       : mode === "done"
-        ? `<button class="link" type="button" data-action="start-daily">再练一小段</button>`
+        ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
         : "";
 
-  return `<section class="screen" id="home">
-    <p class="kicker">Number Sense Lab</p>
-    <h1>${title}</h1>
-    <p class="lede">${lede}</p>
-    <button class="cta" type="button" data-action="${ctaAction}">${ctaLabel}${
+  const headline = mode === "default" ? "把关系<br>练成直觉。" : title;
+  const soundOn = state.prefs?.sound !== false;
+
+  return `<section class="screen home" id="home">
+    <header class="home-bar">
+      <p class="home-kicker">数感训练场</p>
+      <button class="sound-toggle" type="button" data-action="toggle-sound" aria-pressed="${soundOn}">${icon(soundOn ? "speaker-high" : "speaker-slash")}<span>${soundOn ? "声音开" : "声音关"}</span></button>
+    </header>
+    <h1 class="home-headline">${headline}</h1>
+    <p class="lede home-note">${lede}</p>
+    <button class="cta home-cta" type="button" data-action="${ctaAction}"><span>${ctaLabel}</span>${
       ctaSub ? `<small>${ctaSub}</small>` : ""
     }</button>
     ${extra}
     <div class="domains">${domains}</div>
-    <div class="links">
-      <button class="link" type="button" data-action="progress">最近练得怎么样</button>
-      <button class="link" type="button" data-action="a4">印到纸上</button>
-    </div>
+    <nav class="home-links">
+      <button type="button" data-action="progress">最近练得怎么样</button>
+      <button type="button" data-action="a4">印到纸上</button>
+    </nav>
     <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
   </section>`;
 }
@@ -163,7 +188,7 @@ function renderFocusConfirm() {
   const items = filterByDomain(focusedDomain, catalog);
   const summary = summarizeDomain(items, state.relations);
   return `<section class="screen">
-    <button class="quiet" type="button" data-action="home">回首页</button>
+    <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
     <h1 class="title" style="margin-top:24px">${domainLabel(focusedDomain)}</h1>
     <p class="lede">只练这一块，同样是一小段，不是一直刷。</p>
     <p class="body">${summary}</p>
@@ -184,10 +209,10 @@ function renderTrain() {
 
   return `<section class="screen" id="train">
     <div class="top">
-      <button class="quiet" type="button" data-action="pause">先停一下</button>
+      <button class="quiet" type="button" data-action="pause">${mark("pause")}先停一下</button>
       <span class="pill">${pill}</span>
     </div>
-    <h1 class="question">${escapeHtml(currentItem.prompt)}</h1>
+    <h1 class="question">${formatMath(currentItem.prompt)}</h1>
     <div class="answer" id="answer" aria-live="polite">${escapeHtml(answer)}</div>
     <p class="nudge" id="nudge"></p>
     <div class="keys" id="keys">
@@ -204,9 +229,9 @@ function renderCorrect() {
   const relation = lastFeedback?.relation || currentItem?.relation || "";
   return `<section class="screen" id="correct">
     <div class="ok" aria-hidden="true">✓</div>
-    <p class="correct-eq">${escapeHtml(relation)}</p>
+    <p class="correct-eq">${formatMath(relation)}</p>
     <p class="word">对</p>
-    <div class="links"><button class="link" type="button" data-action="advance">继续</button></div>
+    <button class="cta secondary" type="button" data-action="advance">继续</button>
   </section>`;
 }
 
@@ -215,21 +240,21 @@ function renderWrong() {
   const pattern = fb.level3 || fb.pattern || {};
   const frames = fb.level3?.frames || fb.frames || [];
   return `<section class="screen" id="wrong">
-    <button class="quiet" type="button" data-action="pause">先停一下</button>
-    <p class="demoted">${escapeHtml(currentItem?.prompt || "")}</p>
+    <button class="quiet" type="button" data-action="pause">${mark("pause")}先停一下</button>
+    <p class="demoted">${formatMath(currentItem?.prompt || "")}</p>
     <div class="panel">
-      <p class="eq">${escapeHtml(fb.relation || "")}</p>
-      <p class="hook">${escapeHtml(fb.hook || "")}</p>
+      <p class="eq">${formatMath(fb.relation || "")}</p>
+      <p class="hook">${formatMath(fb.hook || "")}</p>
       <p class="see">○ 看这里</p>
       <div class="pattern" ${expandedPattern ? "" : "hidden"}>
-        <p class="check">${escapeHtml(pattern.check || "")}</p>
-        <p class="family">${(pattern.family || []).map((l) => `<b>${escapeHtml(l)}</b>`).join("<br>")}</p>
+        <p class="check">${formatMath(pattern.check || "")}</p>
+        <p class="family">${(pattern.family || []).map((l) => `<b>${formatMath(l)}</b>`).join("<br>")}</p>
       </div>
       <div class="frames" ${expandedFrames ? "" : "hidden"}>
         ${frames
           .map(
             (f, i) =>
-              `<div class="frame"><span class="n">${i + 1}</span><div><b>${escapeHtml(f.title)}</b><span>${escapeHtml(f.detail)}</span></div></div>`,
+              `<div class="frame"><span class="n">${i + 1}</span><div><b>${formatMath(f.title)}</b><span>${formatMath(f.detail)}</span></div></div>`,
           )
           .join("")}
       </div>
@@ -265,7 +290,7 @@ function renderEnd() {
   const familiar =
     result.grewFamiliar && result.grewFamiliar.length
       ? `<p class="body">这几个更熟了：${result.grewFamiliar
-          .map(escapeHtml)
+          .map(formatMath)
           .join("、")}。</p>`
       : "";
   return `<section class="screen" id="end">
@@ -276,7 +301,7 @@ function renderEnd() {
     ${familiar}
     <button class="cta" type="button" data-action="home">先到这里</button>
     <div class="links">
-      <button class="link" type="button" data-action="progress">看看最近练得怎么样</button>
+      <button class="link row tone-sky" type="button" data-action="progress">${mark("chart-line")}看看最近练得怎么样</button>
     </div>
   </section>`;
 }
@@ -308,19 +333,19 @@ function renderProgress() {
           .slice(0, 20)
           .map((item) => {
             const st = (state.relations[item.id] || emptyRelation()).status;
-            return `<li><span>${escapeHtml(item.prompt.replace(" = ?", ""))}</span><span class="meta">${studentLabel(st)}</span></li>`;
+            return `<li><span>${formatMath(item.prompt.replace(" = ?", ""))}</span><span class="meta">${studentLabel(st)}</span></li>`;
           })
           .join("")}</ul>`;
 
   return `<section class="screen">
-    <button class="quiet" type="button" data-action="home">回首页</button>
+    <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
     <h1 class="title" style="margin-top:20px">最近练得怎么样</h1>
     ${history}
     <p class="body" style="margin-top:24px">还要再见到的</p>
     ${unstableList}
     <p class="fine">有一些已经很稳：${stableCount} 条。</p>
     <div class="links">
-      <button class="link" type="button" data-action="a4">印到纸上</button>
+      <button class="link row tone-leaf" type="button" data-action="a4">${mark("printer")}印到纸上</button>
     </div>
   </section>`;
 }
@@ -333,7 +358,7 @@ function renderA4() {
 
   if (sheet.empty) {
     return `<section class="screen no-print">
-      <button class="quiet" type="button" data-action="home">回首页</button>
+      <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
       <h1 class="title" style="margin-top:20px">印到纸上</h1>
       <p class="lede">${sheet.emptyMessage}</p>
       <button class="cta" type="button" data-action="home">先练一小段</button>
@@ -346,41 +371,39 @@ function renderA4() {
   ]
     .map(
       ([value, label]) =>
-        `<button class="link" type="button" data-action="a4-domain" data-domain="${value}" ${
-          (a4Domain || "") === value ? 'style="color:var(--ink);font-weight:600"' : ""
-        }>${label}</button>`,
+        `<button class="chip${(a4Domain || "") === value ? " is-on" : ""}" type="button" aria-pressed="${(a4Domain || "") === value}" data-action="a4-domain" data-domain="${value}">${icon(value ? DOMAIN_ICONS[value] : "squares-four")}${label}</button>`,
     )
     .join("");
 
   const prompts = sheet.prompts
     .map(
       (p) =>
-        `<li><span>${escapeHtml(p.prompt.replace(" = ?", " = "))}</span><span class="blank"></span></li>`,
+        `<li><span>${formatMath(p.prompt.replace(" = ?", " = "))}</span><span class="blank"></span></li>`,
     )
     .join("");
 
-  const answers = showAnswers
-    ? `<div class="sheet" style="margin-top:16px">
-        <h2>答案（写完再看）</h2>
-        <ol>${sheet.answerKey
-          .map((a) => `<li>${escapeHtml(a.relation)}</li>`)
-          .join("")}</ol>
-      </div>`
-    : "";
-
-  return `<section class="screen">
-    <div class="no-print">
-      <button class="quiet" type="button" data-action="home">回首页</button>
-      <h1 class="title" style="margin-top:20px">印到纸上</h1>
-      <p class="lede">${sheet.subtitle}</p>
-      <div class="links" style="flex-direction:row;flex-wrap:wrap;gap:12px">${filters}</div>
-    </div>
-    <div class="sheet" id="a4-sheet">
+  const questionSheet = `<div class="sheet" id="a4-sheet">
       <h2>${sheet.title}</h2>
       <p class="sub">${sheet.day} · ${sheet.domain}</p>
       <ol>${prompts}</ol>
+    </div>`;
+
+  const answerSheet = `<div class="sheet sheet-answers" id="a4-answers">
+      <h2>答案（写完再看）</h2>
+      <p class="sub">${sheet.day} · ${sheet.domain}</p>
+      <ol>${sheet.answerKey
+        .map((a) => `<li>${formatMath(a.relation)}</li>`)
+        .join("")}</ol>
+    </div>`;
+
+  return `<section class="screen">
+    <div class="no-print">
+      <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
+      <h1 class="title" style="margin-top:20px">印到纸上</h1>
+      <p class="lede">${showAnswers ? "这一页只有答案。写完题目再看。" : sheet.subtitle}</p>
+      <div class="filters" role="group" aria-label="打印范围">${filters}</div>
     </div>
-    ${answers}
+    ${showAnswers ? answerSheet : questionSheet}
     <div class="no-print">
       <button class="cta" type="button" data-action="print">打印 / 保存为 PDF</button>
       <button class="cta secondary" type="button" data-action="toggle-answers">${
@@ -412,6 +435,13 @@ function onAction(event) {
   const action = event.currentTarget.getAttribute("data-action");
   const domain = event.currentTarget.getAttribute("data-domain");
 
+  if (action === "toggle-sound") {
+    const sound = state.prefs?.sound === false;
+    persist({ ...state, prefs: { ...state.prefs, sound } });
+    if (sound) cue.tap();
+    render();
+    return;
+  }
   if (action === "home") {
     screenName = "home";
     render();
@@ -532,11 +562,17 @@ function appendDigit(digit) {
     answer += digit;
   }
   syncAnswer();
+  cue.tap();
 }
 
 function syncAnswer() {
   const el = document.getElementById("answer");
-  if (el) el.textContent = answer;
+  if (el) {
+    el.textContent = answer;
+    el.classList.remove("tick");
+    void el.offsetWidth;
+    el.classList.add("tick");
+  }
   const nudge = document.getElementById("nudge");
   if (nudge) nudge.textContent = "";
 }
@@ -616,13 +652,15 @@ function doSubmit() {
   lastFeedback = result.feedback;
 
   if (result.judged.kind === "correct") {
+    cue.correct();
     screenName = "correct";
     render();
     window.clearTimeout(correctTimer);
-    correctTimer = window.setTimeout(() => advanceAfterFeedback(), 550);
+    correctTimer = window.setTimeout(() => advanceAfterFeedback(), 700);
     return;
   }
 
+  cue.wrong();
   screenName = "wrong";
   render();
 }
@@ -647,6 +685,7 @@ function endCurrent(earlyStop) {
   }
   const finished = finishSession(state, session, { earlyStop });
   persist(finished.state);
+  if (!earlyStop) cue.done();
   session = null;
   currentItem = null;
   screenName = "end";

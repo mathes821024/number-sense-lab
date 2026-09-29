@@ -1,9 +1,15 @@
 /**
  * A4 review sheet content — prompts only (no answers on the same view).
  */
+import { listUnstableIds } from "./schedule.js";
 import { emptyRelation, studentLabel, isUnstable } from "./mastery.js";
 import { domainLabel } from "./content.js";
 
+/**
+ * @param {object[]} catalog
+ * @param {Record<string, object>} relations
+ * @param {{ domain?: string|null, day?: string }} opts
+ */
 export function buildA4Sheet(catalog, relations, opts = {}) {
   const domain = opts.domain || null;
   const day = opts.day || "";
@@ -30,6 +36,7 @@ export function buildA4Sheet(catalog, relations, opts = {}) {
       domain: domainLabel(item.domain),
       statusLabel: studentLabel((relations[item.id] || emptyRelation()).status),
     })),
+    // Answers kept separate — never shown in the same preview.
     answerKey: items.map((item) => ({
       id: item.id,
       prompt: item.prompt,
@@ -40,8 +47,5 @@ export function buildA4Sheet(catalog, relations, opts = {}) {
 }
 
 export function unstableCount(catalog, relations) {
-  return catalog.filter((item) => {
-    const status = (relations[item.id] || emptyRelation()).status;
-    return isUnstable(status);
-  }).length;
+  return listUnstableIds(catalog, relations).length;
 }

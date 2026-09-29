@@ -9,5 +9,8 @@
     "sync-content": "node scripts/sync-content.mjs",
     "start": "node scripts/serve.mjs",
     "check": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@phosphor-icons/web": "^2.1.2"
   }
 }

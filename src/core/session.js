@@ -15,6 +15,16 @@ import {
 } from "./schedule.js";
 import { getRelationById, loadCoreCatalog, filterByDomain } from "./content.js";
 
+/**
+ * @param {{
+ *   mode: 'daily'|'focused',
+ *   domain?: string|null,
+ *   day: string,
+ *   size?: number,
+ *   catalog?: object[],
+ *   relations?: Record<string, object>,
+ * }} opts
+ */
 export function startSession(opts) {
   const catalog = opts.catalog || loadCoreCatalog();
   const pool = filterByDomain(opts.domain || null, catalog);
@@ -34,7 +44,7 @@ export function startSession(opts) {
     cursor: 0,
     answered: 0,
     correctCount: 0,
-    targetCount: Math.min(size, Math.max(queue.length, 0)),
+    targetCount: Math.min(size, queue.length || size),
     finished: queue.length === 0,
     earlyStop: false,
     reappearPlan: {},
@@ -44,12 +54,16 @@ export function startSession(opts) {
   };
 }
 
+/**
+ * Submit one answer against the current session + global state.
+ */
 export function submitAnswer({
   item,
   state,
   session,
   raw,
   meta,
+  catalog = loadCoreCatalog(),
 }) {
   const judged = judgeAnswer(item, raw);
   const feedback = feedbackFor(item, judged.kind);
@@ -96,13 +110,22 @@ export function submitAnswer({
   }
 
   const grewFamiliar = [...(session.grewFamiliar || [])];
-  if (priorStatus !== MASTERY.STABLE && relation.status === MASTERY.STABLE) {
-    if (!grewFamiliar.includes(item.relation)) grewFamiliar.push(item.relation);
+  if (
+    priorStatus !== MASTERY.STABLE &&
+    relation.status === MASTERY.STABLE
+  ) {
+    grewFamiliar.push(item.relation);
+  } else if (
+    priorStatus === MASTERY.UNPRACTICED &&
+    relation.status === MASTERY.LEARNING
+  ) {
+    // lightly note first contact — end page uses "更熟了" only for meaningful gains
   } else if (
     (priorStatus === MASTERY.SHAKY || priorStatus === MASTERY.LEARNING) &&
     judged.kind === "correct" &&
     !grewFamiliar.includes(item.relation)
   ) {
+    // Correct on an unstable item — candidate for "更熟了"
     grewFamiliar.push(item.relation);
   }
 
@@ -125,20 +148,16 @@ export function submitAnswer({
 
 export function peekCurrent(session, catalog = loadCoreCatalog()) {
   const { itemId, session: s, nearEnd } = nextItem(session);
-  if (!itemId) return { item: null, session: s, nearEnd: false, revisit: false };
-  const count = (s.reappearCount && s.reappearCount[itemId]) || 0;
+  if (!itemId) return { item: null, session: s, nearEnd: false };
   return {
     item: getRelationById(itemId, catalog),
     session: s,
     nearEnd,
-    revisit: count > 0,
+    revisit: (s.reappearCount && s.reappearCount[itemId] > 0) || false,
   };
 }
 
 export function finishSession(state, session, { earlyStop = false } = {}) {
-  const completed =
-    !earlyStop &&
-    (session.finished || session.answered >= session.targetCount);
   const summary = {
     id: session.id,
     day: session.day,
@@ -146,7 +165,7 @@ export function finishSession(state, session, { earlyStop = false } = {}) {
     domain: session.domain,
     correct: session.correctCount,
     total: session.answered,
-    completed,
+    completed: !earlyStop && (session.finished || session.answered >= session.targetCount),
     earlyStop,
     grewFamiliar: (session.grewFamiliar || []).slice(0, 5),
   };

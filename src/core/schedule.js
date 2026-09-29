@@ -4,11 +4,16 @@
  * Priority driven by correctness, mastery, cross-session, wrong reappear.
  */
 import { MASTERY, emptyRelation, isUnstable } from "./mastery.js";
+import { DOMAIN_ORDER } from "./content.js";
 
 export const DEFAULT_SESSION_SIZE = 10;
 export const WRONG_REAPPEAR_GAP = 2;
 export const MAX_REAPPEARS_PER_ITEM = 1;
 
+/**
+ * Priority score: higher = sooner.
+ * shaky > recent-wrong learning > learning > unpracticed (by tier) > stable maintenance
+ */
 function priority(item, relation, today) {
   const status = relation.status;
   const attempts = relation.attempts || [];
@@ -20,10 +25,14 @@ function priority(item, relation, today) {
     return 700 + (missedRecently ? 80 : 0) + Math.min(attempts.length, 20);
   }
   if (status === MASTERY.UNPRACTICED) {
+    // Lower tier number first (teaching suggestion order)
     return 400 - (item.tier || 3) * 10;
   }
+  // stable: light maintenance only when queue is short
   const daysSince =
-    last && last.day ? Math.max(0, dayDiff(last.day, today)) : 99;
+    last && last.day
+      ? Math.max(0, dayDiff(last.day, today))
+      : 99;
   return 50 + Math.min(daysSince, 30);
 }
 
@@ -33,6 +42,13 @@ function dayDiff(a, b) {
   return Math.floor(ms / 86400000);
 }
 
+/**
+ * Build an ordered queue of relation ids for a session.
+ * @param {object[]} catalog filtered items
+ * @param {Record<string,{status:string,attempts:object[]}>} relations
+ * @param {{ size?: number, day?: string, interleave?: boolean }} opts
+ * @returns {string[]}
+ */
 export function buildSessionQueue(catalog, relations, opts = {}) {
   const size = opts.size ?? DEFAULT_SESSION_SIZE;
   const day = opts.day || "1970-01-01";
@@ -49,36 +65,47 @@ export function buildSessionQueue(catalog, relations, opts = {}) {
     return a.item.id.localeCompare(b.item.id);
   });
 
+  // Prefer non-stable first; if everything stable, still allow short confirmation.
   const nonStable = scored.filter((s) => s.status !== MASTERY.STABLE);
-  const pool = nonStable.length > 0 ? nonStable : scored;
-  let picked = pool.slice(0, size).map((s) => s.item);
-
-  if (interleave && picked.length > 2) {
-    picked = interleaveDomains(picked);
-  }
-
+  const pool = (nonStable.length > 0 ? nonStable : scored).map((s) => s.item);
+  const picked = interleave ? pickAcrossDomains(pool, size) : pool.slice(0, size);
   return picked.map((item) => item.id);
 }
 
-function interleaveDomains(items) {
+/**
+ * Round-robin the highest-priority item from each domain before truncating.
+ * Pool is already sorted by priority, so each bucket stays in that order.
+ */
+function pickAcrossDomains(pool, size) {
   const buckets = new Map();
-  for (const item of items) {
+  for (const item of pool) {
     if (!buckets.has(item.domain)) buckets.set(item.domain, []);
     buckets.get(item.domain).push(item);
   }
-  const keys = [...buckets.keys()];
-  const out = [];
-  let guard = 0;
-  while (out.length < items.length && guard < 200) {
-    guard += 1;
-    for (const key of keys) {
-      const bucket = buckets.get(key);
-      if (bucket && bucket.length) out.push(bucket.shift());
+  const order = [
+    ...DOMAIN_ORDER.filter((domain) => buckets.has(domain)),
+    ...[...buckets.keys()].filter((domain) => !DOMAIN_ORDER.includes(domain)),
+  ];
+  const picked = [];
+  while (picked.length < size) {
+    let added = false;
+    for (const domain of order) {
+      const bucket = buckets.get(domain);
+      if (!bucket || bucket.length === 0) continue;
+      picked.push(bucket.shift());
+      added = true;
+      if (picked.length >= size) break;
     }
+    if (!added) break;
   }
-  return out;
+  return picked;
 }
 
+/**
+ * After a wrong answer, schedule a later reappear index (not next item).
+ * @param {{ queue: string[], answered: number, reappearPlan: Record<string,number>, reappearCount: Record<string,number> }} session
+ * @param {string} itemId
+ */
 export function planWrongReappear(session, itemId) {
   const count = session.reappearCount[itemId] || 0;
   if (count >= MAX_REAPPEARS_PER_ITEM) return session;
@@ -93,11 +120,16 @@ export function planWrongReappear(session, itemId) {
   };
 }
 
+/**
+ * Resolve next item id, injecting planned reappears when due.
+ * @returns {{ itemId: string|null, session: object, nearEnd: boolean }}
+ */
 export function nextItem(session) {
   if (!session || session.finished) {
     return { itemId: null, session, nearEnd: false };
   }
 
+  // Inject reappears that are due
   let queue = session.queue.slice();
   const due = Object.entries(session.reappearPlan || {})
     .filter(([, at]) => at <= session.answered)
@@ -107,6 +139,7 @@ export function nextItem(session) {
     const plan = { ...session.reappearPlan };
     for (const id of due) {
       delete plan[id];
+      // Avoid immediate duplicate of current head
       const head = queue[session.cursor];
       if (id !== head) {
         queue.splice(session.cursor, 0, id);
@@ -139,6 +172,9 @@ export function nextItem(session) {
   return { itemId, session, nearEnd };
 }
 
+/**
+ * List relation ids currently unstable (for A4 / progress).
+ */
 export function listUnstableIds(catalog, relations) {
   return catalog
     .filter((item) => {

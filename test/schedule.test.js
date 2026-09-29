@@ -56,6 +56,52 @@ test("wrong item reappears later, not immediately", () => {
   assert.notEqual(peeked.item.id, firstId);
 });
 
+test("a fresh daily session mixes all three domains", () => {
+  const queue = buildSessionQueue(catalog, {}, {
+    size: 9,
+    day: "2026-09-29",
+    interleave: true,
+  });
+  const domains = new Set(
+    queue.map((id) => catalog.find((item) => item.id === id).domain),
+  );
+  assert.equal(queue.length, 9);
+  assert.deepEqual(domains, new Set(["squares", "products", "fraction_decimal"]));
+});
+
+test("daily mix keeps the shaky relation first inside its own domain", () => {
+  const relations = {
+    "square-17": { status: MASTERY.SHAKY, attempts: [{ correct: false, day: "2026-09-28" }] },
+  };
+  const queue = buildSessionQueue(catalog, relations, {
+    size: 9,
+    day: "2026-09-29",
+    interleave: true,
+  });
+  assert.equal(queue[0], "square-17");
+  assert.equal(queue.filter((id) => id === "square-17").length, 1);
+});
+
+test("daily mix fills from the domains that still have unstable relations", () => {
+  const relations = Object.fromEntries(
+    catalog
+      .filter((item) => item.domain === "squares")
+      .map((item) => [item.id, { status: MASTERY.STABLE, attempts: [] }]),
+  );
+  const queue = buildSessionQueue(catalog, relations, {
+    size: 6,
+    day: "2026-09-29",
+    interleave: true,
+  });
+  const domains = new Set(
+    queue.map((id) => catalog.find((item) => item.id === id).domain),
+  );
+  assert.equal(queue.length, 6);
+  assert.equal(domains.has("squares"), false);
+  assert.equal(domains.has("products"), true);
+  assert.equal(domains.has("fraction_decimal"), true);
+});
+
 test("stable items yield to unstable when drawing a daily session", () => {
   const relations = Object.fromEntries(
     catalog.map((item) => [

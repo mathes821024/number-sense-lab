@@ -26,6 +26,7 @@ export function feedbackFor(item, kind) {
     frames: item.frames,
     record: true,
     level: 2,
+    // L3 payloads available for optional expand
     level3: {
       check: item.pattern?.check || "",
       family: item.pattern?.family || [],
