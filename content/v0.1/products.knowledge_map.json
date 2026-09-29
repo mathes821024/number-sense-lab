@@ -1,0 +1,649 @@
+{
+  "domain": "products",
+  "version": "0.1.0",
+  "entries": [
+    {
+      "a": 6,
+      "b": 7,
+      "product": 42,
+      "relation": "6 × 7 = 42",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "a": 6,
+      "b": 8,
+      "product": 48,
+      "relation": "6 × 8 = 48",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "a": 6,
+      "b": 9,
+      "product": 54,
+      "relation": "6 × 9 = 54",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "a": 6,
+      "b": 10,
+      "product": 60,
+      "relation": "6 × 10 = 60",
+      "level": "reference"
+    },
+    {
+      "a": 6,
+      "b": 11,
+      "product": 66,
+      "relation": "6 × 11 = 66",
+      "level": "reference"
+    },
+    {
+      "a": 6,
+      "b": 12,
+      "product": 72,
+      "relation": "6 × 12 = 72",
+      "level": "core_recall"
+    },
+    {
+      "a": 6,
+      "b": 13,
+      "product": 78,
+      "relation": "6 × 13 = 78",
+      "level": "core_recall"
+    },
+    {
+      "a": 6,
+      "b": 14,
+      "product": 84,
+      "relation": "6 × 14 = 84",
+      "level": "reference"
+    },
+    {
+      "a": 6,
+      "b": 15,
+      "product": 90,
+      "relation": "6 × 15 = 90",
+      "level": "core_recall"
+    },
+    {
+      "a": 6,
+      "b": 16,
+      "product": 96,
+      "relation": "6 × 16 = 96",
+      "level": "reference"
+    },
+    {
+      "a": 6,
+      "b": 17,
+      "product": 102,
+      "relation": "6 × 17 = 102",
+      "level": "core_recall"
+    },
+    {
+      "a": 6,
+      "b": 18,
+      "product": 108,
+      "relation": "6 × 18 = 108",
+      "level": "reference"
+    },
+    {
+      "a": 6,
+      "b": 19,
+      "product": 114,
+      "relation": "6 × 19 = 114",
+      "level": "core_recall"
+    },
+    {
+      "a": 7,
+      "b": 8,
+      "product": 56,
+      "relation": "7 × 8 = 56",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "a": 7,
+      "b": 9,
+      "product": 63,
+      "relation": "7 × 9 = 63",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "a": 7,
+      "b": 10,
+      "product": 70,
+      "relation": "7 × 10 = 70",
+      "level": "reference"
+    },
+    {
+      "a": 7,
+      "b": 11,
+      "product": 77,
+      "relation": "7 × 11 = 77",
+      "level": "reference"
+    },
+    {
+      "a": 7,
+      "b": 12,
+      "product": 84,
+      "relation": "7 × 12 = 84",
+      "level": "core_recall"
+    },
+    {
+      "a": 7,
+      "b": 13,
+      "product": 91,
+      "relation": "7 × 13 = 91",
+      "level": "core_recall"
+    },
+    {
+      "a": 7,
+      "b": 14,
+      "product": 98,
+      "relation": "7 × 14 = 98",
+      "level": "core_recall"
+    },
+    {
+      "a": 7,
+      "b": 15,
+      "product": 105,
+      "relation": "7 × 15 = 105",
+      "level": "reference"
+    },
+    {
+      "a": 7,
+      "b": 16,
+      "product": 112,
+      "relation": "7 × 16 = 112",
+      "level": "reference"
+    },
+    {
+      "a": 7,
+      "b": 17,
+      "product": 119,
+      "relation": "7 × 17 = 119",
+      "level": "reference"
+    },
+    {
+      "a": 7,
+      "b": 18,
+      "product": 126,
+      "relation": "7 × 18 = 126",
+      "level": "reference"
+    },
+    {
+      "a": 7,
+      "b": 19,
+      "product": 133,
+      "relation": "7 × 19 = 133",
+      "level": "reference"
+    },
+    {
+      "a": 8,
+      "b": 9,
+      "product": 72,
+      "relation": "8 × 9 = 72",
+      "level": "structured_practice",
+      "strategy": "小九九内，直接可得。"
+    },
+    {
+      "a": 8,
+      "b": 10,
+      "product": 80,
+      "relation": "8 × 10 = 80",
+      "level": "reference"
+    },
+    {
+      "a": 8,
+      "b": 11,
+      "product": 88,
+      "relation": "8 × 11 = 88",
+      "level": "reference"
+    },
+    {
+      "a": 8,
+      "b": 12,
+      "product": 96,
+      "relation": "8 × 12 = 96",
+      "level": "core_recall"
+    },
+    {
+      "a": 8,
+      "b": 13,
+      "product": 104,
+      "relation": "8 × 13 = 104",
+      "level": "core_recall"
+    },
+    {
+      "a": 8,
+      "b": 14,
+      "product": 112,
+      "relation": "8 × 14 = 112",
+      "level": "core_recall"
+    },
+    {
+      "a": 8,
+      "b": 15,
+      "product": 120,
+      "relation": "8 × 15 = 120",
+      "level": "core_recall"
+    },
+    {
+      "a": 8,
+      "b": 16,
+      "product": 128,
+      "relation": "8 × 16 = 128",
+      "level": "core_recall"
+    },
+    {
+      "a": 8,
+      "b": 17,
+      "product": 136,
+      "relation": "8 × 17 = 136",
+      "level": "core_recall"
+    },
+    {
+      "a": 8,
+      "b": 18,
+      "product": 144,
+      "relation": "8 × 18 = 144",
+      "level": "reference"
+    },
+    {
+      "a": 8,
+      "b": 19,
+      "product": 152,
+      "relation": "8 × 19 = 152",
+      "level": "core_recall"
+    },
+    {
+      "a": 9,
+      "b": 10,
+      "product": 90,
+      "relation": "9 × 10 = 90",
+      "level": "reference"
+    },
+    {
+      "a": 9,
+      "b": 11,
+      "product": 99,
+      "relation": "9 × 11 = 99",
+      "level": "reference"
+    },
+    {
+      "a": 9,
+      "b": 12,
+      "product": 108,
+      "relation": "9 × 12 = 108",
+      "level": "core_recall"
+    },
+    {
+      "a": 9,
+      "b": 13,
+      "product": 117,
+      "relation": "9 × 13 = 117",
+      "level": "core_recall"
+    },
+    {
+      "a": 9,
+      "b": 14,
+      "product": 126,
+      "relation": "9 × 14 = 126",
+      "level": "core_recall"
+    },
+    {
+      "a": 9,
+      "b": 15,
+      "product": 135,
+      "relation": "9 × 15 = 135",
+      "level": "reference"
+    },
+    {
+      "a": 9,
+      "b": 16,
+      "product": 144,
+      "relation": "9 × 16 = 144",
+      "level": "reference"
+    },
+    {
+      "a": 9,
+      "b": 17,
+      "product": 153,
+      "relation": "9 × 17 = 153",
+      "level": "reference"
+    },
+    {
+      "a": 9,
+      "b": 18,
+      "product": 162,
+      "relation": "9 × 18 = 162",
+      "level": "core_recall"
+    },
+    {
+      "a": 9,
+      "b": 19,
+      "product": 171,
+      "relation": "9 × 19 = 171",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 11,
+      "product": 110,
+      "relation": "10 × 11 = 110",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 12,
+      "product": 120,
+      "relation": "10 × 12 = 120",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 13,
+      "product": 130,
+      "relation": "10 × 13 = 130",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 14,
+      "product": 140,
+      "relation": "10 × 14 = 140",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 15,
+      "product": 150,
+      "relation": "10 × 15 = 150",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 16,
+      "product": 160,
+      "relation": "10 × 16 = 160",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 17,
+      "product": 170,
+      "relation": "10 × 17 = 170",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 18,
+      "product": 180,
+      "relation": "10 × 18 = 180",
+      "level": "reference"
+    },
+    {
+      "a": 10,
+      "b": 19,
+      "product": 190,
+      "relation": "10 × 19 = 190",
+      "level": "reference"
+    },
+    {
+      "a": 11,
+      "b": 12,
+      "product": 132,
+      "relation": "11 × 12 = 132",
+      "level": "core_recall"
+    },
+    {
+      "a": 11,
+      "b": 13,
+      "product": 143,
+      "relation": "11 × 13 = 143",
+      "level": "core_recall"
+    },
+    {
+      "a": 11,
+      "b": 14,
+      "product": 154,
+      "relation": "11 × 14 = 154",
+      "level": "reference"
+    },
+    {
+      "a": 11,
+      "b": 15,
+      "product": 165,
+      "relation": "11 × 15 = 165",
+      "level": "core_recall"
+    },
+    {
+      "a": 11,
+      "b": 16,
+      "product": 176,
+      "relation": "11 × 16 = 176",
+      "level": "core_recall"
+    },
+    {
+      "a": 11,
+      "b": 17,
+      "product": 187,
+      "relation": "11 × 17 = 187",
+      "level": "reference"
+    },
+    {
+      "a": 11,
+      "b": 18,
+      "product": 198,
+      "relation": "11 × 18 = 198",
+      "level": "reference"
+    },
+    {
+      "a": 11,
+      "b": 19,
+      "product": 209,
+      "relation": "11 × 19 = 209",
+      "level": "core_recall"
+    },
+    {
+      "a": 12,
+      "b": 13,
+      "product": 156,
+      "relation": "12 × 13 = 156",
+      "level": "core_recall"
+    },
+    {
+      "a": 12,
+      "b": 14,
+      "product": 168,
+      "relation": "12 × 14 = 168",
+      "level": "core_recall"
+    },
+    {
+      "a": 12,
+      "b": 15,
+      "product": 180,
+      "relation": "12 × 15 = 180",
+      "level": "core_recall"
+    },
+    {
+      "a": 12,
+      "b": 16,
+      "product": 192,
+      "relation": "12 × 16 = 192",
+      "level": "reference"
+    },
+    {
+      "a": 12,
+      "b": 17,
+      "product": 204,
+      "relation": "12 × 17 = 204",
+      "level": "reference"
+    },
+    {
+      "a": 12,
+      "b": 18,
+      "product": 216,
+      "relation": "12 × 18 = 216",
+      "level": "reference"
+    },
+    {
+      "a": 12,
+      "b": 19,
+      "product": 228,
+      "relation": "12 × 19 = 228",
+      "level": "reference"
+    },
+    {
+      "a": 13,
+      "b": 14,
+      "product": 182,
+      "relation": "13 × 14 = 182",
+      "level": "core_recall"
+    },
+    {
+      "a": 13,
+      "b": 15,
+      "product": 195,
+      "relation": "13 × 15 = 195",
+      "level": "core_recall"
+    },
+    {
+      "a": 13,
+      "b": 16,
+      "product": 208,
+      "relation": "13 × 16 = 208",
+      "level": "reference"
+    },
+    {
+      "a": 13,
+      "b": 17,
+      "product": 221,
+      "relation": "13 × 17 = 221",
+      "level": "reference"
+    },
+    {
+      "a": 13,
+      "b": 18,
+      "product": 234,
+      "relation": "13 × 18 = 234",
+      "level": "reference"
+    },
+    {
+      "a": 13,
+      "b": 19,
+      "product": 247,
+      "relation": "13 × 19 = 247",
+      "level": "reference"
+    },
+    {
+      "a": 14,
+      "b": 15,
+      "product": 210,
+      "relation": "14 × 15 = 210",
+      "level": "core_recall"
+    },
+    {
+      "a": 14,
+      "b": 16,
+      "product": 224,
+      "relation": "14 × 16 = 224",
+      "level": "core_recall"
+    },
+    {
+      "a": 14,
+      "b": 17,
+      "product": 238,
+      "relation": "14 × 17 = 238",
+      "level": "reference"
+    },
+    {
+      "a": 14,
+      "b": 18,
+      "product": 252,
+      "relation": "14 × 18 = 252",
+      "level": "reference"
+    },
+    {
+      "a": 14,
+      "b": 19,
+      "product": 266,
+      "relation": "14 × 19 = 266",
+      "level": "reference"
+    },
+    {
+      "a": 15,
+      "b": 16,
+      "product": 240,
+      "relation": "15 × 16 = 240",
+      "level": "core_recall"
+    },
+    {
+      "a": 15,
+      "b": 17,
+      "product": 255,
+      "relation": "15 × 17 = 255",
+      "level": "reference"
+    },
+    {
+      "a": 15,
+      "b": 18,
+      "product": 270,
+      "relation": "15 × 18 = 270",
+      "level": "reference"
+    },
+    {
+      "a": 15,
+      "b": 19,
+      "product": 285,
+      "relation": "15 × 19 = 285",
+      "level": "reference"
+    },
+    {
+      "a": 16,
+      "b": 17,
+      "product": 272,
+      "relation": "16 × 17 = 272",
+      "level": "reference"
+    },
+    {
+      "a": 16,
+      "b": 18,
+      "product": 288,
+      "relation": "16 × 18 = 288",
+      "level": "reference"
+    },
+    {
+      "a": 16,
+      "b": 19,
+      "product": 304,
+      "relation": "16 × 19 = 304",
+      "level": "reference"
+    },
+    {
+      "a": 17,
+      "b": 18,
+      "product": 306,
+      "relation": "17 × 18 = 306",
+      "level": "reference"
+    },
+    {
+      "a": 17,
+      "b": 19,
+      "product": 323,
+      "relation": "17 × 19 = 323",
+      "level": "reference"
+    },
+    {
+      "a": 18,
+      "b": 19,
+      "product": 342,
+      "relation": "18 × 19 = 342",
+      "level": "reference"
+    }
+  ]
+}

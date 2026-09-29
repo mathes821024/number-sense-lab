@@ -2,33 +2,36 @@
 
 > A lightweight, open-source math fluency trainer for building number sense through short, focused practice.
 
-## Project Status
+## v0.1 status
 
-🚧 Inception / Product Design
+Runnable local-first H5 / PC client with Core Learning Engine:
 
-This project is currently in the product-definition stage.
+- 75 Core Recall relations from `content/v0.1/*.core.json` (Squares 16 · Products 32 · Fraction→Decimal 27)
+- Daily + focused practice, judging, mastery, wrong-item reappear, progress, A4 preview/print
+- No backend, no login, no cloud sync
 
-## Vision
+## How to run
 
-Number Sense Lab is an open-source math fluency trainer designed to help learners build number sense through short, focused, and repeatable practice.
+```bash
+npm test          # unit tests (node --test)
+npm start         # http://localhost:4173/
+```
 
-Initial focus:
+Open the URL on phone or desktop. Progress stays in this browser’s local storage.
 
-- Junior secondary school students
-- Number sense
-- Calculation fluency
-- Fast and accurate retrieval of common numerical relationships
+## Architecture
 
-## Development Approach
+```text
+Core Learning Engine   (src/core)     — no platform APIs
+        ↓
+Platform Adapter       (src/adapter)  — localStorage for H5/PC
+        ↓
+Client Shell           (h5/)          — responsive UI + keypad/keyboard
+```
 
-Product Definition → UX → UI → Technical Design → Contract Freeze → Build → Verify
+Content source of truth: `content/v0.1/*.core.json`.  
+After editing JSON, run `npm run sync-content`.
 
-Delivery direction: WeChat Mini Program first; see [`docs/decisions/01_delivery_platform.md`](docs/decisions/01_delivery_platform.md).
+## Contracts
 
-## Collaboration
-
-GitHub is the source of truth.
-
-Project design and implementation follow a contract-driven workflow based on pull requests, review gates, and Contract Freeze.
-
-See [`docs/governance/collaboration.md`](docs/governance/collaboration.md) for details.
+Upstream Product / UX / UI / Learning / Architecture docs under `docs/` are frozen for this build and were not modified.

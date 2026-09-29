@@ -1,0 +1,1062 @@
+{
+  "domain": "products",
+  "version": "0.1.0",
+  "relations": [
+    {
+      "id": "product-11-12",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "11 × 12 = ?",
+      "canonical_answer": "132",
+      "answer_type": "integer",
+      "relation": "11 × 12 = 132",
+      "hook": "12 的两头 1 和 2 拉开，中间放 1+2=3 → 132。",
+      "pattern": {
+        "check": "×11 的两头拉中间加，用于两位乘数；132 比 12²=144 小一点，合理。",
+        "family": [
+          "11 × 13 = 143",
+          "12² = 144"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 _ 2",
+          "detail": "把 12 的两头拉开"
+        },
+        {
+          "title": "1+2 = 3",
+          "detail": "中间放两数之和"
+        },
+        {
+          "title": "132",
+          "detail": "11 × 12 = 132"
+        }
+      ]
+    },
+    {
+      "id": "product-11-13",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "11 × 13 = ?",
+      "canonical_answer": "143",
+      "answer_type": "integer",
+      "relation": "11 × 13 = 143",
+      "hook": "13 的两头 1 和 3 拉开，中间放 1+3=4 → 143。",
+      "pattern": {
+        "check": "中间之和 4 小于 10，不需要进位。",
+        "family": [
+          "11 × 12 = 132",
+          "11 × 14 = 154"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 _ 3",
+          "detail": "把 13 的两头拉开"
+        },
+        {
+          "title": "1+3 = 4",
+          "detail": "中间放两数之和"
+        },
+        {
+          "title": "143",
+          "detail": "11 × 13 = 143"
+        }
+      ]
+    },
+    {
+      "id": "product-11-15",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "11 × 15 = ?",
+      "canonical_answer": "165",
+      "answer_type": "integer",
+      "relation": "11 × 15 = 165",
+      "hook": "15 的两头 1 和 5 拉开，中间放 1+5=6 → 165。",
+      "pattern": {
+        "check": "165 也等于 15 × 11 = 150 + 15，两种算法互相印证。",
+        "family": [
+          "15 × 6 = 90",
+          "11 × 16 = 176"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 _ 5",
+          "detail": "把 15 的两头拉开"
+        },
+        {
+          "title": "1+5 = 6",
+          "detail": "中间放两数之和"
+        },
+        {
+          "title": "165",
+          "detail": "11 × 15 = 165"
+        }
+      ]
+    },
+    {
+      "id": "product-11-16",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "11 × 16 = ?",
+      "canonical_answer": "176",
+      "answer_type": "integer",
+      "relation": "11 × 16 = 176",
+      "hook": "16 的两头 1 和 6 拉开，中间放 1+6=7 → 176。",
+      "pattern": {
+        "check": "中间之和 7 小于 10，不需要进位。",
+        "family": [
+          "11 × 15 = 165",
+          "11 × 19 = 209"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 _ 6",
+          "detail": "把 16 的两头拉开"
+        },
+        {
+          "title": "1+6 = 7",
+          "detail": "中间放两数之和"
+        },
+        {
+          "title": "176",
+          "detail": "11 × 16 = 176"
+        }
+      ]
+    },
+    {
+      "id": "product-11-19",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "11 × 19 = ?",
+      "canonical_answer": "209",
+      "answer_type": "integer",
+      "relation": "11 × 19 = 209",
+      "hook": "中间 1+9=10，写 0 进 1 → 209。这条专门练进位。",
+      "pattern": {
+        "check": "×11 的中间和 ≥10 时要进位：19 → 1|10|9 → 209。",
+        "family": [
+          "11 × 16 = 176",
+          "19² = 361"
+        ]
+      },
+      "frames": [
+        {
+          "title": "1 _ 9",
+          "detail": "把 19 的两头拉开"
+        },
+        {
+          "title": "1+9 = 10",
+          "detail": "中间满十，写 0 进 1"
+        },
+        {
+          "title": "209",
+          "detail": "11 × 19 = 209"
+        }
+      ]
+    },
+    {
+      "id": "product-15-6",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "transformation",
+      "prompt": "6 × 15 = ?",
+      "canonical_answer": "90",
+      "answer_type": "integer",
+      "relation": "6 × 15 = 90",
+      "hook": "6 减半得 3，3 × 30 = 90。",
+      "pattern": {
+        "check": "偶数 × 15：偶数减半再 ×30，积的个位一定是 0。",
+        "family": [
+          "15 × 8 = 120",
+          "6² = 36"
+        ]
+      },
+      "frames": [
+        {
+          "title": "6 ÷ 2 = 3",
+          "detail": "偶数先减半"
+        },
+        {
+          "title": "3 × 30",
+          "detail": "减半后乘 30"
+        },
+        {
+          "title": "90",
+          "detail": "15 × 6 = 90"
+        }
+      ]
+    },
+    {
+      "id": "product-15-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "transformation",
+      "prompt": "8 × 15 = ?",
+      "canonical_answer": "120",
+      "answer_type": "integer",
+      "relation": "8 × 15 = 120",
+      "hook": "8 减半得 4，4 × 30 = 120。",
+      "pattern": {
+        "check": "也可以 8×15 = 80 + 40 = 120，两种算法互相印证。",
+        "family": [
+          "15 × 6 = 90",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "8 ÷ 2 = 4",
+          "detail": "偶数先减半"
+        },
+        {
+          "title": "4 × 30",
+          "detail": "减半后乘 30"
+        },
+        {
+          "title": "120",
+          "detail": "15 × 8 = 120"
+        }
+      ]
+    },
+    {
+      "id": "product-15-12",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "12 × 15 = ?",
+      "canonical_answer": "180",
+      "answer_type": "integer",
+      "relation": "12 × 15 = 180",
+      "hook": "12 减半得 6，6 × 30 = 180。",
+      "pattern": {
+        "check": "180 是 18 × 10，三角形的内角和，高频数。",
+        "family": [
+          "15 × 14 = 210",
+          "12² = 144"
+        ]
+      },
+      "frames": [
+        {
+          "title": "12 ÷ 2 = 6",
+          "detail": "偶数先减半"
+        },
+        {
+          "title": "6 × 30",
+          "detail": "减半后乘 30"
+        },
+        {
+          "title": "180",
+          "detail": "15 × 12 = 180"
+        }
+      ]
+    },
+    {
+      "id": "product-15-14",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "14 × 15 = ?",
+      "canonical_answer": "210",
+      "answer_type": "integer",
+      "relation": "14 × 15 = 210",
+      "hook": "14 减半得 7，7 × 30 = 210。",
+      "pattern": {
+        "check": "积的个位一定是 0；210 = 21 × 10。",
+        "family": [
+          "15 × 12 = 180",
+          "15 × 16 = 240"
+        ]
+      },
+      "frames": [
+        {
+          "title": "14 ÷ 2 = 7",
+          "detail": "偶数先减半"
+        },
+        {
+          "title": "7 × 30",
+          "detail": "减半后乘 30"
+        },
+        {
+          "title": "210",
+          "detail": "15 × 14 = 210"
+        }
+      ]
+    },
+    {
+      "id": "product-15-16",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "transformation",
+      "prompt": "15 × 16 = ?",
+      "canonical_answer": "240",
+      "answer_type": "integer",
+      "relation": "15 × 16 = 240",
+      "hook": "16 减半得 8，8 × 30 = 240。",
+      "pattern": {
+        "check": "240 = 24 × 10；与 15²=225 很接近，别混。",
+        "family": [
+          "15² = 225",
+          "15 × 14 = 210"
+        ]
+      },
+      "frames": [
+        {
+          "title": "16 ÷ 2 = 8",
+          "detail": "偶数先减半"
+        },
+        {
+          "title": "8 × 30",
+          "detail": "减半后乘 30"
+        },
+        {
+          "title": "240",
+          "detail": "15 × 16 = 240"
+        }
+      ]
+    },
+    {
+      "id": "product-12-6",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "6 × 12 = ?",
+      "canonical_answer": "72",
+      "answer_type": "integer",
+      "relation": "6 × 12 = 72",
+      "hook": "12 × 6 = 60 + 12 = 72。",
+      "pattern": {
+        "check": "十几 × 一位数：拆成 10×n + 几×n。",
+        "family": [
+          "12 × 7 = 84",
+          "6² = 36"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 6 = 60",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "2 × 6 = 12",
+          "detail": "再算零头"
+        },
+        {
+          "title": "72",
+          "detail": "12 × 6 = 72"
+        }
+      ]
+    },
+    {
+      "id": "product-12-7",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "7 × 12 = ?",
+      "canonical_answer": "84",
+      "answer_type": "integer",
+      "relation": "7 × 12 = 84",
+      "hook": "12 × 7 = 70 + 14 = 84。",
+      "pattern": {
+        "check": "84 是初中因式分解的高频数（84 = 12×7 = 2²×3×7）。",
+        "family": [
+          "12 × 6 = 72",
+          "7² = 49"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 7 = 70",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "2 × 7 = 14",
+          "detail": "再算零头"
+        },
+        {
+          "title": "84",
+          "detail": "12 × 7 = 84"
+        }
+      ]
+    },
+    {
+      "id": "product-12-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "8 × 12 = ?",
+      "canonical_answer": "96",
+      "answer_type": "integer",
+      "relation": "8 × 12 = 96",
+      "hook": "12 × 8 = 80 + 16 = 96。",
+      "pattern": {
+        "check": "96 = 100 − 4，接近整百。",
+        "family": [
+          "12 × 9 = 108",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 8 = 80",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "2 × 8 = 16",
+          "detail": "再算零头"
+        },
+        {
+          "title": "96",
+          "detail": "12 × 8 = 96"
+        }
+      ]
+    },
+    {
+      "id": "product-12-9",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "9 × 12 = ?",
+      "canonical_answer": "108",
+      "answer_type": "integer",
+      "relation": "9 × 12 = 108",
+      "hook": "12 × 9 = 90 + 18 = 108。",
+      "pattern": {
+        "check": "108 = 100 + 8；也是 9 的倍数（1+0+8=9）。",
+        "family": [
+          "12 × 8 = 96",
+          "9² = 81"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 9 = 90",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "2 × 9 = 18",
+          "detail": "再算零头"
+        },
+        {
+          "title": "108",
+          "detail": "12 × 9 = 108"
+        }
+      ]
+    },
+    {
+      "id": "product-12-13",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "12 × 13 = ?",
+      "canonical_answer": "156",
+      "answer_type": "integer",
+      "relation": "12 × 13 = 156",
+      "hook": "12 × 13 = 12×10 + 12×3 = 120 + 36 = 156。",
+      "pattern": {
+        "check": "十几 × 十几：固定一个，拆另一个。",
+        "family": [
+          "13 × 14 = 182",
+          "12² = 144"
+        ]
+      },
+      "frames": [
+        {
+          "title": "12 × 10 = 120",
+          "detail": "先乘整十"
+        },
+        {
+          "title": "12 × 3 = 36",
+          "detail": "再乘零头"
+        },
+        {
+          "title": "156",
+          "detail": "12 × 13 = 156"
+        }
+      ]
+    },
+    {
+      "id": "product-12-14",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "12 × 14 = ?",
+      "canonical_answer": "168",
+      "answer_type": "integer",
+      "relation": "12 × 14 = 168",
+      "hook": "12 × 14 = 120 + 48 = 168。",
+      "pattern": {
+        "check": "168 = 24 × 7，因式分解高频数。",
+        "family": [
+          "12 × 13 = 156",
+          "14² = 196"
+        ]
+      },
+      "frames": [
+        {
+          "title": "12 × 10 = 120",
+          "detail": "先乘整十"
+        },
+        {
+          "title": "12 × 4 = 48",
+          "detail": "再乘零头"
+        },
+        {
+          "title": "168",
+          "detail": "12 × 14 = 168"
+        }
+      ]
+    },
+    {
+      "id": "product-13-6",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "6 × 13 = ?",
+      "canonical_answer": "78",
+      "answer_type": "integer",
+      "relation": "6 × 13 = 78",
+      "hook": "13 × 6 = 60 + 18 = 78。",
+      "pattern": {
+        "check": "78 = 6 × 13 = 2 × 3 × 13。",
+        "family": [
+          "12 × 6 = 72",
+          "13 × 7 = 91"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 6 = 60",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "3 × 6 = 18",
+          "detail": "再算零头"
+        },
+        {
+          "title": "78",
+          "detail": "13 × 6 = 78"
+        }
+      ]
+    },
+    {
+      "id": "product-13-7",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "7 × 13 = ?",
+      "canonical_answer": "91",
+      "answer_type": "integer",
+      "relation": "7 × 13 = 91",
+      "hook": "91 = 7 × 13，质因数分解的经典例子。",
+      "pattern": {
+        "check": "91 看着像质数，其实是 7 × 13——初中最爱考的「假质数」。",
+        "family": [
+          "7² = 49",
+          "13² = 169"
+        ]
+      },
+      "frames": [
+        {
+          "title": "91",
+          "detail": "先记住这个数"
+        },
+        {
+          "title": "7 × 13",
+          "detail": "它能拆成 7 × 13"
+        },
+        {
+          "title": "91",
+          "detail": "13 × 7 = 91"
+        }
+      ]
+    },
+    {
+      "id": "product-13-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "8 × 13 = ?",
+      "canonical_answer": "104",
+      "answer_type": "integer",
+      "relation": "8 × 13 = 104",
+      "hook": "13 × 8 = 80 + 24 = 104。",
+      "pattern": {
+        "check": "104 = 8 × 13 = 2³ × 13。",
+        "family": [
+          "13 × 7 = 91",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 8 = 80",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "3 × 8 = 24",
+          "detail": "再算零头"
+        },
+        {
+          "title": "104",
+          "detail": "13 × 8 = 104"
+        }
+      ]
+    },
+    {
+      "id": "product-13-9",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "9 × 13 = ?",
+      "canonical_answer": "117",
+      "answer_type": "integer",
+      "relation": "9 × 13 = 117",
+      "hook": "13 × 9 = 90 + 27 = 117。",
+      "pattern": {
+        "check": "117 是 9 的倍数（1+1+7=9）。",
+        "family": [
+          "13 × 8 = 104",
+          "9² = 81"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 9 = 90",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "3 × 9 = 27",
+          "detail": "再算零头"
+        },
+        {
+          "title": "117",
+          "detail": "13 × 9 = 117"
+        }
+      ]
+    },
+    {
+      "id": "product-14-7",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "7 × 14 = ?",
+      "canonical_answer": "98",
+      "answer_type": "integer",
+      "relation": "7 × 14 = 98",
+      "hook": "14 × 7 = 2 × 7 × 7 = 2 × 49 = 98。",
+      "pattern": {
+        "check": "看到 14 拆出 2×7，就能借 7²=49。",
+        "family": [
+          "7² = 49",
+          "14² = 196"
+        ]
+      },
+      "frames": [
+        {
+          "title": "14 = 2 × 7",
+          "detail": "先把 14 拆开"
+        },
+        {
+          "title": "2 × 49",
+          "detail": "7×7=49，再乘 2"
+        },
+        {
+          "title": "98",
+          "detail": "14 × 7 = 98"
+        }
+      ]
+    },
+    {
+      "id": "product-14-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "8 × 14 = ?",
+      "canonical_answer": "112",
+      "answer_type": "integer",
+      "relation": "8 × 14 = 112",
+      "hook": "14 × 8 = 80 + 32 = 112。",
+      "pattern": {
+        "check": "112 = 16 × 7，因式分解高频数。",
+        "family": [
+          "14 × 7 = 98",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 8 = 80",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "4 × 8 = 32",
+          "detail": "再算零头"
+        },
+        {
+          "title": "112",
+          "detail": "14 × 8 = 112"
+        }
+      ]
+    },
+    {
+      "id": "product-14-9",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "9 × 14 = ?",
+      "canonical_answer": "126",
+      "answer_type": "integer",
+      "relation": "9 × 14 = 126",
+      "hook": "14 × 9 = 90 + 36 = 126。",
+      "pattern": {
+        "check": "126 是 9 的倍数（1+2+6=9）。",
+        "family": [
+          "14 × 8 = 112",
+          "9² = 81"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 9 = 90",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "4 × 9 = 36",
+          "detail": "再算零头"
+        },
+        {
+          "title": "126",
+          "detail": "14 × 9 = 126"
+        }
+      ]
+    },
+    {
+      "id": "product-16-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "8 × 16 = ?",
+      "canonical_answer": "128",
+      "answer_type": "integer",
+      "relation": "8 × 16 = 128",
+      "hook": "16 × 8 = 80 + 48 = 128。",
+      "pattern": {
+        "check": "128 在 112（14×8）和 144（12²）之间。",
+        "family": [
+          "2⁷ = 128",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 8 = 80",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "6 × 8 = 48",
+          "detail": "再算零头"
+        },
+        {
+          "title": "128",
+          "detail": "16 × 8 = 128"
+        }
+      ]
+    },
+    {
+      "id": "product-17-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "8 × 17 = ?",
+      "canonical_answer": "136",
+      "answer_type": "integer",
+      "relation": "8 × 17 = 136",
+      "hook": "17 × 8 = 80 + 56 = 136，值得反复提取的锚点。",
+      "pattern": {
+        "check": "136 在 128（2⁷）和 144（12²）之间。",
+        "family": [
+          "16 × 8 = 128",
+          "17² = 289"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 8 = 80",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "7 × 8 = 56",
+          "detail": "再算零头"
+        },
+        {
+          "title": "136",
+          "detail": "17 × 8 = 136"
+        }
+      ]
+    },
+    {
+      "id": "product-18-9",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "9 × 18 = ?",
+      "canonical_answer": "162",
+      "answer_type": "integer",
+      "relation": "9 × 18 = 162",
+      "hook": "18 × 9 = 2 × 9 × 9 = 2 × 81 = 162。",
+      "pattern": {
+        "check": "看到 18 拆出 2×9，就能借 9²=81。",
+        "family": [
+          "9² = 81",
+          "18² = 324"
+        ]
+      },
+      "frames": [
+        {
+          "title": "18 = 2 × 9",
+          "detail": "先把 18 拆开"
+        },
+        {
+          "title": "2 × 81",
+          "detail": "9×9=81，再乘 2"
+        },
+        {
+          "title": "162",
+          "detail": "18 × 9 = 162"
+        }
+      ]
+    },
+    {
+      "id": "product-19-8",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "8 × 19 = ?",
+      "canonical_answer": "152",
+      "answer_type": "integer",
+      "relation": "8 × 19 = 152",
+      "hook": "19 × 8 = (20−1) × 8 = 160 − 8 = 152。",
+      "pattern": {
+        "check": "靠近 20 就借 20：先算 20×8，再减一个 8。",
+        "family": [
+          "19² = 361",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "20 × 8 = 160",
+          "detail": "先借 20 来算"
+        },
+        {
+          "title": "160 − 8",
+          "detail": "多算了一个 8，减掉"
+        },
+        {
+          "title": "152",
+          "detail": "19 × 8 = 152"
+        }
+      ]
+    },
+    {
+      "id": "product-13-14",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "13 × 14 = ?",
+      "canonical_answer": "182",
+      "answer_type": "integer",
+      "relation": "13 × 14 = 182",
+      "hook": "13 × 14 = 13×10 + 13×4 = 130 + 52 = 182。",
+      "pattern": {
+        "check": "182 = 2 × 7 × 13，因式分解高频数。",
+        "family": [
+          "13² = 169",
+          "14² = 196"
+        ]
+      },
+      "frames": [
+        {
+          "title": "13 × 10 = 130",
+          "detail": "先乘整十"
+        },
+        {
+          "title": "13 × 4 = 52",
+          "detail": "再乘零头"
+        },
+        {
+          "title": "182",
+          "detail": "13 × 14 = 182"
+        }
+      ]
+    },
+    {
+      "id": "product-13-15",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "13 × 15 = ?",
+      "canonical_answer": "195",
+      "answer_type": "integer",
+      "relation": "13 × 15 = 195",
+      "hook": "13 × 15 = 130 + 65 = 195。",
+      "pattern": {
+        "check": "195 接近 200；13×15 = 13×(10+5)。",
+        "family": [
+          "15² = 225",
+          "13 × 14 = 182"
+        ]
+      },
+      "frames": [
+        {
+          "title": "13 × 10 = 130",
+          "detail": "先乘整十"
+        },
+        {
+          "title": "13 × 5 = 65",
+          "detail": "15 的零头是 5"
+        },
+        {
+          "title": "195",
+          "detail": "13 × 15 = 195"
+        }
+      ]
+    },
+    {
+      "id": "product-14-16",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "relation_network",
+      "prompt": "14 × 16 = ?",
+      "canonical_answer": "224",
+      "answer_type": "integer",
+      "relation": "14 × 16 = 224",
+      "hook": "14 × 16 = 15² − 1 = 225 − 1 = 224。",
+      "pattern": {
+        "check": "平方差：(15−1)(15+1) = 15² − 1，代数恒等式的预演。",
+        "family": [
+          "15² = 225",
+          "13 × 15 = 195"
+        ]
+      },
+      "frames": [
+        {
+          "title": "15² = 225",
+          "detail": "14 和 16 正好像 15 的两翼"
+        },
+        {
+          "title": "225 − 1",
+          "detail": "(15−1)(15+1) = 15²−1"
+        },
+        {
+          "title": "224",
+          "detail": "14 × 16 = 224"
+        }
+      ]
+    },
+    {
+      "id": "product-17-6",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "6 × 17 = ?",
+      "canonical_answer": "102",
+      "answer_type": "integer",
+      "relation": "6 × 17 = 102",
+      "hook": "17 × 6 = 60 + 42 = 102。",
+      "pattern": {
+        "check": "102 = 6 × 17 = 2 × 3 × 17。",
+        "family": [
+          "13 × 6 = 78",
+          "17² = 289"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 6 = 60",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "7 × 6 = 42",
+          "detail": "再算零头"
+        },
+        {
+          "title": "102",
+          "detail": "17 × 6 = 102"
+        }
+      ]
+    },
+    {
+      "id": "product-19-6",
+      "domain": "products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "6 × 19 = ?",
+      "canonical_answer": "114",
+      "answer_type": "integer",
+      "relation": "6 × 19 = 114",
+      "hook": "19 × 6 = 60 + 54 = 114。",
+      "pattern": {
+        "check": "也可以 (20−1)×6 = 120 − 6 = 114，互相印证。",
+        "family": [
+          "19 × 8 = 152",
+          "19² = 361"
+        ]
+      },
+      "frames": [
+        {
+          "title": "10 × 6 = 60",
+          "detail": "先算整十部分"
+        },
+        {
+          "title": "9 × 6 = 54",
+          "detail": "再算零头"
+        },
+        {
+          "title": "114",
+          "detail": "19 × 6 = 114"
+        }
+      ]
+    }
+  ]
+}
