@@ -1,0 +1,16 @@
+{
+  "name": "number-sense-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Number Sense Lab v0.1 — local-first number sense trainer",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "sync-content": "node scripts/sync-content.mjs",
+    "start": "node scripts/serve.mjs",
+    "check": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@phosphor-icons/web": "^2.1.2"
+  }
+}
