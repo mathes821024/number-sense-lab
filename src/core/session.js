@@ -13,6 +13,7 @@ import {
   planWrongReappear,
   DEFAULT_SESSION_SIZE,
 } from "./schedule.js";
+import { scheduleAfterAttempt } from "./scheduler.js";
 import { getRelationById, loadCoreCatalog, filterByDomain } from "./content.js";
 
 /**
@@ -82,7 +83,7 @@ export function submitAnswer({
         })
       : false;
 
-  const relation = applyAttempt(current, {
+  const recorded = applyAttempt(current, {
     correct: judged.kind === "correct",
     day: meta.day,
     slow: Boolean(meta.slow) || slow,
@@ -90,6 +91,10 @@ export function submitAnswer({
     elapsedMs: meta.elapsedMs,
     mixedInput: meta.mixedInput,
   });
+  const relation = {
+    ...recorded,
+    schedule: scheduleAfterAttempt(current, recorded, meta.day),
+  };
 
   let nextSession = {
     ...session,

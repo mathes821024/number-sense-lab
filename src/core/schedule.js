@@ -10,40 +10,44 @@ export const DEFAULT_SESSION_SIZE = 10;
 export const WRONG_REAPPEAR_GAP = 2;
 export const MAX_REAPPEARS_PER_ITEM = 1;
 
-/**
- * Priority score: higher = sooner.
- * shaky > recent-wrong learning > learning > unpracticed (by tier) > stable maintenance
- */
-function priority(item, relation, today) {
+function dueNow(relation, today) {
+  const due = relation.schedule?.due_day;
+  if (!due) return relation.status === MASTERY.SHAKY || relation.status === MASTERY.LEARNING;
+  return due <= today;
+}
+
+function rankOf(relation, today) {
   const status = relation.status;
   const attempts = relation.attempts || [];
   const last = attempts[attempts.length - 1];
-  const missedRecently = last && !last.correct;
-
-  if (status === MASTERY.SHAKY) return 1000 + (missedRecently ? 50 : 0);
-  if (status === MASTERY.LEARNING) {
-    return 700 + (missedRecently ? 80 : 0) + Math.min(attempts.length, 20);
-  }
-  if (status === MASTERY.UNPRACTICED) {
-    // Lower tier number first (teaching suggestion order)
-    return 400 - (item.tier || 3) * 10;
-  }
-  // stable: light maintenance only when queue is short
-  const daysSince =
-    last && last.day
-      ? Math.max(0, dayDiff(last.day, today))
-      : 99;
-  return 50 + Math.min(daysSince, 30);
+  const due = dueNow(relation, today);
+  if (status === MASTERY.SHAKY && due) return 1;
+  if (status === MASTERY.LEARNING && due && last && !last.correct) return 2;
+  if (status === MASTERY.LEARNING && due) return 3;
+  if (status === MASTERY.UNPRACTICED) return 4;
+  return 0;
 }
 
-function dayDiff(a, b) {
-  const ms = Date.parse(b) - Date.parse(a);
-  if (!Number.isFinite(ms)) return 0;
-  return Math.floor(ms / 86400000);
+function compareRows(a, b) {
+  const da = a.rel.schedule?.due_day || "";
+  const db = b.rel.schedule?.due_day || "";
+  if (da && db && da !== db) return da < db ? -1 : 1;
+  if (da !== db) return da ? -1 : 1;
+  const tierA = a.item.tier ?? 99;
+  const tierB = b.item.tier ?? 99;
+  if (tierA !== tierB) return tierA - tierB;
+  return a.item.id.localeCompare(b.item.id);
+}
+
+function take(items, size, interleave) {
+  if (size <= 0 || items.length === 0) return [];
+  return interleave ? pickAcrossDomains(items, size) : items.slice(0, size);
 }
 
 /**
  * Build an ordered queue of relation ids for a session.
+ * Due shaky, then due learning (wrong last, then correct last), then
+ * unpracticed. Due stable fills only the seats those groups leave empty.
  * @param {object[]} catalog filtered items
  * @param {Record<string,{status:string,attempts:object[]}>} relations
  * @param {{ size?: number, day?: string, interleave?: boolean }} opts
@@ -53,22 +57,43 @@ export function buildSessionQueue(catalog, relations, opts = {}) {
   const size = opts.size ?? DEFAULT_SESSION_SIZE;
   const day = opts.day || "1970-01-01";
   const interleave = opts.interleave !== false;
+  const rows = catalog.map((item) => ({
+    item,
+    rel: relations[item.id] || emptyRelation(),
+  }));
 
-  const scored = catalog.map((item) => {
-    const rel = relations[item.id] || emptyRelation();
-    return { item, score: priority(item, rel, day), status: rel.status };
-  });
+  const primary = [];
+  for (const rank of [1, 2, 3, 4]) {
+    const group = rows.filter((row) => rankOf(row.rel, day) === rank).sort(compareRows);
+    primary.push(...group.map((row) => row.item));
+  }
 
-  scored.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    if (a.item.tier !== b.item.tier) return a.item.tier - b.item.tier;
-    return a.item.id.localeCompare(b.item.id);
-  });
+  const picked = take(primary, size, interleave);
+  if (picked.length < size) {
+    const stableDue = rows
+      .filter((row) => row.rel.status === MASTERY.STABLE && row.rel.schedule?.due_day && row.rel.schedule.due_day <= day)
+      .sort(compareRows)
+      .map((row) => row.item);
+    const seen = new Set(picked.map((item) => item.id));
+    for (const item of take(stableDue, size - picked.length, interleave)) {
+      if (seen.has(item.id)) continue;
+      picked.push(item);
+    }
+  }
 
-  // Prefer non-stable first; if everything stable, still allow short confirmation.
-  const nonStable = scored.filter((s) => s.status !== MASTERY.STABLE);
-  const pool = (nonStable.length > 0 ? nonStable : scored).map((s) => s.item);
-  const picked = interleave ? pickAcrossDomains(pool, size) : pool.slice(0, size);
+  if (picked.length === 0) {
+    const fallback = rows
+      .filter((row) => row.rel.status === MASTERY.STABLE)
+      .sort((a, b) => {
+        const da = a.rel.schedule?.due_day || "9999-99-99";
+        const db = b.rel.schedule?.due_day || "9999-99-99";
+        if (da !== db) return da < db ? -1 : 1;
+        return compareRows(a, b);
+      })
+      .map((row) => row.item);
+    return take(fallback, size, interleave).map((item) => item.id);
+  }
+
   return picked.map((item) => item.id);
 }
 

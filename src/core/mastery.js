@@ -37,7 +37,7 @@ export function domainSummaryLabel(status) {
 }
 
 export function emptyRelation() {
-  return { status: MASTERY.UNPRACTICED, attempts: [] };
+  return { status: MASTERY.UNPRACTICED, attempts: [], schedule: null };
 }
 
 function dayCount(attempts) {

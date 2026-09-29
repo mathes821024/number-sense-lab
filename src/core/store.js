@@ -2,7 +2,7 @@
 
 export function emptyState() {
   return {
-    version: 1,
+    version: 2,
     relations: {},
     sessions: [],
     activeSession: null,
