@@ -766,14 +766,14 @@
       "domain": "products",
       "level": "core_recall",
       "tier": 3,
-      "hook_type": "relation_network",
+      "hook_type": "structure",
       "prompt": "8 × 16 = ?",
       "canonical_answer": "128",
       "answer_type": "integer",
       "relation": "8 × 16 = 128",
-      "hook": "16 × 8 = 2⁴ × 2³ = 2⁷ = 128。",
+      "hook": "16 × 8 = 80 + 48 = 128。",
       "pattern": {
-        "check": "128 是 2 的连乘家族成员，和 64、256 串成一张网。",
+        "check": "128 在 112（14×8）和 144（12²）之间。",
         "family": [
           "2⁷ = 128",
           "8² = 64"
@@ -781,12 +781,12 @@
       },
       "frames": [
         {
-          "title": "16 = 2⁴, 8 = 2³",
-          "detail": "两个数都是 2 的连乘"
+          "title": "10 × 8 = 80",
+          "detail": "先算整十部分"
         },
         {
-          "title": "2⁴ × 2³ = 2⁷",
-          "detail": "指数相加"
+          "title": "6 × 8 = 48",
+          "detail": "再算零头"
         },
         {
           "title": "128",

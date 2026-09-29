@@ -65,12 +65,12 @@
       "domain": "squares",
       "level": "core_recall",
       "tier": 1,
-      "hook_type": "relation_network",
+      "hook_type": "retrieval_anchor",
       "prompt": "8² = ?",
       "canonical_answer": "64",
       "answer_type": "integer",
       "relation": "8² = 64",
-      "hook": "八八六十四；64 还是 2 连乘 6 次（2⁶）。",
+      "hook": "八八六十四，小九九里的老朋友。",
       "pattern": {
         "check": "64 在 49（7²）和 81（9²）之间。",
         "family": [
@@ -198,7 +198,7 @@
       "canonical_answer": "144",
       "answer_type": "integer",
       "relation": "12² = 144",
-      "hook": "144 是「一打的平方」，初中极高频，直接记住。",
+      "hook": "12² = 144，没有好口诀，直接记住这个锚点。",
       "pattern": {
         "check": "144 在 121（11²）和 169（13²）之间。",
         "family": [
@@ -209,7 +209,7 @@
       "frames": [
         {
           "title": "12 × 12",
-          "detail": "一打的平方"
+          "detail": "没有捷径，直接提取"
         },
         {
           "title": "144",
@@ -227,18 +227,18 @@
       "canonical_answer": "169",
       "answer_type": "integer",
       "relation": "13² = 169",
-      "hook": "169 和 196 是一对易混兄弟：13²=169，14²=196。",
+      "hook": "个位 3²=9，所以 13² 的个位一定是 9。",
       "pattern": {
-        "check": "169 < 196。尾数 3²=9，所以 13² 个位是 9。",
+        "check": "169 在 144（12²）和 196（14²）之间；注意别和 14²=196 混淆。",
         "family": [
-          "14² = 196",
-          "12² = 144"
+          "12² = 144",
+          "14² = 196"
         ]
       },
       "frames": [
         {
           "title": "13 × 13",
-          "detail": "先想到 169 还是 196？"
+          "detail": "直接提取"
         },
         {
           "title": "个位是 9",
@@ -260,9 +260,9 @@
       "canonical_answer": "196",
       "answer_type": "integer",
       "relation": "14² = 196",
-      "hook": "196 和 169 是一对易混兄弟：14²=196，13²=169。",
+      "hook": "个位 4²=16，所以 14² 的个位一定是 6。",
       "pattern": {
-        "check": "196 接近 200，比 13² 的 169 大。",
+        "check": "196 接近 200；注意别和 13²=169 混淆。",
         "family": [
           "13² = 169",
           "15² = 225"
@@ -325,12 +325,12 @@
       "domain": "squares",
       "level": "core_recall",
       "tier": 2,
-      "hook_type": "relation_network",
+      "hook_type": "retrieval_anchor",
       "prompt": "16² = ?",
       "canonical_answer": "256",
       "answer_type": "integer",
       "relation": "16² = 256",
-      "hook": "256 = 2⁸，2 的连乘家族，计算机里天天见。",
+      "hook": "16² = 256，先直接记住这个锚点。",
       "pattern": {
         "check": "256 在 225（15²）和 289（17²）之间。",
         "family": [
