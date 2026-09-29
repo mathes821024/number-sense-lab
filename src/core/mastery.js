@@ -37,7 +37,7 @@ export function domainSummaryLabel(status) {
 }
 
 export function emptyRelation() {
-  return { status: MASTERY.UNPRACTICED, attempts: [] };
+  return { status: MASTERY.UNPRACTICED, attempts: [], schedule: null };
 }
 
 function dayCount(attempts) {
@@ -45,14 +45,41 @@ function dayCount(attempts) {
 }
 
 /**
- * Suggested stable entry (PRD starting point, not frozen counts):
- * ≥3 non-slow corrects across ≥2 days, and last 2 attempts both correct.
+ * ≥3 non-slow corrects across ≥2 days, and the last 2 attempts both correct.
+ * `attempts` is already limited to the evidence that still counts.
  */
-function meetsSuggestedStable(attempts) {
+function meetsStableWindow(attempts) {
   const counted = attempts.filter((a) => a.correct && !a.slow);
   if (counted.length < 3 || dayCount(counted) < 2) return false;
   const recent = attempts.slice(-2);
   return recent.length === 2 && recent.every((a) => a.correct);
+}
+
+/**
+ * A wrong that demotes stable voids the earlier correct days.
+ * Later stable checks use only attempts after the latest such wrong.
+ * First-time learning still uses the whole log.
+ */
+function evidenceAfterStableWrong(attempts) {
+  let status = MASTERY.UNPRACTICED;
+  let start = 0;
+  for (let i = 0; i < attempts.length; i += 1) {
+    const attempt = attempts[i];
+    if (!attempt.correct) {
+      if (status === MASTERY.STABLE) start = i + 1;
+      status = status === MASTERY.STABLE ? MASTERY.SHAKY : MASTERY.LEARNING;
+      continue;
+    }
+    if (status === MASTERY.STABLE) continue;
+    status = meetsStableWindow(attempts.slice(start, i + 1))
+      ? MASTERY.STABLE
+      : MASTERY.LEARNING;
+  }
+  return attempts.slice(start);
+}
+
+function meetsSuggestedStable(attempts) {
+  return meetsStableWindow(evidenceAfterStableWrong(attempts));
 }
 
 /**
