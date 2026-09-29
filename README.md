@@ -40,3 +40,5 @@ After editing JSON, run `npm run sync-content`.
 ## Contracts
 
 Upstream Product / UX / UI / Learning / Architecture docs under `docs/` are frozen for this build and were not modified.
+
+In review, not frozen: learner identity and the mistake book. See `docs/product/02_learner_mistake_book.md`, `docs/ux/03_mistake_book_ux.md`, and `docs/architecture/01_learner_state_v3.md`.
