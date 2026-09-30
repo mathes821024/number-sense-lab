@@ -416,7 +416,7 @@ function printBackLink() {
     return `<button class="quiet back" type="button" data-action="mistakes">${mark("arrow-left")}回错题本</button>`;
   }
   if (printSource === "progress") {
-    return `<button class="quiet back" type="button" data-action="progress">${mark("arrow-left")}回最近练得怎么样</button>`;
+    return `<button class="quiet back" type="button" data-action="progress">${mark("arrow-left")}返回最近练习</button>`;
   }
   return `<button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>`;
 }
@@ -463,7 +463,7 @@ function renderPrintSelect() {
     : "";
   const nothingHere =
     sel.currentMistakes.length + sel.others.length === 0
-      ? `<p class="body">这一块还没有练过的题。</p>`
+      ? `<p class="body">这一类还没有练过的题。</p>`
       : "";
   return `<section class="screen no-print" id="print-select" data-source="${printSource}">
     ${printBackLink()}
@@ -478,7 +478,7 @@ function renderPrintSelect() {
     ${list}
     ${nothingHere}
     ${revealOthers}
-    <button class="cta" type="button" data-action="print-preview"${sel.selectedCount === 0 ? " disabled" : ""}>预览这张纸</button>
+    <button class="cta" type="button" data-action="print-preview"${sel.selectedCount === 0 ? " disabled" : ""}>预览题目</button>
   </section>`;
 }
 
@@ -487,7 +487,7 @@ function renderA4() {
     selectedIds: selectedPrintIds,
     day: formatDay(today()),
   });
-  const backToSelect = `<button class="quiet back" type="button" data-action="print-back">${mark("arrow-left")}回去改选</button>`;
+  const backToSelect = `<button class="quiet back" type="button" data-action="print-back">${mark("arrow-left")}返回选题</button>`;
 
   if (sheet.empty) {
     // Zero selected never produces an empty paper page.
