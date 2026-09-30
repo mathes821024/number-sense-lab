@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>数感训练场</title>
   <meta name="theme-color" content="#F7F3E8">
-  <!-- App icon: the locked brand.appIcon (07). The page shell is not a component. -->
-  <link rel="icon" type="image/png" href="../assets/brand/app-icon.png">
-  <link rel="apple-touch-icon" href="../assets/brand/app-icon.png">
+  <!-- App icon: small copies of the locked brand.appIcon (07; manifest brand.appIconSmall / brand.touchIcon).
+       The page shell is not a component. The manifest is fetched early so pictures are not late. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/brand/app-icon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/app-icon-180.png">
+  <link rel="preload" href="../assets/themes/math-lab/manifest.json" as="fetch" type="application/json" crossorigin="anonymous">
   <!-- Nunito (SIL OFL) for Latin and digits; Chinese uses the system stack.
        Loaded without blocking first paint, so a slow or unreachable font host
        only means the system font is used. -->

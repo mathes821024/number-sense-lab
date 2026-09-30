@@ -21,6 +21,8 @@ const REGISTRY = Object.freeze({ [mathLabTheme.id]: mathLabTheme });
 export const ASSET_ROOT = new URL("../assets/", import.meta.url).href;
 
 let manifest = null;
+/** Slots already preloaded for the current manifest. */
+const preloaded = new Set();
 let assetBase = ASSET_ROOT;
 
 /** The runtime theme. Always math-lab in v0.3. */
@@ -45,6 +47,7 @@ export function useManifest(json, base = ASSET_ROOT) {
   }
   manifest = json;
   assetBase = base;
+  preloaded.clear();
   return true;
 }
 
@@ -79,35 +82,85 @@ function escapeAttr(value) {
 }
 
 /**
+ * Display-size copies (manifest `*Display` / `*DisplayWebp`) are what pages
+ * load; the 1024px masters stay in the pack and are only a srcset candidate
+ * for very dense screens. The largest mascot on any page is the home hero
+ * (styles.css .mascot-hero: clamp(150px, 44vw, 196px)).
+ */
+export const MASCOT_SIZES = "(min-width: 640px) 196px, 44vw";
+const MASCOT_DISPLAY_W = 512;
+const MASCOT_MASTER_W = 1024;
+
+/** Candidate sources for a slot: { webp, png } as srcset strings plus sizes. */
+export function assetSources(slot) {
+  const master = assetUrl(slot);
+  if (!master) return null;
+  const masterWebp = assetUrl(`${slot}Webp`);
+  const display = assetUrl(`${slot}Display`);
+  const displayWebp = assetUrl(`${slot}DisplayWebp`);
+  if (slot.startsWith("mascot.")) {
+    const pair = (small, big) =>
+      [small && `${small} ${MASCOT_DISPLAY_W}w`, big && `${big} ${MASCOT_MASTER_W}w`].filter(Boolean).join(", ");
+    return {
+      src: display || master,
+      srcset: pair(display, master),
+      webp: pair(displayWebp, masterWebp),
+      sizes: MASCOT_SIZES,
+    };
+  }
+  return { src: display || master, srcset: "", webp: displayWebp || masterWebp || "", sizes: "" };
+}
+
+/**
  * Markup for a semantic slot. Pictures are decorative (alt=""); the words
- * around them carry the meaning. Mascots prefer the WebP twin when present.
+ * around them carry the meaning. WebP is preferred when the theme ships it.
  */
 export function asset(slot, { className = "" } = {}) {
   const mark = activeTheme().marks[slot];
   if (mark) return mark;
-  const src = assetUrl(slot);
-  if (!src) return "";
+  const srcs = assetSources(slot);
+  if (!srcs) return "";
   const cls = className ? ` class="${escapeAttr(className)}"` : "";
-  const img = `<img${cls} src="${escapeAttr(src)}" alt="" decoding="async" draggable="false">`;
-  if (slot.startsWith("mascot.")) {
-    const webp = assetUrl(`${slot}Webp`);
-    if (webp) return `<picture><source type="image/webp" srcset="${escapeAttr(webp)}">${img}</picture>`;
+  const sizes = srcs.sizes ? ` sizes="${escapeAttr(srcs.sizes)}"` : "";
+  const srcset = srcs.srcset ? ` srcset="${escapeAttr(srcs.srcset)}"` : "";
+  const img = `<img${cls} src="${escapeAttr(srcs.src)}"${srcset}${sizes} alt="" decoding="async" draggable="false">`;
+  if (srcs.webp) {
+    return `<picture><source type="image/webp" srcset="${escapeAttr(srcs.webp)}"${sizes}>${img}</picture>`;
   }
   return img;
 }
 
-/** Warm the cache for the feedback mascots so the 700ms correct pause shows them. */
-export function preloadAssets(slots, ImageCtor = globalThis.Image) {
-  if (typeof ImageCtor !== "function") return [];
-  return slots
-    .map((slot) => assetUrl(`${slot}Webp`) || assetUrl(slot))
-    .filter(Boolean)
-    .map((src) => {
-      const img = new ImageCtor();
-      img.decoding = "async";
-      img.src = src;
-      return img;
-    });
+/**
+ * Starts fetching slots before the screen that needs them (home: welcome;
+ * training: correct / thinking so the 700ms feedback shows its picture).
+ * Uses the same srcset and sizes as asset(), so the browser picks the same
+ * file and the later <picture> is a cache hit. Each slot is preloaded once.
+ */
+export function preloadAssets(slots, { doc = globalThis.document, priority = "auto" } = {}) {
+  if (!doc || !doc.head || typeof doc.createElement !== "function") return [];
+  const links = [];
+  for (const slot of slots) {
+    if (!slot || preloaded.has(slot)) continue;
+    const srcs = assetSources(slot);
+    if (!srcs) continue;
+    const link = doc.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    if (srcs.webp) {
+      link.type = "image/webp";
+      link.setAttribute("imagesrcset", srcs.webp);
+    } else if (srcs.srcset) {
+      link.setAttribute("imagesrcset", srcs.srcset);
+    } else {
+      link.href = srcs.src;
+    }
+    if (srcs.sizes) link.setAttribute("imagesizes", srcs.sizes);
+    if (priority !== "auto") link.setAttribute("fetchpriority", priority);
+    doc.head.appendChild(link);
+    preloaded.add(slot);
+    links.push(link);
+  }
+  return links;
 }
 
 /** Marks the document with the active theme id. */

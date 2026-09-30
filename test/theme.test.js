@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { mathLabTheme } from "../h5/themes/math-lab/theme.js";
-import { DEFAULT_THEME_ID, activeTheme, applyTheme, asset, assetUrl, loadTheme, manifestUrl, themeIds, useManifest } from "../h5/theme.js";
+import { DEFAULT_THEME_ID, MASCOT_SIZES, activeTheme, applyTheme, asset, assetUrl, loadTheme, manifestUrl, preloadAssets, themeIds, useManifest } from "../h5/theme.js";
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const themeCss = read("h5/themes/math-lab/theme.css");
@@ -139,7 +139,10 @@ test("every locked slot resolves through the manifest to a project-local file", 
     }
     for (const pose of ["welcome", "correct", "thinking"]) {
       assert.ok(existsSync(new URL(assetUrl(`mascot.${pose}Webp`))), `webp twin for ${pose}`);
-      assert.match(asset(`mascot.${pose}`), /^<picture><source type="image\/webp" srcset="[^"]+\.webp"><img [^>]*alt=""[^>]*><\/picture>$/);
+      const html = asset(`mascot.${pose}`);
+      assert.match(html, /^<picture><source type="image\/webp" srcset="[^"]+-512\.webp 512w, [^"]+\.webp 1024w" sizes="[^"]+"><img [^>]*alt=""[^>]*><\/picture>$/);
+      // Pages load the 512px copy; the 1024px master is only a dense-screen candidate.
+      assert.match(html, new RegExp(`<img src="[^"]+mascot-${pose}-512\\.png" srcset="[^"]+-512\\.png 512w, [^"]+mascot-${pose}\\.png 1024w"`));
     }
     for (const [domain, slot] of Object.entries(mathLabTheme.icons)) {
       assert.match(asset(slot), /^<img [^>]*alt=""/, `icon for ${domain}`);
@@ -151,6 +154,89 @@ test("every locked slot resolves through the manifest to a project-local file", 
   } finally {
     useManifest(null);
   }
+});
+
+/** Pixel size from a PNG (IHDR) or WebP (VP8X / VP8L / VP8) header. */
+function imageSize(url) {
+  const b = readFileSync(url);
+  if (b.readUInt32BE(0) === 0x89504e47) return [b.readUInt32BE(16), b.readUInt32BE(20)];
+  const kind = b.toString("ascii", 12, 16);
+  if (kind === "VP8X") return [1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3)];
+  if (kind === "VP8L") { const n = b.readUInt32LE(21); return [(n & 0x3fff) + 1, ((n >> 14) & 0x3fff) + 1]; }
+  return [b.readUInt16LE(26) & 0x3fff, b.readUInt16LE(28) & 0x3fff];
+}
+
+test("display-size copies are registered, small and derived from untouched masters", () => {
+  assert.equal(useManifest(manifestJson, ASSETS_DIR.href), true);
+  try {
+    for (const pose of ["welcome", "correct", "thinking"]) {
+      const master = new URL(assetUrl(`mascot.${pose}`));
+      assert.deepEqual(imageSize(master), [1024, 1024], `${pose} PNG master stays 1024px`);
+      assert.deepEqual(imageSize(new URL(assetUrl(`mascot.${pose}Webp`))), [1024, 1024], `${pose} WebP master stays 1024px`);
+      for (const key of [`mascot.${pose}Display`, `mascot.${pose}DisplayWebp`]) {
+        const url = new URL(assetUrl(key));
+        assert.ok(existsSync(url), key);
+        assert.deepEqual(imageSize(url), [512, 512], `${key} is 512px`);
+      }
+      const webp = readFileSync(new URL(assetUrl(`mascot.${pose}DisplayWebp`))).length;
+      assert.ok(webp < 150 * 1024, `${pose} display WebP ${webp} bytes`);
+    }
+    assert.deepEqual(imageSize(new URL(assetUrl("brand.avatarDisplay"))), [192, 192]);
+    assert.match(asset("brand.avatar"), /^<picture><source type="image\/webp" srcset="[^"]+brand-avatar-192\.webp"><img src="[^"]+brand-avatar-192\.png"/);
+    assert.deepEqual(imageSize(new URL(assetUrl("brand.appIconSmall"))), [32, 32]);
+    assert.deepEqual(imageSize(new URL(assetUrl("brand.touchIcon"))), [180, 180]);
+    assert.match(indexHtml, /rel="icon"[^>]+href="\.\.\/assets\/brand\/app-icon-32\.png"/);
+    assert.match(indexHtml, /rel="apple-touch-icon"[^>]+href="\.\.\/assets\/brand\/app-icon-180\.png"/);
+    // The sizes hint covers the largest mascot on any page (the home hero).
+    assert.match(styles, /\.mascot-hero \{ width: clamp\(150px, 44vw, 196px\);/);
+    assert.equal(MASCOT_SIZES, "(min-width: 640px) 196px, 44vw");
+  } finally {
+    useManifest(null);
+  }
+});
+
+test("preload: welcome first, feedback pictures once training starts, each once", () => {
+  const head = [];
+  const doc = { head: { appendChild: (l) => head.push(l) }, createElement: () => ({ attrs: {}, setAttribute(k, v) { this.attrs[k] = v; } }) };
+  assert.equal(useManifest(manifestJson, ASSETS_DIR.href), true);
+  try {
+    preloadAssets(["mascot.welcome"], { doc, priority: "high" });
+    preloadAssets(["mascot.welcome"], { doc });
+    assert.equal(head.length, 1, "no duplicate preload");
+    assert.equal(head[0].rel, "preload");
+    assert.equal(head[0].as, "image");
+    assert.equal(head[0].type, "image/webp");
+    assert.match(head[0].attrs.imagesrcset, /mascot-welcome-512\.webp 512w, .*mascot-welcome\.webp 1024w/);
+    assert.equal(head[0].attrs.imagesizes, MASCOT_SIZES);
+    assert.equal(head[0].attrs.fetchpriority, "high");
+    preloadAssets(["mascot.correct", "mascot.thinking"], { doc });
+    assert.equal(head.length, 3);
+  } finally {
+    useManifest(null);
+  }
+  assert.match(appJs, /preloadAssets\(\[activeTheme\(\)\.mascot\.welcome\], \{ priority: "high" \}\)/);
+  assert.match(appJs, /if \(screenName === "train"\) preloadAssets\(\[activeTheme\(\)\.mascot\.correct, activeTheme\(\)\.mascot\.thinking\]\)/);
+  assert.match(indexHtml, /rel="preload" href="\.\.\/assets\/themes\/math-lab\/manifest\.json" as="fetch"/);
+});
+
+test("final polish: home label, correct pause without a button, muted future tabs", () => {
+  const home = section("renderHome");
+  assert.match(home, /let ctaLabel = "开始今天的练习";/);
+  assert.match(home, /let ctaSub = "大约 5～10 分钟";/);
+  assert.match(home, /ctaLabel = "继续刚才的练习";/);
+  assert.match(home, /ctaLabel = "看看这次";/);
+  assert.match(section("renderNav"), /tab\("explore", "explore", "[a-z-]+", "练习"\)/);
+  // Correct feedback auto-advances after ~700ms; nothing to tap (05 §17 screen 5).
+  const correct = section("renderCorrect");
+  assert.doesNotMatch(correct, /<button|data-action=|继续/);
+  assert.match(correct, /class="card feedback-card is-correct" tabindex="-1"/);
+  assert.match(appJs, /correctTimer = window\.setTimeout\(\(\) => advanceAfterFeedback\(\), 700\);/);
+  // Mistake Book: only 当前错题 is real; the other two look and say 敬请期待.
+  const tabs = section("renderMistakes");
+  for (const name of ["已掌握", "全部"]) {
+    assert.match(tabs, new RegExp(`class="seg seg-soon" type="button" aria-disabled="true" data-action="soon" data-soon="${name}">${name}<span class="seg-note">敬请期待</span>`));
+  }
+  assert.match(styles, /\.seg\.seg-soon \{[^}]*color: var\(--text-secondary\);/);
 });
 
 test("a failed manifest load never throws and leaves words-only pages", async () => {
@@ -229,8 +315,57 @@ test("placeholders only say 敬请期待 and change nothing", () => {
   assert.match(indexHtml, /id="toast" role="status"/);
 });
 
+test("我的: 昵称 and 清空练习记录 stay 敬请期待; 清空 clears nothing", () => {
+  const me = section("renderMe");
+  assert.match(me, /\$\{row\("user-circle", "昵称"\)\}/);
+  assert.match(me, /\$\{row\("trash", "清空练习记录"\)\}/);
+  assert.match(me, /data-action="soon" data-soon="\$\{name\}"/);
+  assert.match(me, /data-action="about"/);
+  assert.doesNotMatch(me, /row\("info", "关于数感训练场"\)/);
+  // No reset / clear path exists anywhere in the shell.
+  assert.doesNotMatch(appJs, /localStorage\.(clear|removeItem)|action === "clear|resetState|clearRecords/);
+});
+
+test("关于数感训练场 is a static page with the Owner's copy (Owner-approved 2026-09-30)", () => {
+  const about = section("renderAbout");
+  for (const line of [
+    "关于数感训练场",
+    "为什么做它",
+    "我是一个程序员，也是一个陪孩子学数学的家长。",
+    "我一直觉得，很多孩子不是“不会数学”，而是一些最基础、最常用的数字关系还没有真正熟悉。",
+    "所以我想做一个简单的小工具：每天花几分钟，把这些关系练到能直接想起来。",
+    "不追求刷很多题，不催速度，也不做排名。",
+    "我更希望它像一段长期陪伴——",
+    "今天多熟一点，明天再熟一点。",
+    "陪孩子一起成长，也陪自己重新理解学习。",
+    "我们的学习理念",
+    "不是替孩子学习，而是帮孩子把“会”练成“熟”。",
+    "隐私与数据",
+    "练习记录默认只保存在当前设备，不自动上传。",
+    "版本信息",
+    "开源项目",
+    "Number Sense Lab｜数感训练场",
+    "一个从真实家庭学习场景里长出来的小项目。",
+  ]) {
+    assert.ok(about.includes(line), `about copy: ${line}`);
+  }
+  assert.match(about, /href="https:\/\/github\.com\/mathes821024\/number-sense-lab" target="_blank" rel="noopener noreferrer"/);
+  assert.match(about, /MIT/);
+  // Ordinary page under 我的, with a way back; never printed.
+  assert.match(about, /<section class="screen no-print" id="about">/);
+  assert.match(about, /data-action="me"/);
+  assert.match(section("navTab"), /screenName === "me" \|\| screenName === "about"\) return "me"/);
+  // Static: no storage, no learner state, no mascot art.
+  assert.doesNotMatch(about, /persist|state\.|localStorage|save|mascot\(/);
+  const build = section("loadBuildInfo");
+  assert.doesNotMatch(build, /persist|state\.|localStorage/);
+  assert.match(build, /catch \{\s*buildInfo = \{ missing: true \};/, "offline / local falls back quietly");
+  assert.match(appJs, /const APP_VERSION = "v0\.3";/);
+  assert.match(appJs, /new URL\("\.\.\/version\.json", import\.meta\.url\)/);
+});
+
 test("stable semantic hooks and interaction guards survive the restyle", () => {
-  for (const id of ["home", "explore", "me", "train", "correct", "wrong", "pause", "end", "progress", "mistakes", "print-select", "a4", "a4-sheet", "a4-answers", "recent-outcomes", "print-count", "keys", "answer", "nudge", "set-count"]) {
+  for (const id of ["home", "explore", "me", "about", "train", "correct", "wrong", "pause", "end", "progress", "mistakes", "print-select", "a4", "a4-sheet", "a4-answers", "recent-outcomes", "print-count", "keys", "answer", "nudge", "set-count"]) {
     assert.match(appJs, new RegExp(`id="${id}"`), `#${id}`);
   }
   assert.match(styles, /#train, \.keys, \.key, \.cta \{ touch-action: manipulation; \}/);

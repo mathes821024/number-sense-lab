@@ -43,7 +43,8 @@ import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./them
 // still work with words and shapes only.
 applyTheme(document);
 await loadTheme();
-preloadAssets([activeTheme().mascot.correct, activeTheme().mascot.thinking]);
+// Home needs the welcome picture first; feedback pictures wait for training.
+preloadAssets([activeTheme().mascot.welcome], { priority: "high" });
 
 /** Domain icon from the theme's asset slot; falls back to text only. */
 function domainArt(domain) {
@@ -177,7 +178,7 @@ function navTab() {
   if (screenName === "home" || screenName === "progress") return "home";
   if (screenName === "explore" || screenName === "focus-confirm") return "explore";
   if (screenName === "mistakes") return "mistakes";
-  if (screenName === "me") return "me";
+  if (screenName === "me" || screenName === "about") return "me";
   if (screenName === "print-select" || screenName === "a4") {
     return printSource === "mistakes" ? "mistakes" : "home";
   }
@@ -204,6 +205,7 @@ function render() {
   if (screenName === "home") html = renderHome();
   else if (screenName === "explore") html = renderExplore();
   else if (screenName === "me") html = renderMe();
+  else if (screenName === "about") html = renderAbout();
   else if (screenName === "focus-confirm") html = renderFocusConfirm();
   else if (screenName === "train") html = renderTrain();
   else if (screenName === "correct") html = renderCorrect();
@@ -215,11 +217,16 @@ function render() {
   else if (screenName === "a4") html = renderA4();
   else if (screenName === "mistakes") html = renderMistakes();
   else html = renderHome();
+  // Once training starts, fetch the feedback pictures before the first answer.
+  if (screenName === "train") preloadAssets([activeTheme().mascot.correct, activeTheme().mascot.thinking]);
   const withNav = !FOCUS_SCREENS.has(screenName);
   app.classList.toggle("has-nav", withNav);
   app.innerHTML = html + (withNav ? renderNav() : "");
   document.getElementById("toast")?.classList.remove("is-on");
   bind();
+  // The correct pause has no button: move focus onto the result so it is not
+  // lost on <body>; the next question follows by itself after ~700ms.
+  if (screenName === "correct") app.querySelector(".feedback-card")?.focus({ preventScroll: true });
 }
 
 let toastTimer = 0;
@@ -238,7 +245,7 @@ function renderHome() {
   const mode = homeMode();
   let title = "和数字做朋友";
   let lede = "把常会用到的数字关系，练到能直接想起来。";
-  let ctaLabel = "开始练习";
+  let ctaLabel = "开始今天的练习";
   let ctaSub = "大约 5～10 分钟";
   let ctaAction = "start-daily";
 
@@ -263,7 +270,7 @@ function renderHome() {
         ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
         : "";
 
-  // Four entry cards (03_ui_spec §5 v0.3; 02_ux_spec §5). 开始练习 is the main path.
+  // Four entry cards (03_ui_spec §5 v0.3; 02_ux_spec §5). 开始今天的练习 (05 §6) is the main path.
   const entry = (action, tone, iconName, label, sub, extraClass = "") =>
     `<button class="entry entry-${tone}${extraClass}" type="button" data-action="${action}">
       <span class="entry-tile" aria-hidden="true">${icon(iconName)}</span>
@@ -385,9 +392,77 @@ function renderMe() {
       </div>
       ${row("user-circle", "昵称")}
       ${row("trash", "清空练习记录")}
-      ${row("info", "关于数感训练场")}
+      <button class="setting" type="button" data-action="about">
+        <span class="setting-icon" aria-hidden="true">${icon("info")}</span>
+        <span class="setting-name">关于数感训练场</span>
+        <span class="chev" aria-hidden="true">${icon("caret-right")}</span>
+      </button>
     </div>
     <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
+  </section>`;
+}
+
+/** App version shown on 关于. The build sha comes from the deploy's version.json when present. */
+const APP_VERSION = "v0.3";
+const VERSION_URL = new URL("../version.json", import.meta.url).href;
+let buildInfo = null; // transient: { sha } | { missing: true }; never stored
+
+/** Reads version.json once. Offline or local (no file) simply shows no sha. */
+async function loadBuildInfo() {
+  if (buildInfo) return;
+  try {
+    const res = await fetch(VERSION_URL, { cache: "no-cache" });
+    const json = res.ok ? await res.json() : null;
+    buildInfo = json && typeof json.sha === "string" ? { sha: json.sha.slice(0, 7) } : { missing: true };
+  } catch {
+    buildInfo = { missing: true };
+  }
+  const el = document.getElementById("about-version");
+  if (el) el.textContent = versionLine();
+}
+
+function versionLine() {
+  if (buildInfo && buildInfo.sha) return `${APP_VERSION} · ${buildInfo.sha}`;
+  return APP_VERSION;
+}
+
+/** 关于数感训练场: static Owner copy (Owner-approved 2026-09-30). No storage, no account. */
+function renderAbout() {
+  const avatar = asset(activeTheme().brand.avatar);
+  return `<section class="screen no-print" id="about">
+    <button class="quiet back" type="button" data-action="me">${mark("arrow-left")}返回我的</button>
+    <div class="about-head">
+      <span class="avatar" aria-hidden="true">${avatar}</span>
+      <h1 class="title">关于数感训练场</h1>
+    </div>
+    <div class="card about-card">
+      <h2 class="about-h">为什么做它</h2>
+      <p class="about-p">我是一个程序员，也是一个陪孩子学数学的家长。<br>我一直觉得，很多孩子不是“不会数学”，而是一些最基础、最常用的数字关系还没有真正熟悉。</p>
+      <p class="about-p">所以我想做一个简单的小工具：每天花几分钟，把这些关系练到能直接想起来。<br>不追求刷很多题，不催速度，也不做排名。</p>
+      <p class="about-p">我更希望它像一段长期陪伴——<br>今天多熟一点，明天再熟一点。</p>
+      <p class="about-p">陪孩子一起成长，也陪自己重新理解学习。</p>
+    </div>
+    <div class="card about-card">
+      <h2 class="about-h">我们的学习理念</h2>
+      <p class="about-p">不是替孩子学习，而是帮孩子把“会”练成“熟”。</p>
+    </div>
+    <div class="card about-card">
+      <h2 class="about-h">隐私与数据</h2>
+      <p class="about-p">练习记录默认只保存在当前设备，不自动上传。</p>
+    </div>
+    <div class="card about-card">
+      <h2 class="about-h">版本信息</h2>
+      <p class="about-p about-version" id="about-version">${versionLine()}</p>
+    </div>
+    <div class="card about-card">
+      <h2 class="about-h">开源项目</h2>
+      <p class="about-p">Number Sense Lab｜数感训练场，MIT 开源项目。</p>
+      <p class="about-p"><a class="about-link" href="https://github.com/mathes821024/number-sense-lab" target="_blank" rel="noopener noreferrer">${icon("github-logo")}<span>github.com/mathes821024/<wbr>number-sense-lab</span></a></p>
+    </div>
+    <footer class="about-foot">
+      <p class="about-foot-name">Number Sense Lab｜数感训练场</p>
+      <p class="fine">一个从真实家庭学习场景里长出来的小项目。</p>
+    </footer>
   </section>`;
 }
 
@@ -443,14 +518,13 @@ function renderCorrect() {
       <span class="hero-spark" aria-hidden="true">${asset(activeTheme().background.sparkle)}</span>
     </div>
     <p class="feedback-title is-correct">太棒了！</p>
-    <div class="card feedback-card is-correct">
+    <div class="card feedback-card is-correct" tabindex="-1">
       <div class="relation-row">
         <p class="correct-eq">${formatMath(relation)}</p>
         <span class="ok" aria-hidden="true">${asset("mark.correct") || "✓"}</span>
       </div>
       <p class="word">对</p>
     </div>
-    <button class="cta secondary" type="button" data-action="advance">继续</button>
   </section>`;
 }
 
@@ -577,8 +651,8 @@ function renderMistakes() {
   // Only 当前错题 is real; 已掌握 / 全部 answer 敬请期待 (05 §11 screen 8).
   const tabs = `<div class="segmented" role="group" aria-label="错题范围">
       <button class="seg is-on" type="button" aria-pressed="true">当前错题</button>
-      <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="已掌握">已掌握</button>
-      <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="全部">全部</button>
+      <button class="seg seg-soon" type="button" aria-disabled="true" data-action="soon" data-soon="已掌握">已掌握<span class="seg-note">敬请期待</span></button>
+      <button class="seg seg-soon" type="button" aria-disabled="true" data-action="soon" data-soon="全部">全部<span class="seg-note">敬请期待</span></button>
     </div>`;
   if (book.empty) {
     return `<section class="screen" id="mistakes">
@@ -825,6 +899,12 @@ function onAction(event) {
   if (action === "me") {
     screenName = "me";
     render();
+    return;
+  }
+  if (action === "about") {
+    screenName = "about";
+    render();
+    loadBuildInfo();
     return;
   }
   if (action === "soon") {

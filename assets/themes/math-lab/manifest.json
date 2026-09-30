@@ -2,14 +2,18 @@
   "id": "math-lab",
   "name": "澄蓝数学实验室 / Bright Number Lab",
   "version": "0.1.0",
-  "description": "Default theme. Components resolve assets by semantic slot, never by filename. Future themes (magic-academy / space / forest) ship the same slot keys with their own files.",
+  "description": "Default theme. Components resolve assets by semantic slot, never by filename. Future themes (magic-academy / space / forest) ship the same slot keys with their own files. `*Display` keys are display-size copies (mascots 512px, avatar 192px) derived from the unchanged masters; the masters stay the source of truth.",
   "assets": {
     "logo": {
       "mark": "brand/logo-mark.svg"
     },
     "brand": {
       "appIcon": "brand/app-icon.png",
-      "avatar": "brand/brand-avatar.png"
+      "avatar": "brand/brand-avatar.png",
+      "appIconSmall": "brand/app-icon-32.png",
+      "touchIcon": "brand/app-icon-180.png",
+      "avatarDisplay": "brand/brand-avatar-192.png",
+      "avatarDisplayWebp": "brand/brand-avatar-192.webp"
     },
     "mascot": {
       "welcome": "themes/math-lab/mascot/mascot-welcome.png",
@@ -17,7 +21,13 @@
       "thinking": "themes/math-lab/mascot/mascot-thinking.png",
       "welcomeWebp": "themes/math-lab/mascot/mascot-welcome.webp",
       "correctWebp": "themes/math-lab/mascot/mascot-correct.webp",
-      "thinkingWebp": "themes/math-lab/mascot/mascot-thinking.webp"
+      "thinkingWebp": "themes/math-lab/mascot/mascot-thinking.webp",
+      "welcomeDisplay": "themes/math-lab/mascot/mascot-welcome-512.png",
+      "welcomeDisplayWebp": "themes/math-lab/mascot/mascot-welcome-512.webp",
+      "correctDisplay": "themes/math-lab/mascot/mascot-correct-512.png",
+      "correctDisplayWebp": "themes/math-lab/mascot/mascot-correct-512.webp",
+      "thinkingDisplay": "themes/math-lab/mascot/mascot-thinking-512.png",
+      "thinkingDisplayWebp": "themes/math-lab/mascot/mascot-thinking-512.webp"
     },
     "domain": {
       "squares": "themes/math-lab/domains/domain-squares.svg",
