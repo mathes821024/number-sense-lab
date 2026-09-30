@@ -4,3 +4,6 @@ node_modules/
 .workbuddy/
 .cursor/
 *.log
+
+# local asset-processing scratch
+.tmp-asset/

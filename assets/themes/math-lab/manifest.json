@@ -1,0 +1,44 @@
+{
+  "id": "math-lab",
+  "name": "澄蓝数学实验室 / Bright Number Lab",
+  "version": "0.1.0",
+  "description": "Default theme. Components resolve assets by semantic slot, never by filename. Future themes (magic-academy / space / forest) ship the same slot keys with their own files.",
+  "assets": {
+    "logo": {
+      "mark": "brand/logo-mark.svg"
+    },
+    "brand": {
+      "appIcon": "brand/app-icon.png",
+      "avatar": "brand/brand-avatar.png"
+    },
+    "mascot": {
+      "welcome": "themes/math-lab/mascot/mascot-welcome.png",
+      "correct": "themes/math-lab/mascot/mascot-correct.png",
+      "thinking": "themes/math-lab/mascot/mascot-thinking.png",
+      "welcomeWebp": "themes/math-lab/mascot/mascot-welcome.webp",
+      "correctWebp": "themes/math-lab/mascot/mascot-correct.webp",
+      "thinkingWebp": "themes/math-lab/mascot/mascot-thinking.webp"
+    },
+    "domain": {
+      "squares": "themes/math-lab/domains/domain-squares.svg",
+      "products": "themes/math-lab/domains/domain-products.svg",
+      "fractions": "themes/math-lab/domains/domain-fractions.svg"
+    },
+    "decor": {
+      "cloud1": "themes/math-lab/decor/cloud-01.svg",
+      "cloud2": "themes/math-lab/decor/cloud-02.svg",
+      "hill": "themes/math-lab/decor/hill-01.svg",
+      "leaf1": "themes/math-lab/decor/leaf-01.svg",
+      "leaf2": "themes/math-lab/decor/leaf-02.svg",
+      "sprout": "themes/math-lab/decor/sprout.svg",
+      "sparkle": "themes/math-lab/decor/sparkle.svg",
+      "question": "themes/math-lab/decor/question.svg"
+    }
+  },
+  "futureDomains": [
+    "cubes",
+    "complements",
+    "factors",
+    "patterns"
+  ]
+}
