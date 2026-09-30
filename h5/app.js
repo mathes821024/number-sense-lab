@@ -36,10 +36,14 @@ import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { createBrowserStore, localDay } from "../src/adapter/browser-store.js";
 import { createCue } from "./sound.js";
 import { formatMath, repeatingHtml } from "./math-text.js";
-import { activeTheme, applyTheme, asset } from "./theme.js";
+import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";
 
 // Theme layer: math-lab is the only runtime theme (no picker, no switching).
+// Pictures resolve through the theme manifest; if it cannot load, screens
+// still work with words and shapes only.
 applyTheme(document);
+await loadTheme();
+preloadAssets([activeTheme().mascot.correct, activeTheme().mascot.thinking]);
 
 /** Domain icon from the theme's asset slot; falls back to text only. */
 function domainArt(domain) {
@@ -48,12 +52,32 @@ function domainArt(domain) {
 }
 
 /**
- * Mascot from the theme (feedback, end and empty states only — never on the
- * question screen or above the keypad). Decorative: hidden from readers.
+ * Mascot from the theme manifest (welcome on Home / empty states, correct and
+ * thinking on feedback, end of a set). Never on the question screen or above
+ * the keypad. Decorative: hidden from readers.
  */
 function mascot(pose, extraClass = "") {
-  const art = asset(`mascot.${pose}`);
+  const art = asset(activeTheme().mascot[pose] || "");
   return art ? `<span class="mascot ${extraClass}" aria-hidden="true">${art}</span>` : "";
+}
+
+/** N mark from the brand slot (optional in 07; the words carry the name). */
+function brandMark() {
+  const art = asset(activeTheme().brand.logo);
+  return art ? `<span class="logo" aria-hidden="true">${art}</span>` : "";
+}
+
+/** Edge decoration (07 decor.*). Home only; feedback uses sparkle / question. Never training. */
+function homeDecor() {
+  const d = activeTheme().background;
+  return `<div class="page-decor home-decor" aria-hidden="true">
+    <span class="deco deco-cloud1">${asset(d.cloud1)}</span>
+    <span class="deco deco-cloud2">${asset(d.cloud2)}</span>
+    <span class="deco deco-hill">${asset(d.hill)}</span>
+    <span class="deco deco-leaf">${asset(d.leaf1)}</span>
+    <span class="deco deco-leaf2">${asset(d.leaf2)}</span>
+    <span class="deco deco-sprout">${asset(d.sprout)}</span>
+  </div>`;
 }
 
 function icon(name) {
@@ -145,27 +169,76 @@ function formatDay(iso) {
   return `${Number(m)}月${Number(d)}日`;
 }
 
+/** Screens where the student is answering: no bottom navigation (02_ux_spec §4). */
+const FOCUS_SCREENS = new Set(["train", "correct", "wrong", "pause"]);
+
+/** Which of the four entries a screen belongs to (none for end / print from home). */
+function navTab() {
+  if (screenName === "home" || screenName === "progress") return "home";
+  if (screenName === "explore" || screenName === "focus-confirm") return "explore";
+  if (screenName === "mistakes") return "mistakes";
+  if (screenName === "me") return "me";
+  if (screenName === "print-select" || screenName === "a4") {
+    return printSource === "mistakes" ? "mistakes" : "home";
+  }
+  return "";
+}
+
+/** Ordinary-page bottom navigation: 首页 / 练习 / 错题本 / 我的. */
+function renderNav() {
+  const current = navTab();
+  const tab = (id, action, iconName, label) =>
+    `<button class="tab${current === id ? " is-on" : ""}" type="button" data-action="${action}"${
+      current === id ? ' aria-current="page"' : ""
+    }>${icon(iconName)}<span>${label}</span></button>`;
+  return `<nav class="tabbar no-print" id="tabbar" aria-label="主要入口">
+    ${tab("home", "home", "house", "首页")}
+    ${tab("explore", "explore", "pencil-simple-line", "练习")}
+    ${tab("mistakes", "mistakes", "book-open-text", "错题本")}
+    ${tab("me", "me", "user", "我的")}
+  </nav>`;
+}
+
 function render() {
-  if (screenName === "home") app.innerHTML = renderHome();
-  else if (screenName === "focus-confirm") app.innerHTML = renderFocusConfirm();
-  else if (screenName === "train") app.innerHTML = renderTrain();
-  else if (screenName === "correct") app.innerHTML = renderCorrect();
-  else if (screenName === "wrong") app.innerHTML = renderWrong();
-  else if (screenName === "pause") app.innerHTML = renderPause();
-  else if (screenName === "end") app.innerHTML = renderEnd();
-  else if (screenName === "progress") app.innerHTML = renderProgress();
-  else if (screenName === "print-select") app.innerHTML = renderPrintSelect();
-  else if (screenName === "a4") app.innerHTML = renderA4();
-  else if (screenName === "mistakes") app.innerHTML = renderMistakes();
-  else app.innerHTML = renderHome();
+  let html;
+  if (screenName === "home") html = renderHome();
+  else if (screenName === "explore") html = renderExplore();
+  else if (screenName === "me") html = renderMe();
+  else if (screenName === "focus-confirm") html = renderFocusConfirm();
+  else if (screenName === "train") html = renderTrain();
+  else if (screenName === "correct") html = renderCorrect();
+  else if (screenName === "wrong") html = renderWrong();
+  else if (screenName === "pause") html = renderPause();
+  else if (screenName === "end") html = renderEnd();
+  else if (screenName === "progress") html = renderProgress();
+  else if (screenName === "print-select") html = renderPrintSelect();
+  else if (screenName === "a4") html = renderA4();
+  else if (screenName === "mistakes") html = renderMistakes();
+  else html = renderHome();
+  const withNav = !FOCUS_SCREENS.has(screenName);
+  app.classList.toggle("has-nav", withNav);
+  app.innerHTML = html + (withNav ? renderNav() : "");
+  document.getElementById("toast")?.classList.remove("is-on");
   bind();
+}
+
+let toastTimer = 0;
+/** Placeholder answer for future features: a short spoken/visible 敬请期待. */
+function showSoon(name) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = name ? `${name} · 敬请期待` : "敬请期待";
+  toast.classList.add("is-on");
+  // Screen readers hear it once; it changes no state and navigates nowhere.
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => toast.classList.remove("is-on"), 1800);
 }
 
 function renderHome() {
   const mode = homeMode();
-  let title = "数感训练场";
-  let lede = "把常会用到的数字关系，<br>练到能直接想起来。";
-  let ctaLabel = "开始今天的练习";
+  let title = "和数字做朋友";
+  let lede = "把常会用到的数字关系，练到能直接想起来。";
+  let ctaLabel = "开始练习";
   let ctaSub = "大约 5～10 分钟";
   let ctaAction = "start-daily";
 
@@ -183,6 +256,61 @@ function renderHome() {
     ctaAction = "see-last";
   }
 
+  const extra =
+    mode === "paused"
+      ? `<button class="home-secondary" type="button" data-action="restart-daily">重新开始一小段</button>`
+      : mode === "done"
+        ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
+        : "";
+
+  // Four entry cards (03_ui_spec §5 v0.3; 02_ux_spec §5). 开始练习 is the main path.
+  const entry = (action, tone, iconName, label, sub, extraClass = "") =>
+    `<button class="entry entry-${tone}${extraClass}" type="button" data-action="${action}">
+      <span class="entry-tile" aria-hidden="true">${icon(iconName)}</span>
+      <span class="entry-copy"><span class="entry-name">${label}</span>${sub ? `<small>${sub}</small>` : ""}</span>
+      <span class="chev" aria-hidden="true">${icon("caret-right")}</span>
+    </button>`;
+
+  return `<section class="screen home" id="home">
+    ${homeDecor()}
+    <header class="home-bar">
+      <p class="home-kicker">${brandMark()}<span class="wordmark"><span class="wordmark-zh">数感训练场</span><span class="wordmark-en">Number Sense Lab</span></span></p>
+    </header>
+    <div class="home-hero">
+      ${mascot("welcome", "mascot-hero")}
+      <div class="bubble">
+        <h1 class="bubble-title">${title}</h1>
+        <p class="bubble-text">${lede}</p>
+      </div>
+    </div>
+    <div class="entries">
+      ${entry(ctaAction, "start", "play", ctaLabel, ctaSub, " home-cta")}
+      ${extra}
+      ${entry("explore", "explore", "target", "专项练习", "按你需要的主题练习")}
+      ${entry("mistakes", "mistakes", "book-open-text", "错题本", "把容易出错的题再练一练")}
+      ${entry("progress", "progress", "chart-bar", "最近练得怎么样", "看看自己的进步")}
+    </div>
+    <p class="fine device-note">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
+  </section>`;
+}
+
+/** Placeholder names shown as the board shows them; every one answers 敬请期待. */
+const SOON_DOMAINS = [
+  ["cube", "立方"],
+  ["puzzle-piece", "补数"],
+  ["circles-four", "倍数与因数"],
+  ["lightbulb", "规律探索"],
+];
+
+function soonButton(name, iconName, className = "soon-tile") {
+  return `<button class="${className}" type="button" data-action="soon" data-soon="${name}">
+      <span class="soon-icon" aria-hidden="true">${icon(iconName)}</span>
+      <span class="soon-copy"><span class="soon-name">${name}</span><span class="soon-badge">敬请期待</span></span>
+    </button>`;
+}
+
+/** 练习: pick one of the three real domains; the rest are placeholders. */
+function renderExplore() {
   const domains = DOMAIN_ORDER.map((domain) => {
     const items = filterByDomain(domain, catalog);
     const summary = summarizeDomain(items, state.relations);
@@ -193,57 +321,25 @@ function renderHome() {
       <span class="chev" aria-hidden="true">${icon("caret-right")}</span>
     </button>`;
   }).join("");
-
-  const extra =
-    mode === "paused"
-      ? `<button class="home-secondary" type="button" data-action="restart-daily">重新开始一小段</button>`
-      : mode === "done"
-        ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
-        : "";
-
-  const headline = mode === "default" ? '把关系<br><span class="accent">练成直觉。</span>' : title;
-  const soundOn = state.prefs?.sound !== false;
-
-  // Future entries stay visual placeholders: disabled tiles, no navigation,
-  // no new features. Icons come from theme asset slots like everything else.
-  const soon = [
-    ["domain.cubes", "立方与乘方"],
-    ["domain.factors", "倍数与因数"],
-    ["domain.knowledge_map", "知识地图"],
+  const soon = SOON_DOMAINS.map(([ic, name]) => soonButton(name, ic)).join("");
+  const extras = [
+    ["lightbulb-filament", "概念"],
+    ["notebook", "例题"],
+    ["play-circle", "动画"],
   ]
-    .map(
-      ([slot, name]) =>
-        `<div class="soon-tile" aria-disabled="true"><span class="tile tile-soon" aria-hidden="true">${asset(slot)}</span><span class="soon-name">${name}</span><span class="soon-badge">敬请期待</span></div>`,
-    )
+    .map(([ic, name]) => soonButton(name, ic, "soon-chip"))
     .join("");
-
-  return `<section class="screen home" id="home">
-    <div class="home-decor" aria-hidden="true">${asset("background.home")}</div>
-    <header class="home-bar">
-      <p class="home-kicker"><span class="logo" aria-hidden="true">${asset("logo")}</span><span class="wordmark"><span class="wordmark-en">Number Sense Lab</span><span class="wordmark-zh">数感训练场</span></span></p>
-      <button class="sound-toggle" type="button" data-action="toggle-sound" aria-pressed="${soundOn}">${icon(soundOn ? "speaker-high" : "speaker-slash")}<span>${soundOn ? "声音开" : "声音关"}</span></button>
-    </header>
-    <div class="home-hero">
-      <div class="home-hero-copy">
-        <p class="hero-eyebrow">${icon("sparkle")}今天，和数字建立一点默契</p>
-        <h1 class="home-headline">${headline}</h1>
-        <p class="lede home-note">${lede}</p>
-      </div>
-      ${mascot("default", "mascot-hero")}
+  return `<section class="screen" id="explore">
+    <h1 class="title">探索数学世界</h1>
+    <p class="lede">从一个主题开始，走更远的路</p>
+    <div class="segmented" role="group" aria-label="练习方式">
+      <button class="seg is-on" type="button" aria-pressed="true">主题训练</button>
+      <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="知识地图">知识地图</button>
     </div>
-    <button class="cta home-cta" type="button" data-action="${ctaAction}"><span class="cta-icon" aria-hidden="true">${icon("play")}</span><span class="cta-copy"><span>${ctaLabel}</span>${
-      ctaSub ? `<small>${ctaSub}</small>` : ""
-    }</span><span class="cta-arrow" aria-hidden="true">${icon("arrow-right")}</span></button>
-    ${extra}
     <div class="domains">${domains}</div>
-    <p class="section-label soon-label">更多内容在路上</p>
+    <p class="section-label">更多方向</p>
     <div class="soon">${soon}</div>
-    <nav class="home-links">
-      <button type="button" data-action="progress">最近练得怎么样</button>
-      <button type="button" data-action="mistakes">错题本</button>
-      <button type="button" data-action="a4">印到纸上</button>
-    </nav>
-    <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
+    <div class="soon-row">${extras}</div>
   </section>`;
 }
 
@@ -251,7 +347,7 @@ function renderFocusConfirm() {
   const items = filterByDomain(focusedDomain, catalog);
   const summary = summarizeDomain(items, state.relations);
   return `<section class="screen" id="focus-confirm">
-    <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
+    <button class="quiet back" type="button" data-action="explore">${mark("arrow-left")}返回练习</button>
     <div class="card focus-card">
       ${domainArt(focusedDomain)}
       <h1 class="title">${domainLabel(focusedDomain)}</h1>
@@ -259,6 +355,39 @@ function renderFocusConfirm() {
       <p class="body">${summary}</p>
     </div>
     <button class="cta" type="button" data-action="start-focus">开始这一小段</button>
+  </section>`;
+}
+
+/** 我的: only the sound switch is real; the rest answer 敬请期待. */
+function renderMe() {
+  const soundOn = state.prefs?.sound !== false;
+  const avatar = asset(activeTheme().brand.avatar);
+  const row = (iconName, name) =>
+    `<button class="setting" type="button" data-action="soon" data-soon="${name}">
+      <span class="setting-icon" aria-hidden="true">${icon(iconName)}</span>
+      <span class="setting-name">${name}</span>
+      <span class="soon-badge">敬请期待</span>
+    </button>`;
+  return `<section class="screen" id="me">
+    <h1 class="title">我的</h1>
+    <div class="card me-card">
+      <span class="avatar" aria-hidden="true">${avatar}</span>
+      <div class="me-copy">
+        <p class="me-name">数感训练场</p>
+        <p class="lede">昵称和档案还没有。记录只在这台设备上。</p>
+      </div>
+    </div>
+    <div class="card settings">
+      <div class="setting">
+        <span class="setting-icon" aria-hidden="true">${icon(soundOn ? "speaker-high" : "speaker-slash")}</span>
+        <span class="setting-name" id="sound-label">声音</span>
+        <button class="switch" type="button" role="switch" aria-checked="${soundOn}" aria-labelledby="sound-label" data-action="toggle-sound"><span class="switch-knob"></span><span class="switch-text">${soundOn ? "开" : "关"}</span></button>
+      </div>
+      ${row("user-circle", "昵称")}
+      ${row("trash", "清空练习记录")}
+      ${row("info", "关于数感训练场")}
+    </div>
+    <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
   </section>`;
 }
 
@@ -276,11 +405,19 @@ function renderTrain() {
       ? `<button class="key" type="button" data-digit="/" aria-label="分数线">/</button>`
       : `<span class="key ghost" aria-hidden="true"></span>`;
   const answerClass = currentItem.repeatingBlock ? "answer answer-repeating" : "answer";
+  // Calm position in this short set (02_ux_spec §3 step 7): a count and a
+  // still bar. Not a timer; nothing animates or counts down.
+  const total = Math.max(1, session?.targetCount || 1);
+  const position = Math.min(total, (session?.answered || 0) + 1);
 
   return `<section class="screen" id="train">
     <div class="top">
-      <button class="quiet" type="button" data-action="pause">${mark("pause")}先停一下</button>
+      <button class="quiet" type="button" data-action="pause">先停一下</button>
       <span class="pill">${pill}</span>
+    </div>
+    <div class="set-progress">
+      <span class="set-count" id="set-count">${position} / ${total}</span>
+      <progress class="set-bar" max="${total}" value="${position - 1}" aria-labelledby="set-count"></progress>
     </div>
     <div class="practice-zone">
       <p class="practice-label">看清关系，再写答案</p>
@@ -301,9 +438,16 @@ function renderTrain() {
 function renderCorrect() {
   const relation = lastFeedback?.relation || currentItem?.relation || "";
   return `<section class="screen" id="correct">
+    <div class="feedback-hero">
+      ${mascot("correct", "mascot-feedback")}
+      <span class="hero-spark" aria-hidden="true">${asset(activeTheme().background.sparkle)}</span>
+    </div>
+    <p class="feedback-title is-correct">太棒了！</p>
     <div class="card feedback-card is-correct">
-      <div class="ok" aria-hidden="true">${asset("mark.correct") || "✓"}<span class="spark">${asset("mark.star")}</span></div>
-      <p class="correct-eq">${formatMath(relation)}</p>
+      <div class="relation-row">
+        <p class="correct-eq">${formatMath(relation)}</p>
+        <span class="ok" aria-hidden="true">${asset("mark.correct") || "✓"}</span>
+      </div>
       <p class="word">对</p>
     </div>
     <button class="cta secondary" type="button" data-action="advance">继续</button>
@@ -315,14 +459,14 @@ function renderWrong() {
   const pattern = fb.level3 || fb.pattern || {};
   const frames = fb.level3?.frames || fb.frames || [];
   return `<section class="screen" id="wrong">
-    <button class="quiet" type="button" data-action="pause">${mark("pause")}先停一下</button>
+    <button class="quiet" type="button" data-action="pause">先停一下</button>
     <div class="wrong-head">
       <p class="demoted">${formatMath(currentItem?.prompt || "")}</p>
-      ${mascot("thinking", "mascot-side")}
+      <span class="wrong-art">${mascot("thinking", "mascot-side")}<span class="hero-question" aria-hidden="true">${asset(activeTheme().background.question)}</span></span>
     </div>
     <div class="panel">
       <p class="eq">${formatMath(fb.relation || "")}</p>
-      <p class="hook">${formatMath(fb.hook || "")}</p>
+      <p class="hook"><span class="hint-label">${icon("lightbulb")}小提示</span>${formatMath(fb.hook || "")}</p>
       <p class="see"><span class="see-mark" aria-hidden="true">○</span> 看这里</p>
       <div class="pattern" ${expandedPattern ? "" : "hidden"}>
         <p class="check">${formatMath(pattern.check || "")}</p>
@@ -357,7 +501,7 @@ function renderPause() {
 function renderEnd() {
   const result = state.lastResult;
   if (!result) {
-    return `<section class="screen"><p class="lede">还没有结束记录。</p>
+    return `<section class="screen" id="end-empty"><p class="lede">还没有结束记录。</p>
       <button class="cta" type="button" data-action="home">回首页</button></section>`;
   }
   const heading = result.earlyStop ? "先停在这里了" : "先到这里";
@@ -371,10 +515,10 @@ function renderEnd() {
           .map(formatMath)
           .join("、")}。</p>`
       : "";
+  const art = mascot(result.earlyStop ? "welcome" : "correct", "mascot-end");
   return `<section class="screen" id="end">
-    <div class="end-art">${
-      mascot(result.earlyStop ? "default" : "correct", "mascot-end") ||
-      `<span class="star" aria-hidden="true">${asset("mark.star") || "★"}</span>`
+    <div class="end-art">${art}${
+      result.earlyStop ? "" : `<span class="hero-spark" aria-hidden="true">${asset(activeTheme().background.sparkle)}</span>`
     }</div>
     <h1>${heading}</h1>
     <p class="lede">${stay}</p>
@@ -396,8 +540,8 @@ function renderProgress() {
 
   const history =
     sessions.length === 0
-      ? `<div class="empty">${mascot("default", "mascot-empty")}<p class="lede">还没有练习。回首页开始一小段吧。</p></div>`
-      : `<ul class="list">${sessions
+      ? `<div class="empty">${mascot("welcome", "mascot-empty")}<p class="lede">还没有练习。回首页开始一小段吧。</p></div>`
+      : `<ul class="list sessions">${sessions
           .map((s) => {
             const status = s.earlyStop || !s.completed ? "先停了" : "做完了";
             return `<li><span>${formatDay(s.day)} · ${status}</span><span class="meta">对了 ${s.correct}/${s.total}</span></li>`;
@@ -406,6 +550,7 @@ function renderProgress() {
 
   const recent = outcomes.length
     ? `<p class="body section-label">最近练过的题</p>
+    <p class="fine section-note">显示最近一次作答的对错</p>
     <ul class="list outcomes" id="recent-outcomes">${outcomes
       .map(
         (row) =>
@@ -423,20 +568,23 @@ function renderProgress() {
     <h1 class="title">最近练得怎么样</h1>
     ${history}
     ${recent}
-    <div class="links">
-      <button class="link row" type="button" data-action="a4-progress">${mark("printer")}选题打印</button>
-    </div>
+    <button class="cta secondary with-icon" type="button" data-action="a4-progress">${mark("printer")}选题打印</button>
   </section>`;
 }
 
 function renderMistakes() {
   const book = buildMistakeBook(catalog, state.relations, studentLabel);
-  const back = `<button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>`;
+  // Only 当前错题 is real; 已掌握 / 全部 answer 敬请期待 (05 §11 screen 8).
+  const tabs = `<div class="segmented" role="group" aria-label="错题范围">
+      <button class="seg is-on" type="button" aria-pressed="true">当前错题</button>
+      <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="已掌握">已掌握</button>
+      <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="全部">全部</button>
+    </div>`;
   if (book.empty) {
     return `<section class="screen" id="mistakes">
-      ${back}
       <h1 class="title">${book.title}</h1>
-      <div class="empty">${mascot("default", "mascot-empty")}<p class="lede">${book.emptyMessage}</p></div>
+      ${tabs}
+      <div class="empty">${mascot("welcome", "mascot-empty")}<p class="lede">${book.emptyMessage}</p></div>
       <button class="cta" type="button" data-action="home">回首页</button>
     </section>`;
   }
@@ -452,13 +600,13 @@ function renderMistakes() {
     )
     .join("");
   return `<section class="screen" id="mistakes">
-    ${back}
     <h1 class="title">${book.title}</h1>
+    ${tabs}
     <p class="lede">${book.lede}</p>
     ${groups}
-    <button class="cta cta-soft" type="button" data-action="start-mistakes">练这些错题</button>
-    <div class="links">
-      <button class="link row" type="button" data-action="a4-mistakes">${mark("printer")}印这些题</button>
+    <div class="action-pair">
+      <button class="cta secondary with-icon" type="button" data-action="a4-mistakes">${mark("printer")}印这些题</button>
+      <button class="cta" type="button" data-action="start-mistakes">练这些错题</button>
     </div>
   </section>`;
 }
@@ -481,7 +629,7 @@ function printRow(c) {
     </label></li>`;
 }
 
-/** ONE selector for home 「印到纸上」, progress 「选题打印」 and 错题本 「印这些题」. */
+/** ONE selector for progress 「选题打印」 and 错题本 「印这些题」. */
 function renderPrintSelect() {
   const sel = buildPrintSelector(catalog, state.relations, {
     selectedIds: selectedPrintIds,
@@ -491,7 +639,7 @@ function renderPrintSelect() {
     return `<section class="screen no-print" id="print-select" data-source="${printSource}">
       ${printBackLink()}
       <h1 class="title">${sel.title}</h1>
-      <div class="empty">${mascot("default", "mascot-empty")}<p class="lede">${sel.noCandidates}</p></div>
+      <div class="empty">${mascot("welcome", "mascot-empty")}<p class="lede">${sel.noCandidates}</p></div>
       <button class="cta" type="button" data-action="home">先练一小段</button>
     </section>`;
   }
@@ -669,6 +817,20 @@ function onAction(event) {
     render();
     return;
   }
+  if (action === "explore") {
+    screenName = "explore";
+    render();
+    return;
+  }
+  if (action === "me") {
+    screenName = "me";
+    render();
+    return;
+  }
+  if (action === "soon") {
+    showSoon(event.currentTarget.getAttribute("data-soon"));
+    return;
+  }
   if (action === "start-daily") {
     beginSession("daily", null);
     return;
@@ -702,10 +864,6 @@ function onAction(event) {
   if (action === "progress") {
     screenName = "progress";
     render();
-    return;
-  }
-  if (action === "a4") {
-    openPrint("home");
     return;
   }
   if (action === "a4-progress") {
