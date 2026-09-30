@@ -343,14 +343,13 @@ test("关于数感训练场 is a static page with the Owner's copy (Owner-approv
     "隐私与数据",
     "练习记录默认只保存在当前设备，不自动上传。",
     "版本信息",
-    "开源项目",
+    "项目与许可",
+    "项目代码托管于 GitHub。",
     "Number Sense Lab｜数感训练场",
     "一个从真实家庭学习场景里长出来的小项目。",
   ]) {
     assert.ok(about.includes(line), `about copy: ${line}`);
   }
-  assert.match(about, /href="https:\/\/github\.com\/mathes821024\/number-sense-lab" target="_blank" rel="noopener noreferrer"/);
-  assert.match(about, /MIT/);
   // Ordinary page under 我的, with a way back; never printed.
   assert.match(about, /<section class="screen no-print" id="about">/);
   assert.match(about, /data-action="me"/);
@@ -362,6 +361,32 @@ test("关于数感训练场 is a static page with the Owner's copy (Owner-approv
   assert.match(build, /catch \{\s*buildInfo = \{ missing: true \};/, "offline / local falls back quietly");
   assert.match(appJs, /const APP_VERSION = "v0\.3";/);
   assert.match(appJs, /new URL\("\.\.\/version\.json", import\.meta\.url\)/);
+});
+
+test("关于 names no license: no MIT or 开源项目 anywhere in the app copy", () => {
+  // The Owner may change the license; the UI must not hard-code it.
+  const about = section("renderAbout");
+  assert.doesNotMatch(about, /\bMIT\b|开源项目|license|许可证/i);
+  for (const src of [appJs, indexHtml, read("h5/theme.js"), read("h5/math-text.js"), read("h5/sound.js"), read("h5/themes/math-lab/theme.js")]) {
+    assert.doesNotMatch(src, /\bMIT\b|开源项目/);
+  }
+  const foot = about.slice(about.indexOf('<footer class="about-foot">'));
+  assert.match(foot, /Number Sense Lab｜数感训练场/);
+  assert.match(foot, /一个从真实家庭学习场景里长出来的小项目。/);
+});
+
+test("关于: sections in order, ending with 项目与许可 as plain text", () => {
+  const about = section("renderAbout");
+  const heads = [...about.matchAll(/<h2 class="about-h">([^<]+)<\/h2>/g)].map((m) => m[1]);
+  assert.deepEqual(heads, ["为什么做它", "我们的学习理念", "隐私与数据", "版本信息", "项目与许可"]);
+  assert.match(about, /<h2 class="about-h">项目与许可<\/h2>\s*<p class="about-p">项目代码托管于 GitHub。<\/p>\s*<\/div>/);
+});
+
+test("关于 has no links and no URL text (some platforms forbid in-app URLs)", () => {
+  const about = section("renderAbout");
+  assert.doesNotMatch(about, /<a[\s>]|href=|target=/);
+  assert.doesNotMatch(about, /https?:|www\.|github\.com|\.com\b|\.org\b/i);
+  assert.doesNotMatch(about, /\bMIT\b/);
 });
 
 test("stable semantic hooks and interaction guards survive the restyle", () => {

@@ -593,16 +593,6 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 .about-h { margin: 0 0 10px; font-size: 16px; font-weight: 800; color: var(--color-brand-text); }
 .about-p { margin: 0 0 12px; font-size: var(--fs-body); line-height: 1.8; color: var(--text-primary); }
 .about-version { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
-.about-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  color: var(--color-brand-text);
-  font-weight: 700;
-  overflow-wrap: break-word;
-}
-.about-link .ph { font-size: 20px; flex: none; }
 .about-foot { margin-top: 24px; text-align: center; }
 .about-foot-name { margin: 0; font-size: 15px; font-weight: 800; color: var(--text-primary); }
 .about-foot .fine { margin-top: 4px; }

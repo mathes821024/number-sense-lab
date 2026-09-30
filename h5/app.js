@@ -455,9 +455,8 @@ function renderAbout() {
       <p class="about-p about-version" id="about-version">${versionLine()}</p>
     </div>
     <div class="card about-card">
-      <h2 class="about-h">开源项目</h2>
-      <p class="about-p">Number Sense Lab｜数感训练场，MIT 开源项目。</p>
-      <p class="about-p"><a class="about-link" href="https://github.com/mathes821024/number-sense-lab" target="_blank" rel="noopener noreferrer">${icon("github-logo")}<span>github.com/mathes821024/<wbr>number-sense-lab</span></a></p>
+      <h2 class="about-h">项目与许可</h2>
+      <p class="about-p">项目代码托管于 GitHub。</p>
     </div>
     <footer class="about-foot">
       <p class="about-foot-name">Number Sense Lab｜数感训练场</p>
