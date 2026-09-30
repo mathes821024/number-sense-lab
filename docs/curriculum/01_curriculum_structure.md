@@ -149,7 +149,7 @@ Core Recall = 6²–20² + 25²。其中 6²–20² 是 PRD 已冻结的默认�
 | 判题 | `canonical_answer` + `answer_type`（integer / decimal）。按数学等价值判题：0.5 = 0.50 = .5，289 = 0289（FIX 01 Q2 已批准）；由统一 answer normalization 规则实现，不在内容数据中逐条枚举等价形式；展示统一用 canonical_answer |
 | 答错反馈 | `relation`（一级）→ `hook`（二级）→ `pattern` + `frames`（三级，学生主动展开） |
 | 错题再现 | 无内容层特殊处理，按产品规则 |
-| A4 打印 | 当前不稳定关系 = Core Recall 中状态为学习中/动摇者 |
+| A4 打印 | 只从 Core Recall 里已经练过的关系选题。当前错题默认勾选，不自动印出全部学习中或动摇 |
 | 进度页 | 同上，内容层不新增展示 |
 
 内容层不提供、也不要求：新页面、新题型、对照表、知识地图 UI、一步应用题。知识地图在 v0.1 是纯数据资产。
