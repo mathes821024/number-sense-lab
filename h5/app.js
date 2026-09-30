@@ -21,19 +21,21 @@ import {
   peekCurrent,
   finishSession,
 } from "../src/core/session.js";
+import { studentLabel, summarizeDomain } from "../src/core/mastery.js";
 import {
-  studentLabel,
-  emptyRelation,
-  summarizeDomain,
-  isUnstable,
-  MASTERY,
-} from "../src/core/mastery.js";
-import { buildA4Sheet } from "../src/core/a4.js";
+  buildA4Sheet,
+  buildPrintSelector,
+  defaultPrintSelection,
+  selectCurrentMistakes,
+  clearPrintSelection,
+  togglePrintSelection,
+} from "../src/core/a4.js";
+import { listLatestOutcomes } from "../src/core/progress.js";
 import { buildMistakeBook } from "../src/core/mistakes.js";
 import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { createBrowserStore, localDay } from "../src/adapter/browser-store.js";
 import { createCue } from "./sound.js";
-import { formatMath } from "./math-text.js";
+import { formatMath, repeatingHtml } from "./math-text.js";
 
 const DOMAIN_ICONS = {
   squares: "square",
@@ -75,9 +77,15 @@ let submitting = false;
 let correctTimer = 0;
 let screenName = "home";
 let focusedDomain = null;
-let a4Domain = null;
-/** "unstable" (home 「印到纸上」) | "mistakes" (错题本 「印这些题」) */
-let a4Scope = "unstable";
+/**
+ * Shared print selector (transient UI state only — never persisted, never
+ * written into learner state). Source: "home" | "progress" | "mistakes".
+ */
+let printSource = "home";
+let printDomain = null;
+/** @type {string[]} */
+let selectedPrintIds = [];
+let printShowOthers = true;
 /** Nudge under the answer box; the simplification hint stays until resubmit. */
 let nudgeHtml = "";
 let nudgeSticky = false;
@@ -133,6 +141,7 @@ function render() {
   else if (screenName === "pause") app.innerHTML = renderPause();
   else if (screenName === "end") app.innerHTML = renderEnd();
   else if (screenName === "progress") app.innerHTML = renderProgress();
+  else if (screenName === "print-select") app.innerHTML = renderPrintSelect();
   else if (screenName === "a4") app.innerHTML = renderA4();
   else if (screenName === "mistakes") app.innerHTML = renderMistakes();
   else app.innerHTML = renderHome();
@@ -330,13 +339,8 @@ function renderEnd() {
 
 function renderProgress() {
   const sessions = [...(state.sessions || [])].slice(-8).reverse();
-  const unstable = catalog.filter((item) => {
-    const status = (state.relations[item.id] || emptyRelation()).status;
-    return isUnstable(status);
-  });
-  const stableCount = catalog.filter(
-    (item) => (state.relations[item.id] || emptyRelation()).status === MASTERY.STABLE,
-  ).length;
+  // Latest recorded outcome per practiced relation. Mastery is not the label.
+  const outcomes = listLatestOutcomes(catalog, state.relations);
 
   const history =
     sessions.length === 0
@@ -348,26 +352,27 @@ function renderProgress() {
           })
           .join("")}</ul>`;
 
-  const unstableList =
-    unstable.length === 0
-      ? `<p class="body">暂时没有特别要再巩固的题。</p>`
-      : `<ul class="list">${unstable
-          .slice(0, 20)
-          .map((item) => {
-            const st = (state.relations[item.id] || emptyRelation()).status;
-            return `<li><span>${formatMath(item.prompt.replace(" = ?", ""))}</span><span class="meta">${studentLabel(st)}</span></li>`;
-          })
-          .join("")}</ul>`;
+  const recent = outcomes.length
+    ? `<p class="body section-label">最近练过的题</p>
+    <ul class="list outcomes" id="recent-outcomes">${outcomes
+      .map(
+        (row) =>
+          `<li data-id="${row.id}" data-outcome="${row.latestCorrect ? "right" : "wrong"}"><span>${formatMath(
+            row.prompt.replace(" = ?", ""),
+          )}</span><span class="outcome ${row.latestCorrect ? "is-right" : "is-wrong"}"><span class="om" aria-hidden="true">${
+            row.latestCorrect ? "✓" : "×"
+          }</span>${row.latestCorrect ? "对" : "错"}</span></li>`,
+      )
+      .join("")}</ul>`
+    : "";
 
-  return `<section class="screen">
+  return `<section class="screen" id="progress">
     <button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>
     <h1 class="title" style="margin-top:20px">最近练得怎么样</h1>
     ${history}
-    <p class="body" style="margin-top:24px">还要再见到的</p>
-    ${unstableList}
-    <p class="fine">有一些已经很稳：${stableCount} 条。</p>
+    ${recent}
     <div class="links">
-      <button class="link row tone-leaf" type="button" data-action="a4">${mark("printer")}印到纸上</button>
+      <button class="link row tone-leaf" type="button" data-action="a4-progress">${mark("printer")}选题打印</button>
     </div>
   </section>`;
 }
@@ -406,63 +411,120 @@ function renderMistakes() {
   </section>`;
 }
 
+function printBackLink() {
+  if (printSource === "mistakes") {
+    return `<button class="quiet back" type="button" data-action="mistakes">${mark("arrow-left")}回错题本</button>`;
+  }
+  if (printSource === "progress") {
+    return `<button class="quiet back" type="button" data-action="progress">${mark("arrow-left")}回最近练得怎么样</button>`;
+  }
+  return `<button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>`;
+}
+
+function printRow(c) {
+  return `<li data-id="${c.id}"><label class="pick">
+      <input type="checkbox" data-print-id="${c.id}"${c.selected ? " checked" : ""}>
+      <span class="pick-text">${formatMath(c.prompt.replace(" = ?", ""))}</span>
+      ${c.label ? `<span class="meta">${c.label}</span>` : ""}
+    </label></li>`;
+}
+
+/** ONE selector for home 「印到纸上」, progress 「选题打印」 and 错题本 「印这些题」. */
+function renderPrintSelect() {
+  const sel = buildPrintSelector(catalog, state.relations, {
+    selectedIds: selectedPrintIds,
+    domain: printDomain,
+  });
+  if (sel.empty) {
+    return `<section class="screen no-print" id="print-select" data-source="${printSource}">
+      ${printBackLink()}
+      <h1 class="title" style="margin-top:20px">${sel.title}</h1>
+      <p class="lede">${sel.noCandidates}</p>
+      <button class="cta" type="button" data-action="home">先练一小段</button>
+    </section>`;
+  }
+  const filters = [["", "全部"], ...DOMAIN_ORDER.map((d) => [d, domainLabel(d)])]
+    .map(
+      ([value, label]) =>
+        `<button class="chip text-chip${(printDomain || "") === value ? " is-on" : ""}" type="button" aria-pressed="${
+          (printDomain || "") === value
+        }" data-action="print-domain" data-domain="${value}">${label}</button>`,
+    )
+    .join("");
+  const mistakesHtml = sel.currentMistakes.map(printRow).join("");
+  const hiddenOthers = !printShowOthers && sel.others.length > 0;
+  const othersHtml = hiddenOthers ? "" : sel.others.map(printRow).join("");
+  const list =
+    sel.currentMistakes.length + (hiddenOthers ? 0 : sel.others.length) > 0
+      ? `<ul class="list picks" id="print-list">${mistakesHtml}${othersHtml}</ul>`
+      : "";
+  const revealOthers = hiddenOthers
+    ? `<button class="quiet more-picks" type="button" data-action="print-show-others">${mark("plus")}也看看其他练过的题</button>`
+    : "";
+  const nothingHere =
+    sel.currentMistakes.length + sel.others.length === 0
+      ? `<p class="body">这一块还没有练过的题。</p>`
+      : "";
+  return `<section class="screen no-print" id="print-select" data-source="${printSource}">
+    ${printBackLink()}
+    <h1 class="title" style="margin-top:20px">${sel.title}</h1>
+    <p class="lede">${sel.lede}</p>
+    <div class="filters" role="group" aria-label="按块看">${filters}</div>
+    <div class="pick-bar">
+      <button class="quiet" type="button" data-action="print-select-mistakes">错题全选</button>
+      <button class="quiet" type="button" data-action="print-clear">清空</button>
+      <span class="label pick-count" id="print-count" aria-live="polite">${sel.selectedLabel}</span>
+    </div>
+    ${list}
+    ${nothingHere}
+    ${revealOthers}
+    <button class="cta" type="button" data-action="print-preview"${sel.selectedCount === 0 ? " disabled" : ""}>预览这张纸</button>
+  </section>`;
+}
+
 function renderA4() {
   const sheet = buildA4Sheet(catalog, state.relations, {
-    domain: a4Domain,
+    selectedIds: selectedPrintIds,
     day: formatDay(today()),
-    scope: a4Scope,
   });
-  const fromMistakes = a4Scope === "mistakes";
-  const backLink = fromMistakes
-    ? `<button class="quiet back" type="button" data-action="mistakes">${mark("arrow-left")}回错题本</button>`
-    : `<button class="quiet back" type="button" data-action="home">${mark("house")}回首页</button>`;
+  const backToSelect = `<button class="quiet back" type="button" data-action="print-back">${mark("arrow-left")}回去改选</button>`;
 
   if (sheet.empty) {
-    return `<section class="screen no-print">
-      ${backLink}
+    // Zero selected never produces an empty paper page.
+    return `<section class="screen no-print" id="a4">
+      ${backToSelect}
       <h1 class="title" style="margin-top:20px">印到纸上</h1>
       <p class="lede">${sheet.emptyMessage}</p>
-      <button class="cta" type="button" data-action="home">${fromMistakes ? "回首页" : "先练一小段"}</button>
     </section>`;
   }
 
-  const filters = [
-    ["", "全部"],
-    ...DOMAIN_ORDER.map((d) => [d, domainLabel(d)]),
-  ]
-    .map(
-      ([value, label]) =>
-        `<button class="chip${(a4Domain || "") === value ? " is-on" : ""}" type="button" aria-pressed="${(a4Domain || "") === value}" data-action="a4-domain" data-domain="${value}">${icon(value ? DOMAIN_ICONS[value] : "squares-four")}${label}</button>`,
-    )
-    .join("");
-
+  const sub = [sheet.day, sheet.domain].filter(Boolean).join(" · ");
   const prompts = sheet.prompts
     .map(
       (p) =>
-        `<li><span>${formatMath(p.prompt.replace(" = ?", " = "))}</span><span class="blank"></span></li>`,
+        `<li data-id="${p.id}"><span>${formatMath(p.prompt.replace(" = ?", " = "))}</span><span class="blank"></span></li>`,
     )
     .join("");
 
   const questionSheet = `<div class="sheet" id="a4-sheet">
       <h2>${sheet.title}</h2>
-      <p class="sub">${sheet.day} · ${sheet.domain}</p>
+      <p class="sub">${sub}</p>
       <ol>${prompts}</ol>
     </div>`;
 
   const answerSheet = `<div class="sheet sheet-answers" id="a4-answers">
       <h2>答案（写完再看）</h2>
-      <p class="sub">${sheet.day} · ${sheet.domain}</p>
+      <p class="sub">${sub}</p>
       <ol>${sheet.answerKey
-        .map((a) => `<li>${formatMath(a.relation)}</li>`)
+        .map((a) => `<li data-id="${a.id}">${formatMath(a.relation)}</li>`)
         .join("")}</ol>
     </div>`;
 
-  return `<section class="screen" id="a4" data-scope="${a4Scope}">
+  return `<section class="screen" id="a4" data-source="${printSource}">
     <div class="no-print">
-      ${backLink}
+      ${backToSelect}
       <h1 class="title" style="margin-top:20px">印到纸上</h1>
       <p class="lede">${showAnswers ? "这一页只有答案。写完题目再看。" : sheet.subtitle}</p>
-      <div class="filters" role="group" aria-label="打印范围">${filters}</div>
     </div>
     ${showAnswers ? answerSheet : questionSheet}
     <div class="no-print">
@@ -475,12 +537,15 @@ function renderA4() {
   </section>`;
 }
 
-/** Answer box content: plain digits, a textbook fraction, or 0.( block ). */
+/** Answer box content: plain digits, a textbook fraction, or a dotted repeating block. */
 function answerHtml() {
   if (currentItem?.repeatingBlock) {
-    return `<span class="rep-frame" aria-hidden="true">0.(</span><span class="rep-block">${
-      escapeHtml(answer) || "&#8203;"
-    }</span><span class="rep-frame" aria-hidden="true">)</span>`;
+    // Student types only the block; the box shows textbook dots, no brackets.
+    const intPart = (/^(\d+)\.\(/.exec(currentItem.canonical_answer || "") || [])[1] || "0";
+    if (!answer) {
+      return `<span class="rep-int">${intPart}.</span><span class="rep-slot" aria-hidden="true"></span>`;
+    }
+    return repeatingHtml(intPart, answer);
   }
   if (currentItem?.needsSlash) {
     const match = /^(\d+)\/(\d+)$/.exec(answer);
@@ -513,6 +578,27 @@ function bind() {
   app.querySelectorAll("[data-digit]").forEach((el) => {
     el.addEventListener("click", onDigit);
   });
+  app.querySelectorAll("input[data-print-id]").forEach((el) => {
+    el.addEventListener("change", onPrintToggle);
+  });
+}
+
+function onPrintToggle(event) {
+  const id = event.currentTarget.getAttribute("data-print-id");
+  selectedPrintIds = togglePrintSelection(catalog, state.relations, selectedPrintIds, id);
+  render();
+}
+
+function openPrint(source) {
+  printSource = source;
+  printDomain = null;
+  // Default: current mistakes checked. From the Mistake Book the other
+  // practiced relations start folded away, and can be revealed.
+  selectedPrintIds = defaultPrintSelection(catalog, state.relations);
+  printShowOthers = source !== "mistakes";
+  showAnswers = false;
+  screenName = "print-select";
+  render();
 }
 
 function onAction(event) {
@@ -567,11 +653,11 @@ function onAction(event) {
     return;
   }
   if (action === "a4") {
-    a4Domain = null;
-    a4Scope = "unstable";
-    showAnswers = false;
-    screenName = "a4";
-    render();
+    openPrint("home");
+    return;
+  }
+  if (action === "a4-progress") {
+    openPrint("progress");
     return;
   }
   if (action === "mistakes") {
@@ -584,16 +670,41 @@ function onAction(event) {
     return;
   }
   if (action === "a4-mistakes") {
-    a4Domain = null;
-    a4Scope = "mistakes";
-    showAnswers = false;
-    screenName = "a4";
+    openPrint("mistakes");
+    return;
+  }
+  if (action === "print-domain") {
+    // Narrows what is visible only; selections in other domains stay.
+    printDomain = domain || null;
     render();
     return;
   }
-  if (action === "a4-domain") {
-    a4Domain = domain || null;
+  if (action === "print-select-mistakes") {
+    selectedPrintIds = selectCurrentMistakes(catalog, state.relations, selectedPrintIds, printDomain);
+    render();
+    return;
+  }
+  if (action === "print-clear") {
+    selectedPrintIds = clearPrintSelection(catalog, state.relations, selectedPrintIds, printDomain);
+    render();
+    return;
+  }
+  if (action === "print-show-others") {
+    printShowOthers = true;
+    render();
+    return;
+  }
+  if (action === "print-preview") {
+    if (!selectedPrintIds.length) return;
     showAnswers = false;
+    screenName = "a4";
+    window.scrollTo(0, 0);
+    render();
+    return;
+  }
+  if (action === "print-back") {
+    showAnswers = false;
+    screenName = "print-select";
     render();
     return;
   }

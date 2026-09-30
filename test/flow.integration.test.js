@@ -8,7 +8,7 @@ import {
   peekCurrent,
   finishSession,
 } from "../src/core/session.js";
-import { buildA4Sheet } from "../src/core/a4.js";
+import { buildA4Sheet, listPrintCandidates } from "../src/core/a4.js";
 import { createBrowserStore } from "../src/adapter/browser-store.js";
 import { MASTERY } from "../src/core/mastery.js";
 
@@ -90,8 +90,15 @@ test("owner+child continuous flow: practice → wrong reappear → persist → p
   );
   assert.equal(unstable, true);
 
-  const sheet = buildA4Sheet(catalog, reloaded.relations, { day: "9月29日" });
+  // Shared print selector: every practiced relation is a candidate; the sheet
+  // holds exactly what is selected (here: all candidates).
+  const candidates = listPrintCandidates(catalog, reloaded.relations);
+  assert.equal(candidates.length, Object.keys(reloaded.relations).length);
+  const sheet = buildA4Sheet(catalog, reloaded.relations, {
+    selectedIds: candidates.map((c) => c.id),
+    day: "9月29日",
+  });
   assert.equal(sheet.empty, false);
-  assert.ok(sheet.prompts.length >= 1);
+  assert.equal(sheet.prompts.length, candidates.length);
   assert.ok(sheet.answerKey.length === sheet.prompts.length);
 });

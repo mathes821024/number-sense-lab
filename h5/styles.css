@@ -531,6 +531,11 @@ button:focus-visible {
 }
 .frame b { display: block; font-size: 14px; }
 .frame span { display: block; font-size: 13px; color: var(--soft); margin-top: 2px; }
+/* Math inside a frame keeps its own layout (the rule above is for the detail line). */
+.frame .rep, .frame .rep span { display: inline; margin: 0; font-size: inherit; color: inherit; }
+.frame .rep .rd { display: inline-block; }
+.frame .frac { display: inline-flex; margin: 0 0.08em; color: inherit; }
+.frame .frac .num, .frame .frac .den { display: block; margin: 0; font-size: inherit; color: inherit; }
 
 .ok {
   display: inline-flex;
@@ -660,15 +665,84 @@ button:focus-visible {
 .answer .answer-frac .num,
 .answer .answer-frac .den { min-width: 1.4em; }
 
-/* v0.3 — repeating decimal: fixed 0.( … ) frame, student types only the block */
+/* v0.3 — repeating decimal: textbook dots (shared .rep / .rd from math-text.js).
+   One digit: a dot above it. Several digits: dots above the first and last.
+   The dot is a text glyph, so it prints in black and white. */
+.rep { white-space: nowrap; }
+.rd { position: relative; display: inline-block; line-height: 1; }
+.rd::before {
+  content: "\2022";
+  position: absolute;
+  left: 50%;
+  top: -0.62em;
+  transform: translateX(-50%);
+  font-size: 0.5em;
+  line-height: 1;
+  pointer-events: none;
+}
 .answer-repeating { gap: 2px; }
-.answer-repeating .rep-frame { color: var(--soft); font-weight: 500; }
-.answer-repeating .rep-block {
+.answer-repeating .rep-int { font-weight: 500; }
+.answer-repeating .rep-slot {
   display: inline-block;
   min-width: 1.6em;
-  padding: 0 4px;
+  height: 1em;
   border-bottom: 1.5px dashed rgba(28, 25, 21, 0.35);
-  text-align: center;
-  letter-spacing: 0.04em;
 }
+.answer-repeating .rep { letter-spacing: 0.04em; }
 .nudge .frac { font-size: 0.9em; }
+
+/* v0.3 FB01 — progress: latest outcome per practiced relation.
+   The mark is a shape plus a word, never colour alone. */
+#progress .section-label {
+  margin-top: 24px;
+  color: var(--soft);
+  font-size: 14px;
+  font-weight: 600;
+}
+.outcomes .outcome { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+.outcomes .outcome .om { font-size: 0.95em; line-height: 1; }
+.outcomes .outcome.is-right { color: var(--teal); }
+.outcomes .outcome.is-wrong { color: var(--soft); }
+
+/* v0.3 FB01 — shared print selector */
+#print-select .filters { margin-top: 14px; }
+.text-chip { gap: 0; }
+.pick-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 14px 0 4px;
+}
+.pick-bar .pick-count { margin-left: auto; color: var(--soft); font-size: 13px; font-weight: 600; }
+.picks li { padding: 0 16px; }
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  cursor: pointer;
+}
+.pick input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--teal);
+}
+.pick .pick-text { flex: 1; }
+.pick .meta { color: var(--soft); font-size: 13px; }
+.more-picks { margin-top: 10px; }
+#print-select .cta { margin-top: 24px; }
+#print-select .cta:disabled { opacity: 0.45; cursor: default; }
+
+/* v0.3 FB01 — rapid keypad taps are input, not double-tap zoom.
+   Scoped to the training screen and its controls only; whole-page pinch zoom
+   stays available (no user-scalable=no, no global touch preventDefault). */
+#train, .keys, .key, .cta { touch-action: manipulation; }
+.keys, .key {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}

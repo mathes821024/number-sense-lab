@@ -8,7 +8,7 @@ import {
   buildMistakeBook,
 } from "../src/core/mistakes.js";
 import { buildMistakeQueue, dueNow, listUnstableIds } from "../src/core/schedule.js";
-import { buildA4Sheet } from "../src/core/a4.js";
+import { buildA4Sheet, defaultPrintSelection } from "../src/core/a4.js";
 import { loadCoreCatalog, getRelationById } from "../src/core/content.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
 import { MASTERY, studentLabel } from "../src/core/mastery.js";
@@ -42,7 +42,7 @@ test("only-correct learning is not a mistake; unpracticed is not a mistake", () 
   assert.equal(isCurrentMistake(state.relations["square-17"]), false);
   assert.equal(isCurrentMistake(undefined), false);
   assert.deepEqual(listCurrentMistakeIds(catalog, state.relations), []);
-  // but it still counts for the original unstable A4
+  // still unstable for scheduling (mastery unchanged by the print change)
   assert.deepEqual(listUnstableIds(catalog, state.relations), ["square-17"]);
 });
 
@@ -203,22 +203,19 @@ test("mistake practice keeps wrong → reappear after 2 items → max once", () 
   assert.equal(seen.filter((id) => id === wrongId).length, 2, "max once more");
 });
 
-test("mistake print: current mistakes only; original A4 unchanged", () => {
+test("mistake print: 印这些题 defaults to current mistakes through the shared selector", () => {
   const relations = mistakeFixture();
-  const sheet = buildA4Sheet(catalog, relations, { scope: "mistakes", day: "10月1日" });
-  assert.deepEqual(
-    sheet.prompts.map((p) => p.id),
-    listCurrentMistakeIds(catalog, relations),
-  );
-  assert.equal(sheet.prompts.some((p) => p.id === "square-12"), false, "no recovered");
-  assert.equal(sheet.prompts.some((p) => p.id === "square-6"), false, "no only-correct");
+  const selected = defaultPrintSelection(catalog, relations);
+  assert.deepEqual(selected, listCurrentMistakeIds(catalog, relations));
+  const sheet = buildA4Sheet(catalog, relations, { selectedIds: selected, day: "10月1日" });
+  assert.deepEqual(sheet.prompts.map((p) => p.id), selected);
+  assert.equal(sheet.prompts.some((p) => p.id === "square-12"), false, "no recovered by default");
+  assert.equal(sheet.prompts.some((p) => p.id === "square-6"), false, "only-correct not by default");
   assert.equal(sheet.prompts.every((p) => !("answer" in p)), true, "answers on another page");
-  assert.equal(sheet.subtitle, "印的是错题本里这些题。纸上没有答案。");
+  assert.equal(sheet.subtitle, "选出要印的题。纸上没有答案。");
   assert.equal(`${sheet.title}${sheet.domain}`.includes("错题"), false, "paper never says 错题");
-  const squares = buildA4Sheet(catalog, relations, { scope: "mistakes", domain: "squares" });
-  assert.deepEqual(squares.prompts.map((p) => p.id), ["square-13", "square-17"]);
-  const original = buildA4Sheet(catalog, relations, {});
-  assert.deepEqual(original.prompts.map((p) => p.id), listUnstableIds(catalog, relations));
-  assert.ok(original.prompts.some((p) => p.id === "square-6"), "original keeps only-correct learning");
-  assert.equal(buildA4Sheet(catalog, {}, { scope: "mistakes" }).empty, true);
+  // the student can still add a practiced non-mistake by hand
+  const more = buildA4Sheet(catalog, relations, { selectedIds: [...selected, "square-6"] });
+  assert.ok(more.prompts.some((p) => p.id === "square-6"));
+  assert.equal(buildA4Sheet(catalog, {}, { selectedIds: defaultPrintSelection(catalog, {}) }).empty, true);
 });
