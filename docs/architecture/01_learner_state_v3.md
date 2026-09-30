@@ -80,7 +80,7 @@ learner_id  ↔  wechat openid | douyin openid | alipay user id
 
 空提交不成行，因此也不会进入错题。值对但还没约成最简同样不成行：不追加 `attempts`，不改 `status`，不改 `schedule`。只有 `correct` 和 `incorrect` 写入作答。这沿用现有判题边界，不另造错题状态。
 
-当前错题的打印列表使用上面的谓词，顺序与现有 `listUnstableIds` 的目录顺序一致。`listUnstableIds` 本身不改，原来的 A4 仍是 `learning` 与 `shaky`，不论有没有答错过。
+当前错题仍用上面的谓词，并且在选题页里默认勾选。`listUnstableIds` 本身不改，它不再决定纸上有哪些题。纸上只出现勾上的、已经练过的关系。
 
 # 5. 错题练习如何复用调度
 
@@ -138,7 +138,7 @@ H5 继续用现在的 localStorage Adapter。微信、抖音、支付宝以后�
 - 不把 `learner_id` 显示给学生，不要求填写名字
 - 不把 openid 写入本地档案
 - 不把错题列表持久化成第二份数据
-- 不改 v0.2A 的到期阶梯、恢复边界和原 A4 的不稳定列表
+- 不改 v0.2A 的到期阶梯和恢复边界。A4 不再自动印出全部不稳定关系，改为同一选题页。
 - 在本文 Freeze 之前不实现。三处原契约修订已经写入，见产品文档第 7 节。
 
 # 10. 长期约束：升级不能丢学习历史
