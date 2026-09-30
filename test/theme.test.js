@@ -44,6 +44,12 @@ const REQUIRED_ASSETS = [
   "domain.fractions",
 ];
 
+const RASTER_MASCOTS = new Set([
+  "mascot.default",
+  "mascot.correct",
+  "mascot.thinking",
+]);
+
 function definedTokens(css) {
   return new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
 }
@@ -98,9 +104,18 @@ test("theme object keeps the documented structure and asset slots", () => {
     assert.ok(key in mathLabTheme, `theme.${key}`);
   }
   for (const name of REQUIRED_ASSETS) {
-    assert.match(asset(name), /^<svg[\s\S]*<\/svg>$/, `asset ${name}`);
-    const body = asset(name).replaceAll(' xmlns="http://www.w3.org/2000/svg"', "");
-    assert.doesNotMatch(body, /<image|href=|url\(|https?:/, `asset ${name} is self-contained`);
+    if (RASTER_MASCOTS.has(name)) {
+      assert.match(
+        asset(name),
+        /^<img[^>]+src="\.\/themes\/math-lab\/assets\/mascot-[a-z]+\.png"[^>]*>$/,
+        `raster asset ${name}`,
+      );
+      assert.doesNotMatch(asset(name), /https?:|data:/, `asset ${name} stays project-local`);
+    } else {
+      assert.match(asset(name), /^<svg[\s\S]*<\/svg>$/, `asset ${name}`);
+      const body = asset(name).replaceAll(' xmlns="http://www.w3.org/2000/svg"', "");
+      assert.doesNotMatch(body, /<image|href=|url\(|https?:/, `asset ${name} is self-contained`);
+    }
   }
   for (const [domain, slot] of Object.entries(mathLabTheme.icons)) {
     assert.ok(asset(slot), `icon for ${domain}`);

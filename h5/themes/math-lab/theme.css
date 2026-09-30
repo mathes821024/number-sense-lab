@@ -19,6 +19,7 @@
   --color-brand-bright: #14956A;
   --color-brand-secondary: #7DCFB6;
   --color-brand-tint: #E3F4EC;
+  --color-brand-mist: #EDF8F3;
   --color-brand-text: #0E6F50;
 
   /* color.accent.* — decoration only, never a verdict */
@@ -33,7 +34,9 @@
   /* color.surface.* / color.text.* / color.border.* */
   --surface-page: #F7F3E8;
   --surface-card: #FFFDF8;
+  --surface-card-strong: #FFFFFF;
   --surface-sunken: #F1EBDD;
+  --surface-warm: #FBF6E9;
   --text-primary: #1C2430;
   --text-secondary: #5C6670;
   --border-subtle: #E6DCCB;
@@ -61,6 +64,7 @@
   --shadow-card: 0 1px 2px rgba(28, 36, 48, 0.05), 0 6px 18px rgba(28, 36, 48, 0.06);
   --shadow-floating: 0 2px 4px rgba(28, 36, 48, 0.06), 0 10px 28px rgba(28, 36, 48, 0.10);
   --shadow-key: 0 1px 0 rgba(28, 36, 48, 0.08), 0 2px 6px rgba(28, 36, 48, 0.05);
+  --shadow-hero: 0 18px 45px rgba(15, 127, 90, 0.12), 0 2px 8px rgba(28, 36, 48, 0.06);
 
   /* typography */
   --font-ui: "Nunito", "PingFang SC", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
@@ -73,6 +77,7 @@
   --motion-transition: 240ms;
   --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* home decoration opacity (asset.background.home) */
+  /* home decoration: faint coordinate grid on the cream paper + opacity */
+  --decor-grid: #D9CBAF38;
   --decor-opacity: 0.55;
 }

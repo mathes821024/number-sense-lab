@@ -201,8 +201,21 @@ function renderHome() {
         ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
         : "";
 
-  const headline = mode === "default" ? "把关系<br>练成直觉。" : title;
+  const headline = mode === "default" ? '把关系<br><span class="accent">练成直觉。</span>' : title;
   const soundOn = state.prefs?.sound !== false;
+
+  // Future entries stay visual placeholders: disabled tiles, no navigation,
+  // no new features. Icons come from theme asset slots like everything else.
+  const soon = [
+    ["domain.cubes", "立方与乘方"],
+    ["domain.factors", "倍数与因数"],
+    ["domain.knowledge_map", "知识地图"],
+  ]
+    .map(
+      ([slot, name]) =>
+        `<div class="soon-tile" aria-disabled="true"><span class="tile tile-soon" aria-hidden="true">${asset(slot)}</span><span class="soon-name">${name}</span><span class="soon-badge">敬请期待</span></div>`,
+    )
+    .join("");
 
   return `<section class="screen home" id="home">
     <div class="home-decor" aria-hidden="true">${asset("background.home")}</div>
@@ -212,6 +225,7 @@ function renderHome() {
     </header>
     <div class="home-hero">
       <div class="home-hero-copy">
+        <p class="hero-eyebrow">${icon("sparkle")}今天，和数字建立一点默契</p>
         <h1 class="home-headline">${headline}</h1>
         <p class="lede home-note">${lede}</p>
       </div>
@@ -222,6 +236,8 @@ function renderHome() {
     }</span><span class="cta-arrow" aria-hidden="true">${icon("arrow-right")}</span></button>
     ${extra}
     <div class="domains">${domains}</div>
+    <p class="section-label soon-label">更多内容在路上</p>
+    <div class="soon">${soon}</div>
     <nav class="home-links">
       <button type="button" data-action="progress">最近练得怎么样</button>
       <button type="button" data-action="mistakes">错题本</button>
@@ -266,9 +282,12 @@ function renderTrain() {
       <button class="quiet" type="button" data-action="pause">${mark("pause")}先停一下</button>
       <span class="pill">${pill}</span>
     </div>
-    <h1 class="question">${formatMath(currentItem.prompt)}</h1>
-    <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>
-    <p class="nudge" id="nudge">${nudgeHtml}</p>
+    <div class="practice-zone">
+      <p class="practice-label">看清关系，再写答案</p>
+      <h1 class="question">${formatMath(currentItem.prompt)}</h1>
+      <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>
+      <p class="nudge" id="nudge">${nudgeHtml}</p>
+    </div>
     <div class="keys" id="keys">
       ${[1,2,3,4,5,6,7,8,9].map((n) => `<button class="key" type="button" data-digit="${n}">${n}</button>`).join("")}
       ${dotKey}
