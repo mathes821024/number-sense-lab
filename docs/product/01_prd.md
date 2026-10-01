@@ -6,6 +6,8 @@
 
 本文不是 Contract Freeze，也不代表 Owner 已经拍板。文中的「产品建议」是 Product Manager 的提案；「待验证问题」留给后续 Gate，不在本轮自行冻住。
 
+v0.4 若通过 Contract Gate，当前范围的增补在 `docs/product/03_v04_scope_addendum.md`。下文写明 v0.1 的句子仍只描述 v0.1。
+
 ---
 
 # 1. Executive Summary
