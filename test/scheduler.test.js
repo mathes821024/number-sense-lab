@@ -5,7 +5,7 @@ import { migrateState, scheduleAfterAttempt } from "../src/core/scheduler.js";
 import { buildSessionQueue } from "../src/core/schedule.js";
 import { loadCoreCatalog, filterByDomain } from "../src/core/content.js";
 import { startSession, submitAnswer } from "../src/core/session.js";
-import { createBrowserStore } from "../src/adapter/browser-store.js";
+import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { emptyState } from "../src/core/store.js";
 
 const catalog = loadCoreCatalog();

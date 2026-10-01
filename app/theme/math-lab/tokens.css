@@ -1,0 +1,27 @@
+/* math-lab semantic tokens (docs/ui/05_visual_system_v03.md §3, §5). Components read only these names. */
+page,
+:root {
+  --color-primary: #0F7F5A;
+  --color-brand-bright: #14956A;
+  --color-primary-ink: #F7FBF8;
+  --color-secondary: #7DCFB6;
+  --accent-sun: #F5C451;
+  --accent-amber: #F4A261;
+  --accent-sky: #5B8DEF;
+  --surface-page: #F7F3E8;
+  --surface-card: #FFFDF8;
+  --text-main: #1C2430;
+  --text-secondary: #5C6670;
+  --border-subtle: #E6DCCB;
+  --feedback-correct: #1E8F5A;
+  --feedback-wrong: #C4563A;
+  --feedback-hint: #F3EBE3;
+  --color-disabled: #C9C3B8;
+  --radius-button: 999px;
+  --radius-card: 24px;
+  --radius-chip: 999px;
+  --radius-input: 16px;
+  --shadow-card: 0 2px 10px rgba(28, 36, 48, 0.06);
+  --shadow-floating: 0 6px 18px rgba(28, 36, 48, 0.10);
+  --font-ui: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Source Han Sans SC", "Helvetica Neue", Arial, sans-serif;
+}
