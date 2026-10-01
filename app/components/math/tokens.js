@@ -72,3 +72,8 @@ export function answerDisplay(item, answer) {
   }
   return { kind: "plain", text: answer };
 }
+
+/** A worded prompt (「0.125 是哪个分数？」) rather than a bare relation (「11/20 = ?」). */
+export function hasWords(value) {
+  return /[\u3400-\u9fff]/.test(String(value ?? ""));
+}

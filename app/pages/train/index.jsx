@@ -15,6 +15,7 @@ import Keypad from "../../components/Keypad";
 import AnswerBox from "../../components/AnswerBox";
 import SetProgress from "../../components/SetProgress";
 import MathText from "../../components/math/MathText";
+import { hasWords } from "../../components/math/tokens.js";
 import CorrectFeedback from "../../components/CorrectFeedback";
 import WrongFeedback from "../../components/WrongFeedback";
 import PauseDialog from "../../components/PauseDialog";
@@ -147,7 +148,7 @@ export default function Train() {
         <SetProgress position={view.position} total={view.total} />
         <View className="practice-zone">
           <Text className="practice-label">看清关系，再写答案</Text>
-          <MathText value={view.item.prompt} className="question" key={view.item.id} />
+          <MathText value={view.item.prompt} className={hasWords(view.item.prompt) ? "question is-words" : "question"} key={view.item.id} />
           <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
           <View className="nudge" data-testid="nudge">
             {view.nudge ? <MathText value={view.nudge} /> : null}

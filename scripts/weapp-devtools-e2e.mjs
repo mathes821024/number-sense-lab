@@ -25,6 +25,7 @@ const CLI = process.env.WECHAT_CLI || "/Applications/wechatwebdevtools.app/Conte
 const KEY = "nsl-v01-state";
 mkdirSync(SHOTS, { recursive: true });
 const { loadCoreCatalog } = await import(`${REPO}/src/core/content.js`);
+const { VIEWPORT_CASES, seededRaw } = await import(`${REPO}/scripts/viewport-cases.mjs`);
 const { startSession } = await import(`${REPO}/src/core/session.js`);
 const catalog = loadCoreCatalog();
 const byId = new Map(catalog.map((i) => [i.id, i]));
@@ -417,13 +418,49 @@ for (const [name, raw] of [["bad JSON", "{not-json"], ["future version", JSON.st
   });
 }
 
+// Worst-case prompts (scripts/viewport-cases.mjs): 提交 fully inside the window
+// (under the native nav bar) with nothing scrolled; keys >= 44px.
+const viewportRows = [];
+for (const c of VIEWPORT_CASES) {
+  await step(`10 Viewport: 提交 on screen — ${c.name} (${c.item.id})`, async () => {
+    await boot(seededRaw(c.item.id));
+    page = await freshHome();
+    page = await startFromHome(page, "继续刚才的练习");
+    check((await currentItem()).id === c.item.id, "seeded item on screen");
+    await press(page, c.type);
+    if (c.submit) { await tapText(page, ".key", "提交"); await sleep(400); }
+    await mp.pageScrollTo(0);
+    await sleep(300);
+    const sys = await mp.systemInfo();
+    let submit = null;
+    const heights = [];
+    for (const k of await page.$$(".key")) {
+      const t = (await k.text()).trim();
+      if (!t) continue; // the empty slot left of 0
+      const size = await k.size();
+      heights.push(size.height);
+      if (t === "提交") submit = { ...(await k.offset()), ...size };
+    }
+    check(submit, "提交 found");
+    const bottom = Math.round(submit.top + submit.height);
+    const nudge = c.submit ? await textOf(page, ".nudge") : "";
+    await shot(`13-viewport-${c.name}`);
+    const row = { case: c.name, item: c.item.id, model: sys.model, windowHeight: sys.windowHeight, windowWidth: sys.windowWidth, submitTop: Math.round(submit.top), submitBottom: bottom, minKey: Math.round(Math.min(...heights)) };
+    viewportRows.push(row);
+    check(bottom <= sys.windowHeight, `提交 bottom ${bottom} > window ${sys.windowHeight}`);
+    check(row.minKey >= 44, `key ${row.minKey}px`);
+    if (c.submit) check(/一样大/.test(nudge || ""), `nudge ${nudge}`);
+    return `${sys.model} window ${sys.windowWidth}×${sys.windowHeight}: 「${c.item.prompt}」 typed ${c.type}${c.submit ? " + 提交 (nudge showing)" : ""} → 提交 ${row.submitTop}–${bottom} ≤ ${sys.windowHeight}; keys ≥ ${row.minKey}px`;
+  });
+}
+
 phase = "teardown";
 hooked.push(...(await appErrors()));
 await mp.callWxMethod("removeStorageSync", KEY);
 await mp.close();
 
 const errorEvents = events.filter((e) => e.src !== "automator.console" || e.type === "error" || e.type === "warn");
-const report = { results: out, appHookedErrors: hooked, automatorErrorEvents: errorEvents, allConsoleCount: events.length };
+const report = { results: out, viewport: viewportRows, appHookedErrors: hooked, automatorErrorEvents: errorEvents, allConsoleCount: events.length };
 writeFileSync(`${SHOTS}/weapp-e2e-events.json`, JSON.stringify({ ...report, allEvents: events }, null, 2));
 console.log(out.join("\n"));
 console.log("\nAPP-HOOKED ERRORS", JSON.stringify(hooked, null, 1));

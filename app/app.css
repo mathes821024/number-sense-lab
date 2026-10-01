@@ -517,6 +517,33 @@ body {
 }
 .key.go:active, .key.go.key-pressed { background: var(--color-brand-primary-deep); }
 
+/* Short screens (375×667, a Mini Program page under the native nav bar,
+   1366×768): the whole question, the keypad and 提交 stay on screen without
+   scrolling. Only the vertical rhythm tightens; type sizes stay, except a
+   worded prompt on the shortest windows. Keys stay ≥ 44px tall. */
+@media (max-height: 800px) {
+  .set-progress { margin-top: 10px; }
+  .practice-zone { margin-top: 12px; padding: 14px 16px 12px; }
+  .math.question { margin: 12px 0; line-height: 1.25; }
+  .answer { min-height: 60px; }
+  .nudge { margin-top: 4px; min-height: 21px; }
+  .keys { margin-top: 10px; grid-gap: 8px; gap: 8px; }
+  .key { min-height: 50px; }
+  .key.go { margin-top: 0; }
+}
+@media (max-height: 800px) and (min-width: 640px) {
+  .page { padding-top: 20px !important; }
+}
+@media (max-height: 640px) {
+  .set-progress { margin-top: 8px; }
+  .practice-zone { margin-top: 8px; }
+  .math.question { margin: 8px 0; }
+  .math.question.is-words { font-size: 32px; }
+  .answer { min-height: 52px; }
+  .keys { grid-gap: 6px; gap: 6px; }
+  .key { min-height: 46px; }
+}
+
 /* Pause: a floating layer above the quiet page. */
 .dialog {
   display: flex;

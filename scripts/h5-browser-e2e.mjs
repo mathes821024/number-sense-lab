@@ -58,7 +58,7 @@ function today() {
 }
 
 const browser = await chromium.launch({ executablePath: CHROME, args: ["--no-sandbox"] });
-for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["desktop", { width: 1366, height: 900 }]]) {
+for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390", { width: 390, height: 844 }], ["desktop", { width: 1366, height: 900 }]]) {
   const desktop = vp === "desktop";
   const ctx = await browser.newContext({ viewport: size });
   const page = await ctx.newPage();
@@ -158,6 +158,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["desktop", {
     const t0 = Date.now();
     await submit(desktop);
     await page.waitForSelector('[data-testid="correct"]');
+    await page.waitForSelector('[data-slot="mascot.correct"] img', { timeout: 500 }).catch(() => {}); // Taro's <Image> adds its <img> a tick later
     const c = await page.evaluate(() => ({
       title: document.querySelector(".feedback-title").textContent,
       word: document.querySelector(".word").textContent,
@@ -175,7 +176,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["desktop", {
     const l = await learner();
     const att = l.relations[item.id].attempts.at(-1);
     check(c.title === "太棒了！" && c.word === "对" && c.tick, JSON.stringify(c));
-    check(/mascot-correct-512\.webp/.test(c.mascot || ""), "correct mascot");
+    check(/mascot-correct-512\.webp/.test(c.mascot || ""), `correct mascot ${c.mascot}`);
     check(c.buttons === 0 && c.keys === 0 && !c.nav, `buttons ${c.buttons} keys ${c.keys}`);
     check(c.relation === item.relation, `relation ${c.relation}`);
     check(ms >= 650 && ms < 1500, `advanced after ${ms}ms`);

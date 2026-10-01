@@ -63,16 +63,20 @@ test("no platform API in src/core, src/adapter or the shared app layer", () => {
   assert.deepEqual(leaks, []);
 });
 
-test("the app layer avoids host-only APIs the Mini Program engine lacks (structuredClone, createMemoryStore)", () => {
-  // src/core/store.js createMemoryStore uses structuredClone (a browser / Node
-  // host API, not ECMAScript); it works for h5/ but not in the WeChat engine,
-  // so nothing under app/ may use either.
+test("no structuredClone in src/core or app/ (a host API the Mini Program engine lacks)", () => {
+  // Core copies state with src/core/json-clone.js; app/ reuses core's createMemoryStore.
   const offenders = [];
-  for (const file of files(join(root, "app"), [".js", ".jsx"])) {
+  for (const file of [...files(join(root, "src/core"), [".js"]), ...files(join(root, "app"), [".js", ".jsx"])]) {
     const source = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-    if (/\bstructuredClone\b|\bcreateMemoryStore\b/.test(source)) offenders.push(relative(root, file));
+    if (/\bstructuredClone\b/.test(source)) offenders.push(relative(root, file));
   }
   assert.deepEqual(offenders, []);
+});
+
+test("one snapshot semantics: the app's record keeper uses core's createMemoryStore", () => {
+  const source = readFileSync(join(root, "app/pages/record.js"), "utf8");
+  assert.match(source, /import \{ createMemoryStore \} from "\.\.\/\.\.\/src\/core\/store\.js"/);
+  assert.doesNotMatch(source, /JSON\.(parse|stringify)/, "no second copy implementation in app/");
 });
 
 test("src/adapter holds only the storage contract", () => {

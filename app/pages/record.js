@@ -8,27 +8,11 @@
  * without ever touching the stored text.
  */
 
-/**
- * In-memory copy of the v3 root. Same behaviour as src/core/store.js
- * createMemoryStore (callers never share an object with the keeper), but it
- * copies through JSON instead of structuredClone: structuredClone is a
- * browser / Node host API, not ECMAScript, and the Mini Program JS engine
- * does not provide it. The record is plain JSON (it is stored as text), so
- * the copy is exact.
- */
-function createSnapshot() {
-  let text = null;
-  return {
-    read: () => (text === null ? null : JSON.parse(text)),
-    write: (next) => {
-      text = next == null ? null : JSON.stringify(next);
-      return true;
-    },
-  };
-}
+// One snapshot semantics for every client: core's createMemoryStore (JSON copy, src/core/json-clone.js).
+import { createMemoryStore } from "../../src/core/store.js";
 
 export function createRecordKeeper(store) {
-  const memory = createSnapshot();
+  const memory = createMemoryStore();
   memory.write(store.read());
   return {
     read() {

@@ -394,3 +394,27 @@ test("record keeper works without structuredClone (absent in the Mini Program JS
     globalThis.structuredClone = saved;
   }
 });
+
+test("pause preserves the feedback context: pause from Wrong → 继续做 returns to the same Wrong feedback", () => {
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog, today: () => DAY });
+  flow.begin("daily", null);
+  const item = flow.view().item;
+  typeAll(flow, answerFor(item) === "1" ? "2" : "1");
+  assert.equal(flow.submit(), "wrong");
+  const before = flow.view();
+  const attempts = getActiveLearner(store.read()).relations[item.id].attempts.length;
+  assert.equal(flow.pause(), true);
+  assert.equal(flow.view().screen, "pause");
+  assert.equal(flow.unpause(), true);
+  const after = flow.view();
+  assert.equal(after.screen, "wrong", "back on the Wrong feedback, not a dead training screen");
+  assert.equal(after.item.id, item.id);
+  assert.equal(after.position, before.position);
+  assert.deepEqual(after.feedback, before.feedback, "same relation / hook / frames");
+  assert.equal(flow.input("5"), false, "still no typing on the Wrong feedback");
+  assert.equal(getActiveLearner(store.read()).relations[item.id].attempts.length, attempts, "pause records nothing");
+  flow.advance();
+  assert.equal(flow.view().screen, "train");
+  assert.equal(flow.view().position, 2, "下一题 still moves on to question 2");
+});

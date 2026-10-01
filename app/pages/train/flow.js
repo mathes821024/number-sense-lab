@@ -267,6 +267,7 @@ export function createTrainingFlow({
      */
     unpause() {
       if (screen !== "pause") return false;
+      // Pausing preserves the feedback context: paused from Wrong → 继续做 returns to that same Wrong feedback.
       screen = pausedFrom || "train";
       pausedFrom = null;
       return true;
