@@ -1,0 +1,258 @@
+{
+  "domain": "cubes",
+  "version": "0.4.0",
+  "relations": [
+    {
+      "id": "cube-2",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "2³ = ?",
+      "canonical_answer": "8",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2³ = 8",
+      "hook": "2×2×2，小九九老朋友。",
+      "pattern": {
+        "check": "2³ 就是 2 乘三次，不是 2×3。",
+        "family": [
+          "2 × 2 × 2 = 8"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "2×2×2，小九九老朋友。"
+        },
+        {
+          "title": "8",
+          "detail": "2³ = 8"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-3",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "3³ = ?",
+      "canonical_answer": "27",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "3³ = 27",
+      "hook": "先平方再三倍：9×3。",
+      "pattern": {
+        "check": "3³ = 3² × 3，不是 3×3。",
+        "family": [
+          "3² = 9"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "先平方再三倍：9×3。"
+        },
+        {
+          "title": "27",
+          "detail": "3³ = 27"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-5",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "relation_network",
+      "prompt": "5³ = ?",
+      "canonical_answer": "125",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "5³ = 125",
+      "hook": "25×5；125 是 1/8 家族老朋友。",
+      "pattern": {
+        "check": "5³ = 5² × 5。不要和 5×3 混淆。",
+        "family": [
+          "5² = 25",
+          "1/8 = 0.125"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "25×5；125 是 1/8 家族老朋友。"
+        },
+        {
+          "title": "125",
+          "detail": "5³ = 125"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-4",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "4³ = ?",
+      "canonical_answer": "64",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "4³ = 64",
+      "hook": "16×4；64 也是 8²、2⁶。",
+      "pattern": {
+        "check": "4³ = 4² × 4。",
+        "family": [
+          "4² = 16",
+          "8² = 64",
+          "2⁶ = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "16×4；64 也是 8²、2⁶。"
+        },
+        {
+          "title": "64",
+          "detail": "4³ = 64"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-6",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "6³ = ?",
+      "canonical_answer": "216",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "6³ = 216",
+      "hook": "36×6 = 216。",
+      "pattern": {
+        "check": "6³ = 6² × 6。",
+        "family": [
+          "6² = 36"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "36×6 = 216。"
+        },
+        {
+          "title": "216",
+          "detail": "6³ = 216"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-8",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "8³ = ?",
+      "canonical_answer": "512",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "8³ = 512",
+      "hook": "64×8；512 也是 2⁹。",
+      "pattern": {
+        "check": "8³ = 8² × 8。",
+        "family": [
+          "8² = 64",
+          "2⁹ = 512"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "64×8；512 也是 2⁹。"
+        },
+        {
+          "title": "512",
+          "detail": "8³ = 512"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-7",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "7³ = ?",
+      "canonical_answer": "343",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "7³ = 343",
+      "hook": "49×7 = 343，诚实锚点。",
+      "pattern": {
+        "check": "7³ = 7² × 7。343 不是 7×7。",
+        "family": [
+          "7² = 49"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "49×7 = 343，诚实锚点。"
+        },
+        {
+          "title": "343",
+          "detail": "7³ = 343"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "cube-9",
+      "domain": "cubes",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "9³ = ?",
+      "canonical_answer": "729",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "9³ = 729",
+      "hook": "81×9 = 729，诚实锚点。",
+      "pattern": {
+        "check": "9³ = 9² × 9。729 不是 9×9。",
+        "family": [
+          "9² = 81"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "81×9 = 729，诚实锚点。"
+        },
+        {
+          "title": "729",
+          "detail": "9³ = 729"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    }
+  ]
+}

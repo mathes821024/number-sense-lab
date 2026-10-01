@@ -3,7 +3,7 @@ import test from "node:test";
 import { MASTERY, emptyRelation } from "../src/core/mastery.js";
 import { migrateState, scheduleAfterAttempt } from "../src/core/scheduler.js";
 import { buildSessionQueue } from "../src/core/schedule.js";
-import { loadCoreCatalog, filterByDomain } from "../src/core/content.js";
+import { loadCoreCatalog, filterByDomain, DOMAIN_ORDER } from "../src/core/content.js";
 import { startSession, submitAnswer } from "../src/core/session.js";
 import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { emptyLearner, getActiveLearner, STATE_VERSION } from "../src/core/store.js";
@@ -273,7 +273,7 @@ test("slow correct does not lengthen a future due date", () => {
   assert.equal(schedule.reason, "slow-correct");
 });
 
-test("daily practice still mixes three domains", () => {
+test("daily practice still mixes all released domains", () => {
   const session = startSession({
     mode: "daily",
     day: "2026-10-01",
@@ -282,7 +282,7 @@ test("daily practice still mixes three domains", () => {
     relations: {},
   });
   const domains = new Set(session.queue.map((id) => catalog.find((item) => item.id === id).domain));
-  assert.equal(domains.size, 3);
+  assert.equal(domains.size, DOMAIN_ORDER.length);
 });
 
 test("stable due yields while unpracticed relations can fill the session", () => {

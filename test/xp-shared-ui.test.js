@@ -42,7 +42,7 @@ function tokensAsH5Html(value) {
     .join("");
 }
 
-test("math: every student-facing string in the 122 items reads exactly as h5/ formatMath", () => {
+test("math: every student-facing string in the 173 items reads exactly as h5/ formatMath", () => {
   let checked = 0;
   for (const item of catalog) {
     const texts = [item.prompt, item.relation, item.hook, item.canonical_answer, item.pattern?.check, ...(item.pattern?.family || [])];
@@ -52,7 +52,7 @@ test("math: every student-facing string in the 122 items reads exactly as h5/ fo
       checked += 1;
     }
   }
-  assert.equal(catalog.length, 122);
+  assert.equal(catalog.length, 173);
   assert.ok(checked > 600, `checked ${checked} strings`);
 });
 

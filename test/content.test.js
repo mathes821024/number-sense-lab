@@ -11,7 +11,7 @@ import {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-test("Core Recall counts match frozen contracts: 75 (v0.1) + 47 (v0.2C) = 122", () => {
+test("Core Recall counts match frozen contracts: 75 (v0.1) + 47 (v0.2C) + 51 (v0.4) = 173", () => {
   const counts = verifyContentCounts();
   assert.equal(counts.squares, 32);
   assert.equal(counts.products, 32);
@@ -21,13 +21,19 @@ test("Core Recall counts match frozen contracts: 75 (v0.1) + 47 (v0.2C) = 122", 
   assert.equal(counts.decimalToFraction, 27);
   assert.equal(counts.repeating, 4);
   assert.equal(counts.v02c, 47);
-  assert.equal(counts.total, 122);
+  assert.equal(counts.halves, 14);
+  assert.equal(counts.complements, 12);
+  assert.equal(counts.cubes, 8);
+  assert.equal(counts.powers, 9);
+  assert.equal(counts.special_products, 8);
+  assert.equal(counts.v04, 51);
+  assert.equal(counts.total, 173);
 });
 
 test("the original 75 v0.1 relations keep their ids, order and content", () => {
   const catalog = loadCoreCatalog();
   const ids = new Set(catalog.map((r) => r.id));
-  assert.equal(ids.size, 122);
+  assert.equal(ids.size, 173);
   const v01 = [];
   for (const name of ["squares", "products", "fractions"]) {
     const raw = JSON.parse(

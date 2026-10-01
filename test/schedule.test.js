@@ -6,7 +6,7 @@ import {
   nextItem,
   WRONG_REAPPEAR_GAP,
 } from "../src/core/schedule.js";
-import { loadCoreCatalog } from "../src/core/content.js";
+import { loadCoreCatalog, DOMAIN_ORDER } from "../src/core/content.js";
 import { MASTERY } from "../src/core/mastery.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
 import { emptyLearner } from "../src/core/store.js";
@@ -56,7 +56,7 @@ test("wrong item reappears later, not immediately", () => {
   assert.notEqual(peeked.item.id, firstId);
 });
 
-test("a fresh daily session mixes all three domains", () => {
+test("a fresh daily session mixes all released domains", () => {
   const queue = buildSessionQueue(catalog, {}, {
     size: 9,
     day: "2026-09-29",
@@ -66,7 +66,7 @@ test("a fresh daily session mixes all three domains", () => {
     queue.map((id) => catalog.find((item) => item.id === id).domain),
   );
   assert.equal(queue.length, 9);
-  assert.deepEqual(domains, new Set(["squares", "products", "fraction_decimal"]));
+  assert.deepEqual(domains, new Set(DOMAIN_ORDER));
 });
 
 test("daily mix keeps the shaky relation first inside its own domain", () => {

@@ -1,0 +1,440 @@
+{
+  "domain": "halves",
+  "version": "0.4.0",
+  "relations": [
+    {
+      "id": "half-64",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "64 的一半是？",
+      "canonical_answer": "32",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "64 的一半是 32",
+      "hook": "64 是 2⁶，一半就是 2⁵ = 32。",
+      "pattern": {
+        "check": "64 是偶数，一半仍是整数。",
+        "family": [
+          "32 × 2 = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "64 是 2⁶，一半就是 2⁵ = 32。"
+        },
+        {
+          "title": "32",
+          "detail": "64 的一半是 32"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-72",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "72 的一半是？",
+      "canonical_answer": "36",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "72 的一半是 36",
+      "hook": "70+2 各半：35+1 = 36。",
+      "pattern": {
+        "check": "先拆再各半，不要整段竖式。",
+        "family": [
+          "36 × 2 = 72"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "70+2 各半：35+1 = 36。"
+        },
+        {
+          "title": "36",
+          "detail": "72 的一半是 36"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-96",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "96 的一半是？",
+      "canonical_answer": "48",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "96 的一半是 48",
+      "hook": "100−4 各半：50−2 = 48。",
+      "pattern": {
+        "check": "靠近 100 时，先借 100 再减。",
+        "family": [
+          "48 × 2 = 96"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "100−4 各半：50−2 = 48。"
+        },
+        {
+          "title": "48",
+          "detail": "96 的一半是 48"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-98",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "98 的一半是？",
+      "canonical_answer": "49",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "98 的一半是 49",
+      "hook": "100−2 各半：50−1 = 49。",
+      "pattern": {
+        "check": "98 的一半不是 50。",
+        "family": [
+          "49 × 2 = 98"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "100−2 各半：50−1 = 49。"
+        },
+        {
+          "title": "49",
+          "detail": "98 的一半是 49"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-52",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "52 的一半是？",
+      "canonical_answer": "26",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "52 的一半是 26",
+      "hook": "40+12 各半：20+6 = 26。",
+      "pattern": {
+        "check": "52 跨过 50，拆开再各半。",
+        "family": [
+          "26 × 2 = 52"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "40+12 各半：20+6 = 26。"
+        },
+        {
+          "title": "26",
+          "detail": "52 的一半是 26"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-54",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "54 的一半是？",
+      "canonical_answer": "27",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "54 的一半是 27",
+      "hook": "50+4 各半：25+2 = 27。",
+      "pattern": {
+        "check": "个位 4 的一半是 2，不是 4。",
+        "family": [
+          "27 × 2 = 54"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "50+4 各半：25+2 = 27。"
+        },
+        {
+          "title": "27",
+          "detail": "54 的一半是 27"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-62",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "62 的一半是？",
+      "canonical_answer": "31",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "62 的一半是 31",
+      "hook": "60+2 各半：30+1 = 31。",
+      "pattern": {
+        "check": "62 的一半不是 30。",
+        "family": [
+          "31 × 2 = 62"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "60+2 各半：30+1 = 31。"
+        },
+        {
+          "title": "31",
+          "detail": "62 的一半是 31"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-78",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "78 的一半是？",
+      "canonical_answer": "39",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "78 的一半是 39",
+      "hook": "80−2 各半：40−1 = 39。",
+      "pattern": {
+        "check": "先借 80，再把少掉的 2 折半。",
+        "family": [
+          "39 × 2 = 78"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "80−2 各半：40−1 = 39。"
+        },
+        {
+          "title": "39",
+          "detail": "78 的一半是 39"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-86",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "86 的一半是？",
+      "canonical_answer": "43",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "86 的一半是 43",
+      "hook": "80+6 各半：40+3 = 43。",
+      "pattern": {
+        "check": "86 不是 80 加 10。6 的一半是 3。",
+        "family": [
+          "43 × 2 = 86"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "80+6 各半：40+3 = 43。"
+        },
+        {
+          "title": "43",
+          "detail": "86 的一半是 43"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-94",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "94 的一半是？",
+      "canonical_answer": "47",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "94 的一半是 47",
+      "hook": "100−6 各半：50−3 = 47。",
+      "pattern": {
+        "check": "94 比 100 少 6，一半少 3。",
+        "family": [
+          "47 × 2 = 94"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "100−6 各半：50−3 = 47。"
+        },
+        {
+          "title": "47",
+          "detail": "94 的一半是 47"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-38",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "38 的一半是？",
+      "canonical_answer": "19",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "38 的一半是 19",
+      "hook": "40−2 各半：20−1 = 19。",
+      "pattern": {
+        "check": "38 的一半不是 18，也不是 20。",
+        "family": [
+          "19 × 2 = 38"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "40−2 各半：20−1 = 19。"
+        },
+        {
+          "title": "19",
+          "detail": "38 的一半是 19"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-46",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "46 的一半是？",
+      "canonical_answer": "23",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "46 的一半是 23",
+      "hook": "40+6 各半：20+3 = 23。",
+      "pattern": {
+        "check": "跨十时不要把 46 拆成 40 和 16。",
+        "family": [
+          "23 × 2 = 46"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "40+6 各半：20+3 = 23。"
+        },
+        {
+          "title": "23",
+          "detail": "46 的一半是 23"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-58",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "58 的一半是？",
+      "canonical_answer": "29",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "58 的一半是 29",
+      "hook": "60−2 各半：30−1 = 29。",
+      "pattern": {
+        "check": "58 比 60 少 2，一半少 1。",
+        "family": [
+          "29 × 2 = 58"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "60−2 各半：30−1 = 29。"
+        },
+        {
+          "title": "29",
+          "detail": "58 的一半是 29"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "half-74",
+      "domain": "halves",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "74 的一半是？",
+      "canonical_answer": "37",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "74 的一半是 37",
+      "hook": "80−6 各半：40−3 = 37。",
+      "pattern": {
+        "check": "74 的一半不是 36，也不是 38。",
+        "family": [
+          "37 × 2 = 74"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "80−6 各半：40−3 = 37。"
+        },
+        {
+          "title": "37",
+          "detail": "74 的一半是 37"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    }
+  ]
+}

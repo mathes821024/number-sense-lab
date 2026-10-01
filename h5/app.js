@@ -46,10 +46,20 @@ await loadTheme();
 // Home needs the welcome picture first; feedback pictures wait for training.
 preloadAssets([activeTheme().mascot.welcome], { priority: "high" });
 
+/** v0.4 domains have no theme picture yet: an interface glyph sits in the same tile. */
+const DOMAIN_GLYPHS = {
+  halves: "circle-half",
+  complements: "puzzle-piece",
+  cubes: "cube",
+  powers: "text-superscript",
+  special_products: "x-square",
+};
+
 /** Domain icon from the theme's asset slot; falls back to text only. */
 function domainArt(domain) {
   const art = asset(activeTheme().icons[domain] || "");
-  return `<span class="tile tile-${domain}" aria-hidden="true">${art}</span>`;
+  const glyph = DOMAIN_GLYPHS[domain] ? `<span class="tile-glyph">${icon(DOMAIN_GLYPHS[domain])}</span>` : "";
+  return `<span class="tile tile-${domain}" aria-hidden="true">${art || glyph}</span>`;
 }
 
 /**
@@ -301,13 +311,12 @@ function renderHome() {
   </section>`;
 }
 
-/** Placeholder names shown as the board shows them; every one answers 敬请期待. */
-const SOON_DOMAINS = [
-  ["cube", "立方"],
-  ["puzzle-piece", "补数"],
-  ["circles-four", "倍数与因数"],
-  ["lightbulb", "规律探索"],
-];
+/**
+ * Placeholder names shown as the board shows them; every one answers 敬请期待.
+ * v0.4: cubes and complements are released domains now, and halves replaces the
+ * old multiples-and-factors placeholder (docs/ux/04_v04_specialist_training.md §2).
+ */
+const SOON_DOMAINS = [["lightbulb", "规律探索"]];
 
 function soonButton(name, iconName, className = "soon-tile") {
   return `<button class="${className}" type="button" data-action="soon" data-soon="${name}">
@@ -316,7 +325,7 @@ function soonButton(name, iconName, className = "soon-tile") {
     </button>`;
 }
 
-/** 练习: pick one of the three real domains; the rest are placeholders. */
+/** 练习: pick one of the released domains (DOMAIN_ORDER); the rest are placeholders. */
 function renderExplore() {
   const domains = DOMAIN_ORDER.map((domain) => {
     const items = filterByDomain(domain, catalog);

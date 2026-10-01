@@ -2,7 +2,8 @@
 // WeChat DevTools automator use the same list). Found by scanning content:
 // the longest prompt per answer_type (CJK counts a full em, Latin / digits
 // ~0.6em), plus the tallest states — a fraction answer with the
-// needs_simplification nudge showing, and the longest repeating block.
+// needs_simplification nudge showing, and the longest repeating block; plus
+// the longest prompt of each v0.4 domain.
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession } from "../src/core/session.js";
 
@@ -23,6 +24,13 @@ export const VIEWPORT_CASES = [
   { name: "fraction-longest+nudge", item: longest.fraction, type: unsimplified(longest.fraction), submit: true },
   { name: "decimal-longest", item: longest.decimal, type: blockOf(longest.decimal) },
   { name: "repeating-longest", item: repeatingLongest, type: blockOf(repeatingLongest) },
+  // v0.4: the longest prompt of each new domain (all integer answers).
+  ...["halves", "complements", "cubes", "powers", "special_products"].map((domain) => {
+    const item = catalog
+      .filter((i) => i.domain === domain)
+      .reduce((best, i) => (!best || width(i.prompt) > width(best.prompt) || (width(i.prompt) === width(best.prompt) && i.canonical_answer.length > best.canonical_answer.length) ? i : best), null);
+    return { name: `${domain}-longest`, item, type: item.canonical_answer };
+  }),
 ];
 
 export function today() {

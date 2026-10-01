@@ -490,7 +490,7 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 }
 .seg-note { font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
 
-/* Topic / Domain cards: only the three current domains are real. */
+/* Topic / Domain cards: one per released domain (DOMAIN_ORDER). */
 .domains { display: grid; gap: 10px; margin-top: 18px; }
 .domain {
   display: flex;
@@ -523,6 +523,18 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
   flex: none;
 }
 .tile img { width: 100%; height: 100%; display: block; }
+/* v0.4 domains without a theme picture: the same round tile, an interface glyph inside. */
+.tile-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--tint-mint);
+  color: var(--color-brand-text);
+  font-size: 26px;
+}
 
 /* Placeholders answer 敬请期待 (07 §占位); they never start practice. */
 #explore .section-label { margin-top: 26px; }

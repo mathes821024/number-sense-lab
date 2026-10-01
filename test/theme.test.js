@@ -307,9 +307,14 @@ test("placeholders only say 敬请期待 and change nothing", () => {
   const show = section("showSoon").replace(/\/\/.*$/gm, "");
   assert.match(show, /敬请期待/);
   assert.doesNotMatch(show, /state|save|persist|render\(/);
-  for (const name of ["知识地图", "立方", "补数", "倍数与因数", "规律探索", "概念", "例题", "动画", "已掌握", "全部", "昵称", "清空练习记录", "关于数感训练场"]) {
+  for (const name of ["知识地图", "规律探索", "概念", "例题", "动画", "已掌握", "全部", "昵称", "清空练习记录", "关于数感训练场"]) {
     assert.match(appJs, new RegExp(name), `placeholder ${name}`);
   }
+  // v0.4: 立方 / 补数 are released domains, and 半数与翻倍 replaces 倍数与因数 (never both).
+  const soonList = appJs.slice(appJs.indexOf("const SOON_DOMAINS"), appJs.indexOf("function soonButton"));
+  assert.match(soonList, /\["lightbulb", "规律探索"\]/);
+  assert.doesNotMatch(soonList, /立方|补数|倍数与因数|半数与翻倍|常见幂|凑整乘积家族/);
+  assert.doesNotMatch(appJs, /倍数与因数/);
   // No 动画 preference state and no 再做一遍 (07 §占位, 05 §11/§17).
   assert.doesNotMatch(appJs, /prefs\.(animation|motion)|再做一遍/);
   assert.match(indexHtml, /id="toast" role="status"/);
