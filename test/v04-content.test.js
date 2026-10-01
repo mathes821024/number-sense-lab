@@ -82,7 +82,7 @@ test("v0.4: every one of the 51 answers is arithmetically correct (computed inde
     } else if ((m = r.id.match(/^comp-(\d+)$/))) {
       const n = Number(m[1]);
       expected = 100 - n;
-      prompt = `${n} 和几凑成 100？`;
+      prompt = `${n} + ? = 100`;
     } else if ((m = r.id.match(/^pow-(\d+)-(\d+)$/))) {
       const [a, b] = [Number(m[1]), Number(m[2])];
       expected = a ** b;
@@ -113,13 +113,19 @@ test("v0.4: all 51 are core_recall, forward, integer, empty entry_after, two fra
   }
 });
 
-test("v0.4: complements say 凑成 and never use a subtraction as the prompt", () => {
+// Owner-authorized deviation from 07 (2026-10-01): complements are asked as an
+// addition with the missing addend, 「37 + ? = 100」, never as a subtraction.
+test("v0.4: complements ask for the missing addend (a + ? = target), never a subtraction", () => {
   const comps = filterByDomain("complements", catalog);
   assert.equal(comps.length, 12);
   for (const r of comps) {
-    assert.match(r.prompt, /^\d{1,2} 和几凑成 100？$/, r.id);
-    assert.doesNotMatch(r.prompt, /[-−–]|减/, r.id);
-    assert.equal(Number(r.prompt.match(/^\d+/)[0]) + Number(r.canonical_answer), 100, r.id);
+    const m = r.prompt.match(/^(\d+) \+ \? = (\d+)$/);
+    assert.ok(m, `${r.id}: 「${r.prompt}」`);
+    assert.doesNotMatch(r.prompt, /[-−–﹣－]|减/, r.id);
+    const [a, target] = [Number(m[1]), Number(m[2])];
+    assert.equal(a + Number(r.canonical_answer), target, r.id);
+    assert.equal(target, 100, r.id);
+    assert.equal(r.id, `comp-${a}`);
   }
 });
 
@@ -157,7 +163,9 @@ test("v0.4: content JSON equals the frozen table in docs/curriculum/07_v04_relat
     const r = getRelationById(id, catalog);
     assert.ok(r, `missing ${id}`);
     assert.equal(r.tier, Number(tier), id);
-    assert.equal(r.prompt, prompt, id);
+    // Complement prompts: Owner-authorized addition form (see the complements test).
+    if (id.startsWith("comp-")) assert.equal(r.prompt, prompt.replace(/^(\d+) 和几凑成 (\d+)？$/, "$1 + ? = $2"), id);
+    else assert.equal(r.prompt, prompt, id);
     assert.equal(r.canonical_answer, answer, id);
     assert.equal(r.relation, relation, id);
     assert.equal(r.hook_type, hookType, id);
