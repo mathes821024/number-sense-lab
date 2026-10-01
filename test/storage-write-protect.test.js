@@ -8,7 +8,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createBrowserStore } from "../src/adapter/browser-store.js";
+import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { getActiveLearner, withActiveLearner } from "../src/core/store.js";
 
 const here = dirname(fileURLToPath(import.meta.url));

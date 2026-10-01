@@ -9,7 +9,7 @@ import {
   upgradeState,
   MigrationError,
 } from "../src/core/migrate.js";
-import { createBrowserStore, createLearnerId } from "../src/adapter/browser-store.js";
+import { createBrowserStore, createLearnerId } from "../app/platform/h5/browser-store.js";
 import {
   emptyState,
   getActiveLearner,

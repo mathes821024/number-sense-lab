@@ -1,0 +1,13 @@
+/*
+ * H5 only. Taro's H5 router wraps each page in `.taro_page` and paints it
+ * #fff, which hides the math-lab paper background that h5/styles.css puts on
+ * <body>. Repaint the page wrapper with the same surface (still opaque, so a
+ * page kept underneath in the router stack never shows through).
+ */
+.taro_router > .taro_page {
+  background-color: var(--surface-page);
+  background-image:
+    radial-gradient(circle at 12% 8%, var(--color-brand-mist), transparent 30%),
+    radial-gradient(circle at 88% 92%, var(--surface-warm), transparent 28%);
+  background-attachment: fixed;
+}

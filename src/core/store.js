@@ -14,6 +14,8 @@
  * }
  */
 
+import { cloneJson } from "./json-clone.js";
+
 export const STATE_VERSION = 3;
 
 /** One learner's learning record (the v2 payload, minus version). */
@@ -84,13 +86,13 @@ export function withActiveLearner(state, learner) {
 }
 
 export function createMemoryStore(initial = null) {
-  let state = initial ? structuredClone(initial) : null;
+  let state = initial ? cloneJson(initial) : null;
   return {
     read() {
-      return state ? structuredClone(state) : null;
+      return state ? cloneJson(state) : null;
     },
     write(next) {
-      state = structuredClone(next);
+      state = cloneJson(next);
     },
   };
 }
