@@ -33,7 +33,7 @@ import {
 import { listLatestOutcomes } from "../src/core/progress.js";
 import { buildMistakeBook } from "../src/core/mistakes.js";
 import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
-import { createBrowserStore, localDay } from "../src/adapter/browser-store.js";
+import { createBrowserStore, localDay } from "../app/platform/h5/browser-store.js";
 import { createCue } from "./sound.js";
 import { formatMath, repeatingHtml } from "./math-text.js";
 import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";

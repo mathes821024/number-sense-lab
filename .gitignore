@@ -7,3 +7,7 @@ node_modules/
 
 # local asset-processing scratch
 .tmp-asset/
+
+# Taro build output
+dist/
+.swc/

@@ -9,7 +9,7 @@ import {
   finishSession,
 } from "../src/core/session.js";
 import { buildA4Sheet, listPrintCandidates } from "../src/core/a4.js";
-import { createBrowserStore } from "../src/adapter/browser-store.js";
+import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { MASTERY } from "../src/core/mastery.js";
 
 function memoryStorage() {

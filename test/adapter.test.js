@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createBrowserStore } from "../src/adapter/browser-store.js";
+import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { emptyState, getActiveLearner, withActiveLearner } from "../src/core/store.js";
 import { MASTERY } from "../src/core/mastery.js";
 
