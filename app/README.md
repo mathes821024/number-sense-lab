@@ -35,3 +35,10 @@ npm run smoke:weapp   # runs dist/weapp in Node under a mocked App/Page/wx host
 3. AppID: `touristappid` (测试号) is enough for the simulator.
 4. In the simulator: 首页 → 开始今天的练习 → answer one right (short pause,
    then 2 / 10) and one wrong (relation stays, press 下一题).
+
+Automated, with the DevTools service port on (设置 → 安全设置 → 服务端口):
+
+```bash
+npm i --no-save miniprogram-automator
+node scripts/weapp-devtools-e2e.mjs   # screenshots → dist/weapp-shots/
+```
