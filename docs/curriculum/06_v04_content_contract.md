@@ -1,6 +1,8 @@
 # v0.4 内容契约
 
-状态：契约设计，供 ChatGPT Contract Gate。Owner 尚未把本文冻成 BUILD 许可。本文不改运行代码，不改 `content/` 里的生产 JSON，也不把 v0.1 历史句子改写成「从来就有八个域」。
+状态：契约设计，供 ChatGPT Contract Gate 复检。Owner 尚未把本文冻成 BUILD 许可。本 PR 不改 `src/`，也不改 `content/` 里的生产 JSON，也不把 v0.1 历史句子改写成「从来就有八个域」。
+
+BUILD 时要加 51 条内容，并扩展 `src/core/content.js` 里的目录登记。学习引擎算法不改。登记范围见 `docs/architecture/03_v04_content_compatibility.md`。
 
 权威来源：`docs/curriculum/05_v04_content_expansion_proposal.md`，已合并的提案头 `b6b02c3`。条目级字段以 `docs/curriculum/07_v04_relation_spec.md` 为准。产品范围见 `docs/product/03_v04_scope_addendum.md`。专项入口见 `docs/ux/04_v04_specialist_training.md`。数据兼容见 `docs/architecture/03_v04_content_compatibility.md`。验收见 `docs/curriculum/08_v04_acceptance.md`。
 
@@ -107,7 +109,7 @@ Strategy Fluency：半数、补数。14 条和 12 条是策略的代表题，不
 
 # 6. 发布节奏不是调度器
 
-推荐的发布顺序只是 Owner 的目录顺序：半数与翻倍，补数，立方，常见幂，凑整乘积家族。
+全部发布时，目录顺序是：平方、常用乘积、分数到小数，然后半数与翻倍、补数、立方、常见幂、凑整乘积家族。分批发布时只保留已发布的域，相对顺序不变。这是 `DOMAIN_ORDER` 的登记，不是域级解锁。
 
 一个域进入今日训练和专项，当且仅当它的内容文件被放进当前发布的目录。未放入的域不存在于目录里，卡片保持「敬请期待」。
 
