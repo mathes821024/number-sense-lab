@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { loadCoreCatalog, verifyContentCounts } from "../src/core/content.js";
-import { emptyState } from "../src/core/store.js";
+import { getActiveLearner, withActiveLearner } from "../src/core/store.js";
 import {
   startSession,
   submitAnswer,
   peekCurrent,
   finishSession,
 } from "../src/core/session.js";
-import { buildA4Sheet } from "../src/core/a4.js";
+import { buildA4Sheet, listPrintCandidates } from "../src/core/a4.js";
 import { createBrowserStore } from "../src/adapter/browser-store.js";
 import { MASTERY } from "../src/core/mastery.js";
 
@@ -23,9 +23,11 @@ function memoryStorage() {
 
 test("owner+child continuous flow: practice → wrong reappear → persist → progress → A4", () => {
   verifyContentCounts();
+  // v0.1 flow: the first answer is a wrong on an integer/decimal item
   const catalog = loadCoreCatalog();
   const browser = createBrowserStore(memoryStorage());
-  let state = browser.read();
+  const root = browser.read();
+  let state = getActiveLearner(root);
 
   let session = startSession({
     mode: "daily",
@@ -66,16 +68,18 @@ test("owner+child continuous flow: practice → wrong reappear → persist → p
     assert.equal(result.feedback.record, true);
     state = result.state;
     session = result.session;
-    browser.write(state);
+    browser.write(withActiveLearner(root, state));
   }
 
   assert.equal(sawReappear, true, "wrong item should reappear later in session");
 
   const finished = finishSession(state, session);
   state = finished.state;
-  browser.write(state);
+  browser.write(withActiveLearner(root, state));
 
-  const reloaded = browser.read();
+  const reloadedRoot = browser.read();
+  assert.equal(reloadedRoot.active_learner_id, root.active_learner_id);
+  const reloaded = getActiveLearner(reloadedRoot);
   assert.equal(reloaded.sessions.length, 1);
   assert.equal(reloaded.sessions[0].completed, true);
   assert.ok(reloaded.sessions[0].total >= 5);
@@ -86,8 +90,15 @@ test("owner+child continuous flow: practice → wrong reappear → persist → p
   );
   assert.equal(unstable, true);
 
-  const sheet = buildA4Sheet(catalog, reloaded.relations, { day: "9月29日" });
+  // Shared print selector: every practiced relation is a candidate; the sheet
+  // holds exactly what is selected (here: all candidates).
+  const candidates = listPrintCandidates(catalog, reloaded.relations);
+  assert.equal(candidates.length, Object.keys(reloaded.relations).length);
+  const sheet = buildA4Sheet(catalog, reloaded.relations, {
+    selectedIds: candidates.map((c) => c.id),
+    day: "9月29日",
+  });
   assert.equal(sheet.empty, false);
-  assert.ok(sheet.prompts.length >= 1);
+  assert.equal(sheet.prompts.length, candidates.length);
   assert.ok(sheet.answerKey.length === sheet.prompts.length);
 });

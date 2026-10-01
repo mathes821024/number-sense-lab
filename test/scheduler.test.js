@@ -6,7 +6,7 @@ import { buildSessionQueue } from "../src/core/schedule.js";
 import { loadCoreCatalog, filterByDomain } from "../src/core/content.js";
 import { startSession, submitAnswer } from "../src/core/session.js";
 import { createBrowserStore } from "../src/adapter/browser-store.js";
-import { emptyState } from "../src/core/store.js";
+import { emptyLearner, getActiveLearner, STATE_VERSION } from "../src/core/store.js";
 
 const catalog = loadCoreCatalog();
 
@@ -105,25 +105,30 @@ test("browser adapter upgrades the same key and keeps a readable v1 blob", () =>
       prefs: { sound: true },
     }),
   );
-  const store = createBrowserStore(storage, key);
-  const loaded = store.read();
+  const store = createBrowserStore(storage, key, {
+    createId: () => "learner-fixed-1",
+    today: () => "2026-09-29",
+  });
+  const root = store.read();
+  const loaded = getActiveLearner(root);
   assert.equal(store.key, key);
-  assert.equal(loaded.version, 2);
+  assert.equal(root.version, 3);
+  assert.equal(root.active_learner_id, "learner-fixed-1");
   assert.equal(loaded.relations["square-10"].status, MASTERY.LEARNING);
   assert.equal(loaded.relations["square-10"].attempts.length, 1);
   assert.equal(loaded.activeSession.id, "keep");
   assert.equal(loaded.relations["square-10"].schedule.reason, "wrong");
   assert.equal(loaded.relations["square-10"].schedule.due_day, "2026-09-29");
   const saved = JSON.parse(storage.raw(key));
-  assert.equal(saved.version, 2);
-  assert.equal(saved.relations["square-10"].attempts.length, 1);
+  assert.equal(saved.version, 3);
+  assert.equal(saved.learners["learner-fixed-1"].relations["square-10"].attempts.length, 1);
 });
 
 test("unreadable storage is not replaced with an empty record", () => {
   const storage = memoryStorage([["nsl-v01-state", "{not-json"]]);
-  const store = createBrowserStore(storage, "nsl-v01-state");
+  const store = createBrowserStore(storage, "nsl-v01-state", { createId: () => "tmp-id" });
   const loaded = store.read();
-  assert.equal(loaded.version, emptyState().version);
+  assert.equal(loaded.version, STATE_VERSION);
   assert.equal(storage.raw("nsl-v01-state"), "{not-json");
 });
 
@@ -159,7 +164,7 @@ test("same-day correction after a wrong stays at 1d", () => {
 
 test("a new day steps the ladder, and the third day becomes stable at 5d", () => {
   const item = catalog.find((entry) => entry.id === "square-15");
-  let state = emptyState();
+  let state = emptyLearner();
   let schedule;
   for (const day of ["2026-10-01", "2026-10-02", "2026-10-04"]) {
     const result = submitAnswer({
@@ -298,7 +303,7 @@ test("stable due yields while unpracticed relations can fill the session", () =>
 
 test("same-day corrects after stable-wrong do not restore stable", () => {
   const item = catalog.find((entry) => entry.id === "square-15");
-  let state = emptyState();
+  let state = emptyLearner();
   function answer(day, raw) {
     const result = submitAnswer({
       item,

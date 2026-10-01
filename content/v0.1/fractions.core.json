@@ -29,6 +29,14 @@
           "title": "0.5",
           "detail": "1/2 = 0.5"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-1-2",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-2"
+        }
       ]
     },
     {
@@ -61,6 +69,14 @@
         {
           "title": "0.25",
           "detail": "1/4 = 0.25"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-1-4",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-4"
         }
       ]
     },
@@ -95,6 +111,14 @@
           "title": "0.75",
           "detail": "3/4 = 0.75"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-3-4",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-3-4"
+        }
       ]
     },
     {
@@ -127,6 +151,14 @@
         {
           "title": "0.2",
           "detail": "1/5 = 0.2"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-1-5",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-5"
         }
       ]
     },
@@ -161,6 +193,14 @@
           "title": "0.4",
           "detail": "2/5 = 0.4"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-2-5",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-2-5"
+        }
       ]
     },
     {
@@ -193,6 +233,14 @@
         {
           "title": "0.6",
           "detail": "3/5 = 0.6"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-3-5",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-3-5"
         }
       ]
     },
@@ -227,6 +275,14 @@
           "title": "0.8",
           "detail": "4/5 = 0.8"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-4-5",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-4-5"
+        }
       ]
     },
     {
@@ -259,6 +315,19 @@
         {
           "title": "0.125",
           "detail": "1/8 = 0.125"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-1-8",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-8"
+        },
+        {
+          "id": "eighths",
+          "type": "scaling",
+          "role": "member"
         }
       ]
     },
@@ -293,6 +362,19 @@
           "title": "0.375",
           "detail": "3/8 = 0.375"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-3-8",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-3-8"
+        },
+        {
+          "id": "eighths",
+          "type": "scaling",
+          "role": "member"
+        }
       ]
     },
     {
@@ -325,6 +407,19 @@
         {
           "title": "0.625",
           "detail": "5/8 = 0.625"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-5-8",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-5-8"
+        },
+        {
+          "id": "eighths",
+          "type": "scaling",
+          "role": "member"
         }
       ]
     },
@@ -359,6 +454,19 @@
           "title": "0.875",
           "detail": "7/8 = 0.875"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-7-8",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-7-8"
+        },
+        {
+          "id": "eighths",
+          "type": "scaling",
+          "role": "member"
+        }
       ]
     },
     {
@@ -387,6 +495,14 @@
         {
           "title": "0.1",
           "detail": "1/10 = 0.1"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-1-10",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-10"
         }
       ]
     },
@@ -421,6 +537,14 @@
           "title": "0.3",
           "detail": "3/10 = 0.3"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-3-10",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-3-10"
+        }
       ]
     },
     {
@@ -453,6 +577,14 @@
         {
           "title": "0.7",
           "detail": "7/10 = 0.7"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-7-10",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-7-10"
         }
       ]
     },
@@ -487,6 +619,14 @@
           "title": "0.05",
           "detail": "1/20 = 0.05"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-1-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-20"
+        }
       ]
     },
     {
@@ -519,6 +659,14 @@
         {
           "title": "0.15",
           "detail": "3/20 = 0.15"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-3-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-3-20"
         }
       ]
     },
@@ -553,6 +701,14 @@
           "title": "0.35",
           "detail": "7/20 = 0.35"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-7-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-7-20"
+        }
       ]
     },
     {
@@ -585,6 +741,14 @@
         {
           "title": "0.45",
           "detail": "9/20 = 0.45"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-9-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-9-20"
         }
       ]
     },
@@ -619,6 +783,14 @@
           "title": "0.55",
           "detail": "11/20 = 0.55"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-11-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-11-20"
+        }
       ]
     },
     {
@@ -651,6 +823,14 @@
         {
           "title": "0.65",
           "detail": "13/20 = 0.65"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-13-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-13-20"
         }
       ]
     },
@@ -685,6 +865,14 @@
           "title": "0.04",
           "detail": "1/25 = 0.04"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-1-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-1-25"
+        }
       ]
     },
     {
@@ -717,6 +905,14 @@
         {
           "title": "0.08",
           "detail": "2/25 = 0.08"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-2-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-2-25"
         }
       ]
     },
@@ -751,6 +947,14 @@
           "title": "0.12",
           "detail": "3/25 = 0.12"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-3-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-3-25"
+        }
       ]
     },
     {
@@ -783,6 +987,14 @@
         {
           "title": "0.16",
           "detail": "4/25 = 0.16"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-4-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-4-25"
         }
       ]
     },
@@ -817,6 +1029,14 @@
           "title": "0.24",
           "detail": "6/25 = 0.24"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-6-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-6-25"
+        }
       ]
     },
     {
@@ -850,6 +1070,14 @@
           "title": "0.32",
           "detail": "8/25 = 0.32"
         }
+      ],
+      "families": [
+        {
+          "id": "fr-8-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-8-25"
+        }
       ]
     },
     {
@@ -882,6 +1110,14 @@
         {
           "title": "0.48",
           "detail": "12/25 = 0.48"
+        }
+      ],
+      "families": [
+        {
+          "id": "fr-12-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "ifraction-12-25"
         }
       ]
     }

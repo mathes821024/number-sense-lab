@@ -1,0 +1,83 @@
+/*
+ * Theme: math-lab — 澄蓝数学实验室 / Bright Number Lab (default, and the only
+ * runtime theme in v0.3). Values follow docs/ui/05_visual_system_v03.md §3–§5.
+ *
+ * Components never read these hex values directly: styles.css only uses the
+ * semantic custom properties below. A future theme pack would ship its own
+ * file with the same property names; there is no theme switcher.
+ */
+:root,
+[data-theme="math-lab"] {
+  /* color.brand.*
+     05 §3 suggests #14956A for the primary button. With #F7FBF8 text that is
+     3.6:1, below the body-text contrast 05 §3/§14 require, so the button
+     surface uses the same hue one step deeper (4.8:1). #14956A stays as the
+     bright brand for marks, tiles and the logo. */
+  --color-brand-primary: #0F7F5A;
+  --color-brand-primary-ink: #F7FBF8;
+  --color-brand-primary-deep: #0B6649;
+  --color-brand-bright: #14956A;
+  --color-brand-secondary: #7DCFB6;
+  --color-brand-tint: #E3F4EC;
+  --color-brand-mist: #EDF8F3;
+  --color-brand-text: #0E6F50;
+
+  /* color.accent.* — decoration only, never a verdict */
+  --color-accent-sun: #F5C451;
+  --color-accent-amber: #F4A261;
+  --color-accent-sky: #5B8DEF;
+  --tint-sun: #FDF1CF;
+  --tint-amber: #FCE6D3;
+  --tint-sky: #E4ECFD;
+  --tint-mint: #DFF3EA;
+
+  /* color.surface.* / color.text.* / color.border.* */
+  --surface-page: #F7F3E8;
+  --surface-card: #FFFDF8;
+  --surface-card-strong: #FFFFFF;
+  --surface-sunken: #F1EBDD;
+  --surface-warm: #FBF6E9;
+  --text-primary: #1C2430;
+  --text-secondary: #5C6670;
+  --border-subtle: #E6DCCB;
+  --border-strong: #BFB39F;
+  --color-disabled: #C9C3B8;
+  --focus-ring: #1C2430;
+
+  /* color.feedback.* — always paired with a word and a shape */
+  --feedback-correct: #1E8F5A;
+  --feedback-correct-ink: #17804F;
+  --feedback-correct-tint: #E2F3E9;
+  --feedback-wrong: #C4563A;
+  --feedback-wrong-ink: #B04A30;
+  --feedback-wrong-tint: #F8E4DD;
+  --feedback-hint: #F3EBE3;
+
+  /* radius.* */
+  --radius-button: 999px;
+  --radius-card: 24px;
+  --radius-chip: 999px;
+  --radius-input: 16px;
+  --radius-tile: 14px;
+
+  /* shadow.* */
+  --shadow-card: 0 1px 2px rgba(28, 36, 48, 0.05), 0 6px 18px rgba(28, 36, 48, 0.06);
+  --shadow-floating: 0 2px 4px rgba(28, 36, 48, 0.06), 0 10px 28px rgba(28, 36, 48, 0.10);
+  --shadow-key: 0 1px 0 rgba(28, 36, 48, 0.08), 0 2px 6px rgba(28, 36, 48, 0.05);
+  --shadow-hero: 0 18px 45px rgba(15, 127, 90, 0.12), 0 2px 8px rgba(28, 36, 48, 0.06);
+
+  /* typography */
+  --font-ui: "Nunito", "PingFang SC", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+  --font-math: "Nunito", "PingFang SC", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+
+  /* motion.* — reduced motion turns these into instant changes */
+  --motion-press: 100ms;
+  --motion-correct: 420ms;
+  --motion-wrong: 280ms;
+  --motion-transition: 240ms;
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* home decoration: faint coordinate grid on the cream paper + opacity */
+  --decor-grid: #D9CBAF38;
+  --decor-opacity: 0.55;
+}

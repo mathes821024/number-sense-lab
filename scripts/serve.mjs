@@ -4,7 +4,15 @@ import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(fileURLToPath(new URL(".", import.meta.url)), "..");
-const port = Number(process.env.PORT || 4173);
+
+// Port/host resolution: CLI flags (--port/--host) > env (PORT/HOST) > default.
+// This lets preview tooling run `npm run dev -- --port <assigned>` unchanged.
+function cliArg(flag) {
+  const i = process.argv.indexOf(flag);
+  return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : null;
+}
+const port = Number(cliArg("--port") || process.env.PORT || 4173);
+const host = cliArg("--host") || process.env.HOST || "0.0.0.0";
 const types = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -31,6 +39,6 @@ createServer((req, res) => {
   }
   res.writeHead(200, { "Content-Type": types[extname(file)] || "application/octet-stream" });
   res.end(readFileSync(file));
-}).listen(port, () => {
+}).listen(port, host, () => {
   console.log(`Number Sense Lab v0.1 → http://localhost:${port}/`);
 });

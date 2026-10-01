@@ -29,6 +29,14 @@
           "title": "36",
           "detail": "6² = 36"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-6",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-6"
+        }
       ]
     },
     {
@@ -57,6 +65,14 @@
         {
           "title": "49",
           "detail": "7² = 49"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-7",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-7"
         }
       ]
     },
@@ -91,6 +107,14 @@
           "title": "64",
           "detail": "8² = 64"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-8",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-8"
+        }
       ]
     },
     {
@@ -119,6 +143,14 @@
         {
           "title": "81",
           "detail": "9² = 81"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-9",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-9"
         }
       ]
     },
@@ -153,6 +185,14 @@
           "title": "100",
           "detail": "10² = 100"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-10",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-10"
+        }
       ]
     },
     {
@@ -186,6 +226,14 @@
           "title": "121",
           "detail": "11² = 121"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-11",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-11"
+        }
       ]
     },
     {
@@ -214,6 +262,14 @@
         {
           "title": "144",
           "detail": "12² = 144"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-12",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-12"
         }
       ]
     },
@@ -248,6 +304,14 @@
           "title": "169",
           "detail": "13² = 169"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-13",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-13"
+        }
       ]
     },
     {
@@ -280,6 +344,14 @@
         {
           "title": "196",
           "detail": "14² = 196"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-14",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-14"
         }
       ]
     },
@@ -318,6 +390,14 @@
           "title": "225",
           "detail": "15² = 225"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-15",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-15"
+        }
       ]
     },
     {
@@ -350,6 +430,14 @@
         {
           "title": "256",
           "detail": "16² = 256"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-16",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-16"
         }
       ]
     },
@@ -384,6 +472,14 @@
           "title": "289",
           "detail": "17² = 289"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-17",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-17"
+        }
       ]
     },
     {
@@ -416,6 +512,14 @@
         {
           "title": "324",
           "detail": "18² = 324"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-18",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-18"
         }
       ]
     },
@@ -450,6 +554,14 @@
           "title": "361",
           "detail": "19² = 361"
         }
+      ],
+      "families": [
+        {
+          "id": "sq-19",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-19"
+        }
       ]
     },
     {
@@ -482,6 +594,14 @@
         {
           "title": "400",
           "detail": "20² = 400"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-20",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-20"
         }
       ]
     },
@@ -519,6 +639,14 @@
         {
           "title": "625",
           "detail": "25² = 625"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-25",
+          "type": "inverse_pair",
+          "role": "forward",
+          "counterpart": "isquare-25"
         }
       ]
     }

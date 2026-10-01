@@ -9,43 +9,63 @@ import {
 } from "./mastery.js";
 import {
   buildSessionQueue,
+  buildMistakeQueue,
   nextItem,
   planWrongReappear,
   DEFAULT_SESSION_SIZE,
+  MISTAKE_BOOK_SOURCE,
 } from "./schedule.js";
 import { scheduleAfterAttempt } from "./scheduler.js";
 import { getRelationById, loadCoreCatalog, filterByDomain } from "./content.js";
 
 /**
  * @param {{
- *   mode: 'daily'|'focused',
+ *   mode: 'daily'|'focused'|'mistake_book',
  *   domain?: string|null,
  *   day: string,
  *   size?: number,
  *   catalog?: object[],
  *   relations?: Record<string, object>,
+ *   seed?: string|number,
+ *   rng?: () => number,
+ *   id?: string,
  * }} opts
  */
 export function startSession(opts) {
   const catalog = opts.catalog || loadCoreCatalog();
   const pool = filterByDomain(opts.domain || null, catalog);
-  const size = opts.size ?? DEFAULT_SESSION_SIZE;
-  const queue = buildSessionQueue(pool, opts.relations || {}, {
-    size,
-    day: opts.day,
-    interleave: opts.mode === "daily",
-  });
+  const relations = opts.relations || {};
+  const isMistake = opts.mode === MISTAKE_BOOK_SOURCE;
+  const seed = opts.seed ?? `${opts.day}|${opts.mode}|${opts.domain || ""}`;
+
+  let queue;
+  let size;
+  if (isMistake) {
+    // All current mistakes; due first. Not a fourth domain.
+    queue = buildMistakeQueue(pool, relations, { day: opts.day, seed, rng: opts.rng }).ids;
+    size = queue.length;
+  } else {
+    size = opts.size ?? DEFAULT_SESSION_SIZE;
+    queue = buildSessionQueue(pool, relations, {
+      size,
+      day: opts.day,
+      interleave: opts.mode === "daily",
+      seed,
+      rng: opts.rng,
+    });
+  }
 
   return {
-    id: `s-${opts.day}-${Date.now()}`,
+    id: opts.id || `s-${opts.day}-${Date.now()}`,
     mode: opts.mode,
+    source: isMistake ? MISTAKE_BOOK_SOURCE : "scheduler",
     domain: opts.domain || null,
     day: opts.day,
     queue,
     cursor: 0,
     answered: 0,
     correctCount: 0,
-    targetCount: Math.min(size, queue.length || size),
+    targetCount: isMistake ? queue.length : Math.min(size, queue.length || size),
     finished: queue.length === 0,
     earlyStop: false,
     reappearPlan: {},
@@ -67,7 +87,9 @@ export function submitAnswer({
   catalog = loadCoreCatalog(),
 }) {
   const judged = judgeAnswer(item, raw);
-  const feedback = feedbackFor(item, judged.kind);
+  const feedback = feedbackFor(item, judged.kind, judged);
+  // empty / invalid / needs_simplification: no attempt, no mastery, no
+  // schedule, no mistake evidence, stay on this item.
   if (!feedback.record) {
     return { judged, feedback, state, session, label: null };
   }

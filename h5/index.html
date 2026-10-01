@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-Hans" data-theme="math-lab">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>数感训练场</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+  <meta name="theme-color" content="#F7F3E8">
+  <!-- App icon: small copies of the locked brand.appIcon (07; manifest brand.appIconSmall / brand.touchIcon).
+       The page shell is not a component. The manifest is fetched early so pictures are not late. -->
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/brand/app-icon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/brand/app-icon-180.png">
+  <link rel="preload" href="../assets/themes/math-lab/manifest.json" as="fetch" type="application/json" crossorigin="anonymous">
+  <!-- Nunito (SIL OFL) for Latin and digits; Chinese uses the system stack.
+       Loaded without blocking first paint, so a slow or unreachable font host
+       only means the system font is used. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&display=swap" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="/node_modules/@phosphor-icons/web/src/regular/style.css">
+  <!-- Theme layer: math-lab is the default and only runtime theme. -->
+  <link rel="stylesheet" href="./themes/math-lab/theme.css">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <main class="stage" id="app">
     <!-- screens rendered by app.js -->
   </main>
+  <div class="toast no-print" id="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

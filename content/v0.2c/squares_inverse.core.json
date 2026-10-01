@@ -1,0 +1,750 @@
+{
+  "domain": "squares",
+  "version": "0.2.0",
+  "relations": [
+    {
+      "id": "isquare-6",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 36？",
+      "canonical_answer": "6",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "6² = 36",
+      "hook": "六六三十六，小九九老朋友。",
+      "pattern": {
+        "check": "36 在 25（5²）和 49（7²）之间。",
+        "family": [
+          "7² = 49",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 36",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "6 × 6",
+          "detail": "小九九里的六六三十六"
+        },
+        {
+          "title": "36",
+          "detail": "6² = 36"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-6",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-6"
+        }
+      ],
+      "entry_after": "square-6"
+    },
+    {
+      "id": "isquare-7",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 49？",
+      "canonical_answer": "7",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "7² = 49",
+      "hook": "七七四十九，小九九老朋友。",
+      "pattern": {
+        "check": "49 在 36（6²）和 64（8²）之间。",
+        "family": [
+          "6² = 36",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 49",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "7 × 7",
+          "detail": "小九九里的七七四十九"
+        },
+        {
+          "title": "49",
+          "detail": "7² = 49"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-7",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-7"
+        }
+      ],
+      "entry_after": "square-7"
+    },
+    {
+      "id": "isquare-8",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 64？",
+      "canonical_answer": "8",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "8² = 64",
+      "hook": "八八六十四，小九九老朋友。",
+      "pattern": {
+        "check": "64 在 49（7²）和 81（9²）之间。",
+        "family": [
+          "2⁶ = 64",
+          "16² = 256"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 64",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "8 × 8",
+          "detail": "八八六十四"
+        },
+        {
+          "title": "64 = 2⁶",
+          "detail": "2 连乘 6 次也是 64"
+        },
+        {
+          "title": "64",
+          "detail": "8² = 64"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-8",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-8"
+        }
+      ],
+      "entry_after": "square-8"
+    },
+    {
+      "id": "isquare-9",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 81？",
+      "canonical_answer": "9",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "9² = 81",
+      "hook": "九九八十一，小九九老朋友。",
+      "pattern": {
+        "check": "81 在 64（8²）和 100（10²）之间。",
+        "family": [
+          "8² = 64",
+          "10² = 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 81",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "9 × 9",
+          "detail": "小九九里的九九八十一"
+        },
+        {
+          "title": "81",
+          "detail": "9² = 81"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-9",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-9"
+        }
+      ],
+      "entry_after": "square-9"
+    },
+    {
+      "id": "isquare-10",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 100？",
+      "canonical_answer": "10",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "10² = 100",
+      "hook": "整百想整十：10² = 100。",
+      "pattern": {
+        "check": "整十的平方一定是整百。",
+        "family": [
+          "20² = 400",
+          "30² = 900"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 100",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "1² = 1",
+          "detail": "先算十位的平方"
+        },
+        {
+          "title": "1 | 00",
+          "detail": "后面接两个 0"
+        },
+        {
+          "title": "100",
+          "detail": "10² = 100"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-10",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-10"
+        }
+      ],
+      "entry_after": "square-10"
+    },
+    {
+      "id": "isquare-15",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 225？",
+      "canonical_answer": "15",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "15² = 225",
+      "hook": "225 以 25 结尾，想尾 5 的平方：15² = 225。",
+      "pattern": {
+        "check": "末位是 5 的整数平方，一定以 25 结尾。225 在 100 和 400 之间。",
+        "family": [
+          "25² = 625",
+          "35² = 1225"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 225",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "1 × 2",
+          "detail": "先看 5 前面的 1"
+        },
+        {
+          "title": "2",
+          "detail": "1 × 2 得到前面这一截"
+        },
+        {
+          "title": "2 | 25",
+          "detail": "后面接上 25"
+        },
+        {
+          "title": "225",
+          "detail": "15² = 225"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-15",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-15"
+        }
+      ],
+      "entry_after": "square-15"
+    },
+    {
+      "id": "isquare-20",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 400？",
+      "canonical_answer": "20",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "20² = 400",
+      "hook": "整百想整十：20² = 400。",
+      "pattern": {
+        "check": "整十的平方一定是整百。",
+        "family": [
+          "10² = 100",
+          "30² = 900"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 400",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "2² = 4",
+          "detail": "先算十位的平方"
+        },
+        {
+          "title": "4 | 00",
+          "detail": "后面接两个 0"
+        },
+        {
+          "title": "400",
+          "detail": "20² = 400"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-20",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-20"
+        }
+      ],
+      "entry_after": "square-20"
+    },
+    {
+      "id": "isquare-11",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 121？",
+      "canonical_answer": "11",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "11² = 121",
+      "hook": "121 = 100 + 20 + 1：(10+1)²。",
+      "pattern": {
+        "check": "离 10 很近的数，借 10² 来算。",
+        "family": [
+          "12² = 144",
+          "21² = 441"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 121",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "10² = 100",
+          "detail": "先借整十"
+        },
+        {
+          "title": "+20 +1",
+          "detail": "加上 2×10×1 和 1²"
+        },
+        {
+          "title": "121",
+          "detail": "11² = 121"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-11",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-11"
+        }
+      ],
+      "entry_after": "square-11"
+    },
+    {
+      "id": "isquare-12",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 144？",
+      "canonical_answer": "12",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "12² = 144",
+      "hook": "直接锚住：12² = 144。",
+      "pattern": {
+        "check": "144 在 121（11²）和 169（13²）之间。",
+        "family": [
+          "11² = 121",
+          "13² = 169"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 144",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "12 × 12",
+          "detail": "没有捷径，直接提取"
+        },
+        {
+          "title": "144",
+          "detail": "12² = 144"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-12",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-12"
+        }
+      ],
+      "entry_after": "square-12"
+    },
+    {
+      "id": "isquare-13",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "reasonableness",
+      "prompt": "哪个数的平方是 169？",
+      "canonical_answer": "13",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "13² = 169",
+      "hook": "169 个位是 9：13² = 169。",
+      "pattern": {
+        "check": "169 在 144（12²）和 196（14²）之间；注意别和 14²=196 混淆。",
+        "family": [
+          "12² = 144",
+          "14² = 196"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 169",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "13 × 13",
+          "detail": "直接提取"
+        },
+        {
+          "title": "个位是 9",
+          "detail": "3×3=9，个位一定是 9"
+        },
+        {
+          "title": "169",
+          "detail": "13² = 169"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-13",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-13"
+        }
+      ],
+      "entry_after": "square-13"
+    },
+    {
+      "id": "isquare-14",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "reasonableness",
+      "prompt": "哪个数的平方是 196？",
+      "canonical_answer": "14",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "14² = 196",
+      "hook": "196 接近 200，个位是 6：14² = 196。",
+      "pattern": {
+        "check": "196 接近 200；注意别和 13²=169 混淆。",
+        "family": [
+          "13² = 169",
+          "15² = 225"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 196",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "14 × 14",
+          "detail": "接近 200"
+        },
+        {
+          "title": "个位是 6",
+          "detail": "4×4=16，个位一定是 6"
+        },
+        {
+          "title": "196",
+          "detail": "14² = 196"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-14",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-14"
+        }
+      ],
+      "entry_after": "square-14"
+    },
+    {
+      "id": "isquare-16",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 256？",
+      "canonical_answer": "16",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "16² = 256",
+      "hook": "直接锚住：16² = 256。",
+      "pattern": {
+        "check": "256 在 225（15²）和 289（17²）之间。",
+        "family": [
+          "2⁸ = 256",
+          "8² = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 256",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "16 = 2⁴",
+          "detail": "16 是 2 连乘 4 次"
+        },
+        {
+          "title": "(2⁴)² = 2⁸",
+          "detail": "平方就是指数翻倍"
+        },
+        {
+          "title": "256",
+          "detail": "16² = 256"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-16",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-16"
+        }
+      ],
+      "entry_after": "square-16"
+    },
+    {
+      "id": "isquare-25",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 625？",
+      "canonical_answer": "25",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "25² = 625",
+      "hook": "625 以 25 结尾，尾 5 平方：25² = 625。",
+      "pattern": {
+        "check": "末位是 5 的整数平方，一定以 25 结尾。625 在 400 和 900 之间。",
+        "family": [
+          "15² = 225",
+          "35² = 1225"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 625",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "2 × 3",
+          "detail": "先看 5 前面的 2"
+        },
+        {
+          "title": "6",
+          "detail": "2 × 3 得到前面这一截"
+        },
+        {
+          "title": "6 | 25",
+          "detail": "后面接上 25"
+        },
+        {
+          "title": "625",
+          "detail": "25² = 625"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-25",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-25"
+        }
+      ],
+      "entry_after": "square-25"
+    },
+    {
+      "id": "isquare-17",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "哪个数的平方是 289？",
+      "canonical_answer": "17",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "17² = 289",
+      "hook": "289 在 256 和 324 之间：17² = 289。",
+      "pattern": {
+        "check": "289 在 256（16²）和 324（18²）之间，个位是 9。",
+        "family": [
+          "16² = 256",
+          "18² = 324"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 289",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "17 × 17",
+          "detail": "夹在 256 和 324 之间"
+        },
+        {
+          "title": "个位是 9",
+          "detail": "7×7=49，个位一定是 9"
+        },
+        {
+          "title": "289",
+          "detail": "17² = 289"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-17",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-17"
+        }
+      ],
+      "entry_after": "square-17"
+    },
+    {
+      "id": "isquare-18",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 324？",
+      "canonical_answer": "18",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "18² = 324",
+      "hook": "324 = 400 − 80 + 4：(20−2)²。",
+      "pattern": {
+        "check": "离 20 很近的数，借 20² 往回算。",
+        "family": [
+          "19² = 361",
+          "20² = 400"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 324",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "20² = 400",
+          "detail": "先借 20²"
+        },
+        {
+          "title": "−80 +4",
+          "detail": "减去 2×20×2，加回 2²"
+        },
+        {
+          "title": "324",
+          "detail": "18² = 324"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-18",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-18"
+        }
+      ],
+      "entry_after": "square-18"
+    },
+    {
+      "id": "isquare-19",
+      "domain": "squares",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "哪个数的平方是 361？",
+      "canonical_answer": "19",
+      "answer_type": "integer",
+      "direction": "inverse",
+      "relation": "19² = 361",
+      "hook": "361 = 400 − 40 + 1：(20−1)²。",
+      "pattern": {
+        "check": "离 20 最近的数，借 20² 往回算。",
+        "family": [
+          "18² = 324",
+          "20² = 400"
+        ]
+      },
+      "frames": [
+        {
+          "title": "? × ? = 361",
+          "detail": "想哪个数自己乘自己"
+        },
+        {
+          "title": "20² = 400",
+          "detail": "先借 20²"
+        },
+        {
+          "title": "−40 +1",
+          "detail": "减去 2×20×1，加回 1²"
+        },
+        {
+          "title": "361",
+          "detail": "19² = 361"
+        }
+      ],
+      "families": [
+        {
+          "id": "sq-19",
+          "type": "inverse_pair",
+          "role": "inverse",
+          "counterpart": "square-19"
+        }
+      ],
+      "entry_after": "square-19"
+    }
+  ]
+}

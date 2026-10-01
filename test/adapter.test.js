@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createBrowserStore } from "../src/adapter/browser-store.js";
-import { emptyState } from "../src/core/store.js";
+import { emptyState, getActiveLearner, withActiveLearner } from "../src/core/store.js";
 import { MASTERY } from "../src/core/mastery.js";
 
 function memoryStorage() {
@@ -15,8 +15,8 @@ function memoryStorage() {
 
 test("browser adapter persists and restores learning state", () => {
   const store = createBrowserStore(memoryStorage(), "test-key");
-  const state = emptyState();
-  state.relations["fraction-1-2"] = {
+  const learner = getActiveLearner(emptyState({ learnerId: "L-1", createdOn: "2026-09-29" }));
+  learner.relations["fraction-1-2"] = {
     status: MASTERY.LEARNING,
     attempts: [
       {
@@ -28,8 +28,8 @@ test("browser adapter persists and restores learning state", () => {
       },
     ],
   };
-  store.write(state);
-  const loaded = store.read();
+  store.write(withActiveLearner(emptyState({ learnerId: "L-1", createdOn: "2026-09-29" }), learner));
+  const loaded = getActiveLearner(store.read());
   assert.equal(loaded.relations["fraction-1-2"].status, MASTERY.LEARNING);
   assert.equal(loaded.relations["fraction-1-2"].attempts[0].inputMode, "onscreen_keypad");
 });

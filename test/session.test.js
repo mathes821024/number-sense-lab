@@ -7,14 +7,14 @@ import {
   finishSession,
 } from "../src/core/session.js";
 import { loadCoreCatalog, getRelationById } from "../src/core/content.js";
-import { emptyState, createMemoryStore } from "../src/core/store.js";
+import { emptyLearner, createMemoryStore } from "../src/core/store.js";
 import { feedbackFor } from "../src/core/feedback.js";
 import { MASTERY } from "../src/core/mastery.js";
 
 const catalog = loadCoreCatalog();
 
 test("full submit path records mastery and session counts", () => {
-  let state = emptyState();
+  let state = emptyLearner();
   let session = startSession({
     mode: "daily",
     day: "2026-09-29",
@@ -51,7 +51,7 @@ test("full submit path records mastery and session counts", () => {
 
 test("empty submit does not change mastery", () => {
   const item = getRelationById("square-15", catalog);
-  const state = emptyState();
+  const state = emptyLearner();
   const session = startSession({
     mode: "focused",
     domain: "squares",
@@ -73,7 +73,7 @@ test("empty submit does not change mastery", () => {
 
 test("memory store round-trips without browser APIs", () => {
   const store = createMemoryStore();
-  const state = emptyState();
+  const state = emptyLearner();
   state.relations["square-15"] = {
     status: MASTERY.LEARNING,
     attempts: [{ correct: true, day: "2026-09-29", slow: false }],
