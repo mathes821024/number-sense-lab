@@ -141,9 +141,49 @@ test("regression 6: no 4-digit cap — long entries are accepted up to the techn
   let z = emptyFields();
   for (let i = 0; i < 40; i += 1) z = typeDigit(z, "0");
   assert.equal(z.numerator, "0");
-  assert.equal(fieldSize("12345"), "");
-  assert.equal(fieldSize("123456"), "long");
-  assert.equal(fieldSize("1234567890"), "xlong");
+  // Sizing: 1–4 digits normal; longer input takes ONE moderate step, no further tier.
+  for (const v of ["", "1", "12", "100", "1000"]) assert.equal(fieldSize(v), "", v);
+  for (const v of ["12345", "1234567890", "9".repeat(FIELD_DIGITS)]) assert.equal(fieldSize(v), "long", v);
+});
+
+test("technical guard: a blocked 16th digit is a quiet no-op in the shared flow — no crash, nothing changes", () => {
+  const { flow } = flowOver(["ifraction-1-2"]);
+  flow.focus("numerator");
+  for (const ch of "9".repeat(FIELD_DIGITS)) assert.equal(flow.input(ch), true);
+  const before = flow.view().fields;
+  assert.equal(flow.input("9"), false, "16th digit ignored");
+  assert.deepEqual(flow.view().fields, before);
+  assert.equal(flow.view().fields.numerator.length, FIELD_DIGITS);
+  // Still fully usable afterwards: erase works, the other box works, submit judges.
+  assert.equal(flow.erase(), true);
+  assert.equal(flow.view().fields.numerator.length, FIELD_DIGITS - 1);
+  flow.focus("denominator");
+  assert.equal(flow.input("2"), true);
+  assert.doesNotThrow(() => flow.submit());
+});
+
+/**
+ * fraction_fields targets common middle-school fractions. Every fraction in the
+ * catalog — every canonical answer, and every 「a/b」 anywhere in an item
+ * (prompt, relation, hook, pattern, frames) — uses short integers: at most 3
+ * digits, far below the FIELD_DIGITS technical guard. Today: canonical answers
+ * max 2 digits (12/25), anywhere max 3 digits (48/100).
+ */
+test("catalog: every fraction numerator/denominator is a short integer (≤ 3 digits), far below the technical guard", () => {
+  const re = /(\d+)\/(\d+)/g;
+  const digitsIn = (text) => [...String(text).matchAll(re)].flatMap((m) => [m[1].length, m[2].length]);
+  const fieldsAnswers = catalog.filter((r) => r.answer_type === "fraction_fields").map((r) => r.canonical_answer);
+  assert.equal(fieldsAnswers.length, 27);
+  for (const a of fieldsAnswers) assert.match(a, /^[1-9]\d{0,2}\/[1-9]\d{0,2}$/, a);
+  const canonical = catalog.flatMap((r) => digitsIn(r.canonical_answer));
+  const anywhere = catalog.flatMap((r) => digitsIn(JSON.stringify(r)));
+  assert.ok(canonical.length >= 54 && anywhere.length > canonical.length);
+  const maxCanonical = Math.max(...canonical);
+  const maxAnywhere = Math.max(...anywhere);
+  assert.ok(maxCanonical <= 3 && maxAnywhere <= 3, `max digits: canonical ${maxCanonical}, anywhere ${maxAnywhere}`);
+  assert.ok(maxAnywhere * 5 <= FIELD_DIGITS, "far below the guard");
+  assert.equal(maxCanonical, 2, "canonical fraction answers today: ≤ 2 digits (12/25)");
+  assert.equal(maxAnywhere, 3, "fractions anywhere in an item today: ≤ 3 digits (48/100)");
 });
 
 test("regression 1: leading zeros are dropped from what a box shows (02 → 2, 004 → 4); a lone 0 may stay", () => {

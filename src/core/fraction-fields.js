@@ -23,10 +23,14 @@ export const DENOMINATOR = "denominator";
 /** Stored prompt mark for the empty fraction: 「0.125 = ?/?」. Never shown as text. */
 export const BLANK_FRACTION = "?/?";
 /**
- * Technical guard, not a curriculum cap: at most 15 significant digits a box.
- * Every 15-digit integer is exactly representable as a JS Number (below
- * Number.MAX_SAFE_INTEGER, 16 digits), so judging "by integer value" stays
- * exact; and 15 digits still fit the box on a 375px-wide phone.
+ * TECHNICAL SAFETY GUARD ONLY — not a product, curriculum or UX rule, and
+ * never shown to students. fraction_fields is built for common middle-school
+ * fractions: real numerators/denominators are short integers (1–3 digits; the
+ * catalog test pins this). The guard only keeps judging exact: every 15-digit
+ * integer is below Number.MAX_SAFE_INTEGER, and Core parseFraction rejects
+ * non-safe integers, so a 16th digit is simply ignored (the key is a no-op).
+ * If future content ever needs larger integers, move judging to string/BigInt
+ * parsing — do not turn this number into a curriculum or UX limit.
  */
 export const FIELD_DIGITS = 15;
 
@@ -43,14 +47,13 @@ export function emptyFields() {
 }
 
 /**
- * Type size step for a box with many digits, so a long entry still fits the
- * box on a phone (both shells use the same steps): "" | "long" | "xlong".
+ * Box sizing is tuned for the short integers real content uses: 1–4 digits
+ * keep the normal answer size (""). Anything longer — only reachable by
+ * unusual input — takes ONE moderate step down ("long"; both shells wrap it
+ * inside the box instead of clipping). There is no further shrinking.
  */
 export function fieldSize(value) {
-  const n = String(value ?? "").length;
-  if (n > 9) return "xlong";
-  if (n > 5) return "long";
-  return "";
+  return String(value ?? "").length > 4 ? "long" : "";
 }
 
 /** Tap a box. Returns the new fields, or null when nothing changes. */

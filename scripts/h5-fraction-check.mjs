@@ -205,6 +205,22 @@ for (const [vp, w, h] of [["375x667", 375, 667], ["390x753", 390, 753], ["390x84
   }
 }
 
+// 2a. Common fractions (1–3 digits) keep the normal answer size — no shrink tier.
+for (const [vp, w, h] of [["375x667", 375, 667], ["390x753", 390, 753]]) {
+  const { ctx, page } = await resumeOn("ifraction-12-25", w, h);
+  await typeKeys(page, "48");
+  await tap(page, "denominator");
+  await typeKeys(page, "100");
+  const m = await page.evaluate(() => {
+    const fs = (f) => getComputedStyle(document.querySelector(`#answer [data-field="${f}"] .ff-digits`)).fontSize;
+    const box = (f) => document.querySelector(`#answer [data-field="${f}"]`);
+    return { n: box("numerator").getAttribute("data-value"), d: box("denominator").getAttribute("data-value"), nSize: fs("numerator"), dSize: fs("denominator"), base: getComputedStyle(box("numerator")).fontSize, long: [...document.querySelectorAll("#answer .ff-box.is-long")].length };
+  });
+  check(`common fraction ${vp}: 48 over 100 at the normal answer size (no step-down)`, m.n === "48" && m.d === "100" && m.nSize === m.base && m.dSize === m.base && m.long === 0, JSON.stringify(m));
+  await page.screenshot({ path: `${SHOTS}/h5-06b-common-48-100-${vp}.png` });
+  await ctx.close();
+}
+
 // 2b. No curriculum digit cap: 15 digits a box (the technical guard) still fit at 375 and 390 wide; the 16th is ignored.
 for (const [vp, w, h] of [["375x667", 375, 667], ["390x753", 390, 753]]) {
   const { ctx, page } = await resumeOn("ifraction-1-8", w, h);
@@ -215,9 +231,10 @@ for (const [vp, w, h] of [["375x667", 375, 667], ["390x753", 390, 753]]) {
     const r = (sel) => document.querySelector(sel).getBoundingClientRect();
     const zone = r(".practice-zone");
     const boxes = [...document.querySelectorAll("#answer .ff-box")].map((b) => ({ left: b.getBoundingClientRect().left, right: b.getBoundingClientRect().right, clipped: b.scrollWidth > b.clientWidth + 1 }));
-    return { n: document.querySelector('#answer [data-field="numerator"]').getAttribute("data-value"), d: document.querySelector('#answer [data-field="denominator"]').getAttribute("data-value"), inside: boxes.every((b) => b.left >= zone.left && b.right <= zone.right), clipped: boxes.some((b) => b.clipped), hOverflow: document.scrollingElement.scrollWidth > window.innerWidth + 0.5, go: Math.round(r('.keys [data-action="submit"]').bottom), vh: window.innerHeight };
+    const sizes = [...document.querySelectorAll("#answer .ff-digits")].map((e) => getComputedStyle(e).fontSize);
+    return { sizes, n: document.querySelector('#answer [data-field="numerator"]').getAttribute("data-value"), d: document.querySelector('#answer [data-field="denominator"]').getAttribute("data-value"), inside: boxes.every((b) => b.left >= zone.left && b.right <= zone.right), clipped: boxes.some((b) => b.clipped), hOverflow: document.scrollingElement.scrollWidth > window.innerWidth + 0.5, go: Math.round(r('.keys [data-action="submit"]').bottom), vh: window.innerHeight };
   });
-  check(`no 4-digit cap ${vp}: 5+ digits accepted, 15-digit guard, boxes fit, 提交 on screen`, m.n === "123456789012345" && m.d === "98765" && m.inside && !m.clipped && !m.hOverflow && m.go <= m.vh, JSON.stringify(m));
+  check(`no 4-digit cap ${vp}: 5+ digits accepted, 16th ignored (technical guard), one 24px step, wraps unclipped, 提交 on screen`, m.n === "123456789012345" && m.d === "98765" && m.sizes.every((x) => x === "24px") && m.inside && !m.clipped && !m.hOverflow && m.go <= m.vh, JSON.stringify(m));
   await page.screenshot({ path: `${SHOTS}/h5-07-long-digits-${vp}.png` });
   await ctx.close();
 }

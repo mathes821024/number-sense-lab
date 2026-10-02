@@ -503,9 +503,18 @@ body {
 }
 .ff-box.is-focus { border-color: var(--color-brand-primary); }
 .ff-digits { white-space: nowrap; }
-/* many digits (no curriculum cap): smaller type so the box still fits a phone */
-.ff-box.is-long .ff-digits { font-size: 22px; }
-.ff-box.is-xlong .ff-digits { font-size: 14px; }
+/* Sized for the short integers real content uses (1–4 digits: normal size).
+   Unusual long input (the 15-digit technical guard) takes one moderate step
+   down and wraps inside the box — never clipped, never shrunk further. */
+.ff-box.is-long .ff-digits {
+  font-size: 24px;
+  line-height: 1.15;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  text-align: center;
+  padding: 6px 0;
+}
 .ff-caret {
   width: 2px;
   height: 0.9em;
