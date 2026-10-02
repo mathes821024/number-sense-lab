@@ -35,6 +35,7 @@ GLYPHS = [
     "arrow-left", "printer", "plus",                          # back pills, print, 也看看其他练过的题
     "circle-half", "puzzle-piece", "cube", "text-superscript", "x-square",  # v0.4 domain tiles
     "lightbulb-filament", "notebook", "play-circle",          # 专项练习 placeholders 概念 / 例题 / 动画
+    "grid-four", "dots-nine", "equals",                       # fallback glyphs of the v0.3 domain tiles
 ]
 
 css = CSS.read_text()

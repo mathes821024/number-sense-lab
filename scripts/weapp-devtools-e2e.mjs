@@ -618,7 +618,25 @@ await step("14 专项练习: every domain card → confirm → focused set from 
   const soon = await rowTexts(page, ".soon-name");
   check(soon.join("/") === "规律探索/概念/例题/动画", `soon ${soon}`);
   check((await textOf(page, ".tab.is-on .tab-label")) === "练习", "nav 练习 on");
+  // Every tile shows something: the domain picture (PNG file) or the interface glyph — never an empty circle.
+  const tiles = [];
+  for (const t of await page.$$(".domain .tile")) {
+    const img = await t.$(".theme-img");
+    const src = img ? await img.attribute("src") : "";
+    const glyph = (await t.$(".tile-glyph .icon")) ? (await (await t.$(".tile-glyph .icon")).text()).trim() : "";
+    tiles.push(src ? `png:${src.split("/").pop()}` : glyph ? "glyph" : "EMPTY");
+  }
+  check(tiles.length === 8 && !tiles.includes("EMPTY"), `tiles ${tiles}`);
+  check(tiles.slice(0, 3).every((t) => /^png:domain-(squares|products|fractions)-192.*\.png$/.test(t)), `v0.3 tiles ${tiles.slice(0, 3)}`);
   await shot("25-explore");
+  await mp.pageScrollTo(400);
+  await sleep(600);
+  await shot("25b-explore-more");
+  await mp.pageScrollTo(2000);
+  await sleep(600);
+  await shot("25c-explore-end");
+  await mp.pageScrollTo(0);
+  await sleep(300);
   const sets = [];
   for (const [n, domain] of DOMAIN_ORDER.entries()) {
     if (n) page = await relaunch("/pages/explore/index");
@@ -638,7 +656,7 @@ await step("14 专项练习: every domain card → confirm → focused set from 
     if (n >= 3) await shot(`27-${n + 1}-train-${domain}`);
     sets.push(`${LABELS[n]} ${s.queue.length}`);
   }
-  return `${names.join("/")}; 敬请期待 only ${soon.join("/")}; focused sets ${sets.join(", ")} — each from its own domain`;
+  return `${names.join("/")}; tiles ${tiles.join(",")}; 敬请期待 only ${soon.join("/")}; focused sets ${sets.join(", ")} — each from its own domain`;
 });
 
 phase = "teardown";

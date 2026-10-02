@@ -13,8 +13,16 @@ import { buildMistakeBook } from "../../src/core/mistakes.js";
 import { listLatestOutcomes } from "../../src/core/progress.js";
 import { buildA4Sheet, buildPrintSelector } from "../../src/core/a4.js";
 
-/** v0.4 domains have no theme picture yet: an interface glyph sits in the same tile (h5 DOMAIN_GLYPHS). */
+/**
+ * The interface glyph in a domain's tile when the client has no picture for it.
+ * v0.4 domains have no theme picture yet, so theirs always shows (h5
+ * DOMAIN_GLYPHS); the v0.3 three have pictures on both clients and keep a
+ * glyph only as a fallback, so no tile is ever an empty circle.
+ */
 export const DOMAIN_GLYPHS = Object.freeze({
+  squares: "grid-four",
+  products: "dots-nine",
+  fraction_decimal: "equals",
   halves: "circle-half",
   complements: "puzzle-piece",
   cubes: "cube",

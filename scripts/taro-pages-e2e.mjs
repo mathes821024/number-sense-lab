@@ -122,11 +122,12 @@ for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]
     await page.waitForSelector(V('[data-testid="home"]'));
     await page.click(V('[data-action="explore"]'));
     await settle("explore");
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="explore"] .tile-art img')].every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 5000 });
     const v = await page.evaluate(() => {
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
       return {
         title: root.querySelector(".title").textContent,
-        domains: [...root.querySelectorAll(".domain")].map((d) => ({ id: d.dataset.domain, name: d.querySelector(".domain-name").textContent, sub: d.querySelector(".domain-sub").textContent, pic: Boolean(d.querySelector(".tile-art")), glyph: Boolean(d.querySelector(".tile-glyph .icon, .tile-glyph [class*=ph-]")) })),
+        domains: [...root.querySelectorAll(".domain")].map((d) => ({ id: d.dataset.domain, name: d.querySelector(".domain-name").textContent, sub: d.querySelector(".domain-sub").textContent, pic: Boolean(d.querySelector(".tile-art")), glyph: Boolean(d.querySelector(".tile-glyph .icon") && d.querySelector(".tile-glyph .icon").textContent.trim() && d.querySelector(".tile-glyph .icon").getBoundingClientRect().width > 4), picOk: [...d.querySelectorAll(".tile-art img")].some((i) => i.complete && i.naturalWidth > 0) })),
         soon: [...root.querySelectorAll(".soon-tile, .soon-chip")].map((s) => s.dataset.soon),
         segSoon: [...root.querySelectorAll(".seg[data-action=soon]")].map((s) => s.dataset.soon),
       };
@@ -134,7 +135,8 @@ for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]
     check(v.domains.map((d) => d.id).join() === DOMAIN_ORDER.join(), `order ${v.domains.map((d) => d.id)}`);
     check(v.domains.map((d) => d.name).join() === LABELS.join(), `names ${v.domains.map((d) => d.name)}`);
     check(v.domains.every((d) => d.sub.trim().length > 0), "every card has its summary");
-    check(v.domains.slice(0, 3).every((d) => d.pic), "v0.3 domains keep their pictures");
+    check(v.domains.slice(0, 3).every((d) => d.pic && d.picOk), "v0.3 domains keep their pictures (loaded)");
+    check(v.domains.every((d) => (d.pic && d.picOk) || d.glyph), `an empty tile: ${v.domains.filter((d) => !(d.pic && d.picOk) && !d.glyph).map((d) => d.id)}`);
     check(v.soon.join("/") === "规律探索/概念/例题/动画", `soon ${v.soon}`);
     check((await navOn()) === "练习", `nav on ${await navOn()}`);
     const lay = await layout("explore", "explore");
@@ -146,7 +148,7 @@ for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]
     await toEnd();
     await page.waitForTimeout(150);
     await shot("01b-explore-more");
-    return `「${v.title}」 ${v.domains.map((d) => d.name).join("/")}; 敬请期待 only ${v.soon.join("/")} (+ segment ${v.segSoon.join("/")}); nav 练习 on; ${lay}`;
+    return `「${v.title}」 ${v.domains.map((d) => `${d.name}[${d.pic ? "pic" : "glyph"}]`).join("/")}; 敬请期待 only ${v.soon.join("/")} (+ segment ${v.segSoon.join("/")}); nav 练习 on; ${lay}`;
   });
 
   for (const [n, domain] of DOMAIN_ORDER.entries()) {

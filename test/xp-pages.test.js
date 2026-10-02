@@ -84,7 +84,7 @@ test("专项练习: one card per released domain, in DOMAIN_ORDER, with the exac
   }
   // v0.3 domains keep their pictures; v0.4 domains use a glyph in the same tile.
   assert.deepEqual(Object.keys(DOMAIN_SLOTS), ["squares", "products", "fraction_decimal"]);
-  assert.deepEqual(Object.keys(DOMAIN_GLYPHS), ["halves", "complements", "cubes", "powers", "special_products"]);
+  assert.deepEqual(Object.keys(DOMAIN_GLYPHS), DOMAIN_ORDER, "every domain has a fallback glyph: never an empty tile");
 });
 
 test("专项练习: only 规律探索 / 概念 / 例题 / 动画 stay 敬请期待", () => {
@@ -97,6 +97,22 @@ test("专项练习: every icon the pages name is in the embedded subset", () => 
   const glyphs = read("app/components/icon/glyphs.js");
   const names = [...Object.values(DOMAIN_GLYPHS), ...[...SOON_DIRECTIONS, ...SOON_EXTRAS].map((s) => s.icon), "arrow-left", "printer", "plus"];
   for (const n of names) assert.ok(glyphs.includes(`"${n}"`), `glyph ${n}`);
+});
+
+test("domain tiles: H5 and the Mini Program fill the same domain.* slots; WeChat uses PNG files, never SVG", () => {
+  const slotsOf = (f) => [...read(f).matchAll(/"(domain\.\w+)": \{ src: \w+, manifestKey: "([\w.]+)" \}/g)].map((m) => [m[1], m[2]]);
+  const h5 = slotsOf("app/platform/h5/theme-assets.js");
+  const wx = slotsOf("app/platform/wechat/theme-assets.js");
+  const want = Object.values(DOMAIN_SLOTS);
+  assert.deepEqual(h5.map(([s]) => s), want);
+  assert.deepEqual(wx.map(([s]) => s), want);
+  for (const [, key] of wx) assert.match(key, /Png$/, key);
+  assert.match(read("app/platform/wechat/theme-assets.js"), /domain-squares-192\.png/);
+  // A tile draws the picture when the client has the slot, else the glyph: never empty.
+  const tile = read("app/components/DomainTile.jsx");
+  assert.match(tile, /hasArt \? \(/);
+  assert.match(tile, /<Icon name=\{glyph\} \/>/);
+  for (const c of exploreView({ relations: {} }, catalog)) assert.ok(c.glyph, `${c.domain} glyph`);
 });
 
 test("focus confirm: a released domain only; anything else is null", () => {

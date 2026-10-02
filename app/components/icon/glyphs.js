@@ -22,4 +22,7 @@ export const GLYPHS = Object.freeze({
   "lightbulb-filament": "\u{e63c}",
   "notebook": "\u{e34e}",
   "play-circle": "\u{e3d2}",
+  "grid-four": "\u{e296}",
+  "dots-nine": "\u{e1fc}",
+  "equals": "\u{e21c}",
 });
