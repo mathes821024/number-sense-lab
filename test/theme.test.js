@@ -41,9 +41,11 @@ const REQUIRED_ASSETS = [
   "brand.appIcon",
   "brand.avatar",
   "logo.mark",
-  "domain.squares",
+  // Domain slots are `domain.<domain_id>` (07). Only these two have a file in the pack;
+  // domain.squares has none (its v0.3 picture is a cube: 05 §5) and, like the five
+  // v0.4 domains, gets its interface glyph (07: 缺文件时可用形状顶上).
   "domain.products",
-  "domain.fractions",
+  "domain.fraction_decimal",
   "decor.cloud1",
   "decor.cloud2",
   "decor.hill",
@@ -145,8 +147,11 @@ test("every locked slot resolves through the manifest to a project-local file", 
       assert.match(html, new RegExp(`<img src="[^"]+mascot-${pose}-512\\.png" srcset="[^"]+-512\\.png 512w, [^"]+mascot-${pose}\\.png 1024w"`));
     }
     for (const [domain, slot] of Object.entries(mathLabTheme.icons)) {
-      assert.match(asset(slot), /^<img [^>]*alt=""/, `icon for ${domain}`);
+      assert.equal(slot, `domain.${domain}`, `${domain} slot name`);
+      if (["products", "fraction_decimal"].includes(domain)) assert.match(asset(slot), /^<img [^>]*alt=""/, `icon for ${domain}`);
+      else assert.equal(asset(slot), "", `${domain}: no file, the glyph stands in`);
     }
+    assert.equal(Object.keys(mathLabTheme.icons).length, 8);
     assert.equal(asset("mascot.not-in-this-theme"), "", "missing optional asset falls back to nothing");
     // A manifest for another theme is refused, so no pictures rather than wrong ones.
     assert.equal(useManifest({ id: "space", assets: {} }), false);
@@ -307,13 +312,12 @@ test("placeholders only say 敬请期待 and change nothing", () => {
   const show = section("showSoon").replace(/\/\/.*$/gm, "");
   assert.match(show, /敬请期待/);
   assert.doesNotMatch(show, /state|save|persist|render\(/);
-  for (const name of ["知识地图", "规律探索", "概念", "例题", "动画", "已掌握", "全部", "昵称", "清空练习记录", "关于数感训练场"]) {
+  for (const name of ["知识地图", "已掌握", "全部", "昵称", "清空练习记录", "关于数感训练场"]) {
     assert.match(appJs, new RegExp(name), `placeholder ${name}`);
   }
-  // v0.4: 立方 / 补数 are released domains, and 半数与翻倍 replaces 倍数与因数 (never both).
-  const soonList = appJs.slice(appJs.indexOf("const SOON_DOMAINS"), appJs.indexOf("function soonButton"));
-  assert.match(soonList, /\["lightbulb", "规律探索"\]/);
-  assert.doesNotMatch(soonList, /立方|补数|倍数与因数|半数与翻倍|常见幂|凑整乘积家族/);
+  // 05: 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图 and are not 敬请期待 cards on the practice page.
+  const explore = appJs.slice(appJs.indexOf("function renderExplore"), appJs.indexOf("function renderFocusConfirm"));
+  assert.doesNotMatch(explore, /规律探索|概念|例题|动画|SOON_DOMAINS|soonButton/);
   assert.doesNotMatch(appJs, /倍数与因数/);
   // No 动画 preference state and no 再做一遍 (07 §占位, 05 §11/§17).
   assert.doesNotMatch(appJs, /prefs\.(animation|motion)|再做一遍/);

@@ -948,28 +948,33 @@ body {
 .seg-name { display: block; }
 .seg-note { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
 
-/* Topic / Domain cards: one per released domain (DOMAIN_ORDER). */
-.domains { display: flex; flex-direction: column; margin-top: 18px; }
-.domain {
+/* 主题训练: grouped two-column cards (docs/ux/05_specialist_grouped_grid.md).
+   Light group headings (navigation only), two columns on every width; a group's
+   odd last card stays in the left column and is never stretched. Cards stay on
+   color.surface.card; the group tint lives only under the icon (05 §7). */
+.practice-groups { margin-top: 6px; }
+.practice-group { margin-top: 22px; }
+.practice-group-title { margin-bottom: 10px; }
+.practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-gap: 12px; gap: 12px; }
+.practice-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   box-sizing: border-box;
-  width: 100%;
-  min-height: 76px;
-  padding: 12px 14px;
+  min-width: 0;
+  min-height: 128px;
+  padding: 14px;
   border: 1PX solid var(--border-subtle);
   border-radius: var(--radius-card);
-  background: var(--surface-card-strong);
+  background: var(--surface-card);
   box-shadow: var(--shadow-card);
   color: var(--text-primary);
   cursor: pointer;
 }
-.domain + .domain { margin-top: 10px; }
-.domain:active, .domain-pressed { transform: translateY(1px); }
-.domain .tile { margin-right: 14px; }
-.domain-copy { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.domain-name { font-size: 17px; font-weight: 800; }
-.domain-sub { margin-top: 2px; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+.practice-card:active, .practice-card-pressed { transform: translateY(1px); }
+.practice-card .tile { margin-bottom: 10px; }
+.practice-name { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
+.practice-status { display: block; margin-top: 4px; font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--text-secondary); }
 .tile {
   display: flex;
   align-items: center;
@@ -988,69 +993,15 @@ body {
   height: 52px;
   border-radius: 50%;
   background: var(--tint-mint);
-  color: var(--color-brand-text);
+  color: var(--text-primary);
   font-size: 26px;
 }
+/* Group tint under the icon only (05 §7): 幂与乘方 sky, 乘法与凑整 amber, 数与分数 mint (brand.secondary). */
+.tile.tone-sky .tile-glyph { background: var(--tint-sky); }
+.tile.tone-amber .tile-glyph { background: var(--tint-amber); }
+.tile.tone-mint .tile-glyph { background: var(--tint-mint); }
 
-/* Placeholders answer 敬请期待 (07 §占位); they never start practice. */
 .screen .section-label { margin-top: 26px; }
-.soon { display: grid; grid-template-columns: repeat(2, 1fr); grid-gap: 10px; gap: 10px; margin-top: 12px; }
-.soon-tile {
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 64px;
-  padding: 10px 12px;
-  border: 1.5px dashed var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-.soon-tile .soon-icon { margin-right: 10px; }
-.soon-copy { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
-.soon-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--surface-sunken);
-  color: var(--text-secondary);
-  font-size: 22px;
-}
-.soon-name { display: block; font-size: 15px; font-weight: 800; }
-.soon-badge {
-  display: block;
-  margin-top: 4px;
-  padding: 2px 8px;
-  border-radius: var(--radius-chip);
-  background: var(--surface-sunken);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-.soon-row { display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 8px; gap: 8px; margin-top: 14px; }
-.soon-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  min-height: 84px;
-  padding: 10px 4px;
-  border: 1PX solid var(--border-subtle);
-  border-radius: var(--radius-input);
-  background: var(--surface-card-strong);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-.soon-chip .soon-icon { width: 34px; height: 34px; margin-bottom: 4px; font-size: 18px; }
-.soon-chip .soon-copy { align-items: center; }
-.soon-chip .soon-name { font-size: 13px; }
 
 /* Focused-practice entry: a tinted brand panel, not another white card. */
 .focus-card {

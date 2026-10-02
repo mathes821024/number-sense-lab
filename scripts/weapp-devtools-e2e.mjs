@@ -33,6 +33,14 @@ const { startSession } = await import(`${REPO}/src/core/session.js`);
 const { DOMAIN_ORDER } = await import(`${REPO}/src/core/content.js`);
 const { pagesSeed } = await import(`${REPO}/scripts/pages-seed.mjs`);
 const LABELS = ["平方", "常用乘积", "分数到小数", "半数与翻倍", "补数", "立方", "常见幂", "凑整乘积家族"];
+// docs/ux/05_specialist_grouped_grid.md §2: heading, tint, cards in reading order.
+const GRID_GROUPS = [
+  ["幂与乘方", "sky", ["平方", "立方", "常见幂"]],
+  ["乘法与凑整", "amber", ["常用乘积", "凑整乘积家族"]],
+  ["数与分数", "mint", ["分数到小数", "半数与翻倍", "补数"]],
+];
+const GRID_ORDER = GRID_GROUPS.flatMap(([, , cards]) => cards);
+const STATUS_WORDS = ["还没怎么练", "正在熟悉", "有几题要再巩固", "大多已经很稳"];
 const catalog = loadCoreCatalog();
 const byId = new Map(catalog.map((i) => [i.id, i]));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -229,7 +237,7 @@ await step("1 Home", async () => {
   await sleep(1500);
   const ex = await mp.currentPage();
   check(ex.path === "pages/explore/index", `专项练习 → ${ex.path}`);
-  const domains = (await ex.$$(".domain-name")).length;
+  const domains = (await ex.$$(".practice-name")).length;
   check(domains === 8, `domains ${domains}`);
   await shot("01b-home-explore");
   page = await freshHome();
@@ -642,67 +650,102 @@ await step("13 viewing pages leaves the record untouched", async () => {
   return "nsl-v01-state byte-identical after 错题本 / 印到纸上 / 最近练得怎么样";
 });
 
-await step("14 专项练习: every domain card → confirm → focused set from that domain only", async () => {
+await step("14 专项练习 · 主题训练 grouped grid: 3 headings, 2 columns, every card an icon → its own domain only", async () => {
   page = await relaunch("/pages/mistakes/index");
   await tapText(page, ".tab", "练习");
   await sleep(1500);
   page = await mp.currentPage();
   check(page.path === "pages/explore/index", `tab 练习 → ${page.path}`);
-  const names = await rowTexts(page, ".domain-name");
-  check(names.join("/") === LABELS.join("/"), `names ${names}`);
-  const soon = await rowTexts(page, ".soon-name");
-  check(soon.join("/") === "规律探索/概念/例题/动画", `soon ${soon}`);
   check((await textOf(page, ".tab.is-on .tab-label")) === "练习", "nav 练习 on");
-  // Every tile shows something: the domain picture (PNG file) or the interface glyph — never an empty circle.
+  // 05 §2: three light navigation headings, in order, each over its cards.
+  const heads = await rowTexts(page, ".practice-group-title");
+  check(heads.join("/") === GRID_GROUPS.map(([h]) => h).join("/"), `group headings ${heads}`);
+  const groups = await page.$$(".practice-group");
+  check(groups.length === 3, `${groups.length} groups`);
+  const geo = [];
   const tiles = [];
-  for (const t of await page.$$(".domain .tile")) {
-    const img = await t.$(".theme-img");
-    const src = img ? await img.attribute("src") : "";
-    const glyph = (await t.$(".tile-glyph .icon")) ? (await (await t.$(".tile-glyph .icon")).text()).trim() : "";
-    tiles.push(src ? `png:${src.split("/").pop()}` : glyph ? "glyph" : "EMPTY");
+  const order = [];
+  for (const [gi, g] of groups.entries()) {
+    const cards = await g.$$(".practice-card");
+    const names = [];
+    const boxes = [];
+    for (const c of cards) {
+      names.push((await (await c.$(".practice-name")).text()).trim());
+      const st = (await (await c.$(".practice-status")).text()).trim();
+      check(STATUS_WORDS.includes(st), `${names[names.length - 1]} status 「${st}」`);
+      const o = await c.offset();
+      const z = await c.size();
+      boxes.push({ left: Math.round(o.left), top: Math.round(o.top), w: Math.round(z.width), h: Math.round(z.height) });
+      // Every tile shows something: the slot's PNG file or the interface glyph — never empty, never 平方's old cube.
+      const t = await c.$(".tile");
+      const cls = (await t.attribute("class")) || "";
+      const img = await t.$(".theme-img");
+      const src = img ? await img.attribute("src") : "";
+      const glyph = (await t.$(".tile-glyph .icon")) ? (await (await t.$(".tile-glyph .icon")).text()).trim() : "";
+      tiles.push(`${names[names.length - 1]}:${src ? `png:${src.split("/").pop()}` : glyph ? "glyph" : "EMPTY"}:${(cls.match(/tone-(\w+)/) || [])[1] || "notone"}`);
+      check(!src || /\.png$/.test(src), `WeChat tile is a PNG file, not SVG (${src})`);
+      check(!/domain-squares/.test(src), "平方 never shows the cube");
+      check(cls.includes(`tone-${GRID_GROUPS[gi][1]}`), `${names[names.length - 1]} tint ${cls}`);
+    }
+    check(names.join("/") === GRID_GROUPS[gi][2].join("/"), `group ${heads[gi]} cards ${names}`);
+    // Two columns: 1st left, 2nd right on the same row; an odd 3rd card sits under the 1st, same width (never stretched).
+    check(boxes[1].left > boxes[0].left + boxes[0].w - 1 && Math.abs(boxes[1].top - boxes[0].top) <= 1, `${heads[gi]} row 1 ${JSON.stringify(boxes)}`);
+    check(Math.abs(boxes[0].w - boxes[1].w) <= 1 && boxes[0].h >= 44 && boxes[0].w >= 44, `${heads[gi]} card size ${JSON.stringify(boxes)}`);
+    if (boxes[2]) check(Math.abs(boxes[2].left - boxes[0].left) <= 1 && Math.abs(boxes[2].w - boxes[0].w) <= 1 && boxes[2].top > boxes[0].top + boxes[0].h - 1, `${heads[gi]} 3rd card ${JSON.stringify(boxes)}`);
+    geo.push(`${heads[gi]} ${boxes.map((x) => `${x.left},${x.top} ${x.w}×${x.h}`).join(" | ")}`);
+    order.push(...names);
   }
-  check(tiles.length === 8 && !tiles.includes("EMPTY"), `tiles ${tiles}`);
-  check(tiles.slice(0, 3).every((t) => /^png:domain-(squares|products|fractions)-192.*\.png$/.test(t)), `v0.3 tiles ${tiles.slice(0, 3)}`);
+  check(!tiles.some((t) => t.includes(":EMPTY:")), `tiles ${tiles}`);
+  // 05 §1: no 敬请期待 cards on the practice page; 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图.
+  for (const sel of [".soon-tile", ".soon-chip", ".soon-name", ".section-label"]) check(!(await has(page, sel)), `no ${sel}`);
   await shot("25-explore");
-  const chips0 = await page.$$(".soon-chip");
-  const last0 = chips0[chips0.length - 1];
-  const lastPageBottom = (await last0.offset()).top + (await last0.size()).height; // at scroll 0: page = viewport coordinates
+  const all = await page.$$(".practice-card");
+  const lastCard = all[all.length - 1];
+  const lastPageBottom = (await lastCard.offset()).top + (await lastCard.size()).height; // at scroll 0: page = viewport coordinates
   await mp.pageScrollTo(400);
   await sleep(600);
   await shot("25b-explore-more");
   await mp.pageScrollTo(2000);
   await sleep(600);
   await shot("25c-explore-end");
-  // At full scroll the last row clears the fixed nav (the page reserves the bottom safe-area inset too).
   const winH = (await mp.systemInfo()).windowHeight;
   const navH = (await (await page.$(".tabbar")).size()).height;
   const scrollTop = await page.scrollTop();
   check(scrollTop > 0, `page did not scroll (${scrollTop})`);
   const lastBottom = Math.round(lastPageBottom - scrollTop);
-  check(lastBottom <= Math.round(winH - navH) + 1, `last row ${lastBottom} under the nav (top ${Math.round(winH - navH)})`);
+  check(lastBottom <= Math.round(winH - navH) + 1, `last card ${lastBottom} under the nav (top ${Math.round(winH - navH)})`);
   endClear = `${lastBottom} ≤ ${Math.round(winH - navH)}`;
   await mp.pageScrollTo(0);
   await sleep(300);
+  // 知识地图 only says 敬请期待 this round: no navigation, and the eight cards are not drawn again.
+  await tapText(page, ".seg", "知识地图");
+  await sleep(400);
+  const note = await textOf(page, ".toast.is-on");
+  const after = await mp.currentPage();
+  check(after.path === "pages/explore/index" && (await after.$$(".practice-card")).length === 8, `知识地图 changed the page (${after.path})`);
+  check(/敬请期待/.test(note || ""), `知识地图 notice 「${note}」`);
+  await shot("25d-knowledge-map-soon");
   const sets = [];
-  for (const [n, domain] of DOMAIN_ORDER.entries()) {
-    if (n) page = await relaunch("/pages/explore/index");
-    await (await page.$$(".domain"))[n].tap();
+  for (const [n, label] of GRID_ORDER.entries()) {
+    const domain = DOMAIN_ORDER[LABELS.indexOf(label)];
+    page = await relaunch("/pages/explore/index");
+    await (await page.$$(".practice-card"))[n].tap();
     await sleep(700);
     const t = await textOf(page, ".focus-card .title");
-    check(t === LABELS[n], `confirm ${t}`);
-    if (n === 0 || n >= 3) await shot(`26-${n + 1}-focus-${domain}`);
+    check(t === label, `card ${n + 1} → confirm 「${t}」, want 「${label}」`);
+    if (n === 0 || n === 4 || n === 7) await shot(`26-${n + 1}-focus-${domain}`);
     await tapText(page, ".cta", "开始这一小段");
     await sleep(1500);
     const tp = await mp.currentPage();
     await waitFor(tp, ".screen-train");
     const s = (await learner()).activeSession;
-    check(s.mode === "focused" && s.domain === domain, `session ${s.mode}/${s.domain}`);
+    check(s.mode === "focused" && s.domain === domain, `${label}: session ${s.mode}/${s.domain}`);
     const off = s.queue.filter((id) => byId.get(id).domain !== domain);
     check(off.length === 0, `${domain} set mixes ${off}`);
-    if (n >= 3) await shot(`27-${n + 1}-train-${domain}`);
-    sets.push(`${LABELS[n]} ${s.queue.length}`);
+    if (n === 0 || n === 4 || n === 7) await shot(`27-${n + 1}-train-${domain}`);
+    sets.push(`${label} ${s.queue.length}`);
   }
-  return `${names.join("/")}; tiles ${tiles.join(",")}; list end clears the nav (${endClear}); 敬请期待 only ${soon.join("/")}; focused sets ${sets.join(", ")} — each from its own domain`;
+  return `headings ${heads.join("/")}; grid ${order.join("/")}; ${geo.join("; ")}; tiles ${tiles.join(",")}; no 敬请期待 cards; 知识地图 → 「${note}」; list end clears the nav (${endClear}); focused sets ${sets.join(", ")} — each from its own domain`;
 });
 
 phase = "teardown";

@@ -7,43 +7,20 @@
  * listLatestOutcomes, buildPrintSelector, buildA4Sheet). Nothing here
  * decides anything about learning, and nothing is written.
  */
-import { DOMAIN_ORDER, domainLabel, filterByDomain } from "../../src/core/content.js";
-import { studentLabel, summarizeDomain } from "../../src/core/mastery.js";
+import { DOMAIN_ORDER, domainLabel } from "../../src/core/content.js";
+import { studentLabel } from "../../src/core/mastery.js";
+import { practiceCard, practiceGroups } from "../../src/core/practice-groups.js";
 import { buildMistakeBook } from "../../src/core/mistakes.js";
 import { listLatestOutcomes } from "../../src/core/progress.js";
 import { buildA4Sheet, buildPrintSelector } from "../../src/core/a4.js";
 
 /**
- * The interface glyph in a domain's tile when the client has no picture for it.
- * v0.4 domains have no theme picture yet, so theirs always shows (h5
- * DOMAIN_GLYPHS); the v0.3 three have pictures on both clients and keep a
- * glyph only as a fallback, so no tile is ever an empty circle.
+ * 专项练习 · 主题训练 is the shared grouped grid (src/core/practice-groups.js,
+ * docs/ux/05_specialist_grouped_grid.md): three navigation groups, two-column
+ * cards, one `domain.<domain_id>` slot per card with its glyph as the stand-in.
+ * h5/app.js renders the same model.
  */
-export const DOMAIN_GLYPHS = Object.freeze({
-  squares: "grid-four",
-  products: "dots-nine",
-  fraction_decimal: "equals",
-  halves: "circle-half",
-  complements: "puzzle-piece",
-  cubes: "cube",
-  powers: "text-superscript",
-  special_products: "x-square",
-});
-
-/** Theme slots of the three v0.3 domain pictures (h5 theme.icons). */
-export const DOMAIN_SLOTS = Object.freeze({
-  squares: "domain.squares",
-  products: "domain.products",
-  fraction_decimal: "domain.fractions",
-});
-
-/** Placeholders on 专项练习 — the only ones left (docs/ux/04_v04_specialist_training.md §2). */
-export const SOON_DIRECTIONS = Object.freeze([{ icon: "lightbulb", name: "规律探索" }]);
-export const SOON_EXTRAS = Object.freeze([
-  { icon: "lightbulb-filament", name: "概念" },
-  { icon: "notebook", name: "例题" },
-  { icon: "play-circle", name: "动画" },
-]);
+export { DOMAIN_GLYPHS, PRACTICE_GROUPS, domainSlot } from "../../src/core/practice-groups.js";
 
 export const FOCUS_LEDE = "只练这一块，同样是一小段，不是一直刷。";
 
@@ -51,27 +28,24 @@ function relationsOf(state) {
   return (state && state.relations) || {};
 }
 
-/** One card per released domain, in DOMAIN_ORDER. */
+/** 主题训练: the three groups with their cards (shared model; the groups are navigation only). */
 export function exploreView(state, catalog) {
-  return DOMAIN_ORDER.map((domain) => ({
-    domain,
-    label: domainLabel(domain),
-    summary: summarizeDomain(filterByDomain(domain, catalog), relationsOf(state)),
-    slot: DOMAIN_SLOTS[domain] || "",
-    glyph: DOMAIN_GLYPHS[domain] || "",
-  }));
+  return practiceGroups(catalog, relationsOf(state));
 }
 
 /** The focused-practice confirmation for one domain; null for anything that is not a released domain. */
 export function focusView(domain, state, catalog) {
-  if (!DOMAIN_ORDER.includes(domain)) return null;
+  if (typeof domain !== "string" || !DOMAIN_ORDER.includes(domain)) return null;
+  const card = practiceCard(domain, catalog, relationsOf(state));
+  if (!card.released) return null;
   return {
     domain,
-    label: domainLabel(domain),
-    summary: summarizeDomain(filterByDomain(domain, catalog), relationsOf(state)),
+    label: card.label,
+    summary: card.status,
     lede: FOCUS_LEDE,
-    slot: DOMAIN_SLOTS[domain] || "",
-    glyph: DOMAIN_GLYPHS[domain] || "",
+    slot: card.slot,
+    glyph: card.glyph,
+    tone: card.tone,
   };
 }
 

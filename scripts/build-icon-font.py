@@ -33,9 +33,10 @@ GLYPHS = [
     "lightbulb",                                              # wrong: 小提示
     "chart-line",                                             # end: 看看最近练得怎么样
     "arrow-left", "printer", "plus",                          # back pills, print, 也看看其他练过的题
-    "circle-half", "puzzle-piece", "cube", "text-superscript", "x-square",  # v0.4 domain tiles
-    "lightbulb-filament", "notebook", "play-circle",          # 专项练习 placeholders 概念 / 例题 / 动画
-    "grid-four", "dots-nine", "equals",                       # fallback glyphs of the v0.3 domain tiles
+    # Domain tiles (src/core/practice-groups.js DOMAIN_GLYPHS, 05 §5): 平方 grid-four,
+    # 立方 cube, 常见幂 text-superscript, 常用乘积 dots-nine, 凑整乘积家族 puzzle-piece,
+    # 分数到小数 equals, 半数与翻倍 intersect, 补数 chart-donut.
+    "grid-four", "cube", "text-superscript", "dots-nine", "puzzle-piece", "equals", "intersect", "chart-donut",
 ]
 
 css = CSS.read_text()

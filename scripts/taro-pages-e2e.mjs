@@ -1,5 +1,6 @@
 // Taro H5 runtime check of the pages migrated from h5/ (shared with the Mini
-// Program): 专项练习 (every domain card → its confirmation → a focused set from
+// Program): 专项练习 (the grouped two-column grid of docs/ux/05; every domain
+// card → its confirmation → a focused set from
 // that domain only), 错题本 (grouped by domain incl. the v0.4 domains, empty
 // groups hidden, fraction_fields drawn stacked), 最近练得怎么样, and the print
 // selector → A4 → answers, with print-media emulation and an A4 PDF. Each at
@@ -41,7 +42,9 @@ const V = (sel) => `${sel} >> visible=true`;
 const browser = await chromium.launch({ executablePath: CHROME, args: ["--no-sandbox"] });
 const layoutRows = [];
 
-for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]) {
+// VPS="375x603,430x932,1366x768" adds sizes (default: the two the suite always ran).
+const VPS = (process.env.VPS || "375x667,390x753").split(",").map((v) => [v, ...v.split("x").map(Number)]);
+for (const [vp, width, height] of VPS) {
   const ctx = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce" });
   const page = await ctx.newPage();
   const errors = [];
@@ -117,7 +120,7 @@ for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]
   const navOn = () => page.$eval(V(".tabbar .tab.is-on .tab-label"), (e) => e.textContent);
 
   // ---------- 专项练习 ----------
-  await step(`${vp} 1 专项练习: eight domain cards, only four placeholders`, async () => {
+  await step(`${vp} 1 专项练习 · 主题训练: grouped two-column grid, every card an icon, no 敬请期待 cards`, async () => {
     await open("home");
     await page.waitForSelector(V('[data-testid="home"]'));
     await page.click(V('[data-action="explore"]'));
@@ -127,35 +130,77 @@ for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
       return {
         title: root.querySelector(".title").textContent,
-        domains: [...root.querySelectorAll(".domain")].map((d) => ({ id: d.dataset.domain, name: d.querySelector(".domain-name").textContent, sub: d.querySelector(".domain-sub").textContent, pic: Boolean(d.querySelector(".tile-art")), glyph: Boolean(d.querySelector(".tile-glyph .icon") && d.querySelector(".tile-glyph .icon").textContent.trim() && d.querySelector(".tile-glyph .icon").getBoundingClientRect().width > 4), picOk: [...d.querySelectorAll(".tile-art img")].some((i) => i.complete && i.naturalWidth > 0) })),
-        soon: [...root.querySelectorAll(".soon-tile, .soon-chip")].map((s) => s.dataset.soon),
+        groups: [...root.querySelectorAll(".practice-group")].map((g) => ({
+          head: g.querySelector(".practice-group-title").textContent,
+          role: g.querySelector(".practice-group-title").getAttribute("role"),
+          cards: [...g.querySelectorAll(".practice-card")].map((d) => {
+            const r = d.getBoundingClientRect();
+            const tile = d.querySelector(".tile");
+            return {
+              id: d.dataset.domain,
+              name: d.querySelector(".practice-name").textContent,
+              status: d.querySelector(".practice-status").textContent,
+              aria: d.getAttribute("aria-label"),
+              tone: (tile.className.match(/tone-(\w+)/) || [])[1] || "",
+              pic: Boolean(d.querySelector(".tile-art")),
+              picSrc: (d.querySelector(".tile-art img") || {}).src || "",
+              glyph: Boolean(d.querySelector(".tile-glyph .icon") && d.querySelector(".tile-glyph .icon").textContent.trim() && d.querySelector(".tile-glyph .icon").getBoundingClientRect().width > 4),
+              picOk: [...d.querySelectorAll(".tile-art img")].some((i) => i.complete && i.naturalWidth > 0),
+              box: { l: Math.round(r.left), t: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) },
+            };
+          }),
+        })),
+        soon: [...root.querySelectorAll(".soon-tile, .soon-chip, .section-label")].length,
         segSoon: [...root.querySelectorAll(".seg[data-action=soon]")].map((s) => s.dataset.soon),
       };
     });
-    check(v.domains.map((d) => d.id).join() === DOMAIN_ORDER.join(), `order ${v.domains.map((d) => d.id)}`);
-    check(v.domains.map((d) => d.name).join() === LABELS.join(), `names ${v.domains.map((d) => d.name)}`);
-    check(v.domains.every((d) => d.sub.trim().length > 0), "every card has its summary");
-    check(v.domains.slice(0, 3).every((d) => d.pic && d.picOk), "v0.3 domains keep their pictures (loaded)");
-    check(v.domains.every((d) => (d.pic && d.picOk) || d.glyph), `an empty tile: ${v.domains.filter((d) => !(d.pic && d.picOk) && !d.glyph).map((d) => d.id)}`);
-    check(v.soon.join("/") === "规律探索/概念/例题/动画", `soon ${v.soon}`);
+    const want = [["幂与乘方", "sky", ["平方", "立方", "常见幂"]], ["乘法与凑整", "amber", ["常用乘积", "凑整乘积家族"]], ["数与分数", "mint", ["分数到小数", "半数与翻倍", "补数"]]];
+    check(JSON.stringify(v.groups.map((g) => [g.head, g.cards[0].tone, g.cards.map((c) => c.name)])) === JSON.stringify(want), `groups ${JSON.stringify(v.groups.map((g) => [g.head, g.cards.map((c) => c.name)]))}`);
+    const cards = v.groups.flatMap((g) => g.cards);
+    check(cards.length === 8 && new Set(cards.map((c) => c.id)).size === 8 && cards.every((c) => DOMAIN_ORDER.includes(c.id)), `cards ${cards.map((c) => c.id)}`);
+    for (const c of cards) {
+      check(c.name === LABELS[DOMAIN_ORDER.indexOf(c.id)], `${c.id} name ${c.name}`);
+      check(["还没怎么练", "正在熟悉", "有几题要再巩固", "大多已经很稳"].includes(c.status), `${c.name} status ${c.status}`);
+      check(c.aria === `${c.name}，${c.status}`, `${c.name} aria ${c.aria}`);
+      check((c.pic && c.picOk) || c.glyph, `${c.name}: empty tile`);
+      check(!/domain-squares/.test(c.picSrc), `${c.name}: the v0.3 cube`);
+      check(c.box.w >= 44 && c.box.h >= 44, `${c.name} target ${c.box.w}×${c.box.h}`);
+    }
+    check(v.groups.every((g) => g.role === "heading" && g.cards.every((c) => c.tone === g.cards[0].tone)), "headings + one tint per group");
+    for (const g of v.groups) {
+      const [a, b, c] = g.cards.map((x) => x.box);
+      check(b.l >= a.l + a.w - 1 && Math.abs(b.t - a.t) <= 1 && Math.abs(a.w - b.w) <= 1, `${g.head}: two columns ${JSON.stringify(g.cards.map((x) => x.box))}`);
+      if (c) check(Math.abs(c.l - a.l) <= 1 && Math.abs(c.w - a.w) <= 1 && c.t >= a.t + a.h - 1, `${g.head}: 3rd card left, not stretched ${JSON.stringify(c)}`);
+    }
+    check(v.soon === 0, "no 敬请期待 cards / 更多方向 on the practice page");
+    check(v.segSoon.join("/") === "知识地图", `segment ${v.segSoon}`);
     check((await navOn()) === "练习", `nav on ${await navOn()}`);
     const lay = await layout("explore", "explore");
     await shot("01-explore");
-    await page.click(V('.soon-tile[data-soon="规律探索"]'));
+    await page.click(V('.seg[data-soon="知识地图"]'));
     const toast = await page.textContent(V('[data-testid="toast"]'));
-    check(toast === "规律探索 · 敬请期待", `toast ${toast}`);
-    // scroll to the placeholders for the second picture
+    check(toast === "知识地图 · 敬请期待", `toast ${toast}`);
+    check((await page.$$(V(".practice-card"))).length === 8, "知识地图 does not draw the cards again");
+    // the list end clears the bottom nav
     await toEnd();
     await page.waitForTimeout(150);
+    const end = await page.evaluate(() => {
+      const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
+      const pg = root.closest(".taro_page") || document;
+      const last = [...root.querySelectorAll(".practice-card")].pop().getBoundingClientRect();
+      const nav = [...pg.querySelectorAll(".tabbar")].find((e) => e.checkVisibility()).getBoundingClientRect();
+      return { last: Math.round(last.bottom), nav: Math.round(nav.top) };
+    });
+    check(end.last <= end.nav, `last card ${end.last} under the nav ${end.nav}`);
     await shot("01b-explore-more");
-    return `「${v.title}」 ${v.domains.map((d) => `${d.name}[${d.pic ? "pic" : "glyph"}]`).join("/")}; 敬请期待 only ${v.soon.join("/")} (+ segment ${v.segSoon.join("/")}); nav 练习 on; ${lay}`;
+    return `「${v.title}」 ${v.groups.map((g) => `${g.head}: ${g.cards.map((c) => `${c.name}[${c.pic ? "pic" : "glyph"}]`).join("/")}`).join("; ")}; no 敬请期待 cards (知识地图 → 「${toast}」); end ${end.last} ≤ nav ${end.nav}; ${lay}`;
   });
 
   for (const [n, domain] of DOMAIN_ORDER.entries()) {
     await step(`${vp} 2.${n + 1} ${LABELS[n]} card → confirm → focused set`, async () => {
       await open("explore");
       await settle("explore");
-      await page.click(V(`.domain[data-domain="${domain}"]`));
+      await page.click(V(`.practice-card[data-domain="${domain}"]`));
       await settle("focus-confirm");
       const c = await page.evaluate(() => {
         const r = [...document.querySelectorAll('[data-testid="focus-confirm"]')].find((e) => e.checkVisibility());
@@ -387,7 +432,7 @@ for (const [vp, width, height] of [["375x667", 375, 667], ["390x753", 390, 753]]
     await settle("a4");
     await page.click(V('.tabbar [data-tab="explore"]'));
     await settle("explore");
-    await page.click(V('.domain[data-domain="cubes"]'));
+    await page.click(V('.practice-card[data-domain="cubes"]'));
     await settle("focus-confirm");
     const r = await stored();
     check(JSON.stringify(r) === RAW, "stored record changed by viewing pages");

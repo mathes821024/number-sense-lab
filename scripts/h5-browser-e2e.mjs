@@ -122,7 +122,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     // 专项练习 is a page now (no longer 敬请期待): eight domain cards, then back to 首页 by the bottom entry.
     await page.click('[data-action="explore"]');
     await page.waitForSelector('[data-testid="explore"]:visible');
-    const domains = await page.$$eval('[data-testid="explore"] .domain', (els) => els.filter((e) => e.checkVisibility()).length);
+    const domains = await page.$$eval('[data-testid="explore"] .practice-card', (els) => els.filter((e) => e.checkVisibility()).length);
     check(domains === 8, `domains ${domains}`);
     await page.click('.tabbar:visible [data-tab="home"]');
     await page.waitForSelector('[data-testid="home"]:visible');

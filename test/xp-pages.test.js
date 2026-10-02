@@ -21,10 +21,7 @@ import {
   printSource,
   a4View,
   formatDay,
-  SOON_DIRECTIONS,
-  SOON_EXTRAS,
   DOMAIN_GLYPHS,
-  DOMAIN_SLOTS,
   PRINT_NOTE,
   NO_PRINT_NOTE,
 } from "../app/pages/models.js";
@@ -37,6 +34,9 @@ import { DOMAIN_ORDER, loadCoreCatalog, getRelationById } from "../src/core/cont
 import { MASTERY } from "../src/core/mastery.js";
 import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { defaultPrintSelection } from "../src/core/a4.js";
+import { summarizeDomain } from "../src/core/mastery.js";
+import { filterByDomain } from "../src/core/content.js";
+import { CARD_STATUS_WORDS, PRACTICE_GROUPS, SOON_STATUS, domainSlot, practiceCard, practiceGroups } from "../src/core/practice-groups.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
@@ -71,48 +71,127 @@ function seededRelations() {
   return relations;
 }
 
-// ---------- 专项练习 ----------
+// ---------- 专项练习 · 主题训练: grouped two-column grid (docs/ux/05_specialist_grouped_grid.md) ----------
 
-test("专项练习: one card per released domain, in DOMAIN_ORDER, with the exact names", () => {
-  const cards = exploreView({ relations: {} }, catalog);
-  assert.deepEqual(cards.map((c) => c.domain), DOMAIN_ORDER);
-  assert.deepEqual(cards.map((c) => c.label), LABELS);
-  assert.equal(DOMAIN_ORDER.length, 8);
-  for (const c of cards) {
-    assert.ok(typeof c.summary === "string" && c.summary.length > 0, `${c.domain} summary`);
-    assert.ok(c.slot || c.glyph, `${c.domain} has a picture slot or a glyph`);
+const GROUPS_05 = [
+  ["幂与乘方", "sky", ["平方", "立方", "常见幂"]],
+  ["乘法与凑整", "amber", ["常用乘积", "凑整乘积家族"]],
+  ["数与分数", "mint", ["分数到小数", "半数与翻倍", "补数"]],
+];
+
+test("主题训练: exactly the three navigation groups of 05 §2, in order, each card one released domain", () => {
+  const groups = exploreView({ relations: {} }, catalog);
+  assert.deepEqual(
+    groups.map((g) => [g.label, g.tone, g.cards.map((c) => c.label)]),
+    GROUPS_05,
+  );
+  const domains = groups.flatMap((g) => g.cards.map((c) => c.domain));
+  assert.deepEqual([...domains].sort(), [...DOMAIN_ORDER].sort(), "all eight domains, each exactly once");
+  assert.equal(new Set(domains).size, 8);
+  // Group ids are navigation only: never a domain id.
+  for (const g of PRACTICE_GROUPS) assert.equal(DOMAIN_ORDER.includes(g.id), false, `${g.id} is not a domain`);
+  for (const c of groups.flatMap((g) => g.cards)) {
+    assert.equal(c.label, LABELS[DOMAIN_ORDER.indexOf(c.domain)]);
+    assert.equal(c.released, true, `${c.domain} is released`);
   }
-  // v0.3 domains keep their pictures; v0.4 domains use a glyph in the same tile.
-  assert.deepEqual(Object.keys(DOMAIN_SLOTS), ["squares", "products", "fraction_decimal"]);
-  assert.deepEqual(Object.keys(DOMAIN_GLYPHS), DOMAIN_ORDER, "every domain has a fallback glyph: never an empty tile");
 });
 
-test("专项练习: only 规律探索 / 概念 / 例题 / 动画 stay 敬请期待", () => {
-  assert.deepEqual([...SOON_DIRECTIONS, ...SOON_EXTRAS].map((s) => s.name), ["规律探索", "概念", "例题", "动画"]);
-  const page = read("app/pages/explore/index.jsx");
-  for (const label of LABELS) assert.equal(page.includes(label), false, `${label} is not hard-coded as a placeholder`);
+test("主题训练: the groups never reach learning — scheduler, mastery, mistakes and content do not know them", () => {
+  for (const f of ["src/core/schedule.js", "src/core/session.js", "src/core/mastery.js", "src/core/mistakes.js", "src/core/content.js", "src/core/store.js", "src/core/a4.js", "src/core/progress.js"]) {
+    assert.doesNotMatch(read(f), /practice-groups|PRACTICE_GROUPS|幂与乘方|乘法与凑整|数与分数/, f);
+  }
+  // 错题本 still groups by domain.
+  const book = mistakesView({ relations: seededRelations() }, catalog);
+  assert.deepEqual(book.groups.map((g) => g.domain), DOMAIN_ORDER);
 });
 
-test("专项练习: every icon the pages name is in the embedded subset", () => {
+test("主题训练 cards: icon + name + one of the four status words; aria reads 「名，状态」; the real band of the domain", () => {
+  const relations = seededRelations();
+  for (const g of practiceGroups(catalog, relations)) {
+    for (const c of g.cards) {
+      assert.ok(CARD_STATUS_WORDS.includes(c.status), `${c.domain}: ${c.status}`);
+      assert.equal(c.status, summarizeDomain(filterByDomain(c.domain, catalog), relations), `${c.domain}: real status`);
+      assert.equal(c.aria, `${c.label}，${c.status}`);
+      assert.equal(c.slot, `domain.${c.domain}`);
+      assert.equal(c.slot, domainSlot(c.domain));
+      assert.ok(c.glyph, `${c.domain} glyph: never an empty tile`);
+      assert.equal(c.tone, g.tone, `${c.domain} tint follows its group`);
+    }
+  }
+  assert.deepEqual(CARD_STATUS_WORDS, ["还没怎么练", "正在熟悉", "有几题要再巩固", "大多已经很稳"]);
+});
+
+test("主题训练: a card without released content only answers 敬请期待 and never opens a focused set", () => {
+  const c = practiceCard("factors", catalog, {});
+  assert.equal(c.released, false);
+  assert.equal(c.status, SOON_STATUS);
+  assert.equal(SOON_STATUS, "敬请期待");
+  assert.equal(focusView("factors", { relations: {} }, catalog), null);
+  for (const g of exploreView({ relations: {} }, catalog)) for (const card of g.cards) assert.notEqual(card.status, "敬请期待", `${card.domain} released: no 敬请期待`);
+});
+
+test("domain icons (05 §5): one fixed, distinct symbol per domain; 平方 never the cube; 凑整 not 常用乘积's dot array", () => {
+  assert.deepEqual(Object.keys(DOMAIN_GLYPHS).sort(), [...DOMAIN_ORDER].sort());
+  assert.equal(new Set(Object.values(DOMAIN_GLYPHS)).size, 8, "no two domains share a symbol");
+  assert.equal(DOMAIN_GLYPHS.cubes, "cube");
+  assert.notEqual(DOMAIN_GLYPHS.squares, "cube");
+  assert.equal(DOMAIN_GLYPHS.squares, "grid-four", "平方: 2×2 grid");
+  assert.equal(DOMAIN_GLYPHS.products, "dots-nine", "常用乘积: dot array");
+  assert.notEqual(DOMAIN_GLYPHS.special_products, DOMAIN_GLYPHS.products);
+  assert.equal(DOMAIN_GLYPHS.powers, "text-superscript", "常见幂: xⁿ");
+  assert.equal(DOMAIN_GLYPHS.halves, "intersect", "半数与翻倍: two joined circles");
+  assert.equal(DOMAIN_GLYPHS.complements, "chart-donut", "补数: a ring made whole");
   const glyphs = read("app/components/icon/glyphs.js");
-  const names = [...Object.values(DOMAIN_GLYPHS), ...[...SOON_DIRECTIONS, ...SOON_EXTRAS].map((s) => s.icon), "arrow-left", "printer", "plus"];
-  for (const n of names) assert.ok(glyphs.includes(`"${n}"`), `glyph ${n}`);
+  for (const n of [...Object.values(DOMAIN_GLYPHS), "arrow-left", "printer", "plus"]) assert.ok(glyphs.includes(`"${n}"`), `glyph ${n} in the embedded subset`);
 });
 
-test("domain tiles: H5 and the Mini Program fill the same domain.* slots; WeChat uses PNG files, never SVG", () => {
+test("domain slots: `domain.<domain_id>` on both clients; WeChat uses PNG files, never SVG; no cube for 平方", () => {
+  const manifest = JSON.parse(read("assets/themes/math-lab/manifest.json"));
+  assert.deepEqual(Object.keys(manifest.assets.domain), ["products", "fraction_decimal", "productsPng", "fraction_decimalPng"]);
+  assert.equal("fractions" in manifest.assets.domain, false, "old slot name domain.fractions is gone");
+  assert.equal("squares" in manifest.assets.domain, false, "the v0.3 cube is not 平方's picture (05 §5)");
+  assert.doesNotMatch(JSON.stringify(manifest.futureDomains), /cubes|complements/, "released domains are not future");
   const slotsOf = (f) => [...read(f).matchAll(/"(domain\.\w+)": \{ src: \w+, manifestKey: "([\w.]+)" \}/g)].map((m) => [m[1], m[2]]);
   const h5 = slotsOf("app/platform/h5/theme-assets.js");
   const wx = slotsOf("app/platform/wechat/theme-assets.js");
-  const want = Object.values(DOMAIN_SLOTS);
-  assert.deepEqual(h5.map(([s]) => s), want);
-  assert.deepEqual(wx.map(([s]) => s), want);
+  assert.deepEqual(h5.map(([s]) => s), ["domain.products", "domain.fraction_decimal"]);
+  assert.deepEqual(wx.map(([s]) => s), ["domain.products", "domain.fraction_decimal"]);
   for (const [, key] of wx) assert.match(key, /Png$/, key);
-  assert.match(read("app/platform/wechat/theme-assets.js"), /domain-squares-192\.png/);
-  // A tile draws the picture when the client has the slot, else the glyph: never empty.
+  assert.doesNotMatch(read("app/platform/wechat/theme-assets.js"), /\.svg"/);
+  for (const f of ["app/platform/h5/theme-assets.js", "app/platform/wechat/theme-assets.js"]) assert.doesNotMatch(read(f), /domain-squares/, `${f}: no cube`);
+  // A tile draws the slot's file when the client has one, else the glyph on the group tint: never empty.
   const tile = read("app/components/DomainTile.jsx");
   assert.match(tile, /hasArt \? \(/);
   assert.match(tile, /<Icon name=\{glyph\} \/>/);
-  for (const c of exploreView({ relations: {} }, catalog)) assert.ok(c.glyph, `${c.domain} glyph`);
+  assert.match(tile, /tone-\$\{tone\}/);
+});
+
+test("主题训练 pages (Taro + h5/): the same shared model, headings, whole-card buttons; no 敬请期待 cards, 知识地图 only says 敬请期待", () => {
+  const page = read("app/pages/explore/index.jsx");
+  const h5 = read("h5/app.js");
+  assert.match(page, /exploreView\(state, catalog\)\.map\(\(g\) =>/);
+  assert.match(h5, /practiceGroups\(catalog, state\.relations\)/);
+  assert.match(page, /role="heading" aria-level="2"/);
+  assert.match(h5, /<h2 class="group-label practice-group-title"/);
+  assert.match(page, /role="button"\s+aria-label=\{c\.aria\}/);
+  assert.match(h5, /<button class="practice-card[\s\S]{0,300}aria-label="\$\{c\.aria\}"/);
+  const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  for (const src of [code(page), code(h5.slice(h5.indexOf("function renderExplore"), h5.indexOf("function renderFocusConfirm")))]) {
+    for (const gone of ["规律探索", "概念", "例题", "动画", "更多方向", "soon-chip", "soon-tile", "SoonButton", "caret-right"]) assert.equal(src.includes(gone), false, `${gone} is not on the practice page`);
+    for (const label of LABELS) assert.equal(src.includes(label), false, `${label} comes from the model, not hard-coded`);
+    assert.match(src, /data-soon="知识地图"/);
+  }
+  for (const css of [read("app/app.css"), read("h5/styles.css")]) {
+    assert.match(css, /\.practice-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+    const card = css.match(/\n\.practice-card \{[\s\S]*?\n\}/)[0];
+    assert.match(card, /background: var\(--surface-card\);/, "cards stay on color.surface.card");
+    assert.match(card, /min-height: (1[0-9]{2})px;/, "card well above 44×44");
+    for (const [tone, token] of [["sky", "--tint-sky"], ["amber", "--tint-amber"], ["mint", "--tint-mint"]]) {
+      assert.match(css, new RegExp(`\\.tile\\.tone-${tone} \\.tile-glyph \\{ background: var\\(${token}\\); \\}`));
+    }
+    assert.match(css, /\.practice-status \{[^}]*color: var\(--text-secondary\);/);
+    assert.match(css, /\.practice-name \{[^}]*color: var\(--text-primary\);/);
+  }
 });
 
 test("focus confirm: a released domain only; anything else is null", () => {

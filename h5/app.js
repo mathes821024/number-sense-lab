@@ -45,6 +45,7 @@ import {
   promptStem,
 } from "../src/core/fraction-fields.js";
 import { setPositionLabel } from "../src/core/progress-label.js";
+import { DOMAIN_GLYPHS, domainSlot, domainTone, practiceGroups } from "../src/core/practice-groups.js";
 import { formatMath, repeatingHtml, listPromptHtml, printPromptHtml } from "./math-text.js";
 import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";
 
@@ -56,20 +57,16 @@ await loadTheme();
 // Home needs the welcome picture first; feedback pictures wait for training.
 preloadAssets([activeTheme().mascot.welcome], { priority: "high" });
 
-/** v0.4 domains have no theme picture yet: an interface glyph sits in the same tile. */
-const DOMAIN_GLYPHS = {
-  halves: "circle-half",
-  complements: "puzzle-piece",
-  cubes: "cube",
-  powers: "text-superscript",
-  special_products: "x-square",
-};
-
-/** Domain icon from the theme's asset slot; falls back to text only. */
+/**
+ * Domain icon (docs/ux/05_specialist_grouped_grid.md §5): the file in the theme's
+ * `domain.<domain_id>` slot, else the domain's interface glyph on its group's
+ * light tint (shared src/core/practice-groups.js), so no tile is ever empty.
+ */
 function domainArt(domain) {
-  const art = asset(activeTheme().icons[domain] || "");
+  const art = asset(activeTheme().icons[domain] || domainSlot(domain));
   const glyph = DOMAIN_GLYPHS[domain] ? `<span class="tile-glyph">${icon(DOMAIN_GLYPHS[domain])}</span>` : "";
-  return `<span class="tile tile-${domain}" aria-hidden="true">${art || glyph}</span>`;
+  const tone = domainTone(domain);
+  return `<span class="tile tile-${domain}${tone ? ` tone-${tone}` : ""}" aria-hidden="true">${art || glyph}</span>`;
 }
 
 /**
@@ -325,38 +322,27 @@ function renderHome() {
 }
 
 /**
- * Placeholder names shown as the board shows them; every one answers 敬请期待.
- * v0.4: cubes and complements are released domains now, and halves replaces the
- * old multiples-and-factors placeholder (docs/ux/04_v04_specialist_training.md §2).
+ * 练习 · 主题训练 (docs/ux/05_specialist_grouped_grid.md): the shared grouped grid —
+ * three light navigation headings, each over two-column cards (icon, name, one
+ * status line). The whole card is the button. A released card opens its
+ * confirmation; a card without released content only answers 敬请期待.
+ * 知识地图 is the other entry and only says 敬请期待 this round; 概念 / 例题 /
+ * 动画 / 规律探索 belong to it and are not cards on this page.
  */
-const SOON_DOMAINS = [["lightbulb", "规律探索"]];
-
-function soonButton(name, iconName, className = "soon-tile") {
-  return `<button class="${className}" type="button" data-action="soon" data-soon="${name}">
-      <span class="soon-icon" aria-hidden="true">${icon(iconName)}</span>
-      <span class="soon-copy"><span class="soon-name">${name}</span><span class="soon-badge">敬请期待</span></span>
-    </button>`;
-}
-
-/** 练习: pick one of the released domains (DOMAIN_ORDER); the rest are placeholders. */
 function renderExplore() {
-  const domains = DOMAIN_ORDER.map((domain) => {
-    const items = filterByDomain(domain, catalog);
-    const summary = summarizeDomain(items, state.relations);
-    return `<button class="domain" type="button" data-action="focus" data-domain="${domain}">
-      ${domainArt(domain)}
-      <span class="domain-copy"><span class="domain-name">${domainLabel(domain)}</span>
-      <small>${summary}</small></span>
-      <span class="chev" aria-hidden="true">${icon("caret-right")}</span>
+  const card = (c) =>
+    `<button class="practice-card${c.released ? "" : " is-soon"}" type="button" data-action="${c.released ? "focus" : "soon"}" data-domain="${c.domain}"${c.released ? "" : ` data-soon="${c.label}"`} aria-label="${c.aria}">
+      ${domainArt(c.domain)}
+      <span class="practice-name">${c.label}</span>
+      <span class="practice-status">${c.status}</span>
     </button>`;
-  }).join("");
-  const soon = SOON_DOMAINS.map(([ic, name]) => soonButton(name, ic)).join("");
-  const extras = [
-    ["lightbulb-filament", "概念"],
-    ["notebook", "例题"],
-    ["play-circle", "动画"],
-  ]
-    .map(([ic, name]) => soonButton(name, ic, "soon-chip"))
+  const groups = practiceGroups(catalog, state.relations)
+    .map(
+      (g) => `<section class="practice-group" data-group="${g.id}" aria-labelledby="group-${g.id}">
+      <h2 class="group-label practice-group-title" id="group-${g.id}">${g.label}</h2>
+      <div class="practice-grid">${g.cards.map(card).join("")}</div>
+    </section>`,
+    )
     .join("");
   return `<section class="screen" id="explore">
     <h1 class="title">探索数学世界</h1>
@@ -365,10 +351,7 @@ function renderExplore() {
       <button class="seg is-on" type="button" aria-pressed="true">主题训练</button>
       <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="知识地图">知识地图</button>
     </div>
-    <div class="domains">${domains}</div>
-    <p class="section-label">更多方向</p>
-    <div class="soon">${soon}</div>
-    <div class="soon-row">${extras}</div>
+    <div class="practice-groups">${groups}</div>
   </section>`;
 }
 

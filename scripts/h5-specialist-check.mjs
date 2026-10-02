@@ -1,7 +1,8 @@
 // v0.4 regression for the h5/ shell (served by scripts/serve.mjs):
-// - 练习 shows one card per released domain (8), none clipped, 半数与翻倍 instead of
-//   倍数与因数, 规律探索 / 概念 / 例题 / 动画 still 敬请期待;
-// - each new card starts a focused set drawn only from that domain, FOCUS hides the nav;
+// - 练习 · 主题训练 is the grouped two-column grid (docs/ux/05_specialist_grouped_grid.md):
+//   3 headings, 8 cards (icon, name, status), none clipped, the odd 3rd card left and not
+//   stretched, no 敬请期待 cards (概念 / 例题 / 动画 / 规律探索 belong to 知识地图);
+// - each card starts a focused set drawn only from that domain, FOCUS hides the nav;
 // - Submit for the new domains' longest prompts sits no lower than for the old worst
 //   cases (scripts/viewport-cases.mjs). h5/ never got the Taro shell's short-screen
 //   layout, so at 375x667 Submit is below the fold for the old items on main as well;
@@ -49,60 +50,84 @@ async function freshPage(w, h, raw = null) {
 }
 
 // 1. 练习 cards at phone and desktop sizes.
-if (PARTS.has("cards")) for (const [vp, w, h] of [["375x667", 375, 667], ["390x844", 390, 844], ["1366x900", 1366, 900]]) {
+const GRID = [["幂与乘方", "sky", ["squares", "cubes", "powers"]], ["乘法与凑整", "amber", ["products", "special_products"]], ["数与分数", "mint", ["fraction_decimal", "halves", "complements"]]];
+const STATUS = ["还没怎么练", "正在熟悉", "有几题要再巩固", "大多已经很稳"];
+if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x667", 375, 667], ["390x844", 390, 844], ["390x753", 390, 753], ["430x932", 430, 932], ["1366x768", 1366, 768], ["1366x900", 1366, 900]]) {
   const { ctx, page, errors } = await freshPage(w, h);
   await page.click('#home [data-action="explore"]');
   await page.waitForSelector("#explore");
   const m = await page.evaluate(() => {
     const vw = window.innerWidth;
     const tab = document.getElementById("tabbar")?.getBoundingClientRect();
-    const cards = [...document.querySelectorAll("#explore .domain")].map((el) => {
+    const cards = [...document.querySelectorAll("#explore .practice-card")].map((el) => {
       el.scrollIntoView({ block: "center" });
       const r = el.getBoundingClientRect();
       const t = document.getElementById("tabbar")?.getBoundingClientRect();
-      const name = el.querySelector(".domain-name");
+      const name = el.querySelector(".practice-name");
+      const tile = el.querySelector(".tile");
+      const img = el.querySelector(".tile img");
       return {
         domain: el.dataset.domain,
+        group: el.closest(".practice-group").querySelector(".practice-group-title").textContent.trim(),
+        headTag: el.closest(".practice-group").querySelector(".practice-group-title").tagName,
         name: name.textContent.trim(),
+        status: el.querySelector(".practice-status").textContent.trim(),
+        aria: el.getAttribute("aria-label"),
+        tag: el.tagName,
+        tone: (tile.className.match(/tone-(\w+)/) || [])[1] || "",
+        img: img ? img.getAttribute("src") : "",
         h: r.height,
+        w: r.width,
         inside: r.left >= 0 && r.right <= vw + 0.5,
         aboveNav: r.top >= 0 && (!t || r.bottom <= t.top + 0.5),
         nameClipped: name.scrollWidth > name.clientWidth + 1,
-        hasTile: !!el.querySelector(".tile img, .tile .tile-glyph"),
+        hasTile: !!el.querySelector(".tile img, .tile .tile-glyph .ph"),
       };
     });
-    // At the bottom of the page the last row still clears the nav.
+    window.scrollTo(0, 0);
+    const boxes = [...document.querySelectorAll("#explore .practice-group")].map((g) => [...g.querySelectorAll(".practice-card")].map((el) => { const r = el.getBoundingClientRect(); return { l: Math.round(r.left), t: Math.round(r.top + scrollY), w: Math.round(r.width) }; }));
+    // At the bottom of the page the last card still clears the nav.
     window.scrollTo(0, document.scrollingElement.scrollHeight);
-    const lastRow = document.querySelector("#explore .soon-row").getBoundingClientRect();
+    const lastCard = [...document.querySelectorAll("#explore .practice-card")].pop().getBoundingClientRect();
     const tabAtEnd = document.getElementById("tabbar")?.getBoundingClientRect();
-    const endClear = !tabAtEnd || lastRow.bottom <= tabAtEnd.top + 0.5;
+    const endClear = !tabAtEnd || lastCard.bottom <= tabAtEnd.top + 0.5;
     window.scrollTo(0, 0);
     return {
       endClear,
       cards,
-      soon: [...document.querySelectorAll("#explore .soon-tile .soon-name")].map((e) => e.textContent),
-      chips: [...document.querySelectorAll("#explore .soon-chip .soon-name")].map((e) => e.textContent),
+      boxes,
+      heads: [...document.querySelectorAll("#explore .practice-group-title")].map((e) => e.textContent.trim()),
+      soon: document.querySelectorAll("#explore .soon-tile, #explore .soon-chip, #explore .section-label").length,
       text: document.getElementById("explore").innerText,
       hOverflow: document.scrollingElement.scrollWidth > vw + 0.5,
       tabTop: tab?.top ?? null,
     };
   });
-  check(`${vp} 练习: 8 domain cards in DOMAIN_ORDER`, JSON.stringify(m.cards.map((c) => c.domain)) === JSON.stringify(DOMAIN_ORDER), m.cards.map((c) => c.name).join(" / "));
-  check(`${vp} 练习: card names are the specialist names`, m.cards.every((c) => c.name === DOMAIN_LABELS[c.domain]));
-  check(`${vp} 练习: no card clipped or hidden under the nav`, m.endClear && m.cards.every((c) => c.inside && c.aboveNav && !c.nameClipped && c.h >= 44 && c.hasTile), m.cards.map((c) => `${c.domain}:${Math.round(c.h)}`).join(" "));
-  check(`${vp} 练习: 半数与翻倍 replaces 倍数与因数`, !m.text.includes("倍数与因数") && m.text.includes("半数与翻倍"));
-  check(`${vp} 练习: 规律探索 / 概念 / 例题 / 动画 stay 敬请期待`, JSON.stringify(m.soon) === '["规律探索"]' && JSON.stringify(m.chips) === '["概念","例题","动画"]');
+  const order = GRID.flatMap(([, , d]) => d);
+  check(`${vp} 练习: 3 headings (h2) over 8 cards in the 05 order`, JSON.stringify(m.heads) === JSON.stringify(GRID.map(([g]) => g)) && JSON.stringify(m.cards.map((c) => c.domain)) === JSON.stringify(order) && m.cards.every((c) => c.headTag === "H2" && GRID.find(([g]) => g === c.group)[2].includes(c.domain)), m.cards.map((c) => `${c.group}:${c.name}`).join(" / "));
+  check(`${vp} 练习: card = button with icon, name, one status word; aria 「名，状态」; group tint`, m.cards.every((c) => c.tag === "BUTTON" && c.name === DOMAIN_LABELS[c.domain] && STATUS.includes(c.status) && c.aria === `${c.name}，${c.status}` && c.tone === GRID.find(([g]) => g === c.group)[1] && c.hasTile && !/domain-squares/.test(c.img)), m.cards.map((c) => `${c.name}:${c.img ? "pic" : "glyph"}:${c.tone}`).join(" "));
+  check(`${vp} 练习: two columns; odd 3rd card left, not stretched`, m.boxes.every((g) => g[1].l >= g[0].l + g[0].w - 1 && Math.abs(g[1].t - g[0].t) <= 1 && Math.abs(g[1].w - g[0].w) <= 1 && (!g[2] || (Math.abs(g[2].l - g[0].l) <= 1 && Math.abs(g[2].w - g[0].w) <= 1 && g[2].t > g[0].t))), JSON.stringify(m.boxes.map((g) => g.map((b) => `${b.l},${b.t} ${b.w}`))));
+  check(`${vp} 练习: no card clipped or hidden under the nav`, m.endClear && m.cards.every((c) => c.inside && c.aboveNav && !c.nameClipped && c.h >= 44 && c.w >= 44), m.cards.map((c) => `${c.domain}:${Math.round(c.w)}×${Math.round(c.h)}`).join(" "));
+  check(`${vp} 练习: no 敬请期待 cards; 半数与翻倍, never 倍数与因数`, m.soon === 0 && !/规律探索|概念|例题|动画|倍数与因数/.test(m.text) && m.text.includes("半数与翻倍"));
+  {
+    const before = await page.$$eval("#explore .practice-card", (els) => els.map((e) => e.outerHTML).join(""));
+    await page.click('#explore .seg[data-soon="知识地图"]');
+    const toast = await page.textContent("#toast");
+    const after = await page.$$eval("#explore .practice-card", (els) => els.map((e) => e.outerHTML).join(""));
+    check(`${vp} 知识地图: only 敬请期待, the cards stay as they are`, toast === "知识地图 · 敬请期待" && before === after && (await page.$("#explore")) !== null, toast);
+  }
   check(`${vp} 练习: no horizontal overflow, no page errors`, !m.hOverflow && errors.length === 0, errors.join(" | "));
+  await page.waitForTimeout(2600);
   await page.screenshot({ path: `${SHOTS}/explore-${vp}.png`, fullPage: true });
   await page.screenshot({ path: `${SHOTS}/explore-${vp}-viewport.png` });
   await ctx.close();
 }
 
 // 2. Each new card starts a focused set from that domain only; FOCUS hides the nav.
-if (PARTS.has("focus")) for (const domain of NEW) {
+if (PARTS.has("focus")) for (const domain of DOMAIN_ORDER) {
   const { ctx, page, errors } = await freshPage(375, 667);
   await page.click('#home [data-action="explore"]');
-  await page.click(`#explore .domain[data-domain="${domain}"]`);
+  await page.click(`#explore .practice-card[data-domain="${domain}"]`);
   await page.waitForSelector("#focus-confirm");
   const title = await page.textContent("#focus-confirm .title");
   if (domain === "halves") await page.screenshot({ path: `${SHOTS}/focus-confirm-halves-375x667.png` });
