@@ -18,16 +18,21 @@
 | `logo.mark` | N 字标。现在可以不用，以后再补，不为此返工 |
 | `domain.squares` | 平方 |
 | `domain.products` | 常用乘积 |
-| `domain.fractions` | 分数到小数 |
+| `domain.fraction_decimal` | 分数到小数。旧槽名 `domain.fractions` 不再作为当前名 |
+| `domain.halves` | 半数与翻倍 |
+| `domain.complements` | 补数 |
+| `domain.cubes` | 立方 |
+| `domain.powers` | 常见幂 |
+| `domain.special_products` | 凑整乘积家族 |
 | `decor.cloud1` `decor.cloud2` `decor.hill` `decor.leaf1` `decor.leaf2` `decor.sprout` `decor.sparkle` `decor.question` | 边缘装饰。做题时不用 |
 
 欢迎、答对、思考三张已经锁定。不再为了更像最初那张人物稿重新生成。
 
-`manifest.json` 里的 `futureDomains` 只是名字：立方、补数、倍数与因数、规律。当前包没有这些图标，也不把它们接进训练。
+八个训练域的图标槽都是当前专项页要用的。VA0 包里若还没有后五枚文件，先用形状顶上，不把这些域当成未来功能。知识地图仍是以后的入口。
 
 ## 什么用图，什么用界面画
 
-用图：吉祥物、三个域图标、边缘装饰、应用图标。
+用图：吉祥物、八个域图标、边缘装饰、应用图标。
 
 用界面画出来，不烘焙进图片：按钮、卡片、圆角、阴影、底栏、键盘、分数线、对勾、叉、进度、全部文字。
 
@@ -40,7 +45,6 @@
 这些可以按图出现，点击只说「敬请期待」：
 
 - 知识地图、概念、例题、动画
-- 立方、补数、倍数与因数、规律探索
 - 独立知识卡
 - 「已掌握」「全部」
 - 我的里的昵称、清空记录、关于
