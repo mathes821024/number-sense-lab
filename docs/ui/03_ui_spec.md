@@ -236,7 +236,7 @@ V0.1 VISUAL BASELINE / SUPERSEDED FOR V0.3 VISUAL IMPLEMENTATION。「没有插�
 | 已经很稳 | Label，`Ink`。可以在字前加一个小点，点用 `Correct`，同时仍有文字 |
 | 再巩固一下 | Label，`Ink`。可以在字前加一个小空心圆，圆用 `Notice`，同时仍有文字 |
 
-这些词不做成徽章墙，不配进度环，不配火焰。专项入口上的一句状态，用上面四句之一，Body 或 Label，放在域名字下面，颜色弱于主按钮。
+这些词不做成徽章墙，不配进度环，不配火焰。专项入口上的一句状态，用上面四句之一，Body 或 Label，放在域名字下面，颜色弱于主按钮。练习页是分组双列：图标、域名、弱状态。家族色只铺在图标浅底上。见 `docs/ux/05_specialist_grouped_grid.md`。
 
 不出现「动摇」「未掌握」「落后」。
 
