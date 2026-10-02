@@ -7,12 +7,12 @@
 完整发布时：
 
 - 新的可训练 relation 恰好 51 条，id 与 `docs/curriculum/07_v04_relation_spec.md` 一致，不多不少。
-- 总数恰好 173。已有 122 条的 id 与答案不变。
+- 总数恰好 173。已有 122 条的 id 与 `canonical_answer` 不变。27 条小数 → 分数的 prompt 和 `answer_type` 以 `docs/curriculum/09_fraction_fields_contract.md` 为准。
 - 立方 8、半数 14、补数 12、常见幂 9、凑整乘积 8。
 - 没有 id `pow-5-3`。5³ = 125 只有 `cube-5`。
 - 没有第二条 relation 表示同一道题干。同值不同题干的，按规格保留，不合并，也不拆出掌握副本。
 - 每个 `canonical_answer` 与规格表一致，并且算术成立。
-- 补数的 `prompt` 含「凑成」，不含作为主提示的减法等式。
+- 补数的 `prompt` 是 `n + ? = 100`。不得写成 `100 - n = ?`。
 - 半数的答案都是整数。没有 18.5。
 - 新答案的 `answer_type` 都是 `integer`。
 - 新 relation 的 `entry_after` 为空。
@@ -33,12 +33,12 @@
 | 学习引擎算法 | 否 |
 | state 结构 | 否 |
 | 调度算法 | 否 |
-| 答案类型 | 否 |
+| 五个新域的答案类型 | 否。51 条仍是 `integer` |
 | 学习者存档迁移 | 否 |
 
 登记扩展之后，未知 domain 仍然拒绝。未发布的域不得混进目录。已发布域的条数必须等于契约。旧三域仍是 32、32、58。五域都发布时总数是 173。分批时总数是 122 加上已发布新域的条数，不得改成「至少 122」。
 
-不新增 answer type。不改掌握四态、错题谓词、到期规则、受控洗牌的禁则、`buildSessionQueue` 的选取、`pickAcrossDomains` 的轮流、`scheduleAfterAttempt`。不增加域级解锁。不升 state 版本。旧档里的已有 relation 仍在。新 id 未练过时不要求已经写在存档里。
+五个新域不新增答案类型。已有 27 条小数 → 分数改为 `fraction_fields`，验收见 `docs/curriculum/09_fraction_fields_contract.md`，不算进这 51 条。不改掌握四态、错题谓词、到期规则、受控洗牌的禁则、`buildSessionQueue` 的选取、`pickAcrossDomains` 的轮流、`scheduleAfterAttempt`。不增加域级解锁。不升 state 版本。旧档里的已有 relation 仍在。新 id 未练过时不要求已经写在存档里。
 
 # 3. 界面
 
