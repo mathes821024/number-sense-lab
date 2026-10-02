@@ -2,7 +2,10 @@
 // miniprogram-automator: Home → Training → Correct (auto next) → Wrong
 // (relation, 下一题) → pause / stop / end → Home, fraction / needs_simplification /
 // repeating / decimal input, a full set of 10, v1 → v3 migration in wx storage,
-// and write protection (bad JSON, future version). Screenshots of each screen.
+// write protection (bad JSON, future version), and the migrated pages: 错题本
+// (grouped by domain) → 印到纸上 (selector → A4 preview; no print button in the
+// Mini Program), 最近练得怎么样, and 专项练习 (every domain → a focused set from
+// that domain only). Screenshots of each screen.
 //
 // Needs WeChat DevTools (logged in, 设置 → 安全设置 → 服务端口 on) and
 // miniprogram-automator, which is not a project dependency:
@@ -27,6 +30,9 @@ mkdirSync(SHOTS, { recursive: true });
 const { loadCoreCatalog } = await import(`${REPO}/src/core/content.js`);
 const { VIEWPORT_CASES, seededRaw } = await import(`${REPO}/scripts/viewport-cases.mjs`);
 const { startSession } = await import(`${REPO}/src/core/session.js`);
+const { DOMAIN_ORDER } = await import(`${REPO}/src/core/content.js`);
+const { pagesSeed } = await import(`${REPO}/scripts/pages-seed.mjs`);
+const LABELS = ["平方", "常用乘积", "分数到小数", "半数与翻倍", "补数", "立方", "常见幂", "凑整乘积家族"];
 const catalog = loadCoreCatalog();
 const byId = new Map(catalog.map((i) => [i.id, i]));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -218,12 +224,16 @@ await step("1 Home", async () => {
   check(!imgs.some((s) => /\.(webp|svg)$/.test(s || "")), "no webp / svg");
   check(!(await has(page, ".logo .theme-img")), "logo slot empty in the Mini Program");
   await shot("01-home");
+  // 专项练习 is a page now (no longer 敬请期待).
   await tapText(page, ".entry", "专项练习");
-  await sleep(300);
-  const toast = await textOf(page, ".toast");
-  check(toast === "专项练习 · 敬请期待", `toast ${toast}`);
-  await shot("01b-home-soon");
-  return `${page.path}; 「${title}」; CTA 「${cta}」/${sub}; cards ${cards.join("/")}; nav ${nav.join("/")} (首页 on); mascot ${imgs.find((s) => /mascot/.test(s))}; no logo image (word mark only); 专项练习 → 「${toast}」`;
+  await sleep(1500);
+  const ex = await mp.currentPage();
+  check(ex.path === "pages/explore/index", `专项练习 → ${ex.path}`);
+  const domains = (await ex.$$(".domain-name")).length;
+  check(domains === 8, `domains ${domains}`);
+  await shot("01b-home-explore");
+  page = await freshHome();
+  return `${page.path}; 「${title}」; CTA 「${cta}」/${sub}; cards ${cards.join("/")}; nav ${nav.join("/")} (首页 on); mascot ${imgs.find((s) => /mascot/.test(s))}; no logo image (word mark only); 专项练习 → ${ex.path} (${domains} domain cards)`;
 });
 
 let first;
@@ -517,6 +527,119 @@ for (const c of VIEWPORT_CASES) {
     return `${sys.model} window ${sys.windowWidth}×${sys.windowHeight}: 「${c.item.prompt}」 typed ${c.type}${c.submit ? " + 提交 (nudge showing)" : ""} → 提交 ${row.submitTop}–${bottom} ≤ ${sys.windowHeight}; keys ≥ ${row.minKey}px`;
   });
 }
+
+// ---- migrated pages: 错题本 / 印到纸上 / 最近练得怎么样 / 专项练习 ---------------
+const seedP = pagesSeed(catalog);
+const RAWP = JSON.stringify(seedP.root);
+const rowTexts = async (p, sel) => Promise.all((await p.$$(sel)).map(async (e) => (await e.text()).replace(/\s+/g, " ").trim()));
+async function relaunch(path) {
+  await mp.reLaunch(path);
+  await sleep(1500);
+  return mp.currentPage();
+}
+
+await step("11 错题本 → 印到纸上 (selector → A4 preview, no print button)", async () => {
+  await boot(RAWP);
+  page = await relaunch("/pages/mistakes/index");
+  check(page.path === "pages/mistakes/index", `path ${page.path}`);
+  const groups = await rowTexts(page, ".group-label");
+  check(groups.join("/") === LABELS.join("/"), `groups ${groups}`);
+  const rows = await rowTexts(page, ".mistake-group .list-row");
+  check(rows.length === seedP.mistakes.length, `rows ${rows.length}`);
+  // No slash fraction and no 「?/?」 in any row (a complement's own 「55 + ? = 100」 is the prompt itself).
+  check(!rows.some((t) => /\//.test(t)), `a slash in a row: ${rows.find((t) => /\//.test(t))}`);
+  const fb = await page.$(".mistake-group .frac-blank");
+  check(fb, "fraction_fields row has the empty bar");
+  const num = await (await fb.$(".num")).offset();
+  const den = await (await fb.$(".den")).offset();
+  check(num.top < den.top && Math.abs(num.left - den.left) < 3, `stacked ${JSON.stringify(num)} ${JSON.stringify(den)}`);
+  check(!(await has(page, ".badge")) && (await has(page, ".tabbar")), "nav, no badges");
+  check((await textOf(page, ".tab.is-on .tab-label")) === "错题本", "nav 错题本 on");
+  await shot("20-mistakes");
+  await tapText(page, ".cta", "印这些题");
+  await sleep(1500);
+  page = await mp.currentPage();
+  check(page.path === "pages/print/index", `print path ${page.path}`);
+  const cnt = await textOf(page, ".pick-count");
+  check(cnt === `已选 ${seedP.mistakes.length} 题`, `count ${cnt}`);
+  check((await page.$$(".pick")).length === seedP.mistakes.length && (await has(page, ".tabbar")), "rows + nav");
+  await shot("21-print-select");
+  await tapText(page, ".cta", "预览题目");
+  await sleep(800);
+  const items = (await page.$$(".sheet-item")).length;
+  check(items === seedP.mistakes.length, `sheet items ${items}`);
+  const buttons = await rowTexts(page, ".cta");
+  check(!buttons.some((t) => /打印/.test(t)), `no print button in the Mini Program: ${buttons}`);
+  const note = await textOf(page, ".print-note");
+  check(/^小程序里不能直接打印/.test(note || ""), `note ${note}`);
+  check(await has(page, ".sheet .frac-blank"), "A4 fraction_fields drawn as a bar");
+  await shot("22-a4-preview");
+  await tapText(page, ".cta", "答案单独一页");
+  await sleep(600);
+  check((await page.$$(".sheet-answers .sheet-item")).length === items && !(await has(page, ".sheet-list .blank")), "answers separate");
+  await shot("23-a4-answers");
+  return `groups ${groups.join("/")}; ${rows.length} rows, 0.5 = stacked empty bar, no slash; 印这些题 → 「${cnt}」 → A4 preview ${items} items, buttons ${buttons.join("/")}, note 「${note}」; answers on their own page`;
+});
+
+await step("12 最近练得怎么样 → 选题打印", async () => {
+  page = await relaunch("/pages/home/index");
+  await tapText(page, ".entry", "最近练得怎么样");
+  await sleep(1500);
+  page = await mp.currentPage();
+  check(page.path === "pages/progress/index", `path ${page.path}`);
+  const sessions = await rowTexts(page, ".sessions .list-row");
+  check(sessions.length === 2 && /先停了/.test(sessions[0]) && /做完了/.test(sessions[1]), `sessions ${sessions}`);
+  const outcomes = (await page.$$(".outcomes .list-row")).length;
+  check(outcomes === seedP.practiced, `outcomes ${outcomes}`);
+  check(await has(page, ".tabbar"), "nav");
+  await shot("24-progress");
+  await tapText(page, ".cta", "选题打印");
+  await sleep(1500);
+  page = await mp.currentPage();
+  const cnt = await textOf(page, ".pick-count");
+  check(page.path === "pages/print/index" && cnt === `已选 ${seedP.mistakes.length} 题`, `print from progress ${page.path} ${cnt}`);
+  return `${sessions.join(" | ")}; ${outcomes} outcomes; 选题打印 → ${page.path} 「${cnt}」`;
+});
+
+await step("13 viewing pages leaves the record untouched", async () => {
+  const raw = await stored();
+  check(raw === RAWP, "stored record changed");
+  return "nsl-v01-state byte-identical after 错题本 / 印到纸上 / 最近练得怎么样";
+});
+
+await step("14 专项练习: every domain card → confirm → focused set from that domain only", async () => {
+  page = await relaunch("/pages/mistakes/index");
+  await tapText(page, ".tab", "练习");
+  await sleep(1500);
+  page = await mp.currentPage();
+  check(page.path === "pages/explore/index", `tab 练习 → ${page.path}`);
+  const names = await rowTexts(page, ".domain-name");
+  check(names.join("/") === LABELS.join("/"), `names ${names}`);
+  const soon = await rowTexts(page, ".soon-name");
+  check(soon.join("/") === "规律探索/概念/例题/动画", `soon ${soon}`);
+  check((await textOf(page, ".tab.is-on .tab-label")) === "练习", "nav 练习 on");
+  await shot("25-explore");
+  const sets = [];
+  for (const [n, domain] of DOMAIN_ORDER.entries()) {
+    if (n) page = await relaunch("/pages/explore/index");
+    await (await page.$$(".domain"))[n].tap();
+    await sleep(700);
+    const t = await textOf(page, ".focus-card .title");
+    check(t === LABELS[n], `confirm ${t}`);
+    if (n === 0 || n >= 3) await shot(`26-${n + 1}-focus-${domain}`);
+    await tapText(page, ".cta", "开始这一小段");
+    await sleep(1500);
+    const tp = await mp.currentPage();
+    await waitFor(tp, ".screen-train");
+    const s = (await learner()).activeSession;
+    check(s.mode === "focused" && s.domain === domain, `session ${s.mode}/${s.domain}`);
+    const off = s.queue.filter((id) => byId.get(id).domain !== domain);
+    check(off.length === 0, `${domain} set mixes ${off}`);
+    if (n >= 3) await shot(`27-${n + 1}-train-${domain}`);
+    sets.push(`${LABELS[n]} ${s.queue.length}`);
+  }
+  return `${names.join("/")}; 敬请期待 only ${soon.join("/")}; focused sets ${sets.join(", ")} — each from its own domain`;
+});
 
 phase = "teardown";
 hooked.push(...(await appErrors()));

@@ -77,3 +77,28 @@ export function answerDisplay(item, answer) {
 export function hasWords(value) {
   return /[\u3400-\u9fff]/.test(String(value ?? ""));
 }
+
+// ---- lists and paper (h5/math-text.js listPromptHtml / printPromptHtml) ----
+
+const BLANK_MARK = "?/?";
+
+/**
+ * A prompt in a list (progress, mistake book, print picker): the prompt only.
+ * 「1/8 = ?」 → 「1/8」 (drawn with a bar); a fraction_fields 「0.125 = ?/?」
+ * stays whole, so it reads 0.125 = an empty fraction bar. Never 「?/?」 as text.
+ */
+export function listPromptText(prompt) {
+  const text = String(prompt ?? "");
+  return text.includes(BLANK_MARK) ? text : text.replace(" = ?", "");
+}
+
+/**
+ * A4 question page: 「1/8 = 」 followed by a writing line; a fraction_fields
+ * prompt is 0.125 = an empty fraction bar, and the bar itself is the blank.
+ * @returns {{ text: string, line: boolean }}
+ */
+export function printPrompt(prompt) {
+  const text = String(prompt ?? "");
+  if (text.includes(BLANK_MARK)) return { text, line: false };
+  return { text: text.replace(" = ?", " = "), line: true };
+}

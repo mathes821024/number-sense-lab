@@ -50,7 +50,7 @@ export function homeView(state, today = localDay()) {
   };
 }
 
-/** The other three Home cards (03_ui_spec §5 v0.3). Not migrated yet: 敬请期待. */
+/** The other three Home cards (03_ui_spec §5 v0.3): 专项练习, 错题本 and 最近练得怎么样. */
 export const HOME_ENTRIES = [
   { id: "explore", tone: "explore", icon: "target", label: "专项练习", sub: "按你需要的主题练习" },
   { id: "mistakes", tone: "mistakes", icon: "book-open-text", label: "错题本", sub: "把容易出错的题再练一练" },

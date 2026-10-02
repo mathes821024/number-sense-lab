@@ -91,16 +91,46 @@ export const safeArea = {
 /** Reduced motion: H5 reads prefers-reduced-motion in CSS, so no extra class. */
 export const motionClass = "";
 
-/** Page switching: go to training, back home. */
+function query(params = {}) {
+  const parts = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
+  return parts.length ? `?${parts.join("&")}` : "";
+}
+
+/**
+ * Page switching. Ordinary pages reached from the bottom entries (首页 / 练习 /
+ * 错题本) replace the page stack (reLaunch), so the stack stays short; other
+ * pages (training, progress, print) are pushed and can go back.
+ */
 export const navigate = {
-  toTraining(intent = "start-daily") {
-    Taro.navigateTo({ url: `/pages/train/index?intent=${intent}` });
+  toTraining(intent = "start-daily", params = {}) {
+    Taro.navigateTo({ url: `/pages/train/index${query({ intent, ...params })}` });
   },
   toHome() {
     Taro.reLaunch({ url: "/pages/home/index" });
+  },
+  toTab(name) {
+    Taro.reLaunch({ url: `/pages/${name}/index` });
+  },
+  toPage(name, params = {}) {
+    Taro.navigateTo({ url: `/pages/${name}/index${query(params)}` });
+  },
+  /** Back one page; when nothing is underneath (opened directly), go to the named page instead. */
+  back(fallback = "home") {
+    if (Taro.getCurrentPages().length > 1) Taro.navigateBack({ delta: 1 });
+    else Taro.reLaunch({ url: `/pages/${fallback}/index` });
   },
 };
 
 export function useRouteParams() {
   return useRouter().params || {};
 }
+
+/** Paper: the browser prints the current page (print CSS shows only the sheet). */
+export const printing = {
+  available: true,
+  print() {
+    window.print();
+  },
+};

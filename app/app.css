@@ -403,7 +403,7 @@ body {
   font-size: var(--fs-label);
   font-weight: 800;
 }
-/* Calm position in the set: 「2 / 10」 and a still bar. No transition, no timer. */
+/* Calm position in the set: 「第 2 题 · 共 10 题」 and a still bar. No transition, no timer. */
 .set-progress { display: flex; align-items: center; margin-top: 16px; }
 .set-count {
   flex: none;
@@ -833,3 +833,356 @@ body {
 }
 .answer-repeating .rep { letter-spacing: 0.04em; }
 .nudge .frac { font-size: 0.9em; }
+
+/* ======================================================================
+ * Ordinary pages migrated from h5/: 专项练习, 错题本, 最近练得怎么样, the
+ * shared print selector and the A4 page (h5/styles.css, same values).
+ * ==================================================================== */
+
+/* ---------- type on ordinary pages ---------- */
+.title {
+  display: block;
+  margin: 0;
+  font-weight: 800;
+  font-size: var(--fs-title);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.back + .title, .back + .card, .back + .empty { margin-top: 20px; }
+.section-label, .group-label {
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-label);
+  font-weight: 800;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+.section-label::before, .group-label::before {
+  content: "";
+  width: 12px;
+  height: 4px;
+  flex: none;
+  margin-right: 8px;
+  border-radius: var(--radius-chip);
+  background: var(--color-brand-secondary);
+}
+.section-note { display: block; margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; }
+
+/* Back pill (回首页 / 返回练习 / 回错题本 / 返回选题). */
+.quiet.back {
+  padding: 0 16px 0 12px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-button);
+  background: var(--surface-card);
+  color: var(--text-primary);
+}
+.quiet-pressed { transform: translateY(1px); }
+.back-mark { margin-right: 6px; font-size: 18px; }
+
+/* Secondary CTA with an icon (选题打印 / 印这些题); disabled CTA (预览题目 with nothing chosen). */
+.cta.with-icon .cta-mark { margin-right: 8px; font-size: 20px; }
+.cta.is-disabled {
+  background: var(--color-disabled);
+  color: var(--text-primary);
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* ---------- 练习 / Explore ---------- */
+.segmented {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 4px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-chip);
+  background: var(--surface-card-strong);
+}
+.seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-chip);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.seg + .seg { margin-left: 4px; }
+.seg.is-on { background: var(--color-brand-primary); color: var(--color-brand-primary-ink); }
+/* Future tabs (敬请期待): quieter than the real one, still readable. */
+.seg.seg-soon {
+  flex-direction: column;
+  padding: 2px 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.seg-name { display: block; }
+.seg-note { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
+
+/* Topic / Domain cards: one per released domain (DOMAIN_ORDER). */
+.domains { display: flex; flex-direction: column; margin-top: 18px; }
+.domain {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 76px;
+  padding: 12px 14px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card-strong);
+  box-shadow: var(--shadow-card);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.domain + .domain { margin-top: 10px; }
+.domain:active, .domain-pressed { transform: translateY(1px); }
+.domain .tile { margin-right: 14px; }
+.domain-copy { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.domain-name { font-size: 17px; font-weight: 800; }
+.domain-sub { margin-top: 2px; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+}
+.tile-art { width: 52px; height: 52px; }
+/* Domains without a picture on this client: the same round tile, an interface glyph (or nothing) inside. */
+.tile-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--tint-mint);
+  color: var(--color-brand-text);
+  font-size: 26px;
+}
+
+/* Placeholders answer 敬请期待 (07 §占位); they never start practice. */
+.screen .section-label { margin-top: 26px; }
+.soon { display: grid; grid-template-columns: repeat(2, 1fr); grid-gap: 10px; gap: 10px; margin-top: 12px; }
+.soon-tile {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1.5px dashed var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.soon-tile .soon-icon { margin-right: 10px; }
+.soon-copy { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.soon-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: 22px;
+}
+.soon-name { display: block; font-size: 15px; font-weight: 800; }
+.soon-badge {
+  display: block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.soon-row { display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 8px; gap: 8px; margin-top: 14px; }
+.soon-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 84px;
+  padding: 10px 4px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-input);
+  background: var(--surface-card-strong);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.soon-chip .soon-icon { width: 34px; height: 34px; margin-bottom: 4px; font-size: 18px; }
+.soon-chip .soon-copy { align-items: center; }
+.soon-chip .soon-name { font-size: 13px; }
+
+/* Focused-practice entry: a tinted brand panel, not another white card. */
+.focus-card {
+  border: 0;
+  background: linear-gradient(160deg, var(--surface-card-strong), var(--color-brand-mist));
+}
+.focus-card .tile { margin-bottom: 14px; }
+
+/* ---------- lists (progress / mistake book / print selector) ---------- */
+.list {
+  margin: 12px 0 0;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 12px 18px;
+  border-bottom: 1PX solid var(--border-subtle);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.list-row:last-child { border-bottom: 0; }
+.row-prompt, .row-text, .pick-text { font-weight: 700; }
+.row-prompt { margin-right: 12px; }
+.meta { flex: none; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+/* Reports read like a ledger — hairline rows on the paper, not stacked cards. */
+.list.ledger { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.list.ledger .list-row { padding: 13px 2px; }
+
+/* Empty states: one sentence and a way back. */
+.empty { display: flex; align-items: center; margin-top: 20px; }
+.empty .lede { margin: 0 0 0 14px; }
+.mascot-empty { width: 78px; }
+
+/* Progress: latest outcome per practiced relation — a word plus a shape. */
+.screen-progress .section-label { margin: 26px 0 0; }
+/* Two columns like a worksheet ledger (screen 7); one column on very narrow phones. */
+.outcomes { display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 20px; column-gap: 20px; }
+@media (max-width: 340px) { .outcomes { grid-template-columns: 1fr; } }
+.outcome {
+  display: flex;
+  align-items: center;
+  flex: none;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-chip);
+  font-size: 13px;
+  font-weight: 800;
+}
+.outcome .om { margin-right: 4px; line-height: 1; }
+.outcome.is-right { background: var(--feedback-correct-tint); color: var(--feedback-correct-ink); }
+.outcome.is-wrong { background: var(--feedback-wrong-tint); color: var(--feedback-wrong-ink); }
+
+/* Mistake Book */
+.mistake-group .group-label { margin: 22px 0 0; }
+.mistake-group .list { margin-top: 8px; }
+.screen-mistakes .segmented { margin-top: 14px; }
+.screen-mistakes .segmented + .lede { margin-top: 14px; }
+/* Two actions side by side: print (secondary) and practice (solid). */
+.action-pair { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; gap: 10px; margin-top: 28px; }
+.action-pair .cta { margin-top: 0; }
+
+/* ---------- filters / chips ---------- */
+.filters { display: flex; flex-wrap: wrap; margin-top: 14px; }
+.chip {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin: 0 8px 8px 0;
+  padding: 0 16px;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-chip);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chip.is-on {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary-ink);
+}
+
+/* ---------- shared print selector ---------- */
+.pick-bar { display: flex; align-items: center; margin: 4px 0 0; }
+.pick-action { min-width: 44px; margin-right: 18px; padding: 0 6px; justify-content: center; color: var(--color-brand-text); }
+.pick-count { margin-left: auto; font-size: var(--fs-label); font-weight: 800; color: var(--text-secondary); }
+.picks .list-row { justify-content: flex-start; padding: 0 16px; cursor: pointer; }
+.pick-box {
+  position: relative;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-right: 12px;
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--surface-card-strong);
+}
+.pick-box.is-on { border-color: var(--color-brand-primary); background: var(--color-brand-primary); }
+.pick-tick {
+  display: none;
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border-right: 2.5px solid var(--color-brand-primary-ink);
+  border-bottom: 2.5px solid var(--color-brand-primary-ink);
+  transform: rotate(45deg);
+}
+.pick-box.is-on .pick-tick { display: block; }
+.pick-text { flex: 1; min-width: 0; margin-right: 12px; }
+.more-picks { margin-top: 10px; color: var(--color-brand-text); }
+.screen-print .cta { margin-top: 24px; }
+
+/* ---------- paper preview: black on white, no theme decoration (app/paper.css) ---------- */
+.sheet {
+  margin-top: 16px;
+  padding: 22px 20px;
+  border: 1PX solid var(--paper-edge);
+  border-radius: 0;
+  background: var(--paper-bg);
+  color: var(--paper-ink);
+  box-shadow: none;
+}
+.sheet-title { display: block; margin: 0; font-size: 22px; font-weight: 800; color: var(--paper-ink); }
+.sheet-sub { display: block; margin: 6px 0 0; font-size: 13px; color: var(--paper-sub); }
+.sheet-list { margin: 12px 0 0; column-count: 2; column-gap: 20px; }
+.sheet-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.8;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.sheet-n { flex: none; margin-right: 0.35em; color: var(--paper-ink); }
+.sheet .frac { font-weight: 600; }
+.sheet .blank {
+  display: inline-block;
+  min-width: 52px;
+  height: 1.2em;
+  margin-left: 6px;
+  border-bottom: 1.5px solid var(--paper-rule);
+}
+/* A4: the empty fraction bar is the blank — room to write above and below it. */
+.sheet .frac-blank { font-size: 1em; margin-left: 0.2em; }
+.sheet .frac-blank .num,
+.sheet .frac-blank .den { min-width: 2.6em; min-height: 1.25em; }

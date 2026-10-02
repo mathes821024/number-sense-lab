@@ -10,6 +10,7 @@ import Icon from "../../components/icon/Icon";
 import useNotice from "../../components/useNotice";
 import { homeView, HOME_ENTRIES, DEVICE_NOTE } from "./model.js";
 import { getRecord } from "../record.js";
+import { tabHandler } from "../tabs.js";
 
 function readLearner(record) {
   return getActiveLearner(record.read());
@@ -85,13 +86,15 @@ export default function Home() {
                 <Text>{view.secondary.label}</Text>
               </View>
             ) : null}
-            {HOME_ENTRIES.map((e) => entry({ ...e, onTap: () => showSoon(e.label) }))}
+            {HOME_ENTRIES.map((e) =>
+              entry({ ...e, onTap: () => (e.id === "progress" ? navigate.toPage("progress") : navigate.toTab(e.id)) }),
+            )}
           </View>
           <Text className="fine device-note">{DEVICE_NOTE}</Text>
         </View>
       </View>
       <Notice text={notice} />
-      <BottomNav active="home" bottomInset={safeArea.bottom} onTap={(id, label) => (id === "home" ? null : showSoon(label))} />
+      <BottomNav active="home" bottomInset={safeArea.bottom} onTap={tabHandler("home", showSoon)} />
     </View>
   );
 }

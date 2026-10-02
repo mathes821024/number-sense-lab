@@ -118,12 +118,16 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     check(h.nav.join("/") === "首页/练习/错题本/我的" && h.navOn === "首页", `nav ${h.nav}`);
     check(/mascot-welcome-512\.webp/.test(h.mascotSrc), `mascot ${h.mascotSrc}`);
     check(!/Nunito/.test(h.font) && /PingFang SC/.test(h.font), `font ${h.font}`);
-    await page.click('[data-action="explore"]');
-    const toast = await page.textContent('[data-testid="toast"]');
-    check(toast === "专项练习 · 敬请期待", `toast ${toast}`);
-    await page.waitForTimeout(200);
     await shot("01-home");
-    return `「${h.title}」, CTA 「${h.cta}」/${h.sub}, 3 cards, nav ${h.nav.join("/")} (首页 on), welcome mascot = display WebP, logo ${h.logo}, system font, placeholder → 「${toast}」`;
+    // 专项练习 is a page now (no longer 敬请期待): eight domain cards, then back to 首页 by the bottom entry.
+    await page.click('[data-action="explore"]');
+    await page.waitForSelector('[data-testid="explore"]:visible');
+    const domains = await page.$$eval('[data-testid="explore"] .domain', (els) => els.filter((e) => e.checkVisibility()).length);
+    check(domains === 8, `domains ${domains}`);
+    await page.click('.tabbar:visible [data-tab="home"]');
+    await page.waitForSelector('[data-testid="home"]:visible');
+    await page.waitForTimeout(200);
+    return `「${h.title}」, CTA 「${h.cta}」/${h.sub}, 3 cards, nav ${h.nav.join("/")} (首页 on), welcome mascot = display WebP, logo ${h.logo}, system font, 专项练习 → ${domains} domain cards → 首页`;
   });
 
   await step(`${vp} 2 Home → Training (FOCUS)`, async () => {

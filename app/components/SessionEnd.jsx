@@ -6,8 +6,7 @@ import Icon from "./icon/Icon";
 /**
  * End of a set (h5/app.js renderEnd): reached by finishing the set, by
  * 「先停」, or from Home's 「看看这次」. Words and numbers from the stored
- * summary (src/core finishSession). 「看看最近练得怎么样」 opens Progress,
- * which is not migrated yet (敬请期待).
+ * summary (src/core finishSession). 「看看最近练得怎么样」 opens Progress.
  */
 export default function SessionEnd({ result, onHome, onProgress }) {
   if (!result) {

@@ -26,12 +26,15 @@ CSS = PKG / "src/regular/style.css"
 OUT = ROOT / "app/components/icon/icon-font.css"
 NAMES_OUT = ROOT / "app/components/icon/glyphs.js"
 
-# Same names as h5/app.js uses for the four screens and the bottom entries.
+# Same names as h5/app.js uses on the migrated pages and the bottom entries.
 GLYPHS = [
     "house", "pencil-simple-line", "book-open-text", "user",  # bottom entries
     "play", "target", "chart-bar", "caret-right",              # home cards
     "lightbulb",                                              # wrong: 小提示
     "chart-line",                                             # end: 看看最近练得怎么样
+    "arrow-left", "printer", "plus",                          # back pills, print, 也看看其他练过的题
+    "circle-half", "puzzle-piece", "cube", "text-superscript", "x-square",  # v0.4 domain tiles
+    "lightbulb-filament", "notebook", "play-circle",          # 专项练习 placeholders 概念 / 例题 / 动画
 ]
 
 css = CSS.read_text()

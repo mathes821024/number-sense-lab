@@ -1,0 +1,15 @@
+/*
+ * Printed paper (A4 page and its preview): black on white in every theme
+ * (05 §3: 纸上黑字白底), the same constants as h5/styles.css. The only literal
+ * colours in the shared shell; theme tokens never reach the sheet.
+ */
+/* paper:start — theme-independent printed page */
+page,
+:root {
+  --paper-bg: #ffffff;
+  --paper-ink: #111111;
+  --paper-sub: #444444;
+  --paper-rule: #222222;
+  --paper-edge: #d4d4d4;
+}
+/* paper:end */

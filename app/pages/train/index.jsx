@@ -27,6 +27,9 @@ import Notice from "../../components/Notice";
 import useNotice from "../../components/useNotice";
 import { createTrainingFlow, CORRECT_PAUSE_MS } from "./flow.js";
 import { getRecord } from "../record.js";
+import { tabHandler } from "../tabs.js";
+import { trainingIntent } from "./intent.js";
+import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
 
 /** FOCUS screens: no bottom entries while the student is answering (02_ux_spec §4). */
 const FOCUS = new Set(["train", "correct", "wrong", "pause"]);
@@ -53,11 +56,16 @@ export default function Train() {
   const interrupted = useRef(false);
 
   useEffect(() => {
-    const intent = params.intent || "start-daily";
-    if (intent === "resume") flow.resume();
-    else if (intent === "restart-daily") flow.restart("daily", null);
-    else if (intent === "see-last") flow.showLast();
-    else flow.begin("daily", null);
+    const intent = trainingIntent(params);
+    if (intent.kind === "resume") flow.resume();
+    else if (intent.kind === "restart") flow.restart(intent.mode, intent.domain);
+    else if (intent.kind === "last") flow.showLast();
+    else flow.begin(intent.mode, intent.domain);
+    // 练这些错题 with no current mistakes starts nothing: back to the Mistake Book (h5/app.js beginSession).
+    if (intent.mode === MISTAKE_BOOK_SOURCE && flow.view().screen === "empty") {
+      navigate.toTab("mistakes");
+      return () => clearTimeout(timer.current);
+    }
     rerender();
     return () => clearTimeout(timer.current);
   }, []);
@@ -187,7 +195,7 @@ export default function Train() {
     body = <PauseDialog onResume={unpause} onStop={stop} />;
   } else if (view.screen === "end") {
     body = (
-      <SessionEnd result={view.result} onHome={() => navigate.toHome()} onProgress={() => showSoon("最近练得怎么样")} />
+      <SessionEnd result={view.result} onHome={() => navigate.toHome()} onProgress={() => navigate.toPage("progress")} />
     );
   } else {
     body = (
@@ -213,7 +221,7 @@ export default function Train() {
           <BottomNav
             active=""
             bottomInset={safeArea.bottom}
-            onTap={(id, label) => (id === "home" ? navigate.toHome() : showSoon(label))}
+            onTap={(id, label) => (id === "home" ? navigate.toHome() : tabHandler("", showSoon)(id, label))}
           />
         </>
       ) : null}
