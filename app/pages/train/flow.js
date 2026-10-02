@@ -176,7 +176,7 @@ export function createTrainingFlow({
   const api = {
     /** Home 「开始今天的练习」 / 「再练一小段」. */
     begin,
-    /** Home 「重新开始一小段」: drop the unfinished set, start a new one. */
+    /** 「重新开始一小段」 (pause screen; was on Home): drop the unfinished set, start a new one. */
     restart(mode = "daily", domain = null) {
       persist({ ...state, activeSession: null });
       session = null;

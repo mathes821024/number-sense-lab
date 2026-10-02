@@ -303,6 +303,12 @@ body {
 @media (min-width: 446px) {
   .mascot-hero { width: 196px; }
 }
+/* Resume hero (还有一小段): about 13% smaller, so 专项练习 / 错题本 / 最近练得怎么样 stay above the fold. */
+.home-hero.is-resume { min-height: 150px; margin-top: 12px; }
+.home-hero.is-resume .mascot-hero { width: 144px; }
+@media (min-width: 446px) {
+  .home-hero.is-resume .mascot-hero { width: 170px; }
+}
 .bubble {
   position: relative;
   flex: 1;
@@ -625,6 +631,8 @@ body {
 }
 .ask { display: block; margin: 0; font-size: var(--fs-title); font-weight: 800; }
 .stay { display: block; margin: 8px 0 0; color: var(--text-secondary); font-size: var(--fs-body); }
+/* Low-priority restart under 继续做 / 先停 (moved here from Home). */
+.pause-restart { justify-content: center; margin-top: 14px; color: var(--color-brand-text); font-size: 15px; font-weight: 700; }
 
 /* ---------- FEEDBACK: correct (short, auto-advances) ---------- */
 .feedback-hero { position: relative; display: flex; justify-content: center; margin-top: 20px; }

@@ -273,7 +273,7 @@ function renderHome() {
 
   if (mode === "paused") {
     title = "还有一小段";
-    lede = "刚才做到一半。已经做的会留下。";
+    lede = "刚才练到一半，继续就好。";
     ctaLabel = "继续刚才的练习";
     ctaSub = "";
     ctaAction = "resume";
@@ -285,12 +285,9 @@ function renderHome() {
     ctaAction = "see-last";
   }
 
+  // One clear action on the resume hero; 重新开始一小段 lives on the pause screen.
   const extra =
-    mode === "paused"
-      ? `<button class="home-secondary" type="button" data-action="restart-daily">重新开始一小段</button>`
-      : mode === "done"
-        ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
-        : "";
+    mode === "done" ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>` : "";
 
   // Four entry cards (03_ui_spec §5 v0.3; 02_ux_spec §5). 开始今天的练习 (05 §6) is the main path.
   const entry = (action, tone, iconName, label, sub, extraClass = "") =>
@@ -305,7 +302,7 @@ function renderHome() {
     <header class="home-bar">
       <p class="home-kicker">${brandMark()}<span class="wordmark"><span class="wordmark-zh">数感训练场</span><span class="wordmark-en">Number Sense Lab</span></span></p>
     </header>
-    <div class="home-hero">
+    <div class="home-hero${mode === "paused" ? " is-resume" : ""}">
       ${mascot("welcome", "mascot-hero")}
       <div class="bubble">
         <h1 class="bubble-title">${title}</h1>
@@ -594,6 +591,7 @@ function renderPause() {
       <p class="stay">已经做的会留下。</p>
       <button class="cta" type="button" data-action="resume-train">继续做</button>
       <button class="cta secondary" type="button" data-action="stop-session">先停</button>
+      <button class="quiet pause-restart" type="button" data-action="restart-daily">重新开始一小段</button>
     </div>
   </section>`;
 }

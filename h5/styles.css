@@ -362,6 +362,9 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 .mascot { display: inline-flex; flex: none; }
 .mascot img, .mascot picture { width: 100%; height: auto; display: block; object-fit: contain; }
 .mascot-hero { width: clamp(150px, 44vw, 196px); margin-left: -8px; }
+/* Resume hero (还有一小段): about 13% smaller, so 专项练习 / 错题本 / 最近练得怎么样 stay above the fold. */
+.home-hero.is-resume { min-height: 150px; margin-top: 12px; }
+.home-hero.is-resume .mascot-hero { width: clamp(130px, 38vw, 170px); }
 .bubble {
   position: relative;
   flex: 1;
@@ -912,6 +915,8 @@ button.setting { cursor: pointer; }
 }
 .ask { margin: 0; font-size: var(--fs-title); font-weight: 800; }
 .stay { margin: 8px 0 0; color: var(--text-secondary); font-size: var(--fs-body); }
+/* Low-priority restart under 继续做 / 先停 (moved here from Home). */
+.pause-restart { display: flex; justify-content: center; width: 100%; margin-top: 14px; color: var(--color-brand-text); font-size: 15px; font-weight: 700; }
 
 /* ---------- FEEDBACK: correct (short, auto-advances) ---------- */
 .feedback-hero {

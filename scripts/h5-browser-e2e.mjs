@@ -240,6 +240,8 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     await page.waitForSelector('[data-testid="pause"]');
     const p = await page.evaluate(() => ({ ask: document.querySelector(".ask").textContent, stay: document.querySelector(".stay").textContent, nav: [...document.querySelectorAll(".tabbar")].some((e) => e.checkVisibility()) }));
     check(p.ask === "先停在这里？" && p.stay === "已经做的会留下。" && !p.nav, JSON.stringify(p));
+    const restartHere = await page.textContent('[data-testid="pause"] [data-action="restart-daily"]');
+    check(restartHere === "重新开始一小段", `pause restart ${restartHere}`);
     await page.waitForTimeout(300);
     await shot("05-pause");
     await page.click('[data-action="resume-train"]');
@@ -294,7 +296,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
   await step(`${vp} 6 Fraction fields · not-an-attempt · needs_simplification · 1/2 · repeating · decimal`, async () => {
     await freshHome(JSON.stringify(seededRoot(["ifraction-1-2", "fraction-1-3", "fraction-1-2", "fraction-1-7"])));
     const h = await page.evaluate(() => ({ t: document.querySelector(".bubble-title").textContent, cta: document.querySelector(".home-cta .entry-name").textContent, sec: document.querySelector(".home-secondary")?.textContent }));
-    check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && h.sec === "重新开始一小段", JSON.stringify(h));
+    check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && !h.sec, JSON.stringify(h));
     await page.click('[data-action="resume"]');
     await page.waitForSelector('[data-testid="train"]');
     check((await currentItem()).id === "ifraction-1-2", "resumed at item 2");

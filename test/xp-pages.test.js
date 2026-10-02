@@ -277,6 +277,20 @@ test("print selection is page state: the pages never write the learner record", 
   assert.equal(STATE_VERSION, 3);
 });
 
+test("home resume hero: one action, no standalone restart; restart lives on the pause screen (h5/ and Taro)", () => {
+  const home = read("app/pages/home/model.js");
+  assert.doesNotMatch(home, /重新开始一小段"/);
+  const h5 = read("h5/app.js");
+  assert.match(h5, /lede = "刚才练到一半，继续就好。";/);
+  assert.doesNotMatch(h5, /home-secondary[^`]*restart-daily/);
+  assert.match(h5, /data-action="stop-session">先停<\/button>\s*<button class="quiet pause-restart" type="button" data-action="restart-daily">重新开始一小段<\/button>/);
+  const dialog = read("app/components/PauseDialog.jsx");
+  assert.match(dialog, /data-action="restart-daily"/);
+  assert.match(read("app/pages/train/index.jsx"), /<PauseDialog onResume=\{unpause\} onStop=\{stop\} onRestart=\{restart\} \/>/);
+  assert.match(read("app/pages/home/index.jsx"), /is-resume/);
+  assert.match(read("app/app.css"), /\.home-hero\.is-resume \.mascot-hero \{ width: 144px; \}/);
+});
+
 test("ordinary pages keep the bottom nav (no badges); tab switches go through the platform", () => {
   for (const p of ["explore", "mistakes", "progress", "print"]) {
     const src = read(`app/pages/${p}/index.jsx`);

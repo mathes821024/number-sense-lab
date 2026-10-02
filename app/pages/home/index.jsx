@@ -58,7 +58,7 @@ export default function Home() {
               </View>
             </View>
           </View>
-          <View className="home-hero">
+          <View className={`home-hero${view.mode === "paused" ? " is-resume" : ""}`}>
             <Mascot pose="welcome" className="mascot-hero" />
             <View className="bubble">
               <View className="bubble-tail" aria-hidden="true" />

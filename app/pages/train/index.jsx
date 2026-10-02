@@ -147,6 +147,11 @@ export default function Train() {
     flow.stop();
     rerender();
   };
+  /** 重新开始一小段 (pause screen): the flow's existing restart — drop the unfinished set, start a new daily one. */
+  const restart = () => {
+    flow.restart("daily", null);
+    rerender();
+  };
 
   let body = null;
   if (view.screen === "train" && view.item) {
@@ -192,7 +197,7 @@ export default function Train() {
       />
     );
   } else if (view.screen === "pause") {
-    body = <PauseDialog onResume={unpause} onStop={stop} />;
+    body = <PauseDialog onResume={unpause} onStop={stop} onRestart={restart} />;
   } else if (view.screen === "end") {
     body = (
       <SessionEnd result={view.result} onHome={() => navigate.toHome()} onProgress={() => navigate.toPage("progress")} />

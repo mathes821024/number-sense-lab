@@ -237,6 +237,7 @@ await step("1 Home", async () => {
 });
 
 let first;
+let homeFold = null;
 let endClear = "";
 await step("2 Home → Training (FOCUS)", async () => {
   await sleep(1900);
@@ -315,6 +316,8 @@ await step("5 Pause → 继续做 / 先停 → end → Home", async () => {
   await tapText(page, ".pill-quiet", "先停一下");
   await waitFor(page, ".screen-pause");
   const ask = await textOf(page, ".ask");
+  const restartHere = await textOf(page, ".pause-restart");
+  check(restartHere === "重新开始一小段", `pause restart ${restartHere}`);
   await shot("05-pause");
   await tapText(page, ".screen-pause .cta", "继续做");
   await waitFor(page, ".screen-train");
@@ -367,7 +370,23 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   await boot(JSON.stringify(seededRoot(["ifraction-1-2", "fraction-1-3", "fraction-1-2", "fraction-1-7"])));
   page = await freshHome();
   const h = { t: await textOf(page, ".bubble-title"), cta: await textOf(page, ".home-cta .entry-name"), sec: await textOf(page, ".home-secondary") };
-  check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && h.sec === "重新开始一小段", JSON.stringify(h));
+  check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && !h.sec, JSON.stringify(h));
+  check((await textOf(page, ".bubble-text")) === "刚才练到一半，继续就好。", "resume lede");
+  // Above the fold on the 390×753 window: the resume hero, 专项练习, 错题本 and (part of) 最近练得怎么样.
+  const sysH = (await mp.systemInfo()).windowHeight;
+  const nav = await (await page.$(".tabbar")).offset();
+  const fold = [];
+  for (const e of await page.$$(".entry")) {
+    const o = await e.offset();
+    const s = await e.size();
+    fold.push({ name: (await (await e.$(".entry-name")).text()).trim(), top: Math.round(o.top), bottom: Math.round(o.top + s.height) });
+  }
+  const navTop = Math.round(nav.top);
+  const vis = (n) => fold.find((f) => f.name === n);
+  check(vis("继续刚才的练习").bottom <= navTop && vis("专项练习").bottom <= navTop && vis("错题本").bottom <= navTop, `fold ${JSON.stringify(fold)} nav ${navTop}`);
+  check(vis("最近练得怎么样").top < navTop, `progress card below the fold ${JSON.stringify(vis("最近练得怎么样"))}`);
+  homeFold = { window: sysH, navTop, cards: fold, progressFull: vis("最近练得怎么样").bottom <= navTop };
+  await shot("07-home-resume");
   page = await startFromHome(page, "继续刚才的练习");
   check((await currentItem()).id === "ifraction-1-2" && (await count(page)) === "第 2 题 · 共 5 题", "resumed at item 2");
   for (const k of await page.$$(".key")) check((await k.text()).trim() !== "/", "no 「/」 key");
@@ -677,10 +696,11 @@ await mp.callWxMethod("removeStorageSync", KEY);
 await mp.close();
 
 const errorEvents = events.filter((e) => e.src !== "automator.console" || e.type === "error" || e.type === "warn");
-const report = { results: out, viewport: viewportRows, appHookedErrors: hooked, automatorErrorEvents: errorEvents, allConsoleCount: events.length };
+const report = { results: out, homeFold, viewport: viewportRows, appHookedErrors: hooked, automatorErrorEvents: errorEvents, allConsoleCount: events.length };
 writeFileSync(`${SHOTS}/weapp-e2e-events.json`, JSON.stringify({ ...report, allEvents: events }, null, 2));
 console.log(out.join("\n"));
 console.log("\nAPP-HOOKED ERRORS", JSON.stringify(hooked, null, 1));
 console.log("AUTOMATOR ERROR/WARN EVENTS", JSON.stringify(errorEvents, null, 1));
+console.log("HOME FOLD", JSON.stringify(homeFold));
 console.log(`\n${out.length - failed}/${out.length} passed`);
 process.exit(failed ? 1 : 0);

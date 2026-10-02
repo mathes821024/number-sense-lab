@@ -322,7 +322,8 @@ test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-se
   const learner = getActiveLearner(store.read());
   assert.equal(homeMode(learner, DAY), "paused");
   assert.equal(homeView(learner, DAY).cta.label, "继续刚才的练习");
-  assert.equal(homeView(learner, DAY).secondary.label, "重新开始一小段");
+  assert.equal(homeView(learner, DAY).lede, "刚才练到一半，继续就好。");
+  assert.equal(homeView(learner, DAY).secondary, null, "one clear action on the resume hero");
   const again = createTrainingFlow({ store, catalog, today: () => DAY });
   again.resume();
   assert.equal(again.view().position, 2);
@@ -342,6 +343,25 @@ test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-se
   assert.equal(end.result.total, 2);
   assert.equal(getActiveLearner(store.read()).activeSession, null);
   assert.equal(homeMode(getActiveLearner(store.read()), DAY), "default", "an early stop is not 'done'");
+});
+
+test("restart from the pause screen (重新开始一小段, moved from Home) uses the same flow.restart", () => {
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog, today: () => DAY, clock: () => 1 });
+  flow.begin("daily", null);
+  const first = flow.session.id;
+  typeAll(flow, answerFor(flow.view().item));
+  flow.submit();
+  flow.advance();
+  assert.equal(flow.pause(), true);
+  flow.restart("daily", null);
+  assert.equal(flow.view().screen, "train");
+  assert.equal(flow.view().position, 1);
+  assert.equal(flow.session.answered, 0);
+  assert.ok(first, "a set was running before the restart");
+  const learner = getActiveLearner(store.read());
+  assert.equal(learner.sessions.length, 0, "the dropped set is not summarised (same as Home's restart was)");
+  assert.equal(Object.keys(learner.relations).length, 1, "the answered attempt stays");
 });
 
 test("restart (重新开始一小段) drops the unfinished set and starts a new one", () => {

@@ -27,9 +27,10 @@ export function homeView(state, today = localDay()) {
     return {
       mode,
       title: "还有一小段",
-      lede: "刚才做到一半。已经做的会留下。",
+      lede: "刚才练到一半，继续就好。",
       cta: { label: "继续刚才的练习", sub: "", action: "resume" },
-      secondary: { label: "重新开始一小段", action: "restart-daily" },
+      // One clear action on the resume hero; 重新开始一小段 lives on the pause screen (先停一下).
+      secondary: null,
     };
   }
   if (mode === "done") {
