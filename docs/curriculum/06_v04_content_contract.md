@@ -20,7 +20,7 @@ BUILD 时要加 51 条内容，并扩展 `src/core/content.js` 里的目录登�
 
 8 + 14 + 12 + 9 + 8 = 51。122 + 51 = 173。这两个数不能改。
 
-已有 122 条的 id、题干、钩子、答案类型和调度语义不动。
+已有 122 条的 id、钩子、`canonical_answer` 和调度语义不动。其中 27 条小数 → 分数的题干改为 `0.125 = ?/?`，答案类型改为 `fraction_fields`。其余 95 条的题干和答案类型不动。见 `docs/curriculum/09_fraction_fields_contract.md`。
 
 # 2. 两种课程意图，一种技术表示
 
