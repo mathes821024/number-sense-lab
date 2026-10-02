@@ -17,10 +17,17 @@ export function homeMode(state, today = localDay()) {
 }
 
 /**
- * @returns {{ mode: string, title: string, lede: string,
+ * `ledeLines` is how the lede is laid out in the bubble: one block per line.
+ * The resume lede is two fixed lines (Owner Plan B), so it never breaks as
+ * 「继续就 / 好。」 on a narrow phone.
+ *
+ * @returns {{ mode: string, title: string, lede: string, ledeLines: string[],
  *   cta: { label: string, sub: string, action: string },
  *   secondary: null | { label: string, action: string } }}
  */
+/** Resume lede, two lines exactly: 「刚才练到一半，」 / 「继续就好。」. */
+export const RESUME_LEDE_LINES = Object.freeze(["刚才练到一半，", "继续就好。"]);
+
 export function homeView(state, today = localDay()) {
   const mode = homeMode(state, today);
   if (mode === "paused") {
@@ -28,6 +35,7 @@ export function homeView(state, today = localDay()) {
       mode,
       title: "还有一小段",
       lede: "刚才练到一半，继续就好。",
+      ledeLines: RESUME_LEDE_LINES,
       cta: { label: "继续刚才的练习", sub: "", action: "resume" },
       // One clear action on the resume hero; 重新开始一小段 lives on the pause screen (先停一下).
       secondary: null,
@@ -38,6 +46,7 @@ export function homeView(state, today = localDay()) {
       mode,
       title: "今天这段练完了",
       lede: "可以停在这里，也可以再看一眼结果。",
+      ledeLines: ["可以停在这里，也可以再看一眼结果。"],
       cta: { label: "看看这次", sub: "", action: "see-last" },
       secondary: { label: "再练一小段", action: "start-daily" },
     };
@@ -46,6 +55,7 @@ export function homeView(state, today = localDay()) {
     mode,
     title: "和数字做朋友",
     lede: "把常会用到的数字关系，练到能直接想起来。",
+    ledeLines: ["把常会用到的数字关系，练到能直接想起来。"],
     cta: { label: "开始今天的练习", sub: "大约 5～10 分钟", action: "start-daily" },
     secondary: null,
   };

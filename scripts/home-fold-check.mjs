@@ -1,4 +1,5 @@
-// Home resume hero (还有一小段) above the fold, for h5/ and the Taro H5 build:
+// Home resume hero (还有一小段) above the fold, for h5/ and the Taro H5 build
+// (lede exactly two lines 「刚才练到一半，」 / 「继续就好。」):
 // with an unfinished set, the hero, 继续刚才的练习, 专项练习 and 错题本 sit above
 // the bottom nav, and 最近练得怎么样 is at least partly visible — with no
 // standalone 重新开始一小段 on Home. Also shows the restart on the pause screen.
@@ -17,7 +18,7 @@ const KEY = "nsl-v01-state";
 const HOME = APP === "taro" ? `${BASE}#/pages/home/index` : BASE;
 mkdirSync(SHOTS, { recursive: true });
 
-const VIEWPORTS = [["375x667", 375, 667], ["390x844", 390, 844], ["390x753-wechat-window", 390, 753], ["1366x768-pc", 1366, 768]];
+const VIEWPORTS = [["375x667", 375, 667], ["390x844", 390, 844], ["390x753-wechat-window", 390, 753], ["430x932", 430, 932], ["1366x768-pc", 1366, 768]];
 const browser = await chromium.launch({ executablePath: CHROME, args: ["--no-sandbox"] });
 const out = [];
 let failed = 0;
@@ -48,6 +49,15 @@ for (const [name, width, height] of VIEWPORTS) {
         mascotW: Math.round(r(vis(".mascot-hero")).width),
         title: vis(".bubble-title").textContent.trim(),
         lede: vis(".bubble-text").textContent.trim(),
+        // The lede must be exactly two rendered lines, one per .bubble-line (no wrap inside a line, nothing past the bubble).
+        lines: [...vis(".bubble-text").querySelectorAll(".bubble-line")].map((l) => {
+          const range = document.createRange();
+          range.selectNodeContents(l);
+          const rects = [...range.getClientRects()].filter((x) => x.width > 0);
+          const b = l.getBoundingClientRect();
+          return { text: l.textContent, rendered: new Set(rects.map((x) => Math.round(x.top))).size, right: Math.round(Math.max(...rects.map((x) => x.right))), top: Math.round(b.top) };
+        }),
+        bubbleRight: Math.round(r(vis(".bubble")).right),
         secondary: Boolean(vis(".home-secondary")),
         restartOnHome: [...document.querySelectorAll('[data-action="restart-daily"]')].some((e) => e.checkVisibility()),
         cards,
@@ -56,12 +66,14 @@ for (const [name, width, height] of VIEWPORTS) {
     const c = (n) => m.cards.find((x) => x.name === n);
     const ok =
       m.title === "还有一小段" && m.lede === "刚才练到一半，继续就好。" && !m.secondary && !m.restartOnHome &&
+      m.lines.length === 2 && m.lines[0].text === "刚才练到一半，" && m.lines[1].text === "继续就好。" &&
+      m.lines.every((l) => l.rendered === 1 && l.right <= m.bubbleRight - 8) && m.lines[1].top > m.lines[0].top &&
       m.hero <= m.navTop && c("继续刚才的练习").bottom <= m.navTop && c("专项练习").bottom <= m.navTop &&
       c("错题本").bottom <= m.navTop && c("最近练得怎么样").top < m.navTop;
     const progress = c("最近练得怎么样").bottom <= m.navTop ? "fully" : `partly (${m.navTop - c("最近练得怎么样").top}px of ${c("最近练得怎么样").bottom - c("最近练得怎么样").top}px)`;
     await page.screenshot({ path: `${SHOTS}/${APP}-home-resume-${name}.png` });
     if (!ok) failed += 1;
-    out.push(`${ok ? "PASS" : "FAIL"} ${APP} ${name}: mascot ${m.mascotW}px; hero ≤ ${m.hero}; ${m.cards.map((x) => `${x.name} ${x.top}–${x.bottom}`).join(", ")}; nav top ${m.navTop}; 最近练得怎么样 ${progress}; no standalone restart`);
+    out.push(`${ok ? "PASS" : "FAIL"} ${APP} ${name}: lede ${m.lines.map((l) => `「${l.text}」×${l.rendered}`).join(" / ")} (right ≤ ${Math.max(...m.lines.map((l) => l.right))} of ${m.bubbleRight}); mascot ${m.mascotW}px; hero ≤ ${m.hero}; ${m.cards.map((x) => `${x.name} ${x.top}–${x.bottom}`).join(", ")}; nav top ${m.navTop}; 最近练得怎么样 ${progress}; no standalone restart`);
     if (name === "375x667") {
       await page.click(".home-cta >> visible=true");
       await page.waitForSelector('[data-action="pause"] >> visible=true');

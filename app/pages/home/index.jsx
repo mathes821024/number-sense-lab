@@ -63,7 +63,11 @@ export default function Home() {
             <View className="bubble">
               <View className="bubble-tail" aria-hidden="true" />
               <Text className="bubble-title">{view.title}</Text>
-              <Text className="bubble-text">{view.lede}</Text>
+              <View className={`bubble-text${view.ledeLines.length > 1 ? " is-split" : ""}`}>
+                {view.ledeLines.map((line, i) => (
+                  <Text key={i} className="bubble-line">{line}</Text>
+                ))}
+              </View>
             </View>
           </View>
           <View className="entries">

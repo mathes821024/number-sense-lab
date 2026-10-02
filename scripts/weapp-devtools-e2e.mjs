@@ -238,6 +238,7 @@ await step("1 Home", async () => {
 
 let first;
 let homeFold = null;
+let ledeLayout = null;
 let endClear = "";
 await step("2 Home → Training (FOCUS)", async () => {
   await sleep(1900);
@@ -371,7 +372,21 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   page = await freshHome();
   const h = { t: await textOf(page, ".bubble-title"), cta: await textOf(page, ".home-cta .entry-name"), sec: await textOf(page, ".home-secondary") };
   check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && !h.sec, JSON.stringify(h));
-  check((await textOf(page, ".bubble-text")) === "刚才练到一半，继续就好。", "resume lede");
+  // Resume lede: exactly two lines 「刚才练到一半，」 / 「继续就好。」, each a single rendered line inside the bubble.
+  const ledeLines = [];
+  for (const l of await page.$$(".bubble-line")) {
+    const o = await l.offset();
+    const s = await l.size();
+    ledeLines.push({ text: (await l.text()).trim(), top: Math.round(o.top), left: Math.round(o.left), w: Math.round(s.width), h: Math.round(s.height) });
+  }
+  const bubble = { o: await (await page.$(".bubble")).offset(), s: await (await page.$(".bubble")).size() };
+  const bubbleRight = Math.round(bubble.o.left + bubble.s.width);
+  check(
+    ledeLines.length === 2 && ledeLines[0].text === "刚才练到一半，" && ledeLines[1].text === "继续就好。" &&
+      ledeLines.every((l) => l.h > 0 && l.h <= 26 && l.left + l.w <= bubbleRight - 8) && ledeLines[1].top > ledeLines[0].top,
+    `resume lede lines ${JSON.stringify(ledeLines)} bubble right ${bubbleRight}`,
+  );
+  ledeLayout = { lines: ledeLines, bubbleRight };
   // Above the fold on the 390×753 window: the resume hero, 专项练习, 错题本 and (part of) 最近练得怎么样.
   const sysH = (await mp.systemInfo()).windowHeight;
   const nav = await (await page.$(".tabbar")).offset();
@@ -702,5 +717,6 @@ console.log(out.join("\n"));
 console.log("\nAPP-HOOKED ERRORS", JSON.stringify(hooked, null, 1));
 console.log("AUTOMATOR ERROR/WARN EVENTS", JSON.stringify(errorEvents, null, 1));
 console.log("HOME FOLD", JSON.stringify(homeFold));
+console.log("RESUME LEDE", JSON.stringify(ledeLayout));
 console.log(`\n${out.length - failed}/${out.length} passed`);
 process.exit(failed ? 1 : 0);

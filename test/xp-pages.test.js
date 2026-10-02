@@ -282,6 +282,17 @@ test("home resume hero: one action, no standalone restart; restart lives on the 
   assert.doesNotMatch(home, /重新开始一小段"/);
   const h5 = read("h5/app.js");
   assert.match(h5, /lede = "刚才练到一半，继续就好。";/);
+  // The resume lede is two fixed lines in both apps (Owner Plan B): no spaces or <br> to force the break.
+  assert.match(h5, /ledeLines = \["刚才练到一半，", "继续就好。"\];/);
+  assert.match(h5, /<span class="bubble-line">/);
+  const homePage = read("app/pages/home/index.jsx");
+  assert.match(homePage, /className="bubble-line"/);
+  assert.doesNotMatch(read("app/pages/home/model.js") + h5, /刚才练到一半，\s+继续/);
+  assert.doesNotMatch(homePage + h5, /bubble-(text|line)[^\n]*<br/);
+  for (const css of [read("app/app.css"), read("h5/styles.css")]) {
+    assert.match(css, /\.bubble-text \.bubble-line \{ display: block; \}/);
+    assert.match(css, /\.bubble-text\.is-split \.bubble-line \{ white-space: nowrap; \}/);
+  }
   assert.doesNotMatch(h5, /home-secondary[^`]*restart-daily/);
   assert.match(h5, /data-action="stop-session">先停<\/button>\s*<button class="quiet pause-restart" type="button" data-action="restart-daily">重新开始一小段<\/button>/);
   const dialog = read("app/components/PauseDialog.jsx");

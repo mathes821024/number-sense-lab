@@ -267,6 +267,8 @@ function renderHome() {
   const mode = homeMode();
   let title = "和数字做朋友";
   let lede = "把常会用到的数字关系，练到能直接想起来。";
+  // One block per line; the resume lede is two fixed lines (Owner Plan B).
+  let ledeLines = [lede];
   let ctaLabel = "开始今天的练习";
   let ctaSub = "大约 5～10 分钟";
   let ctaAction = "start-daily";
@@ -274,12 +276,14 @@ function renderHome() {
   if (mode === "paused") {
     title = "还有一小段";
     lede = "刚才练到一半，继续就好。";
+    ledeLines = ["刚才练到一半，", "继续就好。"];
     ctaLabel = "继续刚才的练习";
     ctaSub = "";
     ctaAction = "resume";
   } else if (mode === "done") {
     title = "今天这段练完了";
     lede = "可以停在这里，也可以再看一眼结果。";
+    ledeLines = [lede];
     ctaLabel = "看看这次";
     ctaSub = "";
     ctaAction = "see-last";
@@ -306,7 +310,7 @@ function renderHome() {
       ${mascot("welcome", "mascot-hero")}
       <div class="bubble">
         <h1 class="bubble-title">${title}</h1>
-        <p class="bubble-text">${lede}</p>
+        <p class="bubble-text${ledeLines.length > 1 ? " is-split" : ""}">${ledeLines.map((l) => `<span class="bubble-line">${l}</span>`).join("")}</p>
       </div>
     </div>
     <div class="entries">

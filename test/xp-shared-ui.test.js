@@ -323,6 +323,8 @@ test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-se
   assert.equal(homeMode(learner, DAY), "paused");
   assert.equal(homeView(learner, DAY).cta.label, "继续刚才的练习");
   assert.equal(homeView(learner, DAY).lede, "刚才练到一半，继续就好。");
+  assert.deepEqual(homeView(learner, DAY).ledeLines, ["刚才练到一半，", "继续就好。"], "two fixed lede lines");
+  assert.equal(homeView(learner, DAY).ledeLines.join(""), homeView(learner, DAY).lede);
   assert.equal(homeView(learner, DAY).secondary, null, "one clear action on the resume hero");
   const again = createTrainingFlow({ store, catalog, today: () => DAY });
   again.resume();
