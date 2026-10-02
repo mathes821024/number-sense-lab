@@ -274,9 +274,9 @@ test("training (FOCUS) markup has no mascot, decoration or theme art", () => {
   assert.doesNotMatch(pause, /mascot|asset\(|decor/);
 });
 
-test("training shows a calm 「k / N」 position and a still bar, never a timer", () => {
+test("training shows a calm 「第 k 题 · 共 N 题」 position and a still bar, never a timer", () => {
   const train = section("renderTrain");
-  assert.match(train, /id="set-count">\$\{position\} \/ \$\{total\}</);
+  assert.match(train, /id="set-count">\$\{setPositionLabel\(position, total\)\}</);
   assert.match(train, /<progress class="set-bar"/);
   const code = train.replace(/\/\/.*$/gm, "");
   assert.doesNotMatch(code, /%|倒计时|countdown|setTimeout|setInterval|秒/);

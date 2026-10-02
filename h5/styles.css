@@ -730,7 +730,7 @@ button.setting { cursor: pointer; }
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
-/* Calm position in the set: 「2 / 10」 and a still bar. No transition, no timer. */
+/* Calm position in the set: 「第 2 题 · 共 10 题」 and a still bar. No transition, no timer. */
 .set-progress { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
 .set-count {
   flex: none;
@@ -793,12 +793,13 @@ button.setting { cursor: pointer; }
   justify-content: center;
   margin: 22px 0 14px;
 }
-.question-fields .question { margin: 0 14px 0 0; }
+.question-fields .question { margin: 0 14px 0 0; white-space: nowrap; flex: none; }
 .fraction-fields {
   display: inline-flex;
   flex-direction: column;
   align-items: stretch;
-  width: 112px;
+  min-width: 112px;
+  max-width: 100%;
 }
 .ff-box {
   position: relative;
@@ -806,7 +807,7 @@ button.setting { cursor: pointer; }
   align-items: center;
   justify-content: center;
   min-height: 58px;
-  padding: 0;
+  padding: 0 8px;
   border: 2px solid var(--border-subtle);
   border-radius: var(--radius-input);
   background: var(--surface-card);
@@ -821,6 +822,10 @@ button.setting { cursor: pointer; }
   -webkit-tap-highlight-color: transparent;
 }
 .ff-box.is-focus { border-color: var(--color-brand-primary); }
+.ff-digits { white-space: nowrap; }
+/* many digits (no curriculum cap): smaller type so the box still fits a phone */
+.ff-box.is-long .ff-digits { font-size: 22px; }
+.ff-box.is-xlong .ff-digits { font-size: 14px; }
 .ff-box:focus-visible { outline: 3px solid var(--color-brand-bright); outline-offset: 2px; }
 .ff-caret {
   display: inline-block;

@@ -159,7 +159,7 @@ await mainOnly("Home → Training", async () => {
   await tick(100);
   check(stack.at(-1).route === "pages/train/index", `route ${stack.at(-1).route}`);
   const count = text(byClass("set-count")[0]);
-  check(count === "1 / 10", `count ${count}`);
+  check(count === "第 1 题 · 共 10 题", `count ${count}`);
   check(byClass("tabbar").length === 0 && byClass("mascot").length === 0, "focus: no nav, no mascot");
   return `navigateTo pages/train/index?intent=start-daily; 「${count}」; prompt 「${text(prompt())}」; no nav/mascot`;
 });
@@ -176,12 +176,12 @@ await mainOnly("Correct (keypad tap → short pause → next)", async () => {
   const t0 = Date.now();
   while (!byClass("set-count")[0] && Date.now() - t0 < 3000) await tick(20);
   const adv = Date.now() - t0;
-  check(text(byClass("set-count")[0]) === "2 / 10", "2 / 10");
+  check(text(byClass("set-count")[0]) === "第 2 题 · 共 10 题", "第 2 题 · 共 10 题");
   check(adv > 550 && adv < 1500, `pause ${adv}ms`);
   const root = JSON.parse(storage.get("nsl-v01-state"));
   check(root.version === 3, `version ${root.version}`);
   check(learner().relations[first.id].attempts[0].correct === true, "stored");
-  return `${first.id} → ${first.canonical_answer}; card 「${text(card)}」; auto-advanced after ~${adv}ms to 2 / 10; wx storage (v3) has the correct attempt; typed 「${shown}」`;
+  return `${first.id} → ${first.canonical_answer}; card 「${text(card)}」; auto-advanced after ~${adv}ms to 「第 2 题 · 共 10 题」; wx storage (v3) has the correct attempt; typed 「${shown}」`;
 });
 
 await mainOnly("Wrong (relation stays, 下一题, no retry)", async () => {
@@ -199,7 +199,7 @@ await mainOnly("Wrong (relation stays, 下一题, no retry)", async () => {
   await tick(50);
   const count = text(byClass("set-count")[0]);
   const after = itemNow();
-  check(count === "3 / 10" && after.id !== item.id, `after ${count} ${after.id}`);
+  check(count === "第 3 题 · 共 10 题" && after.id !== item.id, `after ${count} ${after.id}`);
   const st = learner();
   check(st.relations[item.id].attempts.at(-1).correct === false && st.activeSession.answered === 2, "stored wrong");
   return `${item.id} typed ${typed}; stays 1.2s on 「${text(eq)}」; no keypad; 下一题 → ${count}, different item ${after.id}; wx storage answered 2`;
@@ -228,13 +228,17 @@ if (PART === "fraction") await step("Fraction fields (two boxes, no 「/」 key,
   check(nudge() === "先写一个分数" && !learner().relations["ifraction-1-2"], "1 over 0 → not an attempt");
   tap(keyNode("删除")); tap(keyNode("删除")); await tick(10);
   check(focusOf() === "denominator" && text(box("denominator")).trim() === "" && text(box("numerator")).trim() === "1", "backspace stays in the empty box");
-  tap(box("numerator")); tap(keyNode("删除")); tap(keyNode("2")); tap(box("denominator")); tap(keyNode("4")); tap(keyNode("提交")); await tick(20);
+  tap(box("numerator")); tap(keyNode("删除")); tap(keyNode("0")); tap(keyNode("2")); tap(box("denominator")); tap(keyNode("0")); tap(keyNode("4")); await tick(10);
+  check(text(box("numerator")).trim() === "2" && text(box("denominator")).trim() === "4", `02 over 04 shows ${text(box("numerator"))} over ${text(box("denominator"))}`);
+  check(text(byClass("set-count")[0]) === "第 2 题 · 共 2 题", `count ${text(byClass("set-count")[0])}`);
+  tap(keyNode("提交")); await tick(20);
   check(/一样大，再约到最简/.test(nudge()) && !learner().relations["ifraction-1-2"], `2 over 4 → ${nudge()}`);
+  check(text(box("numerator")).trim() === "2" && text(box("denominator")).trim() === "4", "no auto-simplify");
   tap(keyNode("删除")); tap(keyNode("2")); tap(box("numerator")); tap(keyNode("删除")); tap(keyNode("1")); tap(keyNode("提交")); await tick(30);
   check(byClass("screen-correct").length === 1, "1 over 2 → correct");
   const a = learner().relations["ifraction-1-2"].attempts;
   check(a.length === 1 && a[0].correct === true, "recorded once, correct");
-  return "0.5 = [分子] over [分母] (focus 分子, no 「/」 key); empty and 1 over 0 → 「先写一个分数」 (0 records); backspace stays; 2 over 4 → needs_simplification (0 records); 1 over 2 → correct (1 record)";
+  return "0.5 = [分子] over [分母] (focus 分子, no 「/」 key); empty and 1 over 0 → 「先写一个分数」 (0 records); backspace stays; typed 02 over 04 shows 2 over 4 → needs_simplification, still 2 over 4 (0 records); 「第 2 题 · 共 2 题」; 1 over 2 → correct (1 record)";
 });
 
 await step("storage went through wx.*StorageSync", async () => {

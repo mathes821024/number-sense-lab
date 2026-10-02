@@ -1,4 +1,5 @@
 import { View, Text } from "@tarojs/components";
+import { fieldSize } from "../../src/core/fraction-fields.js";
 
 /**
  * The fraction_fields answer: a numerator box over a bar over a denominator
@@ -12,7 +13,7 @@ export default function FractionFields({ fields, onFocus, tick }) {
     const focused = fields.focus === which;
     return (
       <View
-        className={`ff-box ff-${which}${focused ? " is-focus" : ""}${value ? "" : " is-empty"}`}
+        className={`ff-box ff-${which}${focused ? " is-focus" : ""}${value ? "" : " is-empty"}${fieldSize(value) ? ` is-${fieldSize(value)}` : ""}`}
         role="button"
         aria-label={which === "numerator" ? "分子" : "分母"}
         aria-pressed={focused}

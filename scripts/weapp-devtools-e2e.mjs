@@ -231,7 +231,7 @@ await step("2 Home → Training (FOCUS)", async () => {
   await sleep(1900);
   page = await startFromHome(page);
   check(page.path === "pages/train/index", `path ${page.path}`);
-  check((await count(page)) === "1 / 10", `count ${await count(page)}`);
+  check((await count(page)) === "第 1 题 · 共 10 题", `count ${await count(page)}`);
   check(!(await has(page, ".tabbar")) && !(await has(page, ".mascot")) && !(await has(page, ".page-decor")), "focus: no nav / mascot / decor");
   const label = await textOf(page, ".practice-label");
   const root = JSON.parse(await stored());
@@ -243,7 +243,7 @@ await step("2 Home → Training (FOCUS)", async () => {
   check(nudge === "先写一个数", `nudge ${nudge}`);
   check((await learner()).relations[first.id] === undefined, "empty submit stored nothing");
   await shot("02-training");
-  return `${page.path} (query ${JSON.stringify(page.query)}); 「1 / 10」, 「${label}」, no nav / mascot / decor; wx storage version 3; empty 提交 → 「${nudge}」, nothing stored`;
+  return `${page.path} (query ${JSON.stringify(page.query)}); 「第 1 题 · 共 10 题」, 「${label}」, no nav / mascot / decor; wx storage version 3; empty 提交 → 「${nudge}」, nothing stored`;
 });
 
 await step("3 Correct → auto next", async () => {
@@ -256,14 +256,14 @@ await step("3 Correct → auto next", async () => {
   const keys = (await page.$$(".key")).length;
   const imgs = await Promise.all((await page.$$(".theme-img")).map((e) => e.attribute("src")));
   await shot("03-correct");
-  await waitCount(page, "2 / 10");
+  await waitCount(page, "第 2 题 · 共 10 题");
   const ms = Date.now() - t0;
   const att = (await learner()).relations[first.id].attempts.at(-1);
   check(title === "太棒了！" && word === "对" && keys === 0 && !(await has(page, ".tabbar")), `correct ${title} ${word} keys ${keys}`);
   check(imgs.some((s) => /mascot-correct-512.*\.png$/.test(s || "")), `mascot ${imgs}`);
   check(ms >= 600 && ms < 2000, `advanced after ${ms}ms`);
   check(att.correct === true && att.inputMode === "onscreen_keypad", JSON.stringify(att));
-  return `${first.id} 「${blockOf(first)}」 → 「${title}」 「${word}」, correct mascot PNG, no keypad / nav / button; 2 / 10 after ${ms}ms with no tap (700ms + automation polling); wx attempt correct, onscreen_keypad`;
+  return `${first.id} 「${blockOf(first)}」 → 「${title}」 「${word}」, correct mascot PNG, no keypad / nav / button; 「第 2 题 · 共 10 题」 after ${ms}ms with no tap (700ms + automation polling); wx attempt correct, onscreen_keypad`;
 });
 
 await step("4 Wrong → 下一题", async () => {
@@ -293,10 +293,10 @@ await step("4 Wrong → 下一题", async () => {
   check(l.relations[item.id].attempts.at(-1).correct === false, "wrong stored");
   check(Object.keys(l.activeSession.reappearPlan || {}).includes(item.id), "reappearance planned");
   await tapText(page, ".screen-wrong .cta", "下一题");
-  await waitCount(page, "3 / 10");
+  await waitCount(page, "第 3 题 · 共 10 题");
   const next = await currentItem();
   check(next.id !== item.id, "different item");
-  return `${item.id} typed 「${wrongFor(item)}」 → stays >1.3s on 「${w.eq}」; 小提示 / 看这里 / 看看这个规律 / 看看这几步; thinking mascot PNG; no keypad / nav / retry; pattern expands; wx: wrong attempt + reappearPlan; 下一题 → 3 / 10 (${next.id})`;
+  return `${item.id} typed 「${wrongFor(item)}」 → stays >1.3s on 「${w.eq}」; 小提示 / 看这里 / 看看这个规律 / 看看这几步; thinking mascot PNG; no keypad / nav / retry; pattern expands; wx: wrong attempt + reappearPlan; 下一题 → 「第 3 题 · 共 10 题」 (${next.id})`;
 });
 
 await step("5 Pause → 继续做 / 先停 → end → Home", async () => {
@@ -358,7 +358,7 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   const h = { t: await textOf(page, ".bubble-title"), cta: await textOf(page, ".home-cta .entry-name"), sec: await textOf(page, ".home-secondary") };
   check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && h.sec === "重新开始一小段", JSON.stringify(h));
   page = await startFromHome(page, "继续刚才的练习");
-  check((await currentItem()).id === "ifraction-1-2" && (await count(page)) === "2 / 5", "resumed at item 2");
+  check((await currentItem()).id === "ifraction-1-2" && (await count(page)) === "第 2 题 · 共 5 题", "resumed at item 2");
   for (const k of await page.$$(".key")) check((await k.text()).trim() !== "/", "no 「/」 key");
   let ff = await fieldsOf(page);
   check(ff && ff.focus === "numerator" && ff.n === "" && ff.d === "", `fields ${JSON.stringify(ff)}`);
@@ -384,13 +384,16 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   await sleep(200);
   await press(page, "02|04");
   ff = await fieldsOf(page);
-  check(ff.n === "02" && ff.d === "04", JSON.stringify(ff));
+  check(ff.n === "2" && ff.d === "4", `typed 02 over 04 shows 2 over 4 ${JSON.stringify(ff)}`);
+  await shot("10b-typed-02-04-shows-2-4");
   await tapText(page, ".key", "提交");
   await sleep(400);
   const nudge = await textOf(page, ".nudge");
   const nudgeFracs = (await page.$$(".nudge .frac")).length;
   check(nudge === "24 和 12 一样大，再约到最简：12。" && nudgeFracs === 3, `nudge ${nudge} fracs ${nudgeFracs}`); // text() joins each fraction's numerator and denominator
   check((await learner()).relations["ifraction-1-2"] === undefined, "needs_simplification stored nothing");
+  ff = await fieldsOf(page);
+  check(ff.n === "2" && ff.d === "4", `no auto-simplify ${JSON.stringify(ff)}`);
   await shot("10-needs-simplification");
   for (let i = 0; i < 2; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
   await press(page, "2");
@@ -421,7 +424,26 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   await waitFor(page, ".screen-correct");
   const l = await learner();
   check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["fraction-1-3"].attempts[0].correct && l.relations["fraction-1-2"].attempts[0].correct, "recorded once each");
-  return `seeded v3 paused set → 「还有一小段」/继续刚才的练习 → 2 / 5; 0.5 = [分子]/[分母] (no 「/」 key) → empty and 1 over 0 → 「先写一个分数」 (0 records); 02 over 04 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (${nudgeFracs} drawn fractions, 0 records) → 01 over 02 ✓; 0.( slot ) → 3 dotted (.rd) → correct relation 「1/3 = 0.3̇」 with no brackets ✓; 「.5」 ✓`;
+  return `seeded v3 paused set → 「还有一小段」/继续刚才的练习 → 「第 2 题 · 共 5 题」; 0.5 = [分子]/[分母] (no 「/」 key) → empty and 1 over 0 → 「先写一个分数」 (0 records); typed 02 over 04 shows 2 over 4 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (${nudgeFracs} drawn fractions, 0 records) → 01 over 02 ✓; 0.( slot ) → 3 dotted (.rd) → correct relation 「1/3 = 0.3̇」 with no brackets ✓; 「.5」 ✓`;
+});
+
+await step("7b Complements: 「37 + ? = 100」", async () => {
+  await boot(JSON.stringify(seededRoot(["comp-37"])));
+  page = await freshHome();
+  page = await startFromHome(page, "继续刚才的练习");
+  check((await currentItem()).id === "comp-37", "comp-37 on screen");
+  const q = await textOf(page, ".question");
+  const c = await count(page);
+  check(q === "37 + ? = 100", `prompt 「${q}」`);
+  check(c === "第 2 题 · 共 2 题" && !/\//.test(c), `count 「${c}」`);
+  await press(page, "63");
+  await shot("13a-complement-37");
+  await tapText(page, ".key", "提交");
+  await waitFor(page, ".screen-correct");
+  const rel = await textOf(page, ".correct-eq");
+  await shot("13b-complement-37-correct");
+  check(rel === "37 和 63 凑成 100", `relation ${rel}`);
+  return `「${q}」, 「${c}」 → 63 → correct 「${rel}」`;
 });
 
 await step("8 v1 → v2 → v3 migration in wx storage", async () => {

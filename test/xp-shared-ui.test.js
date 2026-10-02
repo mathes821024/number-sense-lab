@@ -19,6 +19,7 @@ import { loadCoreCatalog, getRelationById, isEntryUnlocked } from "../src/core/c
 import { getActiveLearner, withActiveLearner, emptyState } from "../src/core/store.js";
 import { startSession } from "../src/core/session.js";
 import { MASTERY } from "../src/core/mastery.js";
+import { setPositionLabel } from "../src/core/progress-label.js";
 
 const catalog = loadCoreCatalog();
 const DAY = "2026-10-01";
@@ -161,13 +162,13 @@ test("pause length is inside the 400–700ms contract", () => {
   assert.ok(CORRECT_PAUSE_MS >= 400 && CORRECT_PAUSE_MS <= 700);
 });
 
-test("training: 1 / 10, empty submit → 先写一个数 (no record), fraction → 先写一个分数", () => {
+test("training: 第 1 题 · 共 10 题, empty submit → 先写一个数 (no record), fraction → 先写一个分数", () => {
   const { store } = memStore();
   const flow = createTrainingFlow({ store, catalog, today: () => DAY });
   flow.begin("daily", null);
   const v = flow.view();
   assert.equal(v.screen, "train");
-  assert.equal(`${v.position} / ${v.total}`, "1 / 10");
+  assert.equal(setPositionLabel(v.position, v.total), "第 1 题 · 共 10 题");
   assert.equal(flow.submit(), "nudge");
   assert.equal(flow.view().nudge, v.item.answer_type === "fraction_fields" ? "先写一个分数" : "先写一个数");
   assert.equal(flow.view().screen, "train");

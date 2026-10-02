@@ -141,7 +141,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
       pause: document.querySelector('[data-action="pause"]').textContent,
       hash: location.hash,
     }));
-    check(t.count === "1 / 10", t.count);
+    check(t.count === "第 1 题 · 共 10 题", t.count);
     check(!t.nav && t.mascots === 0 && t.decor === 0, `nav ${t.nav} mascots ${t.mascots}`);
     check(t.q === (desktop ? 60 : 40), `question ${t.q}px`);
     check(t.keys.slice(0, 9).join("") === "123456789" && t.keys.includes("del") && t.keys.includes("submit"), t.keys.join());
@@ -173,7 +173,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     }));
     await page.waitForTimeout(120);
     await shot("03-correct");
-    await page.waitForFunction(() => document.querySelector('[data-testid="set-count"]')?.textContent === "2 / 10", null, { timeout: 3000 });
+    await page.waitForFunction(() => document.querySelector('[data-testid="set-count"]')?.textContent === "第 2 题 · 共 10 题", null, { timeout: 3000 });
     const ms = Date.now() - t0;
     const l = await learner();
     const att = l.relations[item.id].attempts.at(-1);
@@ -184,7 +184,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     check(ms >= 650 && ms < 1500, `advanced after ${ms}ms`);
     check(att.correct === true && att.inputMode === (desktop ? "physical_keyboard" : "onscreen_keypad"), JSON.stringify(att));
     check(l.activeSession.answered === 1, "answered 1");
-    return `${item.id} 「${blockOf(item)}」 via ${desktop ? "physical keys + Enter" : "on-screen keypad"} → 「太棒了！」, 「${c.relation}」 ✓ 「对」, correct mascot, no button / keypad / nav; 2 / 10 after ${ms}ms with no tap; stored inputMode ${att.inputMode}`;
+    return `${item.id} 「${blockOf(item)}」 via ${desktop ? "physical keys + Enter" : "on-screen keypad"} → 「太棒了！」, 「${c.relation}」 ✓ 「对」, correct mascot, no button / keypad / nav; 第 2 题 · 共 10 题 after ${ms}ms with no tap; stored inputMode ${att.inputMode}`;
   });
 
   await step(`${vp} 4 Wrong → 下一题`, async () => {
@@ -224,10 +224,10 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     check(l.relations[item.id].attempts.at(-1).correct === false, "wrong recorded");
     check(Object.keys(l.activeSession.reappearPlan || {}).includes(item.id), "reappearance planned");
     await page.click('[data-testid="next"]');
-    await page.waitForFunction(() => document.querySelector('[data-testid="set-count"]')?.textContent === "3 / 10");
+    await page.waitForFunction(() => document.querySelector('[data-testid="set-count"]')?.textContent === "第 3 题 · 共 10 题");
     const next = await currentItem();
     check(next.id !== item.id, "different item");
-    return `${item.id} 「${wrongFor(item)}」 → stays >1.3s; relation ${w.sizes.eq}px > question ${w.sizes.demoted}px > hook ${w.sizes.hook}px; 小提示 / 看这里 / 看看这个规律 / 看看这几步; thinking mascot; no keypad, nav or retry; typing ignored; reappearPlan has it; 下一题 → 3 / 10 (${next.id})`;
+    return `${item.id} 「${wrongFor(item)}」 → stays >1.3s; relation ${w.sizes.eq}px > question ${w.sizes.demoted}px > hook ${w.sizes.hook}px; 小提示 / 看这里 / 看看这个规律 / 看看这几步; thinking mascot; no keypad, nav or retry; typing ignored; reappearPlan has it; 下一题 → 第 3 题 · 共 10 题 (${next.id})`;
   });
 
   await step(`${vp} 5 Pause → 继续做 / 先停 → end → Home`, async () => {
@@ -264,14 +264,14 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
   });
 
   // Visible text of a student screen with a slash fraction in it (「1/2」, 「?/?」).
-  // The set position 「2 / 10」 is a count, not a fraction (ui/03 §6), so it is skipped.
+  // The set position 「第 k 题 · 共 N 题」 has no slash, so nothing on screen is skipped.
   const slashScan = () =>
     page.evaluate(() => {
       const hits = [];
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       for (let n = walker.nextNode(); n; n = walker.nextNode()) {
         const el = n.parentElement;
-        if (!el || !el.checkVisibility() || el.closest(".set-count")) continue;
+        if (!el || !el.checkVisibility()) continue;
         if (/[\d?]\s*\/\s*[\d?]/.test(n.textContent)) hits.push(n.textContent.trim());
       }
       return { hits, slashKey: Boolean(document.querySelector('.key[data-key="/"]')) };
@@ -328,11 +328,14 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     await page.click('.key[data-key="del"]');
     await press("04");
     f = await fieldsState();
-    check(f.n === "02" && f.d === "04", JSON.stringify(f));
+    check(f.n === "2" && f.d === "4", `typed 02 over 04 shows 2 over 4 ${JSON.stringify(f)}`);
+    await shot("06c-typed-02-04-shows-2-4");
     await submit();
     const nudge = await page.evaluate(() => ({ label: document.querySelector('[data-testid="nudge"] .math').getAttribute("aria-label"), fracs: document.querySelectorAll('[data-testid="nudge"] .frac').length }));
     check(nudge.label === "2/4 和 1/2 一样大，再约到最简：1/2。" && nudge.fracs === 3, JSON.stringify(nudge));
     check((await learner()).relations["ifraction-1-2"] === undefined, "needs_simplification recorded nothing");
+    f = await fieldsState();
+    check(f.n === "2" && f.d === "4", `no auto-simplify ${JSON.stringify(f)}`);
     scan = await slashScan();
     check(scan.hits.length === 0, `slash ${JSON.stringify(scan)}`);
     await shot("07-needs-simplification");
@@ -375,7 +378,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     await page.waitForSelector('[data-testid="correct"]');
     const l = await learner();
     check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["ifraction-1-2"].attempts[0].correct && l.relations["fraction-1-3"].attempts[0].correct && l.relations["fraction-1-2"].attempts[0].correct, "recorded once each");
-    return `0.5 = [分子]/[分母] (focus 分子, no 「/」 key, no slash text) → empty / 1+empty / 1 over 0 / empty over 2 → 「先写一个分数」, 0 records; backspace stays in the empty box; 02 over 04 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (3 bars, 0 records) → 1 over 2 ✓ (1 record); 0.( slot ) → 3 ✓; 「.5」 ✓`;
+    return `0.5 = [分子]/[分母] (focus 分子, no 「/」 key, no slash text) → empty / 1+empty / 1 over 0 / empty over 2 → 「先写一个分数」, 0 records; backspace stays in the empty box; 02 over 04 shows 2 over 4 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (3 bars, 0 records) → 1 over 2 ✓ (1 record); 0.( slot ) → 3 ✓; 「.5」 ✓`;
   });
 
   await step(`${vp} 6b Fraction fields: 0.5 → 3 over 5 is wrong; the Wrong screen draws bars only`, async () => {
@@ -416,7 +419,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
       await press("02");
     }
     const f = await fieldsState();
-    check(f.n === "01" && f.d === "02", JSON.stringify(f));
+    check(f.n === "1" && f.d === "2", `typed 01 over 02 shows 1 over 2 ${JSON.stringify(f)}`);
     await shot("11-leading-zeros");
     await submit(desktop);
     await page.waitForSelector('[data-testid="correct"]');

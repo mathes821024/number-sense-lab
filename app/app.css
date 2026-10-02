@@ -474,12 +474,13 @@ body {
   justify-content: center;
   margin: 22px 0 14px;
 }
-.question-fields .math.question { margin: 0 14px 0 0; }
+.question-fields .math.question { margin: 0 14px 0 0; white-space: nowrap; flex: none; }
 .fraction-fields {
   display: inline-flex;
   flex-direction: column;
   align-items: stretch;
-  width: 112px;
+  min-width: 112px;
+  max-width: 100%;
 }
 .ff-box {
   position: relative;
@@ -488,6 +489,7 @@ body {
   justify-content: center;
   box-sizing: border-box;
   min-height: 58px;
+  padding: 0 8px;
   border: 2px solid var(--border-subtle);
   border-radius: var(--radius-input);
   background: var(--surface-card);
@@ -500,6 +502,10 @@ body {
   touch-action: manipulation;
 }
 .ff-box.is-focus { border-color: var(--color-brand-primary); }
+.ff-digits { white-space: nowrap; }
+/* many digits (no curriculum cap): smaller type so the box still fits a phone */
+.ff-box.is-long .ff-digits { font-size: 22px; }
+.ff-box.is-xlong .ff-digits { font-size: 14px; }
 .ff-caret {
   width: 2px;
   height: 0.9em;

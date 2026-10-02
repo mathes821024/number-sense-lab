@@ -18,7 +18,10 @@ import {
   promptStem,
   hasBlankFraction,
   FIELD_DIGITS,
+  normalizeField,
+  fieldSize,
 } from "../src/core/fraction-fields.js";
+import { setPositionLabel } from "../src/core/progress-label.js";
 import { composeFractionFields, judgeAnswer } from "../src/core/answer.js";
 import { feedbackFor } from "../src/core/feedback.js";
 import { loadCoreCatalog, getRelationById, verifyContentCounts } from "../src/core/content.js";
@@ -119,9 +122,46 @@ test("model: focus starts on the numerator; a tap moves it; digits go only into 
 test("model: only digits — no 「.」, 「-」 or 「/」", () => {
   const f = emptyFields();
   for (const key of [".", "-", "/", "e", "+", " ", "", "12"]) assert.equal(typeDigit(f, key), null, JSON.stringify(key));
+});
+
+test("regression 6: no 4-digit cap — long entries are accepted up to the technical guard only", () => {
+  let f = emptyFields();
+  for (const ch of "12345") f = typeDigit(f, ch);
+  assert.equal(f.numerator, "12345", "a 5th digit is accepted (no 4-digit cap)");
+  for (const ch of "6789") f = typeDigit(f, ch);
+  assert.equal(f.numerator, "123456789");
+  // The only limit is technical: 15 significant digits stay an exact JS integer.
+  assert.equal(FIELD_DIGITS, 15);
+  assert.ok(Number.isSafeInteger(Number("9".repeat(FIELD_DIGITS))));
   let full = emptyFields();
   for (let i = 0; i < FIELD_DIGITS; i += 1) full = typeDigit(full, "9");
-  assert.equal(typeDigit(full, "9"), null, `at most ${FIELD_DIGITS} digits a box`);
+  assert.equal(full.numerator.length, FIELD_DIGITS);
+  assert.equal(typeDigit(full, "9"), null, "16th significant digit: guard");
+  // Leading zeros never count against it: they are not kept.
+  let z = emptyFields();
+  for (let i = 0; i < 40; i += 1) z = typeDigit(z, "0");
+  assert.equal(z.numerator, "0");
+  assert.equal(fieldSize("12345"), "");
+  assert.equal(fieldSize("123456"), "long");
+  assert.equal(fieldSize("1234567890"), "xlong");
+});
+
+test("regression 1: leading zeros are dropped from what a box shows (02 → 2, 004 → 4); a lone 0 may stay", () => {
+  assert.equal(normalizeField("02"), "2");
+  assert.equal(normalizeField("004"), "4");
+  assert.equal(normalizeField("0"), "0");
+  assert.equal(normalizeField("00"), "0");
+  assert.equal(normalizeField("10"), "10", "a zero after a digit is a digit");
+  assert.equal(normalizeField("100"), "100");
+  let f = emptyFields();
+  f = typeDigit(f, "0");
+  assert.equal(f.numerator, "0", "a single 0 stays while editing");
+  f = typeDigit(f, "2");
+  assert.equal(f.numerator, "2", "0 then 2 shows 2");
+  f = focusField(f, "denominator");
+  for (const ch of "004") f = typeDigit(f, ch);
+  assert.deepEqual(f, { numerator: "2", denominator: "4", focus: "denominator" }, "02 over 004 shows 2 over 4");
+  assert.equal(fieldsAnswer(f), "2/4", "never reduced");
 });
 
 test("model: backspace deletes only in the focused box; an empty box keeps the focus (no jump)", () => {
@@ -231,12 +271,15 @@ test("acceptance 4–6 also: numerator 0 and both empty are not attempts", () =>
 test("acceptance 7: leading zeros are read by integer value (01/02 = 1/2, 02/04 = 2/4)", () => {
   const a = flowOver(["ifraction-1-2", "square-6"]).flow;
   enter(a, "01", "02");
-  assert.deepEqual(a.view().fields, { numerator: "01", denominator: "02", focus: "denominator" });
+  assert.deepEqual(a.view().fields, { numerator: "1", denominator: "2", focus: "denominator" }, "regression 3: 01 over 02 shows 1 over 2");
   assert.equal(a.submit(), "correct");
   assert.equal(recorded(a, "ifraction-1-2"), 1);
   const b = flowOver(["ifraction-1-2", "square-6"]).flow;
   enter(b, "02", "04");
-  assert.equal(b.submit(), "nudge");
+  assert.deepEqual(b.view().fields, { numerator: "2", denominator: "4", focus: "denominator" }, "regression 1: 02 over 04 shows 2 over 4, not reduced");
+  assert.equal(b.submit(), "nudge", "regression 2: needs_simplification");
+  assert.deepEqual(b.view().fields, { numerator: "2", denominator: "4", focus: "denominator" }, "regression 5: no auto-simplify after the hint");
+  assert.equal(recorded(b, "ifraction-1-2"), 0);
   assert.equal(b.view().nudge, "2/4 和 1/2 一样大，再约到最简：1/2。");
   const c = flowOver(["ifraction-3-8"]).flow;
   enter(c, "003", "008");
@@ -327,4 +370,34 @@ test("acceptance 8: no 「/」 key and no single-line fraction input in either s
   assert.match(page, /import FractionFields from "\.\.\/\.\.\/components\/FractionFields"/);
   assert.match(h5, /from "\.\.\/src\/core\/fraction-fields\.js"/);
   assert.match(flow, /from "\.\.\/\.\.\/\.\.\/src\/core\/fraction-fields\.js"/);
+});
+
+test("regression 4: denominator 0 (also typed 00 / 000) stays not an attempt; numerator 0 too", () => {
+  for (const [num, den] of [["1", "0"], ["1", "000"], ["0", "2"], ["000", "5"]]) {
+    const { flow } = flowOver(["ifraction-1-2"]);
+    enter(flow, num, den);
+    assert.equal(flow.submit(), "nudge", `${num}|${den}`);
+    assert.equal(flow.view().nudge, "先写一个分数");
+    assert.equal(recorded(flow, "ifraction-1-2"), 0);
+  }
+});
+
+test("regression 5: no auto-simplify anywhere — 4 over 8 for 0.5 stays 4 over 8 and is needs_simplification", () => {
+  const { flow } = flowOver(["ifraction-1-2"]);
+  enter(flow, "04", "008");
+  assert.deepEqual(flow.view().fields, { numerator: "4", denominator: "8", focus: "denominator" });
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.view().nudge, "4/8 和 1/2 一样大，再约到最简：1/2。");
+  assert.deepEqual(flow.view().fields, { numerator: "4", denominator: "8", focus: "denominator" });
+});
+
+test("regression 7: the set position reads 「第 k 题 · 共 N 题」 — no 「2/10」-like fraction", () => {
+  assert.equal(setPositionLabel(2, 10), "第 2 题 · 共 10 题");
+  assert.equal(SLASH_FRACTION.test(setPositionLabel(2, 10)), false);
+  assert.equal(setPositionLabel(10, 10).includes("/"), false);
+  const h5 = readFileSync(join(root, "h5/app.js"), "utf8");
+  const bar = readFileSync(join(root, "app/components/SetProgress.jsx"), "utf8");
+  assert.match(h5, /id="set-count">\$\{setPositionLabel\(position, total\)\}</);
+  assert.match(bar, /\{setPositionLabel\(position, total\)\}/);
+  assert.equal(/\$\{position\} \/ \$\{total\}/.test(h5 + bar), false, "the old 「k / N」 is gone");
 });

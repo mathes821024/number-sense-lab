@@ -41,8 +41,10 @@ import {
   typeDigit,
   eraseDigit,
   fieldsAnswer,
+  fieldSize,
   promptStem,
 } from "../src/core/fraction-fields.js";
+import { setPositionLabel } from "../src/core/progress-label.js";
 import { formatMath, repeatingHtml, listPromptHtml, printPromptHtml } from "./math-text.js";
 import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";
 
@@ -508,7 +510,7 @@ function renderTrain() {
       <span class="pill">${pill}</span>
     </div>
     <div class="set-progress">
-      <span class="set-count" id="set-count">${position} / ${total}</span>
+      <span class="set-count" id="set-count">${setPositionLabel(position, total)}</span>
       <progress class="set-bar" max="${total}" value="${position - 1}" aria-labelledby="set-count"></progress>
     </div>
     <div class="practice-zone">
@@ -833,7 +835,8 @@ function fieldsHtml() {
   const box = (which, label) => {
     const value = fields[which];
     const focused = fields.focus === which;
-    return `<button class="ff-box ff-${which}${focused ? " is-focus" : ""}${value ? "" : " is-empty"}" type="button" data-field="${which}" data-value="${value}" aria-label="${label}" aria-pressed="${focused}"><span class="ff-digits">${escapeHtml(
+    const size = fieldSize(value);
+    return `<button class="ff-box ff-${which}${focused ? " is-focus" : ""}${value ? "" : " is-empty"}${size ? ` is-${size}` : ""}" type="button" data-field="${which}" data-value="${value}" aria-label="${label}" aria-pressed="${focused}"><span class="ff-digits">${escapeHtml(
       value,
     )}</span>${focused ? '<span class="ff-caret" aria-hidden="true"></span>' : ""}</button>`;
   };
