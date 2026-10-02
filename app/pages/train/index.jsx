@@ -13,6 +13,8 @@ import {
 } from "../../platform/current";
 import Keypad from "../../components/Keypad";
 import AnswerBox from "../../components/AnswerBox";
+import FractionFields from "../../components/FractionFields";
+import { promptStem } from "../../../src/core/fraction-fields.js";
 import SetProgress from "../../components/SetProgress";
 import MathText from "../../components/math/MathText";
 import { hasWords } from "../../components/math/tokens.js";
@@ -90,6 +92,9 @@ export default function Train() {
       rerender();
     }
   };
+  const focusBox = (which) => {
+    if (flow.focus(which)) rerender();
+  };
   const erase = (mode = "onscreen_keypad") => {
     if (flow.erase(mode)) {
       bumpTick();
@@ -148,8 +153,17 @@ export default function Train() {
         <SetProgress position={view.position} total={view.total} />
         <View className="practice-zone">
           <Text className="practice-label">看清关系，再写答案</Text>
-          <MathText value={view.item.prompt} className={hasWords(view.item.prompt) ? "question is-words" : "question"} key={view.item.id} />
-          <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
+          {view.fields ? (
+            <View className="question-fields" key={view.item.id}>
+              <MathText value={promptStem(view.item.prompt)} className="question" />
+              <FractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+            </View>
+          ) : (
+            <>
+              <MathText value={view.item.prompt} className={hasWords(view.item.prompt) ? "question is-words" : "question"} key={view.item.id} />
+              <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
+            </>
+          )}
           <View className="nudge" data-testid="nudge">
             {view.nudge ? <MathText value={view.nudge} /> : null}
           </View>

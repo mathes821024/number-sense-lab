@@ -3,8 +3,9 @@ import { View, Text } from "@tarojs/components";
 /**
  * On-screen keypad: the main input on phones and the complete input in the
  * Mini Program (h5/app.js renderTrain). Left of 0: 「.」 for a decimal answer,
- * 「/」 for a fraction answer, otherwise an empty slot. A repeating decimal
- * needs no extra key: the answer box itself reads 0.( … ).
+ * otherwise an empty slot. A fraction answer has no 「/」 key: the digits go
+ * into the focused numerator / denominator box (FractionFields). A repeating
+ * decimal needs no extra key: the answer box itself reads 0.( … ).
  */
 export default function Keypad({ extraKey, onKey, onErase, onSubmit }) {
   const key = (label, onTap, cls = "", dataKey = label, aria) => (
@@ -25,7 +26,7 @@ export default function Keypad({ extraKey, onKey, onErase, onSubmit }) {
     <View className="keys">
       {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => key(d, () => onKey(d)))}
       {extraKey
-        ? key(extraKey, () => onKey(extraKey), "", extraKey, extraKey === "/" ? "分数线" : undefined)
+        ? key(extraKey, () => onKey(extraKey), "", extraKey)
         : <View className="key ghost" aria-hidden="true" />}
       {key("0", () => onKey("0"))}
       {key("删除", onErase, "key-word", "del")}

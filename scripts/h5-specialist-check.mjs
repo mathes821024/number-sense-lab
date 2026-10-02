@@ -23,7 +23,7 @@ const CHROME = process.env.CHROME || "/usr/bin/google-chrome";
 const KEY = "nsl-v01-state";
 // PARTS=submit OLD_CASES=1 measures only the pre-v0.4 worst cases (e.g. against base main).
 const PARTS = new Set((process.env.PARTS || "cards,focus,submit,mistakes").split(","));
-const CASES = process.env.OLD_CASES ? VIEWPORT_CASES.slice(0, 4) : VIEWPORT_CASES;
+const CASES = process.env.OLD_CASES ? VIEWPORT_CASES.filter((c) => c.legacy) : VIEWPORT_CASES;
 const NEW = ["halves", "complements", "cubes", "powers", "special_products"];
 const catalog = loadCoreCatalog();
 const byId = Object.fromEntries(catalog.map((i) => [i.id, i]));
@@ -148,7 +148,11 @@ if (PARTS.has("submit")) for (const [vp, w, h] of [["375x667", 375, 667], ["390x
     const { ctx, page } = await freshPage(w, h, seededRaw(c.item.id));
     await page.click('#home [data-action="resume"]');
     await page.waitForSelector(".keys");
-    for (const ch of c.type) await page.click(`.keys .key[data-digit="${ch}"]`);
+    for (const ch of c.type) {
+      // fraction_fields: 「|」 = tap the denominator box (there is no 「/」 key).
+      if (ch === "|") await page.click('#answer [data-field="denominator"]');
+      else await page.click(`.keys .key[data-digit="${ch}"]`);
+    }
     if (c.submit) await page.click('.keys [data-action="submit"]');
     await page.waitForTimeout(150);
     const m = await page.evaluate(() => {
@@ -168,8 +172,9 @@ if (PARTS.has("submit")) for (const [vp, w, h] of [["375x667", 375, 667], ["390x
     });
     const fits = m.bottom <= m.vh;
     const oldWorst = Math.max(...vpRows.filter((r) => r.vp === vp && r.old).map((r) => r.bottom));
-    const old = VIEWPORT_CASES.indexOf(c) < 4;
-    const ok = (old || fits || m.bottom <= oldWorst) && m.minKey >= 44 && !m.hOverflow && !m.nav;
+    const old = Boolean(c.legacy);
+    // fraction_fields: 提交 must be on screen (docs/curriculum/09 §3), never "no worse than before".
+    const ok = (c.item.fractionFields ? fits : old || fits || m.bottom <= oldWorst) && m.minKey >= 44 && !m.hOverflow && !m.nav;
     vpRows.push({ vp, case: c.name, id: c.item.id, ...m, fits, old, ok });
     check(`submit ${vp} ${c.name} (${c.item.id}「${c.item.prompt}」)`, ok, `submit bottom ${m.bottom} / vh ${m.vh} fits:${fits}${old ? " (old case)" : ` old worst ${oldWorst}`}, minKey ${m.minKey}`);
     if (vp === "375x667" || vp === "390x753") await page.screenshot({ path: `${SHOTS}/train-${vp}-${c.name}.png` });

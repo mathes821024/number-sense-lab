@@ -154,7 +154,22 @@ async function key(page, label) {
   for (const k of await page.$$(".key")) if ((await k.text()).trim() === label) return k;
   throw new Error(`no key ${label}`);
 }
-async function press(page, text) { for (const ch of text) { await (await key(page, ch)).tap(); await sleep(250); } }
+/** On-screen keys. In a fraction_fields answer 「/」 or 「|」 means "tap the denominator box" (there is no 「/」 key). */
+async function press(page, text) {
+  for (const ch of text) {
+    if (ch === "/" || ch === "|") await (await page.$(".ff-denominator")).tap();
+    else await (await key(page, ch)).tap();
+    await sleep(250);
+  }
+}
+async function fieldsOf(page) {
+  const ff = await page.$(".fraction-fields");
+  if (!ff) return null;
+  const n = await page.$(".ff-numerator");
+  const d = await page.$(".ff-denominator");
+  const focus = /\bis-focus\b/.test((await n.attribute("class")) || "") ? "numerator" : /\bis-focus\b/.test((await d.attribute("class")) || "") ? "denominator" : null;
+  return { focus, n: (await n.text()).trim(), d: (await d.text()).trim() };
+}
 async function tapText(page, sel, label) {
   for (const b of await page.$$(sel)) if ((await b.text()).includes(label)) { await b.tap(); return; }
   throw new Error(`no ${sel} 「${label}」`);
@@ -344,9 +359,32 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && h.sec === "重新开始一小段", JSON.stringify(h));
   page = await startFromHome(page, "继续刚才的练习");
   check((await currentItem()).id === "ifraction-1-2" && (await count(page)) === "2 / 5", "resumed at item 2");
-  await press(page, "2/4");
-  const den = await textOf(page, ".answer-frac .den");
-  check(den === "4", `answer fraction den ${den}`);
+  for (const k of await page.$$(".key")) check((await k.text()).trim() !== "/", "no 「/」 key");
+  let ff = await fieldsOf(page);
+  check(ff && ff.focus === "numerator" && ff.n === "" && ff.d === "", `fields ${JSON.stringify(ff)}`);
+  check((await textOf(page, ".question-fields .question")) === "0.5 =", "stem 0.5 =");
+  await shot("10a-fraction-fields-empty");
+  await tapText(page, ".key", "提交");
+  await sleep(300);
+  check((await textOf(page, ".nudge")) === "先写一个分数", "empty → 先写一个分数");
+  await press(page, "1|0");
+  await tapText(page, ".key", "提交");
+  await sleep(300);
+  check((await textOf(page, ".nudge")) === "先写一个分数", "1 over 0 → 先写一个分数");
+  check((await learner()).relations["ifraction-1-2"] === undefined, "empty / zero stored nothing");
+  await tapText(page, ".key", "删除");
+  await sleep(200);
+  await tapText(page, ".key", "删除");
+  await sleep(200);
+  ff = await fieldsOf(page);
+  check(ff.focus === "denominator" && ff.d === "" && ff.n === "1", `backspace stays ${JSON.stringify(ff)}`);
+  await (await page.$(".ff-numerator")).tap();
+  await sleep(200);
+  await tapText(page, ".key", "删除");
+  await sleep(200);
+  await press(page, "02|04");
+  ff = await fieldsOf(page);
+  check(ff.n === "02" && ff.d === "04", JSON.stringify(ff));
   await tapText(page, ".key", "提交");
   await sleep(400);
   const nudge = await textOf(page, ".nudge");
@@ -354,8 +392,12 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   check(nudge === "24 和 12 一样大，再约到最简：12。" && nudgeFracs === 3, `nudge ${nudge} fracs ${nudgeFracs}`); // text() joins each fraction's numerator and denominator
   check((await learner()).relations["ifraction-1-2"] === undefined, "needs_simplification stored nothing");
   await shot("10-needs-simplification");
-  for (let i = 0; i < 3; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
-  await press(page, "1/2");
+  for (let i = 0; i < 2; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
+  await press(page, "2");
+  await (await page.$(".ff-numerator")).tap();
+  await sleep(200);
+  for (let i = 0; i < 2; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
+  await press(page, "01");
   await tapText(page, ".key", "提交");
   await waitFor(page, ".screen-correct");
   await waitFor(page, ".screen-train");
@@ -379,7 +421,7 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   await waitFor(page, ".screen-correct");
   const l = await learner();
   check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["fraction-1-3"].attempts[0].correct && l.relations["fraction-1-2"].attempts[0].correct, "recorded once each");
-  return `seeded v3 paused set → 「还有一小段」/继续刚才的练习 → 2 / 5; 2/4 drawn as a fraction → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (${nudgeFracs} drawn fractions, 0 records) → 1/2 ✓; 0.( slot ) → 3 dotted (.rd) → correct relation 「1/3 = 0.3̇」 with no brackets ✓; 「.5」 ✓`;
+  return `seeded v3 paused set → 「还有一小段」/继续刚才的练习 → 2 / 5; 0.5 = [分子]/[分母] (no 「/」 key) → empty and 1 over 0 → 「先写一个分数」 (0 records); 02 over 04 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (${nudgeFracs} drawn fractions, 0 records) → 01 over 02 ✓; 0.( slot ) → 3 dotted (.rd) → correct relation 「1/3 = 0.3̇」 with no brackets ✓; 「.5」 ✓`;
 });
 
 await step("8 v1 → v2 → v3 migration in wx storage", async () => {

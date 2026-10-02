@@ -1,5 +1,5 @@
 // H5 runtime check of the shared pages (Taro build in dist/h5) at 375 and 1366:
-// Home → Training → Correct / Wrong, fraction / repeating / needs_simplification,
+// Home → Training → Correct / Wrong, fraction fields / repeating / needs_simplification,
 // pause / stop / resume, a full set, write protection, reduced motion.
 //
 //   npm run build:h5 && (cd dist/h5 && python3 -m http.server 4180) &
@@ -78,7 +78,9 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
   const currentItem = async () => byId.get(await page.getAttribute('[data-testid="train"]', "data-item"));
   const press = async (text, physical = false) => {
     for (const ch of text) {
-      if (physical) await page.keyboard.press(ch);
+      // A fraction_fields answer 「n/d」: 「/」 means "tap the denominator box" (there is no 「/」 key).
+      if (ch === "/" && (await page.$('[data-testid="fraction-fields"]'))) await page.click('[data-testid="fraction-fields"] [data-field="denominator"]');
+      else if (physical) await page.keyboard.press(ch);
       else await page.click(`[data-testid="train"] .key[data-key="${ch}"]`);
     }
   };
@@ -146,7 +148,7 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     await submit();
     const nudge = await page.textContent('[data-testid="nudge"]');
     const item = await currentItem();
-    check(nudge === (item.answer_type === "fraction" ? "先写一个分数" : "先写一个数"), `nudge ${nudge}`);
+    check(nudge === (item.answer_type === "fraction_fields" ? "先写一个分数" : "先写一个数"), `nudge ${nudge}`);
     check((await learner()).relations[item.id] === undefined, "empty submit recorded nothing");
     await shot("02-training");
     return `${t.hash}; 「${t.count}」, 「${t.label}」, 「${t.pause}」, no nav / mascot / decoration; question ${t.q}px; empty 提交 → 「${nudge}」, nothing stored`;
@@ -261,29 +263,91 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     return `「${p.ask}」 → 继续做 keeps answer 「${kept}」 → 先停 → 「${e.title}」 「${e.body}」 (nav back) → 先到这里 → Home; reload keeps the record (earlyStop)`;
   });
 
-  await step(`${vp} 6 Fraction · needs_simplification · repeating · decimal`, async () => {
+  // Visible text of a student screen with a slash fraction in it (「1/2」, 「?/?」).
+  // The set position 「2 / 10」 is a count, not a fraction (ui/03 §6), so it is skipped.
+  const slashScan = () =>
+    page.evaluate(() => {
+      const hits = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const el = n.parentElement;
+        if (!el || !el.checkVisibility() || el.closest(".set-count")) continue;
+        if (/[\d?]\s*\/\s*[\d?]/.test(n.textContent)) hits.push(n.textContent.trim());
+      }
+      return { hits, slashKey: Boolean(document.querySelector('.key[data-key="/"]')) };
+    });
+  const fieldsState = () =>
+    page.evaluate(() => {
+      const ff = document.querySelector('[data-testid="fraction-fields"]');
+      if (!ff) return null;
+      const n = ff.querySelector('[data-field="numerator"]');
+      const d = ff.querySelector('[data-field="denominator"]');
+      return { focus: ff.getAttribute("data-focus"), n: n.getAttribute("data-value"), d: d.getAttribute("data-value"), bar: Boolean(ff.querySelector(".ff-bar")), q: document.querySelector('[data-testid="train"] .question').textContent.trim() };
+    });
+  const tapField = (which) => page.click(`[data-testid="fraction-fields"] [data-field="${which}"]`);
+  const nudgeText = () => page.evaluate(() => document.querySelector('[data-testid="nudge"] .math')?.getAttribute("aria-label") || document.querySelector('[data-testid="nudge"]').textContent);
+
+  await step(`${vp} 6 Fraction fields · not-an-attempt · needs_simplification · 1/2 · repeating · decimal`, async () => {
     await freshHome(JSON.stringify(seededRoot(["ifraction-1-2", "fraction-1-3", "fraction-1-2", "fraction-1-7"])));
     const h = await page.evaluate(() => ({ t: document.querySelector(".bubble-title").textContent, cta: document.querySelector(".home-cta .entry-name").textContent, sec: document.querySelector(".home-secondary")?.textContent }));
     check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && h.sec === "重新开始一小段", JSON.stringify(h));
     await page.click('[data-action="resume"]');
     await page.waitForSelector('[data-testid="train"]');
     check((await currentItem()).id === "ifraction-1-2", "resumed at item 2");
-    const slash = await page.$('[data-testid="train"] .key[data-key="/"]');
-    check(slash, "「/」 key for a fraction answer");
-    await press("2/4");
-    const frac = await page.evaluate(() => Boolean(document.querySelector('[data-testid="answer"] .frac .num')) && document.querySelector('[data-testid="answer"] .frac .den').textContent);
-    check(frac === "4", "answer box shows a fraction bar");
+    let f = await fieldsState();
+    check(f && f.focus === "numerator" && f.n === "" && f.d === "" && f.bar && f.q === "0.5 =", `fields ${JSON.stringify(f)}`);
+    let scan = await slashScan();
+    check(!scan.slashKey && scan.hits.length === 0, `slash ${JSON.stringify(scan)}`);
+    await shot("06-fraction-fields-empty");
+    // 4: both / numerator empty; 5: denominator empty; 6: denominator 0 — none is an attempt.
+    await submit();
+    check((await nudgeText()) === "先写一个分数", "empty → 先写一个分数");
+    await press("1");
+    await submit();
+    check((await nudgeText()) === "先写一个分数", "denominator empty → 先写一个分数");
+    await tapField("denominator");
+    await press("0");
+    f = await fieldsState();
+    check(f.focus === "denominator" && f.n === "1" && f.d === "0", JSON.stringify(f));
+    await submit();
+    check((await nudgeText()) === "先写一个分数", "denominator 0 → 先写一个分数");
+    await shot("06b-denominator-zero");
+    await page.click('.key[data-key="del"]');
+    await page.click('.key[data-key="del"]');
+    f = await fieldsState();
+    check(f.focus === "denominator" && f.d === "" && f.n === "1", `backspace stays in the empty box ${JSON.stringify(f)}`);
+    await press("2");
+    await tapField("numerator");
+    await page.click('.key[data-key="del"]');
+    await submit();
+    check((await nudgeText()) === "先写一个分数", "numerator empty → 先写一个分数");
+    check((await learner()).relations["ifraction-1-2"] === undefined, "no attempt recorded for empty / zero");
+    // 2: 2/4 → needs_simplification, stays editable, nothing recorded (leading zeros: 02/04).
+    await press("02");
+    await tapField("denominator");
+    await page.click('.key[data-key="del"]');
+    await press("04");
+    f = await fieldsState();
+    check(f.n === "02" && f.d === "04", JSON.stringify(f));
     await submit();
     const nudge = await page.evaluate(() => ({ label: document.querySelector('[data-testid="nudge"] .math').getAttribute("aria-label"), fracs: document.querySelectorAll('[data-testid="nudge"] .frac').length }));
     check(nudge.label === "2/4 和 1/2 一样大，再约到最简：1/2。" && nudge.fracs === 3, JSON.stringify(nudge));
     check((await learner()).relations["ifraction-1-2"] === undefined, "needs_simplification recorded nothing");
+    scan = await slashScan();
+    check(scan.hits.length === 0, `slash ${JSON.stringify(scan)}`);
     await shot("07-needs-simplification");
+    // 1: 1/2 → correct.
     await page.click('.key[data-key="del"]');
     await page.click('.key[data-key="del"]');
+    await press("2");
+    await tapField("numerator");
     await page.click('.key[data-key="del"]');
-    await press("1/2");
+    await page.click('.key[data-key="del"]');
+    await press("1");
     await submit();
     await page.waitForSelector('[data-testid="correct"]');
+    scan = await slashScan();
+    check(scan.hits.length === 0, `correct screen slash ${JSON.stringify(scan)}`);
     await page.waitForSelector('[data-testid="train"]');
     const rep = await currentItem();
     check(rep.id === "fraction-1-3", rep.id);
@@ -304,12 +368,61 @@ for (const [vp, size] of [["mobile", { width: 375, height: 812 }], ["mobile390",
     await page.waitForSelector('[data-testid="train"]');
     check((await currentItem()).id === "fraction-1-2", "decimal item");
     check(await page.$('.key[data-key="."]'), "「.」 key for a decimal answer");
+    scan = await slashScan();
+    check(scan.hits.length === 0, `fraction → decimal prompt drawn with a bar ${JSON.stringify(scan)}`);
     await press(".5");
     await submit();
     await page.waitForSelector('[data-testid="correct"]');
     const l = await learner();
-    check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["fraction-1-3"].attempts[0].correct && l.relations["fraction-1-2"].attempts[0].correct, "recorded once each");
-    return `seeded paused set → 「还有一小段」/继续 → 2/4 shows a bar → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (3 fractions drawn, 0 records) → 1/2 ✓; 0.( slot ) → 3 dotted → 「0.3，3 循环」 ✓ (no brackets); 「.5」 ✓ for 1/2 = 0.5`;
+    check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["ifraction-1-2"].attempts[0].correct && l.relations["fraction-1-3"].attempts[0].correct && l.relations["fraction-1-2"].attempts[0].correct, "recorded once each");
+    return `0.5 = [分子]/[分母] (focus 分子, no 「/」 key, no slash text) → empty / 1+empty / 1 over 0 / empty over 2 → 「先写一个分数」, 0 records; backspace stays in the empty box; 02 over 04 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (3 bars, 0 records) → 1 over 2 ✓ (1 record); 0.( slot ) → 3 ✓; 「.5」 ✓`;
+  });
+
+  await step(`${vp} 6b Fraction fields: 0.5 → 3 over 5 is wrong; the Wrong screen draws bars only`, async () => {
+    await freshHome(JSON.stringify(seededRoot(["ifraction-1-2"])));
+    await page.click('[data-action="resume"]');
+    await page.waitForSelector('[data-testid="train"]');
+    await press("3");
+    await tapField("denominator");
+    await press("5");
+    await submit();
+    await page.waitForSelector('[data-testid="wrong"]');
+    const w = await page.evaluate(() => ({
+      blank: Boolean(document.querySelector('[data-testid="wrong"] .frac-blank')),
+      eq: document.querySelector('[data-testid="wrong"] .eq')?.getAttribute("aria-label") || document.querySelector('[data-testid="wrong"] .eq')?.textContent,
+      bars: document.querySelectorAll('[data-testid="wrong"] .frac').length,
+    }));
+    const scan = await slashScan();
+    check(scan.hits.length === 0, `wrong screen slash ${JSON.stringify(scan)}`);
+    const l = await learner();
+    check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["ifraction-1-2"].attempts[0].correct === false, "recorded once, incorrect");
+    await shot("10-fraction-wrong");
+    return `3 over 5 → Wrong; prompt with an empty bar ${w.blank}, ${w.bars} drawn fractions, relation 「${w.eq}」; recorded once (incorrect); no slash text`;
+  });
+
+  await step(`${vp} 6c Fraction fields: leading zeros 01 over 02 = 1/2${desktop ? " (physical keyboard + Enter)" : ""}`, async () => {
+    await freshHome(JSON.stringify(seededRoot(["ifraction-1-2"])));
+    await page.click('[data-action="resume"]');
+    await page.waitForSelector('[data-testid="train"]');
+    if (desktop) {
+      await press("01", true);
+      await page.keyboard.press("/"); // ignored: there is no 「/」
+      await page.keyboard.press(".");
+      await tapField("denominator");
+      await press("02", true);
+    } else {
+      await press("01");
+      await tapField("denominator");
+      await press("02");
+    }
+    const f = await fieldsState();
+    check(f.n === "01" && f.d === "02", JSON.stringify(f));
+    await shot("11-leading-zeros");
+    await submit(desktop);
+    await page.waitForSelector('[data-testid="correct"]');
+    const l = await learner();
+    check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["ifraction-1-2"].attempts[0].correct === true, "01/02 recorded once, correct");
+    return `01 over 02 → correct (integer value)${desktop ? "; 「/」 and 「.」 keys ignored; Enter submits" : ""}`;
   });
 
   await step(`${vp} 7 Full set of 10 → end → Home done → 看看这次`, async () => {

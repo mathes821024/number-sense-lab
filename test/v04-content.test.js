@@ -175,10 +175,23 @@ test("v0.4: content JSON equals the frozen table in docs/curriculum/07_v04_relat
   }
 });
 
-test("v0.4: the old 122 are unchanged (deep-equal to base main 0300997)", () => {
+test("v0.4: the old 122 are unchanged (deep-equal to base main 0300997) except the 27 fraction_fields prompts", () => {
   const raw122 = CORE_RELATIONS.slice(0, 122);
+  // docs/curriculum/09: only the 27 decimal → fraction items change, and only
+  // in prompt (「0.125 = ?/?」) and answer_type (fraction_fields).
+  const changed = raw122.filter((r) => r.id.startsWith("ifraction-"));
+  assert.equal(changed.length, 27);
+  for (const r of changed) {
+    const decimal = r.relation.split(" = ")[0];
+    assert.equal(r.prompt, `${decimal} = ?/?`, r.id);
+    assert.equal(r.answer_type, "fraction_fields", r.id);
+  }
+  // Put the two old fields back: the result must be byte-for-byte base main.
+  const asOnMain = raw122.map((r) =>
+    r.id.startsWith("ifraction-") ? { ...r, prompt: `${r.relation.split(" = ")[0]} 是哪个分数？`, answer_type: "fraction" } : r,
+  );
   // sha256 of JSON.stringify(CORE_RELATIONS) on main 0300997, when it held exactly these 122.
-  const hash = createHash("sha256").update(JSON.stringify(raw122)).digest("hex");
+  const hash = createHash("sha256").update(JSON.stringify(asOnMain)).digest("hex");
   assert.equal(hash, "155aa008ff0b440f66f11ee36616cbd8d492e060ca7f03c4a61bc978548fb196");
   // And field-for-field equal to the untouched v0.1 / v0.2c source files, in order.
   const files = [

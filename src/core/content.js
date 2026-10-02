@@ -34,7 +34,7 @@ export const DOMAIN_ORDER = [
   "special_products",
 ];
 
-export const ANSWER_TYPES = ["integer", "decimal", "fraction", "decimal_repeating"];
+export const ANSWER_TYPES = ["integer", "decimal", "fraction_fields", "decimal_repeating"];
 
 /** @typedef {{ id: string, type: 'inverse_pair'|'cyclic_rotation'|'scaling', role?: string, counterpart?: string }} RelationFamily */
 
@@ -46,7 +46,7 @@ export const ANSWER_TYPES = ["integer", "decimal", "fraction", "decimal_repeatin
  *  hook_type: string,
  *  prompt: string,
  *  canonical_answer: string,
- *  answer_type: 'integer'|'decimal'|'fraction'|'decimal_repeating',
+ *  answer_type: 'integer'|'decimal'|'fraction_fields'|'decimal_repeating',
  *  direction: 'forward'|'inverse',
  *  families: RelationFamily[],
  *  entry_after: string|null,
@@ -56,7 +56,7 @@ export const ANSWER_TYPES = ["integer", "decimal", "fraction", "decimal_repeatin
  *  frames: { title: string, detail: string }[],
  *  integerOnly: boolean,
  *  needsDecimalPoint: boolean,
- *  needsSlash: boolean,
+ *  fractionFields: boolean,
  *  repeatingBlock: boolean,
  * }} RelationItem */
 
@@ -84,7 +84,7 @@ export function normalizeRelation(raw) {
     entry_after: raw.entry_after || null,
     integerOnly: answerType === "integer",
     needsDecimalPoint: answerType === "decimal",
-    needsSlash: answerType === "fraction",
+    fractionFields: answerType === "fraction_fields",
     repeatingBlock: answerType === "decimal_repeating",
   };
 }
@@ -170,7 +170,7 @@ export function verifyContentCounts(catalog = loadCoreCatalog()) {
     ids.add(item.id);
     counts[item.domain] += 1;
     if (item.direction === "inverse" && item.domain === "squares") parts.inverseSquares += 1;
-    if (item.direction === "inverse" && item.answer_type === "fraction") parts.decimalToFraction += 1;
+    if (item.direction === "inverse" && item.answer_type === "fraction_fields") parts.decimalToFraction += 1;
     if (item.answer_type === "decimal_repeating") parts.repeating += 1;
   }
   const expected = Object.fromEntries(DOMAIN_ORDER.map((domain) => [domain, FROZEN_COUNTS[domain]]));

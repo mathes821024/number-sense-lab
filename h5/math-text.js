@@ -48,13 +48,38 @@ export function repeatingHtml(intPart, block) {
   )}.${dottedBlockHtml(block)}</span></span>`;
 }
 
-// 0.(6), 0.(142857); a single letter block such as 0.(n) in a pattern line.
-const MATH_TOKEN = /(\d+)\.\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})/g;
+// 0.(6), 0.(142857); a single letter block such as 0.(n) in a pattern line;
+// n/d; and the empty fraction 「?/?」 of a fraction_fields prompt.
+const MATH_TOKEN = /(\d+)\.\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})|(\?\/\?)/g;
+
+/** An empty stacked fraction: a bar with nothing above or below (never 「?/?」 as text). */
+export const BLANK_FRACTION_HTML =
+  '<span class="frac frac-blank" role="img" aria-label="分数"><span class="num"></span><span class="den"></span></span>';
 
 export function formatMath(value) {
   const safe = escapeHtml(value);
-  return safe.replace(MATH_TOKEN, (_, intPart, block, numerator, denominator) => {
+  return safe.replace(MATH_TOKEN, (_, intPart, block, numerator, denominator, blank) => {
+    if (blank !== undefined) return BLANK_FRACTION_HTML;
     if (intPart !== undefined) return repeatingHtml(intPart, block);
     return `<span class="frac" aria-label="${numerator}/${denominator}"><span class="num">${numerator}</span><span class="den">${denominator}</span></span>`;
   });
+}
+
+const BLANK_MARK = "?/?";
+
+/**
+ * A prompt in a list (progress, mistake book, print picker): the prompt
+ * only. 「1/8 = ?」 → 1/8 with a bar; a fraction_fields 「0.125 = ?/?」 →
+ * 0.125 = an empty fraction bar (docs/curriculum/09 §5). Never 「?/?」 as text.
+ */
+export function listPromptHtml(prompt) {
+  const text = String(prompt ?? "");
+  return formatMath(text.includes(BLANK_MARK) ? text : text.replace(" = ?", ""));
+}
+
+/** A4 question page: 「1/8 = ____」; a fraction_fields prompt is 0.125 = an empty bar (the bar is the blank). */
+export function printPromptHtml(prompt) {
+  const text = String(prompt ?? "");
+  if (text.includes(BLANK_MARK)) return `<span>${formatMath(text)}</span>`;
+  return `<span>${formatMath(text.replace(" = ?", " = "))}</span><span class="blank"></span>`;
 }

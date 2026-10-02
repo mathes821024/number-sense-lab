@@ -15,7 +15,7 @@
  */
 export function feedbackFor(item, kind, judged = {}) {
   if (kind === "empty" || kind === "invalid") {
-    const message = item?.answer_type === "fraction" ? "先写一个分数" : "先写一个数";
+    const message = item?.answer_type === "fraction_fields" ? "先写一个分数" : "先写一个数";
     return { message, record: false, level: 0, stay: true };
   }
   if (kind === "needs_simplification") {

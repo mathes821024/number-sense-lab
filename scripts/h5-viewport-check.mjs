@@ -40,7 +40,11 @@ for (const [vpName, w, h] of VIEWPORTS) {
     await page.reload();
     await page.click('[data-action="resume"]');
     await page.waitForSelector('[data-testid="train"]');
-    for (const ch of c.type) await page.click(`[data-testid="train"] .key[data-key="${ch}"]`);
+    for (const ch of c.type) {
+      // fraction_fields: 「|」 = tap the denominator box (there is no 「/」 key).
+      if (ch === "|") await page.click('[data-testid="fraction-fields"] [data-field="denominator"]');
+      else await page.click(`[data-testid="train"] .key[data-key="${ch}"]`);
+    }
     if (c.submit) await page.click('[data-testid="train"] .key[data-key="submit"]');
     // wait until Taro's page slide-in has finished (the page box sits at x = 0)
     await page.waitForTimeout(400);

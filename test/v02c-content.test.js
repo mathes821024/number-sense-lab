@@ -44,7 +44,7 @@ test("new ids follow the frozen v0.2C list and never collide with v0.1", () => {
 
 test("families[] / direction / entry_after / answer_type are consistent", () => {
   for (const item of catalog) {
-    assert.ok(["integer", "decimal", "fraction", "decimal_repeating"].includes(item.answer_type), item.id);
+    assert.ok(["integer", "decimal", "fraction_fields", "decimal_repeating"].includes(item.answer_type), item.id);
     for (const family of item.families) {
       assert.ok(family.id && family.type, item.id);
       if (family.type === "inverse_pair") {
@@ -65,7 +65,8 @@ test("families[] / direction / entry_after / answer_type are consistent", () => 
   assert.deepEqual(byId("fraction-1-8").families.map((f) => f.id), ["fr-1-8", "eighths"], "multi-valued");
   assert.equal(byId("isquare-15").entry_after, "square-15");
   assert.equal(byId("isquare-15").answer_type, "integer");
-  assert.equal(byId("ifraction-1-8").answer_type, "fraction");
+  assert.equal(byId("ifraction-1-8").answer_type, "fraction_fields");
+  assert.equal(byId("ifraction-1-8").prompt, "0.125 = ?/?");
   assert.equal(byId("fraction-1-7").answer_type, "decimal_repeating");
   assert.equal(byId("product-12-7").families.length, 0, "old fields default to []");
 });
@@ -220,15 +221,15 @@ test("wrong cycle is an ordinary incorrect; empty cycle is not an attempt", () =
   assert.equal(result.feedback.message, "先写一个数");
 });
 
-test("integer and plain decimal keyboards are unchanged", () => {
+test("integer and plain decimal keyboards are unchanged; decimal → fraction uses the two fraction boxes", () => {
   assert.equal(byId("square-15").needsDecimalPoint, false);
-  assert.equal(byId("square-15").needsSlash, false);
+  assert.equal(byId("square-15").fractionFields, false);
   assert.equal(byId("fraction-1-8").needsDecimalPoint, true);
-  assert.equal(byId("fraction-1-8").needsSlash, false);
-  assert.equal(byId("ifraction-1-8").needsSlash, true);
+  assert.equal(byId("fraction-1-8").fractionFields, false);
+  assert.equal(byId("ifraction-1-8").fractionFields, true);
   assert.equal(byId("ifraction-1-8").needsDecimalPoint, false);
   assert.equal(byId("fraction-1-7").needsDecimalPoint, false);
-  assert.equal(byId("fraction-1-7").needsSlash, false);
+  assert.equal(byId("fraction-1-7").fractionFields, false);
   assert.equal(byId("fraction-1-7").repeatingBlock, true);
   assert.equal(byId("isquare-15").integerOnly, true);
 });

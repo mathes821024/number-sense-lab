@@ -35,7 +35,15 @@ import { buildMistakeBook } from "../src/core/mistakes.js";
 import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { createBrowserStore, localDay } from "../app/platform/h5/browser-store.js";
 import { createCue } from "./sound.js";
-import { formatMath, repeatingHtml } from "./math-text.js";
+import {
+  emptyFields,
+  focusField,
+  typeDigit,
+  eraseDigit,
+  fieldsAnswer,
+  promptStem,
+} from "../src/core/fraction-fields.js";
+import { formatMath, repeatingHtml, listPromptHtml, printPromptHtml } from "./math-text.js";
 import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";
 
 // Theme layer: math-lab is the only runtime theme (no picker, no switching).
@@ -117,6 +125,8 @@ const app = document.getElementById("app");
 let session = state.activeSession || null;
 let currentItem = null;
 let answer = "";
+/** fraction_fields items: the shared numerator / denominator boxes (src/core/fraction-fields.js). */
+let fields = emptyFields();
 let inputModes = new Set();
 let startedAt = 0;
 let nearEnd = false;
@@ -480,20 +490,19 @@ function renderTrain() {
       <button class="cta" type="button" data-action="home">回首页</button></section>`;
   }
   const pill = nearEnd ? "快完成了" : revisit ? "再试一次" : domainLabel(currentItem.domain);
-  // Integer: empty slot. Plain decimal: 「.」. Fraction: 「/」 in the same slot.
+  // Integer: empty slot. Plain decimal: 「.」. Fraction: no 「/」 — the digits
+  // go into the focused numerator / denominator box.
   // Repeating decimal: no new key; the answer box itself is 0.( … ).
   const dotKey = currentItem.needsDecimalPoint
     ? `<button class="key" type="button" data-digit=".">.</button>`
-    : currentItem.needsSlash
-      ? `<button class="key" type="button" data-digit="/" aria-label="分数线">/</button>`
-      : `<span class="key ghost" aria-hidden="true"></span>`;
+    : `<span class="key ghost" aria-hidden="true"></span>`;
   const answerClass = currentItem.repeatingBlock ? "answer answer-repeating" : "answer";
   // Calm position in this short set (02_ux_spec §3 step 7): a count and a
   // still bar. Not a timer; nothing animates or counts down.
   const total = Math.max(1, session?.targetCount || 1);
   const position = Math.min(total, (session?.answered || 0) + 1);
 
-  return `<section class="screen" id="train">
+  return `<section class="screen${currentItem.fractionFields ? " is-fields" : ""}" id="train">
     <div class="top">
       <button class="quiet" type="button" data-action="pause">先停一下</button>
       <span class="pill">${pill}</span>
@@ -504,8 +513,15 @@ function renderTrain() {
     </div>
     <div class="practice-zone">
       <p class="practice-label">看清关系，再写答案</p>
-      <h1 class="question">${formatMath(currentItem.prompt)}</h1>
-      <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>
+      ${
+        currentItem.fractionFields
+          ? `<div class="question-fields">
+        <h1 class="question">${formatMath(promptStem(currentItem.prompt))}</h1>
+        <div class="fraction-fields" id="answer" aria-live="polite" data-focus="${fields.focus}">${fieldsHtml()}</div>
+      </div>`
+          : `<h1 class="question">${formatMath(currentItem.prompt)}</h1>
+      <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>`
+      }
       <p class="nudge" id="nudge">${nudgeHtml}</p>
     </div>
     <div class="keys" id="keys">
@@ -636,9 +652,7 @@ function renderProgress() {
     <ul class="list outcomes" id="recent-outcomes">${outcomes
       .map(
         (row) =>
-          `<li data-id="${row.id}" data-outcome="${row.latestCorrect ? "right" : "wrong"}"><span>${formatMath(
-            row.prompt.replace(" = ?", ""),
-          )}</span><span class="outcome ${row.latestCorrect ? "is-right" : "is-wrong"}"><span class="om" aria-hidden="true">${
+          `<li data-id="${row.id}" data-outcome="${row.latestCorrect ? "right" : "wrong"}"><span>${listPromptHtml(row.prompt)}</span><span class="outcome ${row.latestCorrect ? "is-right" : "is-wrong"}"><span class="om" aria-hidden="true">${
             row.latestCorrect ? "✓" : "×"
           }</span>${row.latestCorrect ? "对" : "错"}</span></li>`,
       )
@@ -676,7 +690,7 @@ function renderMistakes() {
       <ul class="list">${group.items
         .map(
           (item) =>
-            `<li data-id="${item.id}"><span>${formatMath(item.prompt.replace(" = ?", ""))}</span><span class="meta">${item.label}</span></li>`,
+            `<li data-id="${item.id}"><span>${listPromptHtml(item.prompt)}</span><span class="meta">${item.label}</span></li>`,
         )
         .join("")}</ul>`,
     )
@@ -706,7 +720,7 @@ function printBackLink() {
 function printRow(c) {
   return `<li data-id="${c.id}"><label class="pick">
       <input type="checkbox" data-print-id="${c.id}"${c.selected ? " checked" : ""}>
-      <span class="pick-text">${formatMath(c.prompt.replace(" = ?", ""))}</span>
+      <span class="pick-text">${listPromptHtml(c.prompt)}</span>
       ${c.label ? `<span class="meta">${c.label}</span>` : ""}
     </label></li>`;
 }
@@ -781,12 +795,7 @@ function renderA4() {
   }
 
   const sub = [sheet.day, sheet.domain].filter(Boolean).join(" · ");
-  const prompts = sheet.prompts
-    .map(
-      (p) =>
-        `<li data-id="${p.id}"><span>${formatMath(p.prompt.replace(" = ?", " = "))}</span><span class="blank"></span></li>`,
-    )
-    .join("");
+  const prompts = sheet.prompts.map((p) => `<li data-id="${p.id}">${printPromptHtml(p.prompt)}</li>`).join("");
 
   const questionSheet = `<div class="sheet" id="a4-sheet">
       <h2>${sheet.title}</h2>
@@ -819,7 +828,19 @@ function renderA4() {
   </section>`;
 }
 
-/** Answer box content: plain digits, a textbook fraction, or a dotted repeating block. */
+/** The numerator box over a bar over the denominator box. */
+function fieldsHtml() {
+  const box = (which, label) => {
+    const value = fields[which];
+    const focused = fields.focus === which;
+    return `<button class="ff-box ff-${which}${focused ? " is-focus" : ""}${value ? "" : " is-empty"}" type="button" data-field="${which}" data-value="${value}" aria-label="${label}" aria-pressed="${focused}"><span class="ff-digits">${escapeHtml(
+      value,
+    )}</span>${focused ? '<span class="ff-caret" aria-hidden="true"></span>' : ""}</button>`;
+  };
+  return `${box("numerator", "分子")}<span class="ff-bar" aria-hidden="true"></span>${box("denominator", "分母")}`;
+}
+
+/** Answer box content: plain digits or a dotted repeating block. */
 function answerHtml() {
   if (currentItem?.repeatingBlock) {
     // Student types only the block; the box shows textbook dots, no brackets.
@@ -828,12 +849,6 @@ function answerHtml() {
       return `<span class="rep-int">${intPart}.</span><span class="rep-slot" aria-hidden="true"></span>`;
     }
     return repeatingHtml(intPart, answer);
-  }
-  if (currentItem?.needsSlash) {
-    const match = /^(\d+)\/(\d+)$/.exec(answer);
-    if (match) {
-      return `<span class="frac answer-frac" aria-label="${match[1]}/${match[2]}"><span class="num">${match[1]}</span><span class="den">${match[2]}</span></span>`;
-    }
   }
   return escapeHtml(answer);
 }
@@ -860,6 +875,11 @@ function bind() {
   app.querySelectorAll("[data-digit]").forEach((el) => {
     el.addEventListener("click", onDigit);
   });
+  const fieldBox = document.getElementById("answer");
+  if (fieldBox && fieldBox.classList.contains("fraction-fields")) {
+    // One listener on the container: the boxes are redrawn on every key.
+    fieldBox.addEventListener("click", onField);
+  }
   app.querySelectorAll("input[data-print-id]").forEach((el) => {
     el.addEventListener("change", onPrintToggle);
   });
@@ -1036,8 +1056,7 @@ function onAction(event) {
   if (action === "del") {
     if (screenName !== "train" || submitting) return;
     inputModes.add("onscreen_keypad");
-    answer = answer.slice(0, -1);
-    syncAnswer();
+    eraseOne();
     return;
   }
   if (action === "advance") {
@@ -1063,34 +1082,64 @@ function onDigit(event) {
   appendDigit(digit);
 }
 
+/** Tap the numerator or the denominator box. */
+function onField(event) {
+  const target = event.target instanceof Element ? event.target.closest("[data-field]") : null;
+  if (!target || screenName !== "train" || submitting || !currentItem?.fractionFields) return;
+  const next = focusField(fields, target.getAttribute("data-field"));
+  if (!next) return;
+  fields = next;
+  syncAnswer(false);
+}
+
 function appendDigit(digit) {
   if (screenName !== "train" || submitting) return;
-  if (digit === ".") {
+  if (currentItem?.fractionFields) {
+    // Digits only, into the focused box only.
+    const next = typeDigit(fields, digit);
+    if (!next) return;
+    fields = next;
+  } else if (digit === ".") {
     if (!currentItem?.needsDecimalPoint) return;
     if (answer.includes(".")) return;
     answer += ".";
-  } else if (digit === "/") {
-    // Only fraction answers take 「/」, and only one of it.
-    if (!currentItem?.needsSlash) return;
-    if (answer.includes("/")) return;
-    answer += "/";
   } else {
-    if (answer.replace(/[./]/g, "").length >= 8) return;
+    if (!/^\d$/.test(digit)) return;
+    if (answer.replace(/\./g, "").length >= 8) return;
     answer += digit;
   }
   syncAnswer();
   cue.tap();
 }
 
-function syncAnswer() {
+/** Backspace: the last digit of the answer, or of the focused fraction box only. */
+function eraseOne() {
+  if (currentItem?.fractionFields) {
+    // An empty box stays focused; nothing jumps to the other box.
+    const next = eraseDigit(fields);
+    if (next) fields = next;
+  } else {
+    answer = answer.slice(0, -1);
+  }
+  syncAnswer();
+}
+
+function syncAnswer(tick = true) {
   const el = document.getElementById("answer");
   if (el) {
-    el.innerHTML = answerHtml();
-    el.classList.remove("tick");
-    void el.offsetWidth;
-    el.classList.add("tick");
+    if (currentItem?.fractionFields) {
+      el.innerHTML = fieldsHtml();
+      el.setAttribute("data-focus", fields.focus);
+    } else {
+      el.innerHTML = answerHtml();
+    }
+    if (tick) {
+      el.classList.remove("tick");
+      void el.offsetWidth;
+      el.classList.add("tick");
+    }
   }
-  if (!nudgeSticky) setNudge("");
+  if (tick && !nudgeSticky) setNudge("");
 }
 
 function sessionSeed(mode, domain) {
@@ -1143,6 +1192,7 @@ function showQuestion() {
     return;
   }
   answer = "";
+  fields = emptyFields();
   nudgeHtml = "";
   nudgeSticky = false;
   inputModes = new Set();
@@ -1163,7 +1213,8 @@ function doSubmit() {
     item: currentItem,
     state,
     session,
-    raw: answer,
+    // fraction_fields: both boxes → ONE judging string (or "" = not an attempt).
+    raw: currentItem.fractionFields ? fieldsAnswer(fields) : answer,
     meta: {
       day: today(),
       inputMode: mode.inputMode,
@@ -1237,16 +1288,11 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     inputModes.add("physical_keyboard");
     appendDigit(".");
-  } else if (event.key === "/" || event.key === "Divide") {
-    event.preventDefault();
-    inputModes.add("physical_keyboard");
-    appendDigit("/");
   } else if (event.key === "Backspace") {
     event.preventDefault();
     if (submitting) return;
     inputModes.add("physical_keyboard");
-    answer = answer.slice(0, -1);
-    syncAnswer();
+    eraseOne();
   } else if (event.key === "Enter") {
     event.preventDefault();
     doSubmit();
