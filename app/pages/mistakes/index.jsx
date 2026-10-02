@@ -11,7 +11,7 @@ import MathText from "../../components/math/MathText";
 import { listPromptText } from "../../components/math/tokens.js";
 import useNotice from "../../components/useNotice";
 import { getRecord } from "../record.js";
-import { tabHandler } from "../tabs.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
 import { mistakesView } from "../models.js";
 
 const catalog = loadCoreCatalog();
@@ -86,7 +86,7 @@ export default function Mistakes() {
   );
 
   return (
-    <View className={`page has-nav ${motionClass}`} style={{ paddingTop: `calc(16px + ${safeArea.top})` }}>
+    <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">{body}</View>
       <Notice text={notice} />
       <BottomNav active="mistakes" bottomInset={safeArea.bottom} onTap={tabHandler("mistakes", showSoon)} />

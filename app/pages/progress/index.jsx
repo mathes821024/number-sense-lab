@@ -12,7 +12,7 @@ import MathText from "../../components/math/MathText";
 import { listPromptText } from "../../components/math/tokens.js";
 import useNotice from "../../components/useNotice";
 import { getRecord } from "../record.js";
-import { tabHandler } from "../tabs.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
 import { progressView } from "../models.js";
 
 const catalog = loadCoreCatalog();
@@ -30,7 +30,7 @@ export default function Progress() {
   const view = progressView(state, catalog);
 
   return (
-    <View className={`page has-nav ${motionClass}`} style={{ paddingTop: `calc(16px + ${safeArea.top})` }}>
+    <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">
         <View className="screen screen-progress" data-testid="progress">
           <BackButton label="回首页" icon="house" action="home" onTap={() => navigate.toHome()} />

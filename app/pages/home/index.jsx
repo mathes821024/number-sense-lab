@@ -10,7 +10,7 @@ import Icon from "../../components/icon/Icon";
 import useNotice from "../../components/useNotice";
 import { homeView, HOME_ENTRIES, DEVICE_NOTE } from "./model.js";
 import { getRecord } from "../record.js";
-import { tabHandler } from "../tabs.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
 
 function readLearner(record) {
   return getActiveLearner(record.read());
@@ -45,7 +45,7 @@ export default function Home() {
   );
 
   return (
-    <View className={`page has-nav ${motionClass}`} style={{ paddingTop: `calc(16px + ${safeArea.top})` }}>
+    <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">
         <View className="screen home" data-testid="home">
           <HomeDecor />

@@ -27,7 +27,7 @@ import Notice from "../../components/Notice";
 import useNotice from "../../components/useNotice";
 import { createTrainingFlow, CORRECT_PAUSE_MS } from "./flow.js";
 import { getRecord } from "../record.js";
-import { tabHandler } from "../tabs.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
 import { trainingIntent } from "./intent.js";
 import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
 
@@ -212,7 +212,7 @@ export default function Train() {
   return (
     <View
       className={`page${withNav ? " has-nav" : ""} ${motionClass}`}
-      style={{ paddingTop: `calc(16px + ${safeArea.top})`, paddingBottom: withNav ? undefined : `calc(32px + ${safeArea.bottom})` }}
+      style={withNav ? navPageStyle() : { paddingTop: `calc(16px + ${safeArea.top})`, paddingBottom: `calc(32px + ${safeArea.bottom})` }}
     >
       <View className="stage">{body}</View>
       {withNav ? (

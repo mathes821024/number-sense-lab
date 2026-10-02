@@ -237,6 +237,7 @@ await step("1 Home", async () => {
 });
 
 let first;
+let endClear = "";
 await step("2 Home → Training (FOCUS)", async () => {
   await sleep(1900);
   page = await startFromHome(page);
@@ -629,12 +630,23 @@ await step("14 专项练习: every domain card → confirm → focused set from 
   check(tiles.length === 8 && !tiles.includes("EMPTY"), `tiles ${tiles}`);
   check(tiles.slice(0, 3).every((t) => /^png:domain-(squares|products|fractions)-192.*\.png$/.test(t)), `v0.3 tiles ${tiles.slice(0, 3)}`);
   await shot("25-explore");
+  const chips0 = await page.$$(".soon-chip");
+  const last0 = chips0[chips0.length - 1];
+  const lastPageBottom = (await last0.offset()).top + (await last0.size()).height; // at scroll 0: page = viewport coordinates
   await mp.pageScrollTo(400);
   await sleep(600);
   await shot("25b-explore-more");
   await mp.pageScrollTo(2000);
   await sleep(600);
   await shot("25c-explore-end");
+  // At full scroll the last row clears the fixed nav (the page reserves the bottom safe-area inset too).
+  const winH = (await mp.systemInfo()).windowHeight;
+  const navH = (await (await page.$(".tabbar")).size()).height;
+  const scrollTop = await page.scrollTop();
+  check(scrollTop > 0, `page did not scroll (${scrollTop})`);
+  const lastBottom = Math.round(lastPageBottom - scrollTop);
+  check(lastBottom <= Math.round(winH - navH) + 1, `last row ${lastBottom} under the nav (top ${Math.round(winH - navH)})`);
+  endClear = `${lastBottom} ≤ ${Math.round(winH - navH)}`;
   await mp.pageScrollTo(0);
   await sleep(300);
   const sets = [];
@@ -656,7 +668,7 @@ await step("14 专项练习: every domain card → confirm → focused set from 
     if (n >= 3) await shot(`27-${n + 1}-train-${domain}`);
     sets.push(`${LABELS[n]} ${s.queue.length}`);
   }
-  return `${names.join("/")}; tiles ${tiles.join(",")}; 敬请期待 only ${soon.join("/")}; focused sets ${sets.join(", ")} — each from its own domain`;
+  return `${names.join("/")}; tiles ${tiles.join(",")}; list end clears the nav (${endClear}); 敬请期待 only ${soon.join("/")}; focused sets ${sets.join(", ")} — each from its own domain`;
 });
 
 phase = "teardown";

@@ -11,7 +11,7 @@ import BackButton from "../../components/BackButton";
 import SoonButton from "../../components/SoonButton";
 import useNotice from "../../components/useNotice";
 import { getRecord } from "../record.js";
-import { tabHandler } from "../tabs.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
 import { exploreView, focusView, SOON_DIRECTIONS, SOON_EXTRAS } from "../models.js";
 
 const catalog = loadCoreCatalog();
@@ -94,7 +94,7 @@ export default function Explore() {
 
   const onTab = tabHandler("explore", showSoon);
   return (
-    <View className={`page has-nav ${motionClass}`} style={{ paddingTop: `calc(16px + ${safeArea.top})` }}>
+    <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">{body}</View>
       <Notice text={notice} />
       <BottomNav active="explore" bottomInset={safeArea.bottom} onTap={(id, label) => (id === "explore" ? setFocused(null) : onTab(id, label))} />

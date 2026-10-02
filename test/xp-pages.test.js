@@ -282,9 +282,11 @@ test("ordinary pages keep the bottom nav (no badges); tab switches go through th
     const src = read(`app/pages/${p}/index.jsx`);
     assert.match(src, /<BottomNav/, p);
     assert.match(src, /className=\{`page has-nav/, p);
+    assert.match(src, /style=\{navPageStyle\(\)\}/, `${p} reserves the nav + bottom safe-area inset`);
   }
   assert.doesNotMatch(read("app/components/BottomNav.jsx"), /className="[^"]*(badge|dot|count)|Count\b/);
   const tabs = read("app/pages/tabs.js");
+  assert.match(tabs, /paddingBottom: `calc\(92px \+ \$\{safeArea\.bottom\}\)`/);
   assert.match(tabs, /home: "home", explore: "explore", mistakes: "mistakes"/);
   for (const f of ["app/platform/h5/index.js", "app/platform/wechat/index.js"]) {
     const src = read(f);
