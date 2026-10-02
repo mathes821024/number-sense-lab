@@ -2,7 +2,8 @@
 // simulator device is selected in DevTools (375 / 390 / 430 wide …):
 // the lede is exactly two lines 「刚才练到一半，」 / 「继续就好。」, each one
 // rendered line inside the bubble; the title stays 「还有一小段」; there is no
-// standalone 重新开始一小段; the cards sit above the nav. One screenshot,
+// standalone 重新开始一小段; all four cards sit fully above the nav (short-height
+// phones such as iPhone 6/7/8, 375×603, use the ≤ 650px short-height mode). One screenshot,
 // named after the simulator window. Never uploads, previews or publishes.
 //
 //   npm run build:weapp && npm i --no-save miniprogram-automator
@@ -54,8 +55,10 @@ try {
     title === "还有一小段" && !secondary && lines.length === 2 &&
     lines[0].text === "刚才练到一半，" && lines[1].text === "继续就好。" &&
     lines.every((l) => l.h > 0 && l.h <= 26 && l.left + l.w <= right - 8) && lines[1].top > lines[0].top &&
-    ["继续刚才的练习", "专项练习", "错题本"].every((n) => c(n) && c(n).bottom <= navTop) && c("最近练得怎么样").top < navTop;
-  report = { model: sys.model, window: `${sys.windowWidth}x${sys.windowHeight}`, title, lines, bubble, navTop, cards, progressFull: c("最近练得怎么样").bottom <= navTop };
+    ["继续刚才的练习", "专项练习", "错题本", "最近练得怎么样"].every((n) => c(n) && c(n).bottom <= navTop);
+  const hero = await box(await page.$(".home-hero"));
+  const mascotW = (await box(await page.$(".mascot-hero"))).w;
+  report = { model: sys.model, hero: { top: hero.top, h: hero.h }, mascotW, window: `${sys.windowWidth}x${sys.windowHeight}`, title, lines, bubble, navTop, cards, progressFull: c("最近练得怎么样").bottom <= navTop };
   await mp.screenshot({ path: `${SHOTS}/weapp-home-resume-${sys.windowWidth}w.png` });
   await mp.callWxMethod("removeStorageSync", KEY);
 } catch (e) {

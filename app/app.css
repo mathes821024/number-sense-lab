@@ -397,6 +397,21 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
+
+/* Short-height phones: ≤ 650px of usable height (e.g. iPhone 6/7/8 in WeChat, 603px under the
+   native title bar). Same hierarchy and text sizes, the nav unchanged; only a little vertical
+   room comes back, in this order: mascot, hero spacing, bubble padding, CTA height, card gaps.
+   So the hero and all four Home cards sit above the nav. 390 / 430 phones are not affected. */
+@media (max-height: 650px) {
+  .home-hero { min-height: 140px; margin-top: 8px; }
+  .mascot-hero { width: 136px; }
+  .home-hero.is-resume { min-height: 122px; margin-top: 4px; }
+  .home-hero.is-resume .mascot-hero { width: 118px; }
+  .home .bubble { padding: 10px 14px; }
+  .home .entries { margin-top: 10px; }
+  .home .entry { margin-bottom: 8px; }
+  .home .entry-start { min-height: 68px; padding-top: 10px; padding-bottom: 10px; }
+}
 .device-note { text-align: center; }
 
 /* ---------- Training: FOCUS mode (no mascot, no decoration, no counts) ---------- */

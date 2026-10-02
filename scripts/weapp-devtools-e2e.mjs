@@ -387,7 +387,7 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
     `resume lede lines ${JSON.stringify(ledeLines)} bubble right ${bubbleRight}`,
   );
   ledeLayout = { lines: ledeLines, bubbleRight };
-  // Above the fold on the 390×753 window: the resume hero, 专项练习, 错题本 and (part of) 最近练得怎么样.
+  // Above the fold on the 390×753 window: the resume hero and all four cards, fully.
   const sysH = (await mp.systemInfo()).windowHeight;
   const nav = await (await page.$(".tabbar")).offset();
   const fold = [];
@@ -399,7 +399,7 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   const navTop = Math.round(nav.top);
   const vis = (n) => fold.find((f) => f.name === n);
   check(vis("继续刚才的练习").bottom <= navTop && vis("专项练习").bottom <= navTop && vis("错题本").bottom <= navTop, `fold ${JSON.stringify(fold)} nav ${navTop}`);
-  check(vis("最近练得怎么样").top < navTop, `progress card below the fold ${JSON.stringify(vis("最近练得怎么样"))}`);
+  check(vis("最近练得怎么样").bottom <= navTop, `最近练得怎么样 not fully above the nav ${JSON.stringify(vis("最近练得怎么样"))}`);
   homeFold = { window: sysH, navTop, cards: fold, progressFull: vis("最近练得怎么样").bottom <= navTop };
   await shot("07-home-resume");
   page = await startFromHome(page, "继续刚才的练习");

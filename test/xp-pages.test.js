@@ -277,6 +277,22 @@ test("print selection is page state: the pages never write the learner record", 
   assert.equal(STATE_VERSION, 3);
 });
 
+test("home short-height mode (≤ 650px usable height): same blocks, a little less vertical room, text and nav unchanged (h5/ and Taro)", () => {
+  for (const [name, css] of [["app/app.css", read("app/app.css")], ["h5/styles.css", read("h5/styles.css")]]) {
+    const m = css.match(/@media \(max-height: 650px\) \{([\s\S]*?)\n\}/);
+    assert.ok(m, `${name}: short-height block`);
+    const block = m[1];
+    assert.match(block, /\.home-hero\.is-resume \.mascot-hero \{ width: 118px; \}/, `${name}: smaller resume mascot`);
+    assert.match(block, /\.home-hero\.is-resume \{ min-height: 122px; margin-top: 4px; \}/, `${name}: tighter resume hero`);
+    assert.match(block, /\.home \.bubble \{ padding: 10px 14px; \}/, `${name}: bubble padding`);
+    assert.match(block, /\.home \.entry-start \{ min-height: 68px;/, `${name}: CTA height`);
+    assert.match(block, /\.home \.entr(y \{ margin-bottom|ies \{ gap): 8px;/, `${name}: card gaps`);
+    // Readable text and a normal nav: no font sizes, no tab bar, nothing outside Home.
+    assert.doesNotMatch(block, /font-size|\.tab|\.tabbar|\.page\b|\.key|\.train/, `${name}: short mode touches only Home layout`);
+    for (const sel of block.match(/^\s*[^{}\n]+(?=\{)/gm)) assert.match(sel.trim(), /^\.(home|mascot-hero)/, `${name}: ${sel.trim()} is a Home selector`);
+  }
+});
+
 test("home resume hero: one action, no standalone restart; restart lives on the pause screen (h5/ and Taro)", () => {
   const home = read("app/pages/home/model.js");
   assert.doesNotMatch(home, /重新开始一小段"/);
