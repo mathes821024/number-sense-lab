@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数感训练场 · 15² 记忆体验</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Sora:wght@400;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage">
+    <section id="home" class="screen">
+      <p class="banner">这次只体验 15² 怎么记住。不是正式版。</p>
+      <p class="kicker">Number Sense Lab</p>
+      <h1>数感训练场</h1>
+      <p class="lede">把常会用到的数字关系，<br>练到能直接想起来。</p>
+      <div class="hero">
+        <svg viewBox="0 0 360 188" aria-hidden="true">
+          <g stroke="rgba(255,255,255,0.16)" stroke-width="0.7">
+            <path d="M0 40 H360 M0 80 H360 M0 120 H360 M0 160 H360"/>
+            <path d="M40 0 V188 M100 0 V188 M160 0 V188 M220 0 V188 M280 0 V188 M340 0 V188"/>
+          </g>
+          <g class="cube" fill="none" stroke="white" stroke-width="1.4">
+            <polygon points="78,78 132,52 186,78 132,104" fill="rgba(255,255,255,0.22)"/>
+            <polygon points="78,78 132,104 132,158 78,132" fill="rgba(255,255,255,0.1)"/>
+            <polygon points="186,78 132,104 132,158 186,132" fill="rgba(8,70,90,0.28)"/>
+            <polygon points="108,62 150,42 192,62 150,82" stroke="rgba(243,193,91,0.95)"/>
+          </g>
+          <circle cx="214" cy="96" r="3" fill="#F3C15B"/>
+          <path d="M196 128 H248" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
+        </svg>
+        <div class="hero-copy">
+          <strong>今日实验</strong>
+          <span>看清一个关系，就能停。</span>
+        </div>
+        <p class="relation"><b>15²</b><i>→ 225</i></p>
+      </div>
+      <button class="cta" id="start" type="button">开始今天的练习<small>大约 5～10 分钟</small></button>
+      <p class="nudge" id="home-note"></p>
+      <div class="domains">
+        <button class="domain" id="squares" type="button">
+          <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
+            <rect x="6" y="6" width="13" height="13" rx="2" fill="#F3C15B"/>
+            <rect x="23" y="6" width="13" height="13" rx="2" fill="#F3C15B" opacity="0.55"/>
+            <rect x="6" y="23" width="13" height="13" rx="2" fill="#F3C15B" opacity="0.55"/>
+            <rect x="23" y="23" width="13" height="13" rx="2" fill="#F3C15B" opacity="0.3"/>
+          </svg>
+          <b>平方<span>一个数乘自己</span></b>
+        </button>
+        <button class="domain" type="button" data-later="1">
+          <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
+            <g fill="#0C7C86">
+              <circle cx="12" cy="12" r="3"/><circle cx="21" cy="12" r="3"/><circle cx="30" cy="12" r="3"/>
+              <circle cx="12" cy="24" r="3"/><circle cx="21" cy="24" r="3"/><circle cx="30" cy="24" r="3"/>
+            </g>
+          </svg>
+          <b>常用乘积<span>常会用到的一对</span></b>
+        </button>
+        <button class="domain" type="button" data-later="1">
+          <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
+            <rect x="6" y="16" width="30" height="10" rx="2" fill="#E4ECFB"/>
+            <rect x="6" y="16" width="22" height="10" rx="2" fill="#2456C9"/>
+          </svg>
+          <b>分数到小数<span>把一份看清楚</span></b>
+        </button>
+      </div>
+      <div class="links">
+        <button type="button" data-later="1">最近练得怎么样</button>
+        <button type="button" data-later="1">印到纸上</button>
+      </div>
+      <p class="fine">练习记录只保存在当前设备，不会自动同步到其他设备。</p>
+    </section>
+
+    <section id="train" class="screen" hidden>
+      <div class="top">
+        <button class="quiet" type="button" data-pause="1">先停一下</button>
+        <span class="pill">平方</span>
+      </div>
+      <h1 class="question">15² = ?</h1>
+      <div class="answer" id="answer" aria-live="polite"></div>
+      <p class="nudge" id="nudge"></p>
+      <div class="keys">
+        <button class="key" type="button" data-digit="1">1</button>
+        <button class="key" type="button" data-digit="2">2</button>
+        <button class="key" type="button" data-digit="3">3</button>
+        <button class="key" type="button" data-digit="4">4</button>
+        <button class="key" type="button" data-digit="5">5</button>
+        <button class="key" type="button" data-digit="6">6</button>
+        <button class="key" type="button" data-digit="7">7</button>
+        <button class="key" type="button" data-digit="8">8</button>
+        <button class="key" type="button" data-digit="9">9</button>
+        <span class="key ghost" aria-hidden="true"></span>
+        <button class="key" type="button" data-digit="0">0</button>
+        <button class="key" type="button" id="del" style="font-size:15px">删除</button>
+        <button class="key go" type="button" id="submit">提交</button>
+      </div>
+    </section>
+
+    <section id="pause" class="screen" hidden>
+      <div class="dialog">
+        <p class="ask">先停在这里？</p>
+        <p class="stay">已经做的会留下。</p>
+        <button class="cta" type="button" id="resume">继续做</button>
+        <button class="quiet" type="button" id="stop">先停</button>
+      </div>
+    </section>
+
+    <section id="wrong" class="screen" hidden>
+      <button class="quiet" type="button" data-pause="1">先停一下</button>
+      <p class="demoted">15² = ?</p>
+      <div class="panel">
+        <p class="eq">15² = 225</p>
+        <p class="hook">1 × 2 = 2，后面接 25。</p>
+        <p class="see">○ 看这里</p>
+        <div id="pattern" hidden>
+          <p class="check">末位是 5 的整数平方，一定以 25 结尾。225 在 100 和 400 之间。</p>
+          <p class="family"><b>25² = 625</b><br><b>35² = 1225</b></p>
+        </div>
+        <div class="frames" id="frames" hidden>
+          <div class="frame"><span class="n">1</span><div><b>1 × 2</b><span>先看 5 前面的 1</span></div></div>
+          <div class="frame"><span class="n">2</span><div><b>2</b><span>1 × 2 得到前面这一截</span></div></div>
+          <div class="frame"><span class="n">3</span><div><b>2 | 25</b><span>后面接上 25</span></div></div>
+          <div class="frame"><span class="n">4</span><div><b>225</b><span>15² = 225</span></div></div>
+        </div>
+      </div>
+      <button class="more" type="button" id="show-pattern">看看这个规律</button>
+      <button class="more" type="button" id="show-frames">看看这几步</button>
+      <button class="cta" type="button" id="next">下一题</button>
+    </section>
+
+    <section id="correct" class="screen" hidden>
+      <div class="ok" aria-hidden="true">✓</div>
+      <p class="correct-eq">15² = 225</p>
+      <p class="word">对</p>
+    </section>
+
+    <section id="end" class="screen" hidden>
+      <div class="orb" aria-hidden="true"></div>
+      <h1>先到这里</h1>
+      <p class="body" id="end-copy">15² 留下了一个记法：1 × 2 = 2，后面接 25。</p>
+      <button class="cta" type="button" id="home-again">先到这里</button>
+    </section>
+  </main>
+  <script>
+    const screens = ["home", "train", "pause", "wrong", "correct", "end"];
+    let answer = "";
+    let returnTo = "train";
+    let correctTimer = 0;
+
+    function show(name) {
+      screens.forEach((id) => {
+        document.getElementById(id).hidden = id !== name;
+      });
+    }
+
+    function resetQuestion() {
+      answer = "";
+      document.getElementById("answer").textContent = "";
+      document.getElementById("nudge").textContent = "";
+      document.getElementById("pattern").hidden = true;
+      document.getElementById("frames").hidden = true;
+    }
+
+    document.getElementById("start").addEventListener("click", () => {
+      resetQuestion();
+      show("train");
+    });
+    document.getElementById("squares").addEventListener("click", () => {
+      resetQuestion();
+      show("train");
+    });
+    document.querySelectorAll("[data-later]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.getElementById("home-note").textContent = "这次只体验 15²。";
+      });
+    });
+    document.querySelectorAll("[data-digit]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (answer.length >= 6) return;
+        answer += button.dataset.digit;
+        document.getElementById("answer").textContent = answer;
+        document.getElementById("nudge").textContent = "";
+      });
+    });
+    document.getElementById("del").addEventListener("click", () => {
+      answer = answer.slice(0, -1);
+      document.getElementById("answer").textContent = answer;
+    });
+    document.getElementById("submit").addEventListener("click", () => {
+      if (!answer) {
+        document.getElementById("nudge").textContent = "先写一个数";
+        return;
+      }
+      if (answer === "225") {
+        show("correct");
+        window.clearTimeout(correctTimer);
+        correctTimer = window.setTimeout(() => show("end"), 550);
+        document.getElementById("end-copy").textContent = "15² = 225。这一次想起来了。";
+        return;
+      }
+      document.getElementById("end-copy").textContent = "15² 留下了一个记法：1 × 2 = 2，后面接 25。";
+      show("wrong");
+    });
+    document.querySelectorAll("[data-pause]").forEach((button) => {
+      button.addEventListener("click", () => {
+        returnTo = button.closest(".screen").id;
+        show("pause");
+      });
+    });
+    document.getElementById("resume").addEventListener("click", () => show(returnTo));
+    document.getElementById("stop").addEventListener("click", () => show("home"));
+    document.getElementById("show-pattern").addEventListener("click", () => {
+      document.getElementById("pattern").hidden = false;
+    });
+    document.getElementById("show-frames").addEventListener("click", () => {
+      document.getElementById("frames").hidden = false;
+    });
+    document.getElementById("next").addEventListener("click", () => show("end"));
+    document.getElementById("home-again").addEventListener("click", () => show("home"));
+  </script>
+</body>
+</html>
