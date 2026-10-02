@@ -1,0 +1,108 @@
+/* Option A — 澄蓝实验室. Static visual mockup only. */
+:root {
+  --bg: #e5f4f3;
+  --ink: #102033;
+  --soft: #4d6474;
+  --card: rgba(255, 255, 255, 0.78);
+  --line: rgba(16, 32, 51, 0.08);
+  --teal: #0c7c86;
+  --teal-deep: #085e66;
+  --sand: #f3c15b;
+  --paper: #f7fffe;
+  --wrong: #e7eef8;
+  --radius: 22px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: "Sora", "PingFang SC", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(420px 240px at 100% -10%, rgba(243, 193, 91, 0.45), transparent 70%),
+    radial-gradient(520px 320px at -10% 0%, rgba(12, 124, 134, 0.22), transparent 65%),
+    var(--bg);
+}
+.phone { width: min(100%, 430px); margin: 0 auto; padding: 28px 20px 36px; }
+.kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 600;
+}
+h1 { margin: 0; font-family: "Fraunces", serif; font-weight: 560; font-size: 40px; letter-spacing: -0.03em; line-height: 1.05; }
+.lede { margin: 10px 0 0; color: var(--soft); font-size: 15px; line-height: 1.5; }
+.hero {
+  margin-top: 22px;
+  padding: 8px;
+  border-radius: 28px;
+  background: rgba(255,255,255,0.35);
+  box-shadow: 0 18px 40px rgba(16, 32, 51, 0.06);
+}
+.hero-core {
+  position: relative;
+  overflow: hidden;
+  min-height: 168px;
+  border-radius: 22px;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.2), transparent 40%),
+    linear-gradient(180deg, #148f99, #0b5f73);
+  color: white;
+}
+.lattice { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-copy { position: relative; z-index: 1; max-width: 11em; padding: 22px 18px 28px; }
+.hero-copy strong { display: block; font-family: "Fraunces", serif; font-size: 28px; font-weight: 560; }
+.hero-copy span { display: block; margin-top: 6px; font-size: 13px; opacity: 0.86; }
+.hero-mark { position: absolute; right: 18px; bottom: 16px; margin: 0; text-align: right; }
+.hero-mark strong { display: block; font-family: "Fraunces", serif; font-size: 32px; font-weight: 560; }
+.hero-mark span { font-size: 14px; opacity: 0.85; }
+.cta {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 100%; min-height: 58px; margin-top: 18px; border: 0; border-radius: 999px;
+  background: var(--teal); color: white; font: inherit; font-weight: 600; font-size: 17px;
+  box-shadow: 0 10px 24px rgba(12, 124, 134, 0.28);
+}
+.cta small { font-size: 12px; font-weight: 500; opacity: 0.85; }
+.domains { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.domain {
+  padding: 14px 8px; border: 0; border-radius: 18px; background: var(--card);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--ink);
+}
+.domain i { display: block; height: 28px; margin-bottom: 8px; }
+.links { margin-top: 18px; display: flex; flex-direction: column; }
+.links button, .quiet {
+  border: 0; background: transparent; color: var(--soft); font: inherit; font-size: 14px;
+  text-align: left; min-height: 40px; padding: 0;
+}
+.fine { margin: 18px 0 0; font-size: 12px; color: #6d8090; line-height: 1.5; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.tag { font-size: 12px; letter-spacing: 0.08em; color: var(--teal); font-weight: 600; }
+.question { margin: 18px 0 16px; font-family: "Fraunces", serif; font-size: 52px; font-weight: 560; letter-spacing: -0.04em; }
+.answer {
+  height: 64px; border-radius: 18px; background: white; border: 1.5px solid rgba(16,32,51,0.1);
+}
+.keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 22px; }
+.key {
+  min-height: 56px; border: 0; border-radius: 16px; background: white;
+  box-shadow: 0 8px 16px rgba(16,32,51,0.05);
+  font: inherit; font-size: 22px; font-weight: 600;
+}
+.key.wide { grid-column: 1 / -1; border-radius: 999px; background: var(--teal); color: white; font-size: 16px; }
+.wrong-card {
+  margin-top: 12px; padding: 22px 18px; border-radius: 24px; background: var(--wrong);
+  box-shadow: inset 0 1px 0 white;
+}
+.demoted { margin: 8px 0; color: var(--soft); font-size: 16px; }
+.relation { margin: 0; font-family: "Fraunces", serif; font-size: 34px; letter-spacing: -0.03em; }
+.hint { margin: 8px 0 16px; font-size: 15px; }
+.mark { margin: 0; color: #8a5a2b; font-size: 13px; font-weight: 600; }
+.end { padding-top: 72px; }
+.orb {
+  width: 54px; height: 54px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #f3c15b 45%, #0c7c86 46%, #0c7c86 70%, transparent 71%);
+}
+.end h1 { margin-top: 16px; }
+.body { font-size: 16px; color: var(--soft); }
+.familiar { margin: 22px 0; font-size: 15px; }
