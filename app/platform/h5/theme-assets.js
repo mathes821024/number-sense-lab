@@ -5,9 +5,9 @@
  * bundles straight from assets/.
  *
  * H5: display-size WebP (512px) for mascots, as main's h5/theme.js prefers;
- * SVG for the logo, edge decoration and domain tiles (SVG is tier "有" on H5).
- * Domain slots are `domain.<domain_id>`; 平方 has no file (its v0.3 picture is a
- * cube, which 05 §5 rules out) and gets its glyph, as do the five v0.4 domains.
+ * SVG for the logo and edge decoration (SVG is tier "有" on H5). The practice
+ * page's domain icons are not here: they come from the F-B manifest
+ * (app/theme/fb-specialist-assets.js, docs/ui/08_fb_specialist_visual.md).
  */
 import welcome from "../../../assets/themes/math-lab/mascot/mascot-welcome-512.webp";
 import correct from "../../../assets/themes/math-lab/mascot/mascot-correct-512.webp";
@@ -21,8 +21,6 @@ import leaf2 from "../../../assets/themes/math-lab/decor/leaf-02.svg";
 import sprout from "../../../assets/themes/math-lab/decor/sprout.svg";
 import sparkle from "../../../assets/themes/math-lab/decor/sparkle.svg";
 import question from "../../../assets/themes/math-lab/decor/question.svg";
-import domainProducts from "../../../assets/themes/math-lab/domains/domain-products.svg";
-import domainFractions from "../../../assets/themes/math-lab/domains/domain-fractions.svg";
 
 export const themeAssets = Object.freeze({
   "mascot.welcome": { src: welcome, manifestKey: "mascot.welcomeDisplayWebp" },
@@ -37,6 +35,4 @@ export const themeAssets = Object.freeze({
   "decor.sprout": { src: sprout, manifestKey: "decor.sprout" },
   "decor.sparkle": { src: sparkle, manifestKey: "decor.sparkle" },
   "decor.question": { src: question, manifestKey: "decor.question" },
-  "domain.products": { src: domainProducts, manifestKey: "domain.products" },
-  "domain.fraction_decimal": { src: domainFractions, manifestKey: "domain.fraction_decimal" },
 });

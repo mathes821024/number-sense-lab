@@ -130,7 +130,7 @@ test("主题训练: a card without released content only answers 敬请期待 an
   for (const g of exploreView({ relations: {} }, catalog)) for (const card of g.cards) assert.notEqual(card.status, "敬请期待", `${card.domain} released: no 敬请期待`);
 });
 
-test("domain icons (05 §5): one fixed, distinct symbol per domain; 平方 never the cube; 凑整 not 常用乘积's dot array", () => {
+test("fallback glyphs (only when an F-B file is missing or fails): one distinct symbol per domain, never an empty tile", () => {
   assert.deepEqual(Object.keys(DOMAIN_GLYPHS).sort(), [...DOMAIN_ORDER].sort());
   assert.equal(new Set(Object.values(DOMAIN_GLYPHS)).size, 8, "no two domains share a symbol");
   assert.equal(DOMAIN_GLYPHS.cubes, "cube");
@@ -145,52 +145,61 @@ test("domain icons (05 §5): one fixed, distinct symbol per domain; 平方 never
   for (const n of [...Object.values(DOMAIN_GLYPHS), "arrow-left", "printer", "plus"]) assert.ok(glyphs.includes(`"${n}"`), `glyph ${n} in the embedded subset`);
 });
 
-test("domain slots: `domain.<domain_id>` on both clients; WeChat uses PNG files, never SVG; no cube for 平方", () => {
-  const manifest = JSON.parse(read("assets/themes/math-lab/manifest.json"));
-  assert.deepEqual(Object.keys(manifest.assets.domain), ["products", "fraction_decimal", "productsPng", "fraction_decimalPng"]);
-  assert.equal("fractions" in manifest.assets.domain, false, "old slot name domain.fractions is gone");
-  assert.equal("squares" in manifest.assets.domain, false, "the v0.3 cube is not 平方's picture (05 §5)");
-  assert.doesNotMatch(JSON.stringify(manifest.futureDomains), /cubes|complements/, "released domains are not future");
-  const slotsOf = (f) => [...read(f).matchAll(/"(domain\.\w+)": \{ src: \w+, manifestKey: "([\w.]+)" \}/g)].map((m) => [m[1], m[2]]);
-  const h5 = slotsOf("app/platform/h5/theme-assets.js");
-  const wx = slotsOf("app/platform/wechat/theme-assets.js");
-  assert.deepEqual(h5.map(([s]) => s), ["domain.products", "domain.fraction_decimal"]);
-  assert.deepEqual(wx.map(([s]) => s), ["domain.products", "domain.fraction_decimal"]);
-  for (const [, key] of wx) assert.match(key, /Png$/, key);
-  assert.doesNotMatch(read("app/platform/wechat/theme-assets.js"), /\.svg"/);
-  for (const f of ["app/platform/h5/theme-assets.js", "app/platform/wechat/theme-assets.js"]) assert.doesNotMatch(read(f), /domain-squares/, `${f}: no cube`);
-  // A tile draws the slot's file when the client has one, else the glyph on the group tint: never empty.
+test("domain icon tile: the slot's F-B file when it loads, else the glyph on the group chip — never empty", () => {
   const tile = read("app/components/DomainTile.jsx");
-  assert.match(tile, /hasArt \? \(/);
+  assert.match(tile, /const hasArt = Boolean\(src\) && !broken;/);
+  assert.match(tile, /onError=\{\(\) => setBroken\(true\)\}/, "a failed file falls back to the glyph");
   assert.match(tile, /<Icon name=\{glyph\} \/>/);
   assert.match(tile, /tone-\$\{tone\}/);
+  assert.match(tile, /mode="aspectFit"/, "never stretched or cropped");
+  const h5 = read("h5/app.js");
+  const art = h5.slice(h5.indexOf("function domainArt"), h5.indexOf("function mascot("));
+  assert.match(art, /domainIconUrl\(domain\)/);
+  assert.match(art, /tile-glyph/);
+  assert.match(art, /classList\.replace\("has-art", "is-broken"\)/);
+  assert.match(read("h5/styles.css"), /\.tile:not\(\.has-art\) \.tile-glyph, \.tile\.is-broken \.tile-glyph \{ display: inline-flex; \}/);
 });
 
-test("主题训练 pages (Taro + h5/): the same shared model, headings, whole-card buttons; no 敬请期待 cards, 知识地图 only says 敬请期待", () => {
+test("主题训练 pages (Taro + h5/): the same shared model, F-B header and group zones, whole-tile buttons; no 敬请期待 cards, 知识地图 only says 敬请期待", () => {
   const page = read("app/pages/explore/index.jsx");
   const h5 = read("h5/app.js");
   assert.match(page, /exploreView\(state, catalog\)\.map\(\(g\) =>/);
   assert.match(h5, /practiceGroups\(catalog, state\.relations\)/);
-  assert.match(page, /role="heading" aria-level="2"/);
-  assert.match(h5, /<h2 class="group-label practice-group-title"/);
+  assert.match(page, /className="practice-group-title" role="heading" aria-level="2"/);
+  assert.match(h5, /<h2 class="practice-group-title"/);
   assert.match(page, /role="button"\s+aria-label=\{c\.aria\}/);
   assert.match(h5, /<button class="practice-card[\s\S]{0,300}aria-label="\$\{c\.aria\}"/);
   const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   for (const src of [code(page), code(h5.slice(h5.indexOf("function renderExplore"), h5.indexOf("function renderFocusConfirm")))]) {
-    for (const gone of ["规律探索", "概念", "例题", "动画", "更多方向", "soon-chip", "soon-tile", "SoonButton", "caret-right"]) assert.equal(src.includes(gone), false, `${gone} is not on the practice page`);
+    for (const gone of ["规律探索", "概念", "例题", "动画", "更多方向", "soon-chip", "soon-tile", "SoonButton", "caret-right", "<svg"]) assert.equal(src.includes(gone), false, `${gone} is not on the practice page`);
     for (const label of LABELS) assert.equal(src.includes(label), false, `${label} comes from the model, not hard-coded`);
     assert.match(src, /data-soon="知识地图"/);
+    // F-B header (08 §2; 05 §1): kicker, title, subtitle, the two tabs, a quiet helper line.
+    for (const text of ["EXPLORE MATH", "探索数学世界", "从一个主题开始，走更远的路", "主题训练", "知识地图", "今天想练哪个？"]) assert.ok(src.includes(text), text);
+    assert.match(src, /fb-hint/);
+    assert.match(src, /fb-mascot/);
+    assert.match(src, /practice-group-en/);
+    assert.match(src, /is-long/);
   }
   for (const css of [read("app/app.css"), read("h5/styles.css")]) {
     assert.match(css, /\.practice-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
     const card = css.match(/\n\.practice-card \{[\s\S]*?\n\}/)[0];
-    assert.match(card, /background: var\(--surface-card\);/, "cards stay on color.surface.card");
-    assert.match(card, /min-height: (1[0-9]{2})px;/, "card well above 44×44");
-    for (const [tone, token] of [["sky", "--tint-sky"], ["amber", "--tint-amber"], ["mint", "--tint-mint"]]) {
-      assert.match(css, new RegExp(`\\.tile\\.tone-${tone} \\.tile-glyph \\{ background: var\\(${token}\\); \\}`));
+    assert.match(card, /background: var\(--fb-tile-bg\);/, "white tiles on the group zone");
+    assert.match(card, /box-shadow: var\(--fb-tile-shadow\);/, "a very light shadow, not a floating card");
+    assert.match(card, /border-radius: 16px;/);
+    assert.match(card, /min-height: 76px;/, "compact tile, still well above 44×44");
+    for (const tone of ["sky", "amber"]) {
+      assert.match(css, new RegExp(`\\.practice-group\\.tone-${tone} \\{ background: var\\(--fb-group-bg-${tone}\\); \\}`), `${tone} zone in CSS`);
+      assert.match(css, new RegExp(`\\.tile\\.tone-${tone} \\{ background: var\\(--fb-chip-${tone}\\); \\}`), `${tone} chip`);
     }
-    assert.match(css, /\.practice-status \{[^}]*color: var\(--text-secondary\);/);
-    assert.match(css, /\.practice-name \{[^}]*color: var\(--text-primary\);/);
+    assert.match(css, /\.practice-group \{[^}]*border-radius: 20px; background: var\(--fb-group-bg-mint\);/);
+    assert.doesNotMatch(css.slice(css.indexOf("主题训练 as F-B"), css.indexOf("Safe fallback")), /url\(/, "no picture for a colour zone");
+    assert.match(css, /\.practice-status \{[^}]*font-size: 12px;[^}]*color: var\(--fb-status\);/);
+    assert.match(css, /\.practice-name \{[^}]*font-size: 15px;[^}]*white-space: nowrap;[^}]*color: var\(--text-primary\);/);
+    assert.match(css, /\.practice-group-title \{[^}]*font-size: 16px; font-weight: 800;/);
+    assert.match(css, /\.fb-hint \{[^}]*font-size: 13px; font-weight: 400;[^}]*color: var\(--text-secondary\);/, "helper line weaker than the group titles");
+    assert.match(css, /\.fb-mascot \{[^}]*width: 74px; height: 74px;/, "mascot (≤ 80 token) no taller than the title block, even after rpx rounding at 430");
+    assert.match(css, /width: 64px;\n  height: 64px;\n  flex: none;\n  border-radius: 14px;/, "64px icon chip");
   }
 });
 

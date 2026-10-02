@@ -6,7 +6,7 @@
  * questions, judging, mastery, scheduling, the mistake book, progress or
  * printing.
  *
- * Artwork (mascots, brand, domain icons, edge decoration) is the locked VA0
+ * Artwork (mascots, brand, edge decoration) is the locked VA0
  * pack under assets/themes/math-lab/, reached only through its manifest by
  * semantic slot (h5/theme.js). This file names the manifest and the slots; it
  * holds no image paths of its own. Colour values live in theme.css.
@@ -57,18 +57,6 @@ export const mathLabTheme = Object.freeze({
     thinking: "mascot.thinking",
   }),
   brand: Object.freeze({ appIcon: "brand.appIcon", avatar: "brand.avatar", logo: "logo.mark" }),
-  // One `domain.<domain_id>` slot per training domain (07; 05 §5). A slot with no
-  // file in the manifest draws the domain's interface glyph instead.
-  icons: Object.freeze({
-    squares: "domain.squares",
-    cubes: "domain.cubes",
-    powers: "domain.powers",
-    products: "domain.products",
-    special_products: "domain.special_products",
-    fraction_decimal: "domain.fraction_decimal",
-    halves: "domain.halves",
-    complements: "domain.complements",
-  }),
   motion: Object.freeze({
     correct: "--motion-correct",
     wrong: "--motion-wrong",

@@ -2,7 +2,7 @@
   "id": "math-lab",
   "name": "澄蓝数学实验室 / Bright Number Lab",
   "version": "0.1.0",
-  "description": "Default theme. Components resolve assets by semantic slot, never by filename. Future themes (magic-academy / space / forest) ship the same slot keys with their own files. `*Display` keys are display-size copies (mascots 512px, avatar 192px) derived from the unchanged masters; Domain icons use the slot `domain.<domain_id>` for all eight training domains; `domain.*Png` are 192px PNG renditions of the domain SVG masters for clients without SVG (the Mini Program). A domain with no file here gets its interface glyph in the same tile. `domain.squares` has no file: the v0.3 picture (domains/domain-squares.svg / -192.png) is a cube, and 平方 must not use a cube (docs/ux/05_specialist_grouped_grid.md §5). The masters stay the source of truth.",
+  "description": "Default theme. Components resolve assets by semantic slot, never by filename. Future themes (magic-academy / space / forest) ship the same slot keys with their own files. `*Display` keys are display-size copies (mascots 512px, avatar 192px) derived from the unchanged masters; The practice page's eight `domain.<domain_id>` icons are not in this pack: they come only from concept-design/F-B-final/asset-manifest.json (docs/ui/08_fb_specialist_visual.md §1). The v0.3 domain files under domains/ stay on disk, unused. The masters stay the source of truth.",
   "assets": {
     "logo": {
       "mark": "brand/logo-mark.svg"
@@ -28,12 +28,6 @@
       "correctDisplayWebp": "themes/math-lab/mascot/mascot-correct-512.webp",
       "thinkingDisplay": "themes/math-lab/mascot/mascot-thinking-512.png",
       "thinkingDisplayWebp": "themes/math-lab/mascot/mascot-thinking-512.webp"
-    },
-    "domain": {
-      "products": "themes/math-lab/domains/domain-products.svg",
-      "fraction_decimal": "themes/math-lab/domains/domain-fractions.svg",
-      "productsPng": "themes/math-lab/domains/domain-products-192.png",
-      "fraction_decimalPng": "themes/math-lab/domains/domain-fractions-192.png"
     },
     "decor": {
       "cloud1": "themes/math-lab/decor/cloud-01.svg",

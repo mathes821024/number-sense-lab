@@ -650,7 +650,7 @@ await step("13 viewing pages leaves the record untouched", async () => {
   return "nsl-v01-state byte-identical after 错题本 / 印到纸上 / 最近练得怎么样";
 });
 
-await step("14 专项练习 · 主题训练 grouped grid: 3 headings, 2 columns, every card an icon → its own domain only", async () => {
+await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zones, 2 columns, every tile its F-B PNG → its own domain only", async () => {
   page = await relaunch("/pages/mistakes/index");
   await tapText(page, ".tab", "练习");
   await sleep(1500);
@@ -676,15 +676,15 @@ await step("14 专项练习 · 主题训练 grouped grid: 3 headings, 2 columns,
       const o = await c.offset();
       const z = await c.size();
       boxes.push({ left: Math.round(o.left), top: Math.round(o.top), w: Math.round(z.width), h: Math.round(z.height) });
-      // Every tile shows something: the slot's PNG file or the interface glyph — never empty, never 平方's old cube.
+      // Every tile shows the manifest's F-B PNG for its domain_id (docs/ui/08 §1): a file, never SVG, never empty.
       const t = await c.$(".tile");
       const cls = (await t.attribute("class")) || "";
       const img = await t.$(".theme-img");
       const src = img ? await img.attribute("src") : "";
       const glyph = (await t.$(".tile-glyph .icon")) ? (await (await t.$(".tile-glyph .icon")).text()).trim() : "";
       tiles.push(`${names[names.length - 1]}:${src ? `png:${src.split("/").pop()}` : glyph ? "glyph" : "EMPTY"}:${(cls.match(/tone-(\w+)/) || [])[1] || "notone"}`);
-      check(!src || /\.png$/.test(src), `WeChat tile is a PNG file, not SVG (${src})`);
-      check(!/domain-squares/.test(src), "平方 never shows the cube");
+      const domainId = DOMAIN_ORDER[LABELS.indexOf(names[names.length - 1])];
+      check(/\.png$/.test(src) && src.includes(`domain-${domainId.replaceAll("_", "-")}`), `${names[names.length - 1]}: F-B PNG for ${domainId} (${src || glyph || "EMPTY"})`);
       check(cls.includes(`tone-${GRID_GROUPS[gi][1]}`), `${names[names.length - 1]} tint ${cls}`);
     }
     check(names.join("/") === GRID_GROUPS[gi][2].join("/"), `group ${heads[gi]} cards ${names}`);
@@ -696,6 +696,17 @@ await step("14 专项练习 · 主题训练 grouped grid: 3 headings, 2 columns,
     order.push(...names);
   }
   check(!tiles.some((t) => t.includes(":EMPTY:")), `tiles ${tiles}`);
+  // F-B header (08 §2): kicker, title, subtitle, tabs, the quiet helper line; the reused welcome mascot.
+  const head = [await textOf(page, ".fb-kicker"), await textOf(page, ".title"), await textOf(page, ".lede"), await textOf(page, ".fb-hint")];
+  check(head.join("/") === "EXPLORE MATH/探索数学世界/从一个主题开始，走更远的路/今天想练哪个？", `header ${head}`);
+  const mascotImg = await page.$(".fb-mascot .fb-mascot-img");
+  const mascotSrc = mascotImg ? await mascotImg.attribute("src") : "";
+  const mascotH = mascotImg ? Math.round((await (await page.$(".fb-mascot")).size()).height) : 0;
+  const headH = Math.round((await (await page.$(".fb-head-text")).size()).height);
+  check(/specialist-mascot@2x\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
+  const zones = [];
+  for (const g of groups) zones.push(`${(await g.attribute("class")).match(/tone-(\w+)/)[1]}:${(await (await g.$(".practice-group-en")).text()).trim()}`);
+  check(zones.join("/") === "sky:POWERS/amber:PRODUCTS/mint:NUMBERS", `zones ${zones}`);
   // 05 §1: no 敬请期待 cards on the practice page; 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图.
   for (const sel of [".soon-tile", ".soon-chip", ".soon-name", ".section-label"]) check(!(await has(page, sel)), `no ${sel}`);
   await shot("25-explore");

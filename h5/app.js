@@ -45,29 +45,42 @@ import {
   promptStem,
 } from "../src/core/fraction-fields.js";
 import { setPositionLabel } from "../src/core/progress-label.js";
-import { DOMAIN_GLYPHS, domainSlot, domainTone, practiceGroups } from "../src/core/practice-groups.js";
+import { DOMAIN_GLYPHS, domainTone, isLongLabel, practiceGroups } from "../src/core/practice-groups.js";
 import { formatMath, repeatingHtml, listPromptHtml, printPromptHtml } from "./math-text.js";
 import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";
+import { domainIconUrl, loadSpecialistAssets, specialistMascotUrl } from "./specialist-assets.js";
 
 // Theme layer: math-lab is the only runtime theme (no picker, no switching).
 // Pictures resolve through the theme manifest; if it cannot load, screens
 // still work with words and shapes only.
 applyTheme(document);
-await loadTheme();
+await Promise.all([loadTheme(), loadSpecialistAssets()]);
 // Home needs the welcome picture first; feedback pictures wait for training.
 preloadAssets([activeTheme().mascot.welcome], { priority: "high" });
 
 /**
- * Domain icon (docs/ux/05_specialist_grouped_grid.md §5): the file in the theme's
- * `domain.<domain_id>` slot, else the domain's interface glyph on its group's
- * light tint (shared src/core/practice-groups.js), so no tile is ever empty.
+ * Domain icon (docs/ui/08_fb_specialist_visual.md §1): the F-B PNG the manifest names
+ * for this `domain_id`, on its group's light chip. The interface glyph sits in the
+ * same tile and shows when the manifest has no file or the file fails to load
+ * (the `error` listener below), so no tile is ever empty.
  */
 function domainArt(domain) {
-  const art = asset(activeTheme().icons[domain] || domainSlot(domain));
+  const src = domainIconUrl(domain);
   const glyph = DOMAIN_GLYPHS[domain] ? `<span class="tile-glyph">${icon(DOMAIN_GLYPHS[domain])}</span>` : "";
   const tone = domainTone(domain);
-  return `<span class="tile tile-${domain}${tone ? ` tone-${tone}` : ""}" aria-hidden="true">${art || glyph}</span>`;
+  const art = src ? `<img class="tile-art" src="${src}" alt="" decoding="async" draggable="false">` : "";
+  return `<span class="tile tile-${domain}${tone ? ` tone-${tone}` : ""}${art ? " has-art" : ""}" aria-hidden="true">${art}${glyph}</span>`;
 }
+// A domain picture that fails to load falls back to its glyph (no empty icon).
+document.addEventListener(
+  "error",
+  (event) => {
+    const img = event.target;
+    if (img && img.classList && img.classList.contains("tile-art")) img.closest(".tile")?.classList.replace("has-art", "is-broken");
+    if (img && img.classList && img.classList.contains("fb-mascot-img")) img.closest(".fb-mascot")?.remove();
+  },
+  true,
+);
 
 /**
  * Mascot from the theme manifest (welcome on Home / empty states, correct and
@@ -322,35 +335,53 @@ function renderHome() {
 }
 
 /**
- * 练习 · 主题训练 (docs/ux/05_specialist_grouped_grid.md): the shared grouped grid —
- * three light navigation headings, each over two-column cards (icon, name, one
- * status line). The whole card is the button. A released card opens its
- * confirmation; a card without released content only answers 敬请期待.
- * 知识地图 is the other entry and only says 敬请期待 this round; 概念 / 例题 /
- * 动画 / 规律探索 belong to it and are not cards on this page.
+ * 练习 · 主题训练 (docs/ux/05_specialist_grouped_grid.md), drawn as F-B, the warm
+ * branded learning panel (docs/ui/08_fb_specialist_visual.md): a header with the
+ * existing welcome mascot at one side, then three navigation groups, each a light
+ * colour zone (CSS) with two-column white tiles (icon, name, one weak status line).
+ * The whole tile is the button. A released tile opens its confirmation; a tile
+ * without released content only answers 敬请期待. 知识地图 is the other entry and
+ * only says 敬请期待 this round; 概念 / 例题 / 动画 / 规律探索 are not tiles here.
  */
 function renderExplore() {
   const card = (c) =>
     `<button class="practice-card${c.released ? "" : " is-soon"}" type="button" data-action="${c.released ? "focus" : "soon"}" data-domain="${c.domain}"${c.released ? "" : ` data-soon="${c.label}"`} aria-label="${c.aria}">
       ${domainArt(c.domain)}
-      <span class="practice-name">${c.label}</span>
-      <span class="practice-status">${c.status}</span>
+      <span class="practice-text">
+        <span class="practice-name${isLongLabel(c.label) ? " is-long" : ""}">${c.label}</span>
+        <span class="practice-status">${c.status}</span>
+      </span>
     </button>`;
   const groups = practiceGroups(catalog, state.relations)
     .map(
-      (g) => `<section class="practice-group" data-group="${g.id}" aria-labelledby="group-${g.id}">
-      <h2 class="group-label practice-group-title" id="group-${g.id}">${g.label}</h2>
+      (g) => `<section class="practice-group tone-${g.tone}" data-group="${g.id}" aria-labelledby="group-${g.id}">
+      <div class="practice-group-head">
+        <span class="practice-group-dot" aria-hidden="true"></span>
+        <h2 class="practice-group-title" id="group-${g.id}">${g.label}</h2>
+        <span class="practice-group-en" aria-hidden="true">${g.en}</span>
+      </div>
       <div class="practice-grid">${g.cards.map(card).join("")}</div>
     </section>`,
     )
     .join("");
-  return `<section class="screen" id="explore">
-    <h1 class="title">探索数学世界</h1>
-    <p class="lede">从一个主题开始，走更远的路</p>
+  const mascotSrc = specialistMascotUrl();
+  const mascotArt = mascotSrc
+    ? `<span class="fb-mascot" aria-hidden="true"><span class="fb-spark fb-spark-1"></span><span class="fb-spark fb-spark-2"></span><img class="fb-mascot-img" src="${mascotSrc}" alt="" decoding="async" draggable="false"></span>`
+    : "";
+  return `<section class="screen screen-explore" id="explore">
+    <div class="fb-head">
+      <div class="fb-head-text">
+        <p class="fb-kicker" lang="en">EXPLORE MATH</p>
+        <h1 class="title">探索数学世界</h1>
+        <p class="lede">从一个主题开始，走更远的路</p>
+      </div>
+      ${mascotArt}
+    </div>
     <div class="segmented" role="group" aria-label="练习方式">
       <button class="seg is-on" type="button" aria-pressed="true">主题训练</button>
       <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="知识地图">知识地图</button>
     </div>
+    <p class="fb-hint">今天想练哪个？</p>
     <div class="practice-groups">${groups}</div>
   </section>`;
 }

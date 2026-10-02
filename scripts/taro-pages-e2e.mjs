@@ -120,16 +120,31 @@ for (const [vp, width, height] of VPS) {
   const navOn = () => page.$eval(V(".tabbar .tab.is-on .tab-label"), (e) => e.textContent);
 
   // ---------- 专项练习 ----------
-  await step(`${vp} 1 专项练习 · 主题训练: grouped two-column grid, every card an icon, no 敬请期待 cards`, async () => {
+  await step(`${vp} 1 专项练习 · 主题训练 (F-B): header, three colour zones, two columns, every tile its F-B PNG, no 敬请期待 cards`, async () => {
     await open("home");
     await page.waitForSelector(V('[data-testid="home"]'));
     await page.click(V('[data-action="explore"]'));
     await settle("explore");
-    await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="explore"] .tile-art img')].every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 5000 });
+    await page.waitForFunction(() => {
+      const imgs = [...document.querySelectorAll('[data-testid="explore"] .tile-art img, [data-testid="explore"] .fb-mascot img')];
+      return imgs.length === 9 && imgs.every((i) => i.complete && i.naturalWidth > 0);
+    }, null, { timeout: 5000 });
     const v = await page.evaluate(() => {
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
+      const px = (el, p) => parseFloat(getComputedStyle(el)[p]);
+      const mascot = root.querySelector(".fb-mascot");
+      const headText = root.querySelector(".fb-head-text").getBoundingClientRect();
       return {
         title: root.querySelector(".title").textContent,
+        kicker: root.querySelector(".fb-kicker").textContent,
+        lede: root.querySelector(".lede").textContent,
+        hint: root.querySelector(".fb-hint").textContent,
+        hintPx: px(root.querySelector(".fb-hint"), "fontSize"),
+        hintW: px(root.querySelector(".fb-hint"), "fontWeight"),
+        groupPx: px(root.querySelector(".practice-group-title"), "fontSize"),
+        groupW: px(root.querySelector(".practice-group-title"), "fontWeight"),
+        mascot: mascot ? { h: Math.round(mascot.getBoundingClientRect().height), src: mascot.querySelector("img").src, headH: Math.round(headText.height) } : null,
+        zones: [...root.querySelectorAll(".practice-group")].map((g) => ({ bg: getComputedStyle(g).backgroundColor, img: getComputedStyle(g).backgroundImage, en: g.querySelector(".practice-group-en").textContent })),
         groups: [...root.querySelectorAll(".practice-group")].map((g) => ({
           head: g.querySelector(".practice-group-title").textContent,
           role: g.querySelector(".practice-group-title").getAttribute("role"),
@@ -144,6 +159,10 @@ for (const [vp, width, height] of VPS) {
               tone: (tile.className.match(/tone-(\w+)/) || [])[1] || "",
               pic: Boolean(d.querySelector(".tile-art")),
               picSrc: (d.querySelector(".tile-art img") || {}).src || "",
+              picW: (d.querySelector(".tile-art img") || {}).naturalWidth || 0,
+              nameLines: Math.round(d.querySelector(".practice-name").getBoundingClientRect().height / parseFloat(getComputedStyle(d.querySelector(".practice-name")).lineHeight)),
+              statusLines: Math.round(d.querySelector(".practice-status").getBoundingClientRect().height / parseFloat(getComputedStyle(d.querySelector(".practice-status")).lineHeight)),
+              textInside: [".practice-name", ".practice-status"].every((s) => d.querySelector(s).getBoundingClientRect().right <= r.right + 0.5),
               glyph: Boolean(d.querySelector(".tile-glyph .icon") && d.querySelector(".tile-glyph .icon").textContent.trim() && d.querySelector(".tile-glyph .icon").getBoundingClientRect().width > 4),
               picOk: [...d.querySelectorAll(".tile-art img")].some((i) => i.complete && i.naturalWidth > 0),
               box: { l: Math.round(r.left), t: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) },
@@ -162,8 +181,10 @@ for (const [vp, width, height] of VPS) {
       check(c.name === LABELS[DOMAIN_ORDER.indexOf(c.id)], `${c.id} name ${c.name}`);
       check(["还没怎么练", "正在熟悉", "有几题要再巩固", "大多已经很稳"].includes(c.status), `${c.name} status ${c.status}`);
       check(c.aria === `${c.name}，${c.status}`, `${c.name} aria ${c.aria}`);
-      check((c.pic && c.picOk) || c.glyph, `${c.name}: empty tile`);
-      check(!/domain-squares/.test(c.picSrc), `${c.name}: the v0.3 cube`);
+      check(c.pic && c.picOk && c.picW === 256, `${c.name}: F-B picture not loaded (${c.picSrc})`);
+      const file = { squares: "domain-squares", cubes: "domain-cubes", powers: "domain-powers", products: "domain-products", special_products: "domain-special-products", fraction_decimal: "domain-fraction-decimal", halves: "domain-halves", complements: "domain-complements" }[c.id];
+      check(c.picSrc.includes(`concept-design/F-B-final/assets/specialist/domains/${file}`) && /\.png$/.test(c.picSrc), `${c.name}: not the manifest's PNG (${c.picSrc})`);
+      check(c.nameLines === 1 && c.statusLines === 1 && c.textInside, `${c.name}: name/status lines ${c.nameLines}/${c.statusLines}, inside ${c.textInside}`);
       check(c.box.w >= 44 && c.box.h >= 44, `${c.name} target ${c.box.w}×${c.box.h}`);
     }
     check(v.groups.every((g) => g.role === "heading" && g.cards.every((c) => c.tone === g.cards[0].tone)), "headings + one tint per group");
@@ -173,6 +194,10 @@ for (const [vp, width, height] of VPS) {
       if (c) check(Math.abs(c.l - a.l) <= 1 && Math.abs(c.w - a.w) <= 1 && c.t >= a.t + a.h - 1, `${g.head}: 3rd card left, not stretched ${JSON.stringify(c)}`);
     }
     check(v.soon === 0, "no 敬请期待 cards / 更多方向 on the practice page");
+    check(v.kicker === "EXPLORE MATH" && v.title === "探索数学世界" && v.lede === "从一个主题开始，走更远的路" && v.hint === "今天想练哪个？", `header ${v.kicker}/${v.title}/${v.lede}/${v.hint}`);
+    check(v.hintPx < v.groupPx && v.hintW < v.groupW, `helper line ${v.hintPx}px/${v.hintW} vs group title ${v.groupPx}px/${v.groupW}`);
+    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /specialist-mascot@2x\.png$/.test(v.mascot.src), `mascot ${JSON.stringify(v.mascot)}`);
+    check(JSON.stringify(v.zones.map((z) => [z.bg, z.img, z.en])) === JSON.stringify([["rgb(234, 242, 251)", "none", "POWERS"], ["rgb(253, 243, 231)", "none", "PRODUCTS"], ["rgb(233, 246, 240)", "none", "NUMBERS"]]), `zones ${JSON.stringify(v.zones)}`);
     check(v.segSoon.join("/") === "知识地图", `segment ${v.segSoon}`);
     check((await navOn()) === "练习", `nav on ${await navOn()}`);
     const lay = await layout("explore", "explore");
@@ -193,7 +218,23 @@ for (const [vp, width, height] of VPS) {
     });
     check(end.last <= end.nav, `last card ${end.last} under the nav ${end.nav}`);
     await shot("01b-explore-more");
-    return `「${v.title}」 ${v.groups.map((g) => `${g.head}: ${g.cards.map((c) => `${c.name}[${c.pic ? "pic" : "glyph"}]`).join("/")}`).join("; ")}; no 敬请期待 cards (知识地图 → 「${toast}」); end ${end.last} ≤ nav ${end.nav}; ${lay}`;
+    // A picture that fails to load falls back to the glyph: never an empty chip.
+    await page.route("**/domain-cubes.png", (r) => r.abort());
+    await page.reload();
+    await settle("explore");
+    await page.waitForTimeout(400);
+    const fb = await page.evaluate(() => {
+      const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
+      const t = root.querySelector('.practice-card[data-domain="cubes"] .tile');
+      const g = t.querySelector(".tile-glyph .icon");
+      return { cls: t.className, glyph: Boolean(g && g.textContent.trim() && g.getBoundingClientRect().width > 4), img: Boolean(t.querySelector("img")) };
+    });
+    await page.unroute("**/domain-cubes.png");
+    check(fb.glyph && !fb.img && /is-broken/.test(fb.cls), `failed picture fallback ${JSON.stringify(fb)}`);
+    errors.splice(0, errors.length, ...errors.filter((e) => !/domain-cubes|ERR_FAILED|Failed to load resource/.test(e)));
+    await page.reload();
+    await settle("explore");
+    return `「${v.kicker} / ${v.title}」 mascot ${v.mascot.h}px; ${v.groups.map((g) => `${g.head}: ${g.cards.map((c) => `${c.name}[${c.pic ? "png" : "glyph"}]`).join("/")}`).join("; ")}; failed 立方 picture → glyph; no 敬请期待 cards (知识地图 → 「${toast}」); end ${end.last} ≤ nav ${end.nav}; ${lay}`;
   });
 
   for (const [n, domain] of DOMAIN_ORDER.entries()) {

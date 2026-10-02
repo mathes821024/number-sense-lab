@@ -41,11 +41,8 @@ const REQUIRED_ASSETS = [
   "brand.appIcon",
   "brand.avatar",
   "logo.mark",
-  // Domain slots are `domain.<domain_id>` (07). Only these two have a file in the pack;
-  // domain.squares has none (its v0.3 picture is a cube: 05 §5) and, like the five
-  // v0.4 domains, gets its interface glyph (07: 缺文件时可用形状顶上).
-  "domain.products",
-  "domain.fraction_decimal",
+  // The eight `domain.<domain_id>` icons are not math-lab slots any more: they come
+  // only from concept-design/F-B-final/asset-manifest.json (docs/ui/08; test/fb-specialist.test.js).
   "decor.cloud1",
   "decor.cloud2",
   "decor.hill",
@@ -109,13 +106,12 @@ test("no theme selector, theme settings or theme switching in the shell", () => 
 });
 
 test("theme object keeps the documented structure and asset slots", () => {
-  for (const key of ["id", "manifest", "colors", "typography", "radius", "shadows", "background", "mascot", "brand", "icons", "marks", "motion", "sounds"]) {
+  for (const key of ["id", "manifest", "colors", "typography", "radius", "shadows", "background", "mascot", "brand", "marks", "motion", "sounds"]) {
     assert.ok(key in mathLabTheme, `theme.${key}`);
   }
   const slots = [
     ...Object.values(mathLabTheme.mascot),
     ...Object.values(mathLabTheme.brand),
-    ...Object.values(mathLabTheme.icons),
     ...Object.values(mathLabTheme.background),
   ];
   for (const name of REQUIRED_ASSETS) assert.ok(slots.includes(name), `theme names slot ${name}`);
@@ -146,12 +142,12 @@ test("every locked slot resolves through the manifest to a project-local file", 
       // Pages load the 512px copy; the 1024px master is only a dense-screen candidate.
       assert.match(html, new RegExp(`<img src="[^"]+mascot-${pose}-512\\.png" srcset="[^"]+-512\\.png 512w, [^"]+mascot-${pose}\\.png 1024w"`));
     }
-    for (const [domain, slot] of Object.entries(mathLabTheme.icons)) {
-      assert.equal(slot, `domain.${domain}`, `${domain} slot name`);
-      if (["products", "fraction_decimal"].includes(domain)) assert.match(asset(slot), /^<img [^>]*alt=""/, `icon for ${domain}`);
-      else assert.equal(asset(slot), "", `${domain}: no file, the glyph stands in`);
+    // 08 §1: the math-lab pack no longer maps any domain icon (no second mapping source).
+    assert.equal("icons" in mathLabTheme, false, "theme names no domain icons");
+    assert.equal("domain" in manifestJson.assets, false, "math-lab manifest has no domain group");
+    for (const domain of ["squares", "cubes", "powers", "products", "special_products", "fraction_decimal", "halves", "complements"]) {
+      assert.equal(asset(`domain.${domain}`), "", `${domain}: not a math-lab slot`);
     }
-    assert.equal(Object.keys(mathLabTheme.icons).length, 8);
     assert.equal(asset("mascot.not-in-this-theme"), "", "missing optional asset falls back to nothing");
     // A manifest for another theme is refused, so no pictures rather than wrong ones.
     assert.equal(useManifest({ id: "space", assets: {} }), false);

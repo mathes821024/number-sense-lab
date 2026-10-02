@@ -8,10 +8,16 @@
  */
 import mathLab from "./math-lab/index.js";
 import { themeAssets } from "../platform/current";
+import { fbSpecialistAssets } from "./fb-specialist-assets.js";
 
 export const theme = mathLab;
 
+/**
+ * The practice page's `domain.<domain_id>` icons and its header mascot come only
+ * from the F-B manifest (docs/ui/08_fb_specialist_visual.md §1), the same PNG
+ * files on H5 and in the Mini Program; every other slot from the math-lab table.
+ */
 export function assetFor(slot) {
-  const entry = themeAssets[slot];
+  const entry = fbSpecialistAssets[slot] || themeAssets[slot];
   return entry ? entry.src : "";
 }

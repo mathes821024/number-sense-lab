@@ -1,5 +1,7 @@
 // v0.4 regression for the h5/ shell (served by scripts/serve.mjs):
-// - 练习 · 主题训练 is the grouped two-column grid (docs/ux/05_specialist_grouped_grid.md):
+// - 练习 · 主题训练 is the grouped two-column grid (docs/ux/05_specialist_grouped_grid.md)
+//   drawn as F-B (docs/ui/08_fb_specialist_visual.md): header + reused mascot, three CSS
+//   colour zones, every tile the manifest's PNG, a failed picture falls back to its glyph;
 //   3 headings, 8 cards (icon, name, status), none clipped, the odd 3rd card left and not
 //   stretched, no 敬请期待 cards (概念 / 例题 / 动画 / 规律探索 belong to 知识地图);
 // - each card starts a focused set drawn only from that domain, FOCUS hides the nav;
@@ -56,6 +58,10 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
   const { ctx, page, errors } = await freshPage(w, h);
   await page.click('#home [data-action="explore"]');
   await page.waitForSelector("#explore");
+  await page.waitForFunction(() => {
+    const imgs = [...document.querySelectorAll("#explore .tile-art, #explore .fb-mascot-img")];
+    return imgs.length === 9 && imgs.every((i) => i.complete && i.naturalWidth > 0);
+  }, null, { timeout: 5000 });
   const m = await page.evaluate(() => {
     const vw = window.innerWidth;
     const tab = document.getElementById("tabbar")?.getBoundingClientRect();
@@ -80,8 +86,11 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
         w: r.width,
         inside: r.left >= 0 && r.right <= vw + 0.5,
         aboveNav: r.top >= 0 && (!t || r.bottom <= t.top + 0.5),
-        nameClipped: name.scrollWidth > name.clientWidth + 1,
+        nameClipped: name.scrollWidth > name.clientWidth + 1 || name.getBoundingClientRect().right > r.right + 0.5 || el.querySelector(".practice-status").getBoundingClientRect().right > r.right + 0.5,
+        oneLine: [name, el.querySelector(".practice-status")].every((x) => Math.round(x.getBoundingClientRect().height / parseFloat(getComputedStyle(x).lineHeight)) === 1),
         hasTile: !!el.querySelector(".tile img, .tile .tile-glyph .ph"),
+        imgW: img ? img.naturalWidth : 0,
+        chip: getComputedStyle(tile).backgroundColor,
       };
     });
     window.scrollTo(0, 0);
@@ -97,6 +106,18 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
       cards,
       boxes,
       heads: [...document.querySelectorAll("#explore .practice-group-title")].map((e) => e.textContent.trim()),
+      zones: [...document.querySelectorAll("#explore .practice-group")].map((g) => [getComputedStyle(g).backgroundColor, getComputedStyle(g).backgroundImage, g.querySelector(".practice-group-en").textContent]),
+      header: {
+        kicker: document.querySelector("#explore .fb-kicker")?.textContent,
+        title: document.querySelector("#explore h1")?.textContent,
+        lede: document.querySelector("#explore .lede")?.textContent,
+        hint: document.querySelector("#explore .fb-hint")?.textContent,
+        hintPx: parseFloat(getComputedStyle(document.querySelector("#explore .fb-hint")).fontSize),
+        groupPx: parseFloat(getComputedStyle(document.querySelector("#explore .practice-group-title")).fontSize),
+        mascotH: Math.round(document.querySelector("#explore .fb-mascot")?.getBoundingClientRect().height || 0),
+        headH: Math.round(document.querySelector("#explore .fb-head-text").getBoundingClientRect().height),
+        mascotSrc: document.querySelector("#explore .fb-mascot-img")?.getAttribute("src") || "",
+      },
       soon: document.querySelectorAll("#explore .soon-tile, #explore .soon-chip, #explore .section-label").length,
       text: document.getElementById("explore").innerText,
       hOverflow: document.scrollingElement.scrollWidth > vw + 0.5,
@@ -105,7 +126,12 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
   });
   const order = GRID.flatMap(([, , d]) => d);
   check(`${vp} 练习: 3 headings (h2) over 8 cards in the 05 order`, JSON.stringify(m.heads) === JSON.stringify(GRID.map(([g]) => g)) && JSON.stringify(m.cards.map((c) => c.domain)) === JSON.stringify(order) && m.cards.every((c) => c.headTag === "H2" && GRID.find(([g]) => g === c.group)[2].includes(c.domain)), m.cards.map((c) => `${c.group}:${c.name}`).join(" / "));
-  check(`${vp} 练习: card = button with icon, name, one status word; aria 「名，状态」; group tint`, m.cards.every((c) => c.tag === "BUTTON" && c.name === DOMAIN_LABELS[c.domain] && STATUS.includes(c.status) && c.aria === `${c.name}，${c.status}` && c.tone === GRID.find(([g]) => g === c.group)[1] && c.hasTile && !/domain-squares/.test(c.img)), m.cards.map((c) => `${c.name}:${c.img ? "pic" : "glyph"}:${c.tone}`).join(" "));
+  check(`${vp} 练习: card = button with icon, name, one status word; aria 「名，状态」; group tint`, m.cards.every((c) => c.tag === "BUTTON" && c.name === DOMAIN_LABELS[c.domain] && STATUS.includes(c.status) && c.aria === `${c.name}，${c.status}` && c.tone === GRID.find(([g]) => g === c.group)[1] && c.hasTile), m.cards.map((c) => `${c.name}:${c.img ? "pic" : "glyph"}:${c.tone}`).join(" "));
+  const FILE = (d) => `concept-design/F-B-final/assets/specialist/domains/domain-${d.replaceAll("_", "-")}.png`;
+  check(`${vp} 练习: every tile is the manifest's F-B PNG (loaded, 256px) on its group chip`, m.cards.every((c) => c.img.endsWith(FILE(c.domain)) && c.imgW === 256 && c.chip !== "rgba(0, 0, 0, 0)"), m.cards.map((c) => c.img.split("/").pop()).join(" "));
+  check(`${vp} 练习: F-B header, mascot ≤ 80 and no taller than the title block, helper line weaker than group titles`, m.header.kicker === "EXPLORE MATH" && m.header.title === "探索数学世界" && m.header.lede === "从一个主题开始，走更远的路" && m.header.hint === "今天想练哪个？" && m.header.hintPx < m.header.groupPx && m.header.mascotH <= 80 && m.header.mascotH <= m.header.headH && /specialist-mascot@2x\.png$/.test(m.header.mascotSrc), JSON.stringify(m.header));
+  check(`${vp} 练习: three CSS colour zones (no picture), POWERS / PRODUCTS / NUMBERS`, JSON.stringify(m.zones) === JSON.stringify([["rgb(234, 242, 251)", "none", "POWERS"], ["rgb(253, 243, 231)", "none", "PRODUCTS"], ["rgb(233, 246, 240)", "none", "NUMBERS"]]), JSON.stringify(m.zones));
+  check(`${vp} 练习: every name and status on one line inside its tile (凑整乘积家族 included)`, m.cards.every((c) => c.oneLine && !c.nameClipped), m.cards.filter((c) => !c.oneLine || c.nameClipped).map((c) => c.name).join(" "));
   check(`${vp} 练习: two columns; odd 3rd card left, not stretched`, m.boxes.every((g) => g[1].l >= g[0].l + g[0].w - 1 && Math.abs(g[1].t - g[0].t) <= 1 && Math.abs(g[1].w - g[0].w) <= 1 && (!g[2] || (Math.abs(g[2].l - g[0].l) <= 1 && Math.abs(g[2].w - g[0].w) <= 1 && g[2].t > g[0].t))), JSON.stringify(m.boxes.map((g) => g.map((b) => `${b.l},${b.t} ${b.w}`))));
   check(`${vp} 练习: no card clipped or hidden under the nav`, m.endClear && m.cards.every((c) => c.inside && c.aboveNav && !c.nameClipped && c.h >= 44 && c.w >= 44), m.cards.map((c) => `${c.domain}:${Math.round(c.w)}×${Math.round(c.h)}`).join(" "));
   check(`${vp} 练习: no 敬请期待 cards; 半数与翻倍, never 倍数与因数`, m.soon === 0 && !/规律探索|概念|例题|动画|倍数与因数/.test(m.text) && m.text.includes("半数与翻倍"));
@@ -117,6 +143,15 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
     check(`${vp} 知识地图: only 敬请期待, the cards stay as they are`, toast === "知识地图 · 敬请期待" && before === after && (await page.$("#explore")) !== null, toast);
   }
   check(`${vp} 练习: no horizontal overflow, no page errors`, !m.hOverflow && errors.length === 0, errors.join(" | "));
+  if (vp === "375x667") {
+    // A picture that fails to load shows its glyph: never an empty chip.
+    await page.route(/domain-cubes\.png/, (r) => r.abort());
+    await page.evaluate(() => { document.querySelector('#explore .practice-card[data-domain="cubes"] .tile-art').src += "?x=1"; });
+    await page.waitForTimeout(300);
+    const fb = await page.$eval('#explore .practice-card[data-domain="cubes"] .tile', (t) => ({ cls: t.className, glyph: getComputedStyle(t.querySelector(".tile-glyph")).display, art: getComputedStyle(t.querySelector(".tile-art")).display }));
+    await page.unroute(/domain-cubes\.png/);
+    check(`${vp} 练习: a failed picture falls back to its glyph`, /is-broken/.test(fb.cls) && fb.glyph !== "none" && fb.art === "none", JSON.stringify(fb));
+  }
   await page.waitForTimeout(2600);
   await page.screenshot({ path: `${SHOTS}/explore-${vp}.png`, fullPage: true });
   await page.screenshot({ path: `${SHOTS}/explore-${vp}-viewport.png` });

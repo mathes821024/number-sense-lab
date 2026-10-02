@@ -510,62 +510,91 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 }
 .seg-note { font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
 
-/* 主题训练: grouped two-column cards (docs/ux/05_specialist_grouped_grid.md).
-   Light group headings (navigation only), two columns on every width; a group's
-   odd last card stays in the left column and is never stretched. Cards stay on
-   color.surface.card; the group tint lives only under the icon (05 §7). */
-.practice-groups { margin-top: 6px; }
-.practice-group { margin-top: 22px; }
-.practice-group-title { margin: 0 0 10px; }
-.practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+/* 主题训练 as F-B, the warm branded learning panel (docs/ui/08_fb_specialist_visual.md,
+   concept-design/F-B-final/VISUAL_TOKENS.md); layout and content per docs/ux/05.
+   Header: kicker, title, subtitle, the existing welcome mascot at one side (≤ 80px,
+   never taller than the title block, no bubble). Three navigation groups, each a light
+   colour zone drawn in CSS (no picture); inside, compact two-column white tiles: the
+   F-B icon on its group chip, the name, one weak status line. A group's odd last tile
+   stays in the left column and is never stretched. Sized so the longest name
+   (凑整乘积家族) and the longest status (有几题要再巩固) stay on one line at 375. */
+.screen-explore .fb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.fb-head-text { min-width: 0; }
+.fb-kicker { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; line-height: 1.4; color: var(--text-secondary); }
+.fb-head .title { margin-top: 4px; }
+.fb-head .lede { margin-top: 6px; font-size: 13px; line-height: 1.5; }
+.fb-mascot { position: relative; flex: none; width: 74px; height: 74px; margin-top: 2px; }
+.fb-mascot-img { display: block; width: 100%; height: 100%; object-fit: contain; }
+/* Two small CSS sparkles (no decor picture). */
+.fb-spark { position: absolute; width: 7px; height: 7px; border-radius: 1px; transform: rotate(45deg); opacity: 0.85; }
+.fb-spark-1 { left: -6px; top: 12px; background: var(--color-accent-sun); }
+.fb-spark-2 { right: -2px; bottom: 20px; width: 5px; height: 5px; background: var(--fb-accent-mint); }
+.screen-explore .segmented { margin-top: 14px; }
+/* 「今天想练哪个？」: a quiet helper line, weaker than the group titles (05 §1, 08 §2). */
+.fb-hint { margin: 14px 0 0; font-size: 13px; font-weight: 400; line-height: 1.4; color: var(--text-secondary); }
+.practice-groups { margin-top: 10px; }
+.practice-group { margin: 0 -4px; padding: 12px 6px; border-radius: 20px; background: var(--fb-group-bg-mint); }
+.practice-group + .practice-group { margin-top: 20px; }
+.practice-group.tone-sky { background: var(--fb-group-bg-sky); }
+.practice-group.tone-amber { background: var(--fb-group-bg-amber); }
+.practice-group-head { display: flex; align-items: center; min-height: 24px; margin: 0 6px 10px; }
+.practice-group-dot { width: 8px; height: 8px; flex: none; margin-right: 8px; border-radius: 50%; background: var(--fb-accent-mint); }
+.tone-sky .practice-group-dot { background: var(--fb-accent-sky); }
+.tone-amber .practice-group-dot { background: var(--fb-accent-amber); }
+.practice-group-title { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
+.practice-group-en { margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; line-height: 1.3; color: var(--fb-status); }
+.practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .practice-card {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   min-width: 0;
-  min-height: 128px;
-  padding: 14px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-card);
+  min-height: 76px;
+  padding: 6px 2px 6px 4px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--fb-tile-bg);
+  box-shadow: var(--fb-tile-shadow);
   font: inherit;
   text-align: left;
   color: var(--text-primary);
   cursor: pointer;
-  transition: transform var(--motion-press) ease, box-shadow var(--motion-press) ease;
+  transition: transform var(--motion-press) ease;
 }
-.practice-card:hover { box-shadow: var(--shadow-floating); }
-.practice-card:active { transform: translateY(1px); box-shadow: var(--shadow-card); }
-.practice-card .tile { margin-bottom: 10px; }
-.practice-name { font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
-.practice-status { margin-top: 4px; font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--text-secondary); }
+.practice-card:active { transform: translateY(1px); }
+.practice-card .tile { margin-right: 6px; }
+.practice-text { display: flex; flex-direction: column; min-width: 0; }
+.practice-name { font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; color: var(--text-primary); }
+.practice-name.is-long { font-size: 14px; }
+.practice-status { margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status); }
+@media (min-width: 386px) { .practice-name.is-long { font-size: 15px; } }
+@media (max-width: 359px) { .practice-name, .practice-status { white-space: normal; } }
 .chev { color: var(--text-secondary); font-size: 18px; display: inline-flex; }
+/* The icon chip (64px): the group colour at 10%, the F-B picture inside at 56px (VISUAL_TOKENS icon / icon.chip). */
 .tile {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   flex: none;
+  border-radius: 14px;
+  background: var(--fb-chip-mint);
 }
-.tile img { width: 100%; height: 100%; display: block; }
-/* v0.4 domains without a theme picture: the same round tile, an interface glyph inside. */
+.tile.tone-sky { background: var(--fb-chip-sky); }
+.tile.tone-amber { background: var(--fb-chip-amber); }
+.tile img { width: 56px; height: 56px; display: block; object-fit: contain; }
+/* Safe fallback: no file, or the file failed to load — the interface glyph, never an empty chip. */
 .tile-glyph {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background: var(--tint-mint);
   color: var(--text-primary);
-  font-size: 26px;
+  font-size: 28px;
 }
-/* Group tint under the icon only (05 §7): 幂与乘方 sky, 乘法与凑整 amber, 数与分数 mint (brand.secondary). */
-.tile.tone-sky .tile-glyph { background: var(--tint-sky); }
-.tile.tone-amber .tile-glyph { background: var(--tint-amber); }
-.tile.tone-mint .tile-glyph { background: var(--tint-mint); }
+.tile:not(.has-art) .tile-glyph, .tile.is-broken .tile-glyph { display: inline-flex; }
+.tile.is-broken .tile-art { display: none; }
 
 /* 敬请期待 label (我的 rows). */
 .soon-badge {
