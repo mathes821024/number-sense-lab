@@ -52,6 +52,8 @@ for (const [vp, width, height] of VPS) {
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("request", (r) => !r.url().startsWith(BASE) && !r.url().startsWith("data:") && foreign.push(r.url()));
+  // docs/ui/08 §1: production never loads the design folder.
+  page.on("request", (r) => r.url().includes("concept-design") && foreign.push(`design folder: ${r.url()}`));
   const shot = (n) => page.screenshot({ path: `${SHOTS}/${vp}-${n}.png` });
   const stored = async () => JSON.parse(await page.evaluate((k) => localStorage.getItem(k), KEY));
   const learner = async () => {
@@ -161,6 +163,7 @@ for (const [vp, width, height] of VPS) {
               picSrc: (d.querySelector(".tile-art img") || {}).src || "",
               picW: (d.querySelector(".tile-art img") || {}).naturalWidth || 0,
               nameLines: Math.round(d.querySelector(".practice-name").getBoundingClientRect().height / parseFloat(getComputedStyle(d.querySelector(".practice-name")).lineHeight)),
+              statusColor: getComputedStyle(d.querySelector(".practice-status")).color,
               statusLines: Math.round(d.querySelector(".practice-status").getBoundingClientRect().height / parseFloat(getComputedStyle(d.querySelector(".practice-status")).lineHeight)),
               textInside: [".practice-name", ".practice-status"].every((s) => d.querySelector(s).getBoundingClientRect().right <= r.right + 0.5),
               glyph: Boolean(d.querySelector(".tile-glyph .icon") && d.querySelector(".tile-glyph .icon").textContent.trim() && d.querySelector(".tile-glyph .icon").getBoundingClientRect().width > 4),
@@ -183,7 +186,8 @@ for (const [vp, width, height] of VPS) {
       check(c.aria === `${c.name}，${c.status}`, `${c.name} aria ${c.aria}`);
       check(c.pic && c.picOk && c.picW === 256, `${c.name}: F-B picture not loaded (${c.picSrc})`);
       const file = { squares: "domain-squares", cubes: "domain-cubes", powers: "domain-powers", products: "domain-products", special_products: "domain-special-products", fraction_decimal: "domain-fraction-decimal", halves: "domain-halves", complements: "domain-complements" }[c.id];
-      check(c.picSrc.includes(`concept-design/F-B-final/assets/specialist/domains/${file}`) && /\.png$/.test(c.picSrc), `${c.name}: not the manifest's PNG (${c.picSrc})`);
+      check(c.picSrc.includes(`assets/themes/math-lab/specialist/domains/${file}`) && /\.png$/.test(c.picSrc) && !c.picSrc.includes("concept-design"), `${c.name}: not the runtime manifest's PNG (${c.picSrc})`);
+      check(c.statusColor === "rgb(102, 112, 133)", `${c.name}: status colour ${c.statusColor} (want #667085)`);
       check(c.nameLines === 1 && c.statusLines === 1 && c.textInside, `${c.name}: name/status lines ${c.nameLines}/${c.statusLines}, inside ${c.textInside}`);
       check(c.box.w >= 44 && c.box.h >= 44, `${c.name} target ${c.box.w}×${c.box.h}`);
     }
@@ -484,7 +488,7 @@ for (const [vp, width, height] of VPS) {
   await step(`${vp} 7 no errors, no outside requests`, async () => {
     check(errors.length === 0, `errors ${errors.slice(0, 3).join(" | ")}`);
     check(foreign.length === 0, `foreign ${foreign.slice(0, 3)}`);
-    return "0 console errors, 0 requests outside the app";
+    return "0 console errors, 0 requests outside the app, 0 requests to concept-design/";
   });
   await ctx.close();
 }

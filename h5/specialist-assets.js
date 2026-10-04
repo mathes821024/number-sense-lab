@@ -1,18 +1,20 @@
 /**
  * The F-B specialist page's pictures for the h5/ shell
- * (docs/ui/08_fb_specialist_visual.md §1). The only mapping source is
- * concept-design/F-B-final/asset-manifest.json: a domain's icon is the file the
- * manifest names for its `domain_id`, the header mascot is the manifest's mascot
- * (the existing welcome pose, reused). Nothing here names a file.
+ * (docs/ui/08_fb_specialist_visual.md §1). The mapping is the theme's runtime
+ * manifest, assets/themes/math-lab/specialist/asset-manifest.json (a byte-for-byte
+ * copy of the design hand-off, made by scripts/sync-fb-assets.mjs; the design
+ * folder itself is never loaded): a domain's icon is the file the manifest names
+ * for its `domain_id`, the header mascot is the manifest's mascot (the existing
+ * welcome pose, reused). Nothing here names a file.
  *
  * Same files as the Taro build (app/theme/fb-specialist-assets.js, generated
- * from the same manifest): domains `asset` (256px), mascot `asset_2x` (512px).
+ * from the same runtime manifest): domains `asset` (256px), mascot `asset_2x` (512px).
  * If the manifest cannot load, or a domain has no entry, the tile keeps its
  * interface glyph (src/core/practice-groups.js DOMAIN_GLYPHS): never an empty icon.
  */
 
-/** concept-design/F-B-final/, next to h5/ (same layout locally and on the server). */
-export const FB_ROOT = new URL("../concept-design/F-B-final/", import.meta.url).href;
+/** The theme's specialist folder, next to h5/ (same layout locally and on the server). */
+export const FB_ROOT = new URL("../assets/themes/math-lab/specialist/", import.meta.url).href;
 export const DOMAIN_KEY = "asset";
 export const MASCOT_KEY = "asset_2x";
 

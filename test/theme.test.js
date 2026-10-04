@@ -42,7 +42,7 @@ const REQUIRED_ASSETS = [
   "brand.avatar",
   "logo.mark",
   // The eight `domain.<domain_id>` icons are not math-lab slots any more: they come
-  // only from concept-design/F-B-final/asset-manifest.json (docs/ui/08; test/fb-specialist.test.js).
+  // only from assets/themes/math-lab/specialist/asset-manifest.json, the runtime copy of the F-B hand-off (docs/ui/08; test/fb-specialist.test.js).
   "decor.cloud1",
   "decor.cloud2",
   "decor.hill",

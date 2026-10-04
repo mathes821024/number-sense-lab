@@ -684,7 +684,7 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
       const glyph = (await t.$(".tile-glyph .icon")) ? (await (await t.$(".tile-glyph .icon")).text()).trim() : "";
       tiles.push(`${names[names.length - 1]}:${src ? `png:${src.split("/").pop()}` : glyph ? "glyph" : "EMPTY"}:${(cls.match(/tone-(\w+)/) || [])[1] || "notone"}`);
       const domainId = DOMAIN_ORDER[LABELS.indexOf(names[names.length - 1])];
-      check(/\.png$/.test(src) && src.includes(`domain-${domainId.replaceAll("_", "-")}`), `${names[names.length - 1]}: F-B PNG for ${domainId} (${src || glyph || "EMPTY"})`);
+      check(/\.png$/.test(src) && src.includes(`/assets/themes/math-lab/specialist/domains/domain-${domainId.replaceAll("_", "-")}`) && !src.includes("concept-design"), `${names[names.length - 1]}: F-B PNG for ${domainId} (${src || glyph || "EMPTY"})`);
       check(cls.includes(`tone-${GRID_GROUPS[gi][1]}`), `${names[names.length - 1]} tint ${cls}`);
     }
     check(names.join("/") === GRID_GROUPS[gi][2].join("/"), `group ${heads[gi]} cards ${names}`);
@@ -703,7 +703,7 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   const mascotSrc = mascotImg ? await mascotImg.attribute("src") : "";
   const mascotH = mascotImg ? Math.round((await (await page.$(".fb-mascot")).size()).height) : 0;
   const headH = Math.round((await (await page.$(".fb-head-text")).size()).height);
-  check(/specialist-mascot@2x\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
+  check(/\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot@2x\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
   const zones = [];
   for (const g of groups) zones.push(`${(await g.attribute("class")).match(/tone-(\w+)/)[1]}:${(await (await g.$(".practice-group-en")).text()).trim()}`);
   check(zones.join("/") === "sky:POWERS/amber:PRODUCTS/mint:NUMBERS", `zones ${zones}`);

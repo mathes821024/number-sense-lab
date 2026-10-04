@@ -1,11 +1,13 @@
-// F-B specialist page (docs/ui/08_fb_specialist_visual.md,
-// concept-design/F-B-final/asset-manifest.json): the eight domain entries, their
+// F-B specialist page (docs/ui/08_fb_specialist_visual.md; design hand-off
+// concept-design/F-B-final/asset-manifest.json, runtime copy
+// assets/themes/math-lab/specialist/asset-manifest.json): the eight domain entries, their
 // navigation groups, one F-B asset slot per domain on both clients, no empty icon,
 // each tile entering its own domain, domain ids unchanged, the long name, the
-// reused mascot and the F-B tokens. Visual only: learning code never sees any of it.
+// reused mascot and the F-B tokens; runtime never loads the design folder, and the
+// WeChat package stays under 2 MB. Visual only: learning code never sees any of it.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,7 +16,19 @@ import { DOMAIN_GLYPHS, PRACTICE_GROUPS, isLongLabel, practiceGroups } from "../
 import { focusView } from "../app/pages/models.js";
 import { trainingIntent } from "../app/pages/train/intent.js";
 import { startSession } from "../src/core/session.js";
-import { fbTable, FB_DIR, FB_MANIFEST, OUT, DOMAIN_KEY, MASCOT_KEY } from "../scripts/sync-fb-assets.mjs";
+import {
+  fbTable,
+  manifestText,
+  runtimeManifest,
+  runtimeCopies,
+  SOURCE_MANIFEST,
+  RUNTIME_DIR,
+  RUNTIME_MANIFEST,
+  OUT,
+  DOMAIN_KEY,
+  MASCOT_KEY,
+} from "../scripts/sync-fb-assets.mjs";
+import { checkWeappPackage, LIMIT } from "../scripts/weapp-package-check.mjs";
 import {
   useSpecialistManifest,
   domainIconUrl,
@@ -26,10 +40,13 @@ import {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (f) => readFileSync(join(root, f), "utf8");
-const manifest = JSON.parse(read(FB_MANIFEST));
+/** The design hand-off (the mapping's origin) and the runtime copy every client reads. */
+const design = JSON.parse(read(SOURCE_MANIFEST));
+const manifest = JSON.parse(read(RUNTIME_MANIFEST));
+const FB_DIR = RUNTIME_DIR;
 const catalog = loadCoreCatalog();
 const ID8 = ["squares", "cubes", "powers", "products", "special_products", "fraction_decimal", "halves", "complements"];
-const FB_BASE = new URL(`../${FB_DIR}/`, import.meta.url).href;
+const FB_BASE = new URL(`../${RUNTIME_DIR}/`, import.meta.url).href;
 
 /** Width, height and colour type of a PNG from its IHDR. */
 function pngInfo(file) {
@@ -72,6 +89,7 @@ test("F-B: group assignment follows the manifest; group keys are navigation only
 });
 
 test("F-B: one asset slot per domain, generated from the manifest only; same PNG files on H5 and WeChat", () => {
+  assert.equal(read(RUNTIME_MANIFEST), manifestText(runtimeManifest(design)), `${RUNTIME_MANIFEST} is out of date: node scripts/sync-fb-assets.mjs`);
   assert.equal(read(OUT), fbTable(manifest), `${OUT} is out of date: node scripts/sync-fb-assets.mjs`);
   const table = read(OUT);
   const rows = [...table.matchAll(/"(domain\.\w+)": \{ src: (\w+), manifestKey: "domains\.(\w+)\.(\w+)", group: "(\w+)" \}/g)];
@@ -97,6 +115,46 @@ test("F-B: one asset slot per domain, generated from the manifest only; same PNG
   for (const f of ["app/theme/index.js", "h5/app.js", "h5/specialist-assets.js", "scripts/sync-fb-assets.mjs"]) {
     assert.doesNotMatch(read(f), /["'`]assets\/specialist\//, f);
   }
+});
+
+test("F-B runtime assets: byte-for-byte copies of the design hand-off; same slots, same mapping", () => {
+  const copies = runtimeCopies(design);
+  assert.equal(copies.length, 18, "8 domains × (asset, @2x) + the mascot's two files");
+  for (const [from, to] of copies) {
+    assert.ok(to.startsWith(`${RUNTIME_DIR}/domains/`) || to.startsWith(`${RUNTIME_DIR}/mascot/`), to);
+    assert.equal(sha(join(root, to)), sha(join(root, from)), `${to} = ${from}`);
+  }
+  // Mapping unchanged: the same domain_ids, groups and keys; only the folder differs.
+  assert.deepEqual(Object.keys(manifest.domains), Object.keys(design.domains));
+  for (const [id, d] of Object.entries(design.domains)) {
+    assert.equal(manifest.domains[id].group, d.group, id);
+    assert.equal(manifest.domains[id].asset, `domains/${d.asset.split("/").pop()}`, id);
+    assert.equal(manifest.domains[id].asset_2x, `domains/${d.asset_2x.split("/").pop()}`, id);
+  }
+  assert.equal(manifest.mascot.asset_2x, `mascot/${design.mascot.asset_2x.split("/").pop()}`);
+  assert.deepEqual(manifest.groups, design.groups);
+});
+
+test("F-B: no runtime file references concept-design/ (design evidence only, 08 §1)", () => {
+  const scan = (dir) => readdirSync(join(root, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? scan(`${dir}/${e.name}`) : [`${dir}/${e.name}`]));
+  const runtime = [...scan("app"), ...scan("h5"), ...scan("src"), ...scan("assets/themes")].filter((f) => /\.(js|jsx|mjs|css|json|html|scss)$/.test(f));
+  assert.ok(runtime.length > 50, "scanned the runtime sources");
+  for (const f of runtime) assert.doesNotMatch(read(f), /concept-design|F-B-final/, f);
+  for (const line of read(OUT).split("\n").filter((l) => l.startsWith("import "))) assert.match(line, new RegExp(`"\\.\\./\\.\\./${RUNTIME_DIR}/`), line);
+  assert.match(read("h5/specialist-assets.js"), /new URL\("\.\.\/assets\/themes\/math-lab\/specialist\/", import\.meta\.url\)/);
+});
+
+test("F-B WeChat package: under 2 MB, no concept-design/, the page's PNGs from the theme folder (after build:weapp)", (t) => {
+  const dist = join(root, "dist/weapp");
+  if (!existsSync(join(dist, "app.json"))) return t.skip("no dist/weapp: run npm run build:weapp (or scripts/weapp-package-check.mjs after it)");
+  const r = checkWeappPackage(dist);
+  assert.deepEqual(r.problems, [], r.problems.join("; "));
+  assert.ok(r.bytes < LIMIT, `${r.bytes} bytes`);
+  assert.equal(r.pngs.length, 9);
+  // The heavy 1024px mascot master and the unused @2x domain files are never bundled.
+  assert.equal(existsSync(join(dist, RUNTIME_DIR, "mascot/specialist-mascot.png")), false);
+  for (const d of Object.values(manifest.domains)) assert.equal(existsSync(join(dist, RUNTIME_DIR, d.asset_2x)), false, d.asset_2x);
+  assert.ok(statSync(join(dist, RUNTIME_DIR, manifest.mascot.asset_2x)).size < 300 * 1024);
 });
 
 test("F-B h5/: the manifest is read at run time; a domain's icon is the file it names", () => {
@@ -168,6 +226,7 @@ test("F-B mascot: the existing welcome pose, reused byte for byte — never a ne
   const fb = join(root, FB_DIR, manifest.mascot[MASCOT_KEY]);
   assert.equal(sha(fb), sha(join(root, "assets/themes/math-lab/mascot/mascot-welcome-512.png")), "same file as the Home welcome mascot");
   assert.equal(sha(join(root, FB_DIR, manifest.mascot.asset)), sha(join(root, "assets/themes/math-lab/mascot/mascot-welcome.png")));
+  assert.equal(design.mascot.source.includes("welcome"), true);
   assert.match(read(OUT), /"specialist\.mascot": \{ src: specialistMascot, manifestKey: "mascot\.asset_2x" \}/);
   // Header only: not on training, keypad or paper.
   for (const f of ["app/pages/train/index.jsx", "app/pages/a4/index.jsx", "app/pages/print/index.jsx"]) {
@@ -176,7 +235,7 @@ test("F-B mascot: the existing welcome pose, reused byte for byte — never a ne
 });
 
 test("F-B tokens: the VISUAL_TOKENS colours, the same in both themes; teal stays math-lab's brand primary", () => {
-  const tokens = read(`${FB_DIR}/VISUAL_TOKENS.md`);
+  const tokens = read("concept-design/F-B-final/VISUAL_TOKENS.md");
   const value = (name) => tokens.match(new RegExp(`\\| ${name.replace(/\./g, "\\.")} \\| ([^|]+) \\|`))[1].trim();
   const want = {
     "--fb-group-bg-sky": value("specialist.group.bg.powers"),
@@ -191,8 +250,14 @@ test("F-B tokens: the VISUAL_TOKENS colours, the same in both themes; teal stays
   for (const f of ["app/theme/math-lab/tokens.css", "h5/themes/math-lab/theme.css"]) {
     const css = read(f);
     for (const [k, v] of Object.entries(want)) assert.ok(css.includes(`${k}: ${v};`), `${f} ${k}: ${v}`);
-    assert.match(css, /--fb-status: #8A94A6;/);
+    assert.match(css, /--fb-status: #667085;/, "status colour #667085 (08 §2), not #8A94A6");
+    assert.doesNotMatch(css, /8A94A6/i);
     assert.match(css, /--fb-chip-sky: rgba\(74, 143, 217, 0\.10\);/, "chip = group accent at 10%");
+  }
+  assert.match(tokens, /\| specialist\.status\.size \| 12 \| [^|\n]*颜色 `#667085`/, "VISUAL_TOKENS names the status colour");
+  // The colour lives in the token only: components and page CSS never hard-code it.
+  for (const f of ["app/app.css", "h5/styles.css", "app/platform/h5/page-shell.css", "app/pages/explore/index.jsx", "app/components/DomainTile.jsx", "h5/app.js"]) {
+    assert.doesNotMatch(read(f), /#667085|#8A94A6/i, f);
   }
   // 08 §2: the selected tab and the page keep math-lab's tokens (no second teal).
   for (const css of [read("app/app.css"), read("h5/styles.css")]) {

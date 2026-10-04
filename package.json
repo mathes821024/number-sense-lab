@@ -14,7 +14,8 @@
     "build:weapp": "taro build --type weapp",
     "dev:h5": "taro build --type h5 --watch",
     "dev:weapp": "taro build --type weapp --watch",
-    "smoke:weapp": "node scripts/weapp-host-smoke.mjs"
+    "smoke:weapp": "node scripts/weapp-host-smoke.mjs",
+    "check:weapp-package": "node scripts/weapp-package-check.mjs"
   },
   "dependencies": {
     "@phosphor-icons/web": "^2.1.2",

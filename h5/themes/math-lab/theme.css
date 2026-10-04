@@ -31,7 +31,7 @@
   --tint-sky: #E4ECFD;
   --tint-mint: #DFF3EA;
 
-  /* 练习页 F-B (docs/ui/08_fb_specialist_visual.md; concept-design/F-B-final/VISUAL_TOKENS.md).
+  /* 练习页 F-B (docs/ui/08_fb_specialist_visual.md; the F-B VISUAL_TOKENS).
      Group colour only on the group zone, its dot and its icon chip; never across groups. */
   --fb-group-bg-sky: #EAF2FB;
   --fb-group-bg-amber: #FDF3E7;
@@ -44,7 +44,7 @@
   --fb-chip-mint: rgba(47, 163, 124, 0.10);
   --fb-tile-bg: #FFFFFF;
   --fb-tile-shadow: 0 2px 8px rgba(31, 58, 86, 0.06);
-  --fb-status: #8A94A6;
+  --fb-status: #667085;
 
   /* color.surface.* / color.text.* / color.border.* */
   --surface-page: #F7F3E8;

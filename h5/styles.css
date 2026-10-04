@@ -511,7 +511,7 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 .seg-note { font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
 
 /* 主题训练 as F-B, the warm branded learning panel (docs/ui/08_fb_specialist_visual.md,
-   concept-design/F-B-final/VISUAL_TOKENS.md); layout and content per docs/ux/05.
+   the F-B VISUAL_TOKENS); layout and content per docs/ux/05.
    Header: kicker, title, subtitle, the existing welcome mascot at one side (≤ 80px,
    never taller than the title block, no bubble). Three navigation groups, each a light
    colour zone drawn in CSS (no picture); inside, compact two-column white tiles: the

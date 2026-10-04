@@ -17,7 +17,7 @@ import { summarizeDomain } from "./mastery.js";
  * amber = light warm orange, mint = light mint; it only colours the group zone,
  * the group dot and the icon chip. `en` is the small caps subtitle (F-B
  * group.entitle). `assetGroup` is the group key of
- * concept-design/F-B-final/asset-manifest.json (powers / products / numbers): a
+ * assets/themes/math-lab/specialist/asset-manifest.json (powers / products / numbers): a
  * navigation key only — two of them read like domain ids, so it never reaches
  * the scheduler, mastery or the Mistake Book (08 §1). `id` is the code's own key.
  */
@@ -35,7 +35,7 @@ export const SOON_STATUS = "敬请期待";
 
 /**
  * Safe fallback only. The icon of every domain is the F-B PNG named for its
- * `domain_id` in concept-design/F-B-final/asset-manifest.json (08 §1). If that
+ * `domain_id` in assets/themes/math-lab/specialist/asset-manifest.json (08 §1). If that
  * file is missing or fails to load, the tile shows this interface glyph instead,
  * so no tile is ever empty (08: 缺图不留空).
  */

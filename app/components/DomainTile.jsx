@@ -5,7 +5,7 @@ import { assetFor } from "../theme/index.js";
 
 /**
  * A domain's icon chip (h5/app.js domainArt): the F-B PNG in the domain's
- * `domain.<domain_id>` slot (concept-design/F-B-final/asset-manifest.json,
+ * `domain.<domain_id>` slot (assets/themes/math-lab/specialist/asset-manifest.json,
  * docs/ui/08_fb_specialist_visual.md §1) on its group's light chip. If the slot
  * has no file or the file fails to load, the domain's interface glyph shows in
  * the same chip, so no tile is ever empty. Decorative: the name next to it

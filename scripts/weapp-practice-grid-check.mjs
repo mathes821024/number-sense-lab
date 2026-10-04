@@ -66,13 +66,15 @@ try {
         name: (await nameEl.text()).trim(),
         status: (await (await c.$(".practice-status")).text()).trim(),
         tile: src ? `png:${src.split("/").pop()}` : gl && (await gl.text()).trim() ? "glyph" : "EMPTY",
+        dir: src.slice(0, src.lastIndexOf("/")),
+        statusColor: (await statusEl.style("color")) || "",
         tone: (((await t.attribute("class")) || "").match(/tone-(\w+)/) || [])[1] || "",
         ...b,
       });
     }
     const [a, b2, c3] = cards;
     check(cards.map((c) => c.name).join("/") === GRID[gi][2].join("/"), `${heads[gi]} cards ${cards.map((c) => c.name)}`);
-    check(cards.every((c) => c.tone === GRID[gi][1] && STATUS.includes(c.status) && c.tile.startsWith(`png:${FILE[c.name]}`) && /\.png$/.test(c.tile) && c.w >= 44 && c.h >= 44), `${heads[gi]} tiles ${JSON.stringify(cards)}`);
+    check(cards.every((c) => c.tone === GRID[gi][1] && STATUS.includes(c.status) && c.tile.startsWith(`png:${FILE[c.name]}`) && c.dir === "/assets/themes/math-lab/specialist/domains" && c.statusColor === "rgb(102, 112, 133)" && /\.png$/.test(c.tile) && c.w >= 44 && c.h >= 44), `${heads[gi]} tiles ${JSON.stringify(cards)}`);
     check(cards.every((c) => c.oneLine), `${heads[gi]} names / statuses on one line inside the tile ${JSON.stringify(cards.filter((c) => !c.oneLine))}`);
     const zone = ((await g.attribute("class")) || "").match(/tone-(\w+)/);
     check(zone && zone[1] === GRID[gi][1], `${heads[gi]} zone ${zone && zone[1]}`);
@@ -85,7 +87,7 @@ try {
   const mascotSrc = mascot ? (await (await mascot.$(".fb-mascot-img")).attribute("src")) || "" : "";
   const mascotH = mascot ? (await box(mascot)).h : 0;
   const headH = (await box(await page.$(".fb-head-text"))).h;
-  check(/specialist-mascot@2x\.png$/.test(mascotSrc) && mascotH <= Math.round(80 * sys.windowWidth / 375) + 1 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px, title block ${headH}px`);
+  check(/^\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot@2x\.png$/.test(mascotSrc) && mascotH <= Math.round(80 * sys.windowWidth / 375) + 1 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px, title block ${headH}px`);
   const hint = (await (await page.$(".fb-hint")).text()).trim();
   check(hint === "今天想练哪个？", `hint ${hint}`);
   await mp.screenshot({ path: `${SHOTS}/weapp-explore-${sys.windowWidth}x${sys.windowHeight}-top.png` });

@@ -44,6 +44,8 @@ async function freshPage(w, h, raw = null) {
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
+  // docs/ui/08 §1: production never loads the design folder.
+  page.on("request", (r) => r.url().includes("concept-design") && errors.push(`design-folder request ${r.url()}`));
   await page.goto(`${BASE}h5/index.html`);
   await page.evaluate(([k, v]) => (v ? localStorage.setItem(k, v) : localStorage.removeItem(k)), [KEY, raw]);
   await page.reload();
@@ -78,6 +80,7 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
         headTag: el.closest(".practice-group").querySelector(".practice-group-title").tagName,
         name: name.textContent.trim(),
         status: el.querySelector(".practice-status").textContent.trim(),
+        statusColor: getComputedStyle(el.querySelector(".practice-status")).color,
         aria: el.getAttribute("aria-label"),
         tag: el.tagName,
         tone: (tile.className.match(/tone-(\w+)/) || [])[1] || "",
@@ -127,7 +130,8 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
   const order = GRID.flatMap(([, , d]) => d);
   check(`${vp} 练习: 3 headings (h2) over 8 cards in the 05 order`, JSON.stringify(m.heads) === JSON.stringify(GRID.map(([g]) => g)) && JSON.stringify(m.cards.map((c) => c.domain)) === JSON.stringify(order) && m.cards.every((c) => c.headTag === "H2" && GRID.find(([g]) => g === c.group)[2].includes(c.domain)), m.cards.map((c) => `${c.group}:${c.name}`).join(" / "));
   check(`${vp} 练习: card = button with icon, name, one status word; aria 「名，状态」; group tint`, m.cards.every((c) => c.tag === "BUTTON" && c.name === DOMAIN_LABELS[c.domain] && STATUS.includes(c.status) && c.aria === `${c.name}，${c.status}` && c.tone === GRID.find(([g]) => g === c.group)[1] && c.hasTile), m.cards.map((c) => `${c.name}:${c.img ? "pic" : "glyph"}:${c.tone}`).join(" "));
-  const FILE = (d) => `concept-design/F-B-final/assets/specialist/domains/domain-${d.replaceAll("_", "-")}.png`;
+  const FILE = (d) => `assets/themes/math-lab/specialist/domains/domain-${d.replaceAll("_", "-")}.png`;
+  check(`${vp} 练习: status text in --fb-status #667085`, m.cards.every((c) => c.statusColor === "rgb(102, 112, 133)"), [...new Set(m.cards.map((c) => c.statusColor))].join(" "));
   check(`${vp} 练习: every tile is the manifest's F-B PNG (loaded, 256px) on its group chip`, m.cards.every((c) => c.img.endsWith(FILE(c.domain)) && c.imgW === 256 && c.chip !== "rgba(0, 0, 0, 0)"), m.cards.map((c) => c.img.split("/").pop()).join(" "));
   check(`${vp} 练习: F-B header, mascot ≤ 80 and no taller than the title block, helper line weaker than group titles`, m.header.kicker === "EXPLORE MATH" && m.header.title === "探索数学世界" && m.header.lede === "从一个主题开始，走更远的路" && m.header.hint === "今天想练哪个？" && m.header.hintPx < m.header.groupPx && m.header.mascotH <= 80 && m.header.mascotH <= m.header.headH && /specialist-mascot@2x\.png$/.test(m.header.mascotSrc), JSON.stringify(m.header));
   check(`${vp} 练习: three CSS colour zones (no picture), POWERS / PRODUCTS / NUMBERS`, JSON.stringify(m.zones) === JSON.stringify([["rgb(234, 242, 251)", "none", "POWERS"], ["rgb(253, 243, 231)", "none", "PRODUCTS"], ["rgb(233, 246, 240)", "none", "NUMBERS"]]), JSON.stringify(m.zones));
@@ -143,6 +147,10 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
     check(`${vp} 知识地图: only 敬请期待, the cards stay as they are`, toast === "知识地图 · 敬请期待" && before === after && (await page.$("#explore")) !== null, toast);
   }
   check(`${vp} 练习: no horizontal overflow, no page errors`, !m.hOverflow && errors.length === 0, errors.join(" | "));
+  // Screenshots first: the fallback check below breaks 立方's picture on purpose.
+  await page.waitForTimeout(2600);
+  await page.screenshot({ path: `${SHOTS}/explore-${vp}.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOTS}/explore-${vp}-viewport.png` });
   if (vp === "375x667") {
     // A picture that fails to load shows its glyph: never an empty chip.
     await page.route(/domain-cubes\.png/, (r) => r.abort());
@@ -152,9 +160,6 @@ if (PARTS.has("cards")) for (const [vp, w, h] of [["375x603", 375, 603], ["375x6
     await page.unroute(/domain-cubes\.png/);
     check(`${vp} 练习: a failed picture falls back to its glyph`, /is-broken/.test(fb.cls) && fb.glyph !== "none" && fb.art === "none", JSON.stringify(fb));
   }
-  await page.waitForTimeout(2600);
-  await page.screenshot({ path: `${SHOTS}/explore-${vp}.png`, fullPage: true });
-  await page.screenshot({ path: `${SHOTS}/explore-${vp}-viewport.png` });
   await ctx.close();
 }
 
