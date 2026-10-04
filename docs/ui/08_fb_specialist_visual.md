@@ -12,7 +12,7 @@ F-B 是温暖品牌化学习面板。它是首页的兄弟页：奶油纸底、�
 
 运行目录只放客户端会打包、会加载的文件：8 张 256px 域图标，加 1 张 512px 吉祥物，再加运行时清单。域图标的 `@2x` 和吉祥物的 1024px 母版留在设计目录，不复制进去。
 
-运行时清单放在 `assets/themes/math-lab/specialist/asset-manifest.json`。它由同步脚本生成。域图标的键仍是 `domains.<id>.asset`。吉祥物只保留 `mascot.asset`，指向那张实际使用的 512px 图。设计清单里那张 512px 图的文件名仍可能叫 `specialist-mascot@2x.png`，这只是源文件名。运行时不要再用 `asset_2x` 当吉祥物的键，也不要把它理解成「更高密度的那一张」。1024px 母版在设计清单里仍叫 `mascot.asset`，那个键名不到运行时。
+运行时清单放在 `assets/themes/math-lab/specialist/asset-manifest.json`。它由同步脚本生成。域图标的键仍是 `domains.<id>.asset`。吉祥物只保留 `mascot.asset`，文件是 `mascot/specialist-mascot-512.png`。设计源里那张 512px 图可以继续叫 `specialist-mascot@2x.png`，这个历史名字不到运行目录。运行时没有 `asset_2x`。1024px 母版留在设计目录。
 
 仓库根上的 `assets/specialist/` 若仍带分组底图、装饰图或 SVG，不是这套运行时资源。主题清单里旧的三枚 SVG 和 `futureDomains` 也不是练习页的现行图标。
 
@@ -62,21 +62,23 @@ F-B 是温暖品牌化学习面板。它是首页的兄弟页：奶油纸底、�
 
 # 5. 资源管线
 
-`scripts/sync-fb-assets.mjs` 是设计源进入运行目录的唯一路径。换图时先改设计目录里的 PNG 和 `concept-design/F-B-final/asset-manifest.json`，再运行：
+`assets/themes/math-lab/specialist/` 整份由 `scripts/sync-fb-assets.mjs` 托管。脚本复制 8 张 256px 域图标和 1 张 512px 吉祥物，写出运行时清单和 `app/theme/fb-specialist-assets.js`，并删掉该目录里清单没有的多余文件。不要往这个目录手工放图。手工放进去的文件，下次同步会被删掉。
+
+换图时先改设计目录里的 PNG 和 `concept-design/F-B-final/asset-manifest.json`，再运行：
 
 ```text
 node scripts/sync-fb-assets.mjs
 node scripts/sync-fb-assets.mjs --check
 ```
 
-脚本复制运行时需要的图，并生成这两份文件。它们都标成生成结果，禁止手改：
+禁止手改：
 
-- `assets/themes/math-lab/specialist/asset-manifest.json`
+- `assets/themes/math-lab/specialist/` 里的任何文件
 - `app/theme/fb-specialist-assets.js`
 
-H5 读运行时清单，不读设计目录。`feat/v04-content-expansion` 上已有 `test/fb-specialist.test.js` 核对这份同步。本文不另加一条 CI 规则。
+运行时清单可以有一个 `generated` 字段，用来标明它是脚本写出的、不要手改。这是工具元数据，不是域，也不是产品字段。客户端只读 `domains`、`mascot`、`groups`，不依赖 `generated` 里的具体句子。JSON 不写注释。
 
-先换批准过的设计图，改设计清单，再跑同步脚本。不要直接改运行目录里的副本。
+H5 读运行时清单，不读设计目录。`feat/v04-content-expansion` 上已有 `test/fb-specialist.test.js` 核对这份同步。本文不另加一条 CI 规则。
 
 # 6. 明确不动
 
