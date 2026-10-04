@@ -1,78 +1,71 @@
-// F-B specialist page assets (docs/ui/08_fb_specialist_visual.md §1).
+// F-B specialist page assets (docs/ui/08_fb_specialist_visual.md §1, §5).
 //
-// concept-design/F-B-final/ is design evidence: the original PNGs, mockups and the
-// hand-off manifest. Production pages never load from it. This script copies every
-// file the design manifest names, byte for byte, into the theme's runtime folder
-//   assets/themes/math-lab/specialist/{domains,mascot}/
-// writes the runtime manifest next to them (same domain_ids, same groups, same
-// slots and keys; only the paths change), and generates the Taro table
-// app/theme/fb-specialist-assets.js from that runtime manifest. h5/ reads the
-// runtime manifest itself (h5/specialist-assets.js).
+// The only path from the design source into the runtime folder.
+// concept-design/F-B-final/ is design evidence: masters, mockups and the hand-off
+// manifest; production never loads from it. This script reads the approved design
+// manifest and copies only what the clients bundle and load, byte for byte:
+//   8 × domains.<id>.asset (256px)          → assets/themes/math-lab/specialist/domains/
+//   1 × mascot.asset_2x (the 512px picture) → assets/themes/math-lab/specialist/mascot/specialist-mascot-512.png
+// The domain @2x files (512px) and the 1024px mascot master stay in the design
+// folder. Anything else found in the runtime folder is removed. It then writes the
+// runtime manifest (domains.<id>.asset, mascot.asset; no asset_2x key; groups
+// unchanged) and generates app/theme/fb-specialist-assets.js from it. Both outputs
+// are generated: change the design source and re-run, never edit them by hand.
 //
-// test/fb-specialist.test.js fails when anything here is stale.
-//
-//   node scripts/sync-fb-assets.mjs           # copy + write
-//   node scripts/sync-fb-assets.mjs --check   # exit 1 when stale
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname } from "node:path";
+//   node scripts/sync-fb-assets.mjs           # copy + prune + write
+//   node scripts/sync-fb-assets.mjs --check   # exit 1 when anything is stale
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
-/** Design hand-off (never a runtime path). */
+/** Design source (never a runtime path). */
 export const SOURCE_DIR = "concept-design/F-B-final";
 export const SOURCE_MANIFEST = `${SOURCE_DIR}/asset-manifest.json`;
+/** Which design-manifest file is the runtime picture: domains 256px `asset`; the mascot's 512px `asset_2x` (its `asset` is the 1024px master). */
+export const SOURCE_DOMAIN_KEY = "asset";
+export const SOURCE_MASCOT_KEY = "asset_2x";
 /** Runtime home of the page's pictures and its manifest (docs/ui/07, 08 §1). */
 export const RUNTIME_DIR = "assets/themes/math-lab/specialist";
 export const RUNTIME_MANIFEST = `${RUNTIME_DIR}/asset-manifest.json`;
+/** Runtime file name of the mascot: the 512px picture, named like the theme's other display copies (mascot-welcome-512.png). */
+export const RUNTIME_MASCOT = "mascot/specialist-mascot-512.png";
 export const OUT = "app/theme/fb-specialist-assets.js";
-/**
- * Which manifest file a client loads. Domains: `asset` (256px; the 56px display is
- * already ≥ 4× on every phone). Mascot: `asset_2x`, the 512px file: in this
- * manifest `asset` is the 1024px master (844 KB), too heavy for the Mini Program
- * package for a header picture under 90px.
- */
+/** The only keys a client reads from the runtime manifest. */
 export const DOMAIN_KEY = "asset";
-export const MASCOT_KEY = "asset_2x";
-const FILE_KEYS = ["asset", "asset_2x"];
+export const MASCOT_KEY = "asset";
 
-/** Runtime-relative path of a design file: domains/<name> or mascot/<name>. */
-const runtimePath = (kind, designPath) => `${kind}/${basename(designPath)}`;
-
-/** The runtime manifest: the design manifest's mapping with runtime paths, nothing else. */
+/** The runtime manifest: the design mapping (ids, groups) with runtime paths and runtime keys only. */
 export function runtimeManifest(source) {
   const domains = {};
   for (const [id, d] of Object.entries(source.domains)) {
-    domains[id] = {};
-    for (const k of FILE_KEYS) if (d[k]) domains[id][k] = runtimePath("domains", d[k]);
-    domains[id].group = d.group;
+    domains[id] = { [DOMAIN_KEY]: `domains/${basename(d[SOURCE_DOMAIN_KEY])}`, group: d.group };
   }
-  const mascot = {};
-  for (const k of FILE_KEYS) if (source.mascot[k]) mascot[k] = runtimePath("mascot", source.mascot[k]);
-  mascot.source = source.mascot.source;
   return {
     page: source.page,
     variant: source.variant,
     status: source.status,
-    note: "Runtime copy of the F-B specialist assets (docs/ui/08 §1). Generated by scripts/sync-fb-assets.mjs; paths are relative to this file.",
+    generated: "GENERATED by scripts/sync-fb-assets.mjs from the approved F-B design manifest. Do not edit: change the design source and re-run the script. Paths are relative to this file.",
     domains,
-    mascot,
+    mascot: { [MASCOT_KEY]: RUNTIME_MASCOT, source: source.mascot.source },
     groups: source.groups,
   };
 }
 
-/** [design file, runtime file] pairs, repo-relative. */
+/** [design file, runtime file] pairs, repo-relative: exactly 8 domains + 1 mascot. */
 export function runtimeCopies(source) {
-  const pairs = [];
-  for (const d of Object.values(source.domains)) {
-    for (const k of FILE_KEYS) if (d[k]) pairs.push([`${SOURCE_DIR}/${d[k]}`, `${RUNTIME_DIR}/${runtimePath("domains", d[k])}`]);
-  }
-  for (const k of FILE_KEYS) {
-    if (source.mascot[k]) pairs.push([`${SOURCE_DIR}/${source.mascot[k]}`, `${RUNTIME_DIR}/${runtimePath("mascot", source.mascot[k])}`]);
-  }
+  const pairs = Object.values(source.domains).map((d) => [`${SOURCE_DIR}/${d[SOURCE_DOMAIN_KEY]}`, `${RUNTIME_DIR}/domains/${basename(d[SOURCE_DOMAIN_KEY])}`]);
+  pairs.push([`${SOURCE_DIR}/${source.mascot[SOURCE_MASCOT_KEY]}`, `${RUNTIME_DIR}/${RUNTIME_MASCOT}`]);
   return pairs;
 }
 
 export const manifestText = (runtime) => `${JSON.stringify(runtime, null, 2)}\n`;
+
+/** Every file currently in the runtime folder, repo-relative. */
+export function runtimeFiles(repo = REPO) {
+  const walk = (d) => (existsSync(d) ? readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)])) : []);
+  return walk(join(repo, RUNTIME_DIR)).map((f) => relative(repo, f).split("\\").join("/")).sort();
+}
 
 /** The Taro slot table, from the runtime manifest. */
 export function fbTable(runtime) {
@@ -90,8 +83,8 @@ export function fbTable(runtime) {
  * GENERATED by scripts/sync-fb-assets.mjs from ${RUNTIME_MANIFEST}. Do not edit.
  *
  * The F-B specialist page's pictures (docs/ui/08_fb_specialist_visual.md): one
- * transparent PNG per \`domain.<domain_id>\` slot and the header mascot (the
- * existing welcome pose, reused). H5 and the Mini Program load the same files;
+ * transparent 256px PNG per \`domain.<domain_id>\` slot and the 512px header mascot
+ * (the existing welcome pose, reused). H5 and the Mini Program load the same files;
  * only the bundler's output path differs. Components ask for a slot, never a file.
  */
 ${lines.join("\n")}
@@ -108,18 +101,22 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const source = JSON.parse(readFileSync(`${REPO}/${SOURCE_MANIFEST}`, "utf8"));
   const runtime = runtimeManifest(source);
   const copies = runtimeCopies(source);
+  const wanted = new Set([...copies.map(([, b]) => b), RUNTIME_MANIFEST]);
+  const extra = runtimeFiles().filter((f) => !wanted.has(f));
   if (process.argv.includes("--check")) {
     const stale = copies.filter(([a, b]) => !same(`${REPO}/${a}`, `${REPO}/${b}`)).map(([, b]) => b);
     if (!existsSync(`${REPO}/${RUNTIME_MANIFEST}`) || readFileSync(`${REPO}/${RUNTIME_MANIFEST}`, "utf8") !== manifestText(runtime)) stale.push(RUNTIME_MANIFEST);
     if (!existsSync(`${REPO}/${OUT}`) || readFileSync(`${REPO}/${OUT}`, "utf8") !== fbTable(runtime)) stale.push(OUT);
-    console.log(stale.length ? `stale: ${stale.join(", ")} (run node scripts/sync-fb-assets.mjs)` : `${RUNTIME_DIR} (${copies.length} files + manifest) and ${OUT} match ${SOURCE_MANIFEST}`);
+    for (const f of extra) stale.push(`${f} (not a runtime file)`);
+    console.log(stale.length ? `stale: ${stale.join(", ")} (run node scripts/sync-fb-assets.mjs)` : `${RUNTIME_DIR}: ${copies.length} images (8 domains + 1 mascot) + manifest, and ${OUT}, match ${SOURCE_MANIFEST}`);
     process.exit(stale.length ? 1 : 0);
   }
+  for (const f of extra) rmSync(`${REPO}/${f}`);
   for (const [a, b] of copies) {
     mkdirSync(dirname(`${REPO}/${b}`), { recursive: true });
     copyFileSync(`${REPO}/${a}`, `${REPO}/${b}`);
   }
   writeFileSync(`${REPO}/${RUNTIME_MANIFEST}`, manifestText(runtime));
   writeFileSync(`${REPO}/${OUT}`, fbTable(runtime));
-  console.log(`copied ${copies.length} files into ${RUNTIME_DIR}, wrote ${RUNTIME_MANIFEST} and ${OUT}`);
+  console.log(`copied ${copies.length} images into ${RUNTIME_DIR}${extra.length ? `, removed ${extra.length} non-runtime files` : ""}; wrote ${RUNTIME_MANIFEST} and ${OUT}`);
 }

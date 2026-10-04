@@ -77,6 +77,8 @@ try {
     check(cards.every((c) => c.tone === GRID[gi][1] && STATUS.includes(c.status) && c.tile.startsWith(`png:${FILE[c.name]}`) && c.dir === "/assets/themes/math-lab/specialist/domains" && c.statusColor === "rgb(102, 112, 133)" && /\.png$/.test(c.tile) && c.w >= 44 && c.h >= 44), `${heads[gi]} tiles ${JSON.stringify(cards)}`);
     check(cards.every((c) => c.oneLine), `${heads[gi]} names / statuses on one line inside the tile ${JSON.stringify(cards.filter((c) => !c.oneLine))}`);
     const zone = ((await g.attribute("class")) || "").match(/tone-(\w+)/);
+    const meta = (await (await g.$(".practice-group-en")).style("color")) || "";
+    check(meta === "rgb(102, 112, 133)", `${heads[gi]} English label colour ${meta}`);
     check(zone && zone[1] === GRID[gi][1], `${heads[gi]} zone ${zone && zone[1]}`);
     check(b2.l >= a.l + a.w - 1 && Math.abs(b2.t - a.t) <= 1 && Math.abs(b2.w - a.w) <= 1, `${heads[gi]} two columns`);
     if (c3) check(Math.abs(c3.l - a.l) <= 1 && Math.abs(c3.w - a.w) <= 1 && c3.t >= a.t + a.h - 1, `${heads[gi]} 3rd card left, not stretched`);
@@ -87,7 +89,7 @@ try {
   const mascotSrc = mascot ? (await (await mascot.$(".fb-mascot-img")).attribute("src")) || "" : "";
   const mascotH = mascot ? (await box(mascot)).h : 0;
   const headH = (await box(await page.$(".fb-head-text"))).h;
-  check(/^\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot@2x\.png$/.test(mascotSrc) && mascotH <= Math.round(80 * sys.windowWidth / 375) + 1 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px, title block ${headH}px`);
+  check(/^\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(mascotSrc) && mascotH <= Math.round(80 * sys.windowWidth / 375) + 1 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px, title block ${headH}px`);
   const hint = (await (await page.$(".fb-hint")).text()).trim();
   check(hint === "今天想练哪个？", `hint ${hint}`);
   await mp.screenshot({ path: `${SHOTS}/weapp-explore-${sys.windowWidth}x${sys.windowHeight}-top.png` });

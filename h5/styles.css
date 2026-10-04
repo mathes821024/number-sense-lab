@@ -542,7 +542,7 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 .tone-sky .practice-group-dot { background: var(--fb-accent-sky); }
 .tone-amber .practice-group-dot { background: var(--fb-accent-amber); }
 .practice-group-title { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
-.practice-group-en { margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; line-height: 1.3; color: var(--fb-status); }
+.practice-group-en { margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; line-height: 1.3; color: var(--fb-group-meta-color); }
 .practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .practice-card {
   display: flex;
@@ -565,7 +565,7 @@ button:focus-visible, .link.row:focus-visible, input:focus-visible {
 .practice-text { display: flex; flex-direction: column; min-width: 0; }
 .practice-name { font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; color: var(--text-primary); }
 .practice-name.is-long { font-size: 14px; }
-.practice-status { margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status); }
+.practice-status { margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status-color); }
 @media (min-width: 386px) { .practice-name.is-long { font-size: 15px; } }
 @media (max-width: 359px) { .practice-name, .practice-status { white-space: normal; } }
 .chev { color: var(--text-secondary); font-size: 18px; display: inline-flex; }

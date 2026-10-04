@@ -8,7 +8,8 @@
  * welcome pose, reused). Nothing here names a file.
  *
  * Same files as the Taro build (app/theme/fb-specialist-assets.js, generated
- * from the same runtime manifest): domains `asset` (256px), mascot `asset_2x` (512px).
+ * from the same runtime manifest): domains `asset` (256px), mascot `asset` (the 512px
+ * picture; the runtime manifest has no `asset_2x` key).
  * If the manifest cannot load, or a domain has no entry, the tile keeps its
  * interface glyph (src/core/practice-groups.js DOMAIN_GLYPHS): never an empty icon.
  */
@@ -16,7 +17,7 @@
 /** The theme's specialist folder, next to h5/ (same layout locally and on the server). */
 export const FB_ROOT = new URL("../assets/themes/math-lab/specialist/", import.meta.url).href;
 export const DOMAIN_KEY = "asset";
-export const MASCOT_KEY = "asset_2x";
+export const MASCOT_KEY = "asset";
 
 let fb = null;
 let fbBase = FB_ROOT;

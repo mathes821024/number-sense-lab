@@ -30,11 +30,12 @@ export function checkWeappPackage(dist = join(REPO, "dist/weapp")) {
     bytes += statSync(f).size;
     const rel = relative(dist, f);
     if (rel.includes("concept-design")) problems.push(`design-folder file in package: ${rel}`);
+    if (rel.startsWith("assets/themes/math-lab/specialist/") && /@2x|specialist-mascot\.png$/.test(rel)) problems.push(`non-runtime design file in package: ${rel}`);
     if (TEXT.test(f) && readFileSync(f, "utf8").includes("concept-design")) problems.push(`${rel} references concept-design`);
   }
   if (bytes >= LIMIT) problems.push(`package ${bytes} bytes ≥ ${LIMIT}`);
   const runtime = JSON.parse(readFileSync(join(REPO, "assets/themes/math-lab/specialist/asset-manifest.json"), "utf8"));
-  const want = [...Object.values(runtime.domains).map((d) => d.asset), runtime.mascot.asset_2x];
+  const want = [...Object.values(runtime.domains).map((d) => d.asset), runtime.mascot.asset];
   const pngs = [];
   for (const p of want) {
     const shipped = join(dist, "assets/themes/math-lab/specialist", p);

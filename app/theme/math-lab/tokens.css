@@ -46,7 +46,11 @@ page,
   --fb-chip-mint: rgba(47, 163, 124, 0.10);
   --fb-tile-bg: #FFFFFF;
   --fb-tile-shadow: 0 2px 8px rgba(31, 58, 86, 0.06);
-  --fb-status: #667085;
+  /* specialist.status.color: the four learner-status words only. */
+  --fb-status-color: #667085;
+  /* specialist.group.metaColor: the English group label (POWERS / PRODUCTS / NUMBERS) only.
+     Same value today, a separate token: making one lighter must not change the other. */
+  --fb-group-meta-color: #667085;
 
   /* color.surface.* / color.text.* / color.border.* */
   --surface-page: #F7F3E8;

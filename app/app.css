@@ -981,7 +981,7 @@ body {
 .tone-sky .practice-group-dot { background: var(--fb-accent-sky); }
 .tone-amber .practice-group-dot { background: var(--fb-accent-amber); }
 .practice-group-title { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
-.practice-group-en { display: block; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 1.3px; line-height: 1.3; color: var(--fb-status); }
+.practice-group-en { display: block; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 1.3px; line-height: 1.3; color: var(--fb-group-meta-color); }
 .practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-gap: 8px; gap: 8px; }
 .practice-card {
   display: flex;
@@ -1002,7 +1002,7 @@ body {
 .practice-text { display: flex; flex-direction: column; min-width: 0; }
 .practice-name { display: block; font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; color: var(--text-primary); }
 .practice-name.is-long { font-size: 14px; }
-.practice-status { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status); }
+.practice-status { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status-color); }
 /* The icon chip (64px): the group colour at 10%, the F-B picture inside at 56px (VISUAL_TOKENS icon / icon.chip). */
 .tile {
   display: flex;

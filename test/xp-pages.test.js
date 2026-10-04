@@ -194,7 +194,7 @@ test("主题训练 pages (Taro + h5/): the same shared model, F-B header and gro
     }
     assert.match(css, /\.practice-group \{[^}]*border-radius: 20px; background: var\(--fb-group-bg-mint\);/);
     assert.doesNotMatch(css.slice(css.indexOf("主题训练 as F-B"), css.indexOf("Safe fallback")), /url\(/, "no picture for a colour zone");
-    assert.match(css, /\.practice-status \{[^}]*font-size: 12px;[^}]*color: var\(--fb-status\);/);
+    assert.match(css, /\.practice-status \{[^}]*font-size: 12px;[^}]*color: var\(--fb-status-color\);/);
     assert.match(css, /\.practice-name \{[^}]*font-size: 15px;[^}]*white-space: nowrap;[^}]*color: var\(--text-primary\);/);
     assert.match(css, /\.practice-group-title \{[^}]*font-size: 16px; font-weight: 800;/);
     assert.match(css, /\.fb-hint \{[^}]*font-size: 13px; font-weight: 400;[^}]*color: var\(--text-secondary\);/, "helper line weaker than the group titles");

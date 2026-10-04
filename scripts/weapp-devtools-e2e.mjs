@@ -703,7 +703,7 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   const mascotSrc = mascotImg ? await mascotImg.attribute("src") : "";
   const mascotH = mascotImg ? Math.round((await (await page.$(".fb-mascot")).size()).height) : 0;
   const headH = Math.round((await (await page.$(".fb-head-text")).size()).height);
-  check(/\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot@2x\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
+  check(/\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
   const zones = [];
   for (const g of groups) zones.push(`${(await g.attribute("class")).match(/tone-(\w+)/)[1]}:${(await (await g.$(".practice-group-en")).text()).trim()}`);
   check(zones.join("/") === "sky:POWERS/amber:PRODUCTS/mint:NUMBERS", `zones ${zones}`);

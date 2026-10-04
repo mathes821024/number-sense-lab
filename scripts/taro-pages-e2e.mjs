@@ -164,6 +164,7 @@ for (const [vp, width, height] of VPS) {
               picW: (d.querySelector(".tile-art img") || {}).naturalWidth || 0,
               nameLines: Math.round(d.querySelector(".practice-name").getBoundingClientRect().height / parseFloat(getComputedStyle(d.querySelector(".practice-name")).lineHeight)),
               statusColor: getComputedStyle(d.querySelector(".practice-status")).color,
+              metaColor: getComputedStyle(d.closest(".practice-group").querySelector(".practice-group-en")).color,
               statusLines: Math.round(d.querySelector(".practice-status").getBoundingClientRect().height / parseFloat(getComputedStyle(d.querySelector(".practice-status")).lineHeight)),
               textInside: [".practice-name", ".practice-status"].every((s) => d.querySelector(s).getBoundingClientRect().right <= r.right + 0.5),
               glyph: Boolean(d.querySelector(".tile-glyph .icon") && d.querySelector(".tile-glyph .icon").textContent.trim() && d.querySelector(".tile-glyph .icon").getBoundingClientRect().width > 4),
@@ -188,6 +189,7 @@ for (const [vp, width, height] of VPS) {
       const file = { squares: "domain-squares", cubes: "domain-cubes", powers: "domain-powers", products: "domain-products", special_products: "domain-special-products", fraction_decimal: "domain-fraction-decimal", halves: "domain-halves", complements: "domain-complements" }[c.id];
       check(c.picSrc.includes(`assets/themes/math-lab/specialist/domains/${file}`) && /\.png$/.test(c.picSrc) && !c.picSrc.includes("concept-design"), `${c.name}: not the runtime manifest's PNG (${c.picSrc})`);
       check(c.statusColor === "rgb(102, 112, 133)", `${c.name}: status colour ${c.statusColor} (want #667085)`);
+      check(c.metaColor === "rgb(102, 112, 133)", `${c.name}: group English label colour ${c.metaColor} (want #667085)`);
       check(c.nameLines === 1 && c.statusLines === 1 && c.textInside, `${c.name}: name/status lines ${c.nameLines}/${c.statusLines}, inside ${c.textInside}`);
       check(c.box.w >= 44 && c.box.h >= 44, `${c.name} target ${c.box.w}×${c.box.h}`);
     }
@@ -200,7 +202,7 @@ for (const [vp, width, height] of VPS) {
     check(v.soon === 0, "no 敬请期待 cards / 更多方向 on the practice page");
     check(v.kicker === "EXPLORE MATH" && v.title === "探索数学世界" && v.lede === "从一个主题开始，走更远的路" && v.hint === "今天想练哪个？", `header ${v.kicker}/${v.title}/${v.lede}/${v.hint}`);
     check(v.hintPx < v.groupPx && v.hintW < v.groupW, `helper line ${v.hintPx}px/${v.hintW} vs group title ${v.groupPx}px/${v.groupW}`);
-    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /specialist-mascot@2x\.png$/.test(v.mascot.src), `mascot ${JSON.stringify(v.mascot)}`);
+    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(v.mascot.src), `mascot ${JSON.stringify(v.mascot)}`);
     check(JSON.stringify(v.zones.map((z) => [z.bg, z.img, z.en])) === JSON.stringify([["rgb(234, 242, 251)", "none", "POWERS"], ["rgb(253, 243, 231)", "none", "PRODUCTS"], ["rgb(233, 246, 240)", "none", "NUMBERS"]]), `zones ${JSON.stringify(v.zones)}`);
     check(v.segSoon.join("/") === "知识地图", `segment ${v.segSoon}`);
     check((await navOn()) === "练习", `nav on ${await navOn()}`);
