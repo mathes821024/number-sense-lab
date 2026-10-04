@@ -17,7 +17,8 @@
 | specialist.group.accent.products | #F2994A | 同上 |
 | specialist.group.accent.numbers | #2FA37C | 同上 |
 | specialist.group.title.size | 16 | 组中文名（bold，深墨蓝） |
-| specialist.group.entitle.size | 11 | 组英文小标（caps，灰） |
+| specialist.group.entitle.size | 11 | 组英文小标（POWERS / PRODUCTS / NUMBERS），caps |
+| specialist.group.metaColor | #667085 | 只给英文组名。不和状态文字共用一个令牌 |
 | specialist.group.dot.size | 8 | 组名前色点直径 |
 
 ## 主题 Tile
@@ -35,7 +36,8 @@
 | specialist.icon.chip.radius | 14 | 容器圆角 |
 | specialist.icon.chip.bg.alpha | 0.10 | 组色 10% 透明度底 |
 | specialist.title.size | 15 | domain 名称（semibold） |
-| specialist.status.size | 12 | 状态文字。颜色 `#667085`，弱于域名，但在白底上要能看清。不用 `#8A94A6`。无 Badge、无交通灯色 |
+| specialist.status.size | 12 | 状态文字。弱于域名。无 Badge、无交通灯色 |
+| specialist.status.color | #667085 | 只给掌握状态。现值和英文组名相同，但是另一个令牌。不用 `#8A94A6` |
 
 ## 页头 Header
 

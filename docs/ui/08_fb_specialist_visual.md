@@ -10,7 +10,9 @@ F-B 是温暖品牌化学习面板。它是首页的兄弟页：奶油纸底、�
 
 `concept-design/F-B-final/` 是设计过程和评审证据，包括原稿、参照图和交接清单。生产页面不得再从这条路径加载图标或吉祥物。清理概念稿不能把正式页面的图一起删掉。
 
-运行时清单放在 `assets/themes/math-lab/specialist/asset-manifest.json`。八个域的 PNG 和吉祥物从 `concept-design/F-B-final/assets/specialist/` 复制到同主题目录下的 `specialist/domains/` 与 `specialist/mascot/`。槽位名不变。组件按运行时清单取图，不在代码里写死文件名。
+运行目录只放客户端会打包、会加载的文件：8 张 256px 域图标，加 1 张 512px 吉祥物，再加运行时清单。域图标的 `@2x` 和吉祥物的 1024px 母版留在设计目录，不复制进去。
+
+运行时清单放在 `assets/themes/math-lab/specialist/asset-manifest.json`。它由同步脚本生成。域图标的键仍是 `domains.<id>.asset`。吉祥物只保留 `mascot.asset`，指向那张实际使用的 512px 图。设计清单里那张 512px 图的文件名仍可能叫 `specialist-mascot@2x.png`，这只是源文件名。运行时不要再用 `asset_2x` 当吉祥物的键，也不要把它理解成「更高密度的那一张」。1024px 母版在设计清单里仍叫 `mascot.asset`，那个键名不到运行时。
 
 仓库根上的 `assets/specialist/` 若仍带分组底图、装饰图或 SVG，不是这套运行时资源。主题清单里旧的三枚 SVG 和 `futureDomains` 也不是练习页的现行图标。
 
@@ -27,7 +29,7 @@ F-B 是温暖品牌化学习面板。它是首页的兄弟页：奶油纸底、�
 | `halves` | `domain-halves.png` | 数与分数 |
 | `complements` | `domain-complements.png` | 数与分数 |
 
-设计原稿仍在 `concept-design/F-B-final/assets/specialist/`。运行时路径改到 `assets/themes/math-lab/specialist/`。每枚另有同名 `@2x`。透明 PNG。H5 和微信用同一套文件。
+设计原稿仍在 `concept-design/F-B-final/assets/specialist/`。运行时只有上面说的 9 张图，放在 `assets/themes/math-lab/specialist/`。透明 PNG。H5 和微信用同一套文件。
 
 清单里的 `groups.powers`、`groups.products`、`groups.numbers` 只是导航分组的键。`powers` 和 `products` 与同名 `domain_id` 撞字，不能把组键交给调度、掌握或错题本。
 
@@ -37,7 +39,7 @@ F-B 是温暖品牌化学习面板。它是首页的兄弟页：奶油纸底、�
 
 - 页底和主按钮继续用现有 `math-lab` 令牌。不为这一页另起一套青绿。
 - 三组浅底用样式画，不用底图 PNG。幂与乘方浅蓝，乘法与凑整浅暖橙，数与分数浅薄荷绿。色值见 `concept-design/F-B-final/VISUAL_TOKENS.md`。组色只铺在组底、组名色点和该组图标浅底上。
-- 组里的 tile 是白底紧凑双列。图标是主角。状态仍是那四句弱文字，不做徽章，不用红黄绿。状态色用 `#667085`，不用 `#8A94A6`。它仍小于、淡于域名，但在白底上要能看清。
+- 组里的 tile 是白底紧凑双列。图标是主角。状态仍是那四句弱文字，不做徽章，不用红黄绿。状态色是 `specialist.status.color`，现为 `#667085`。英文组名 POWERS / PRODUCTS / NUMBERS 用 `specialist.group.metaColor`，现也是 `#667085`。两个令牌分开。以后改淡英文组名，不能把状态文字一起改淡。状态仍小于、淡于域名。
 - 吉祥物复用现有欢迎姿态。运行时文件在 `assets/themes/math-lab/specialist/mascot/`。只放页头一侧，不高于标题区，不加气泡。不新画一个角色。高度可以随屏幕在上限内缩放；微信标题栏占掉空间时，保持和标题区的比例，不必死守 80px。430 宽上吉祥物约 84px、标题区约 86px，是接受的结果。做题屏、键盘和纸页仍然不要吉祥物。
 - 文字都由程序渲染。图片里不烘焙域名、状态或按钮。
 - 不依赖内联 SVG。小程序和 H5 都读 PNG。
@@ -58,6 +60,24 @@ F-B 是温暖品牌化学习面板。它是首页的兄弟页：奶油纸底、�
 
 验收仍看这三档。参照图在 `concept-design/F-B-final/mockups/`，只作外观对照，不增加新交互。
 
-# 5. 明确不动
+# 5. 资源管线
+
+`scripts/sync-fb-assets.mjs` 是设计源进入运行目录的唯一路径。换图时先改设计目录里的 PNG 和 `concept-design/F-B-final/asset-manifest.json`，再运行：
+
+```text
+node scripts/sync-fb-assets.mjs
+node scripts/sync-fb-assets.mjs --check
+```
+
+脚本复制运行时需要的图，并生成这两份文件。它们都标成生成结果，禁止手改：
+
+- `assets/themes/math-lab/specialist/asset-manifest.json`
+- `app/theme/fb-specialist-assets.js`
+
+H5 读运行时清单，不读设计目录。`feat/v04-content-expansion` 上已有 `test/fb-specialist.test.js` 核对这份同步。本文不另加一条 CI 规则。
+
+先换批准过的设计图，改设计清单，再跑同步脚本。不要直接改运行目录里的副本。
+
+# 6. 明确不动
 
 八个 `domain_id`、三个导航组、双列、知识地图仍是未来入口、调度、掌握、错题本、打印、首页主路径。

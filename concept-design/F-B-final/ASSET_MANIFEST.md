@@ -1,30 +1,32 @@
 # ASSET_MANIFEST — 专项训练页 F-B 资源清单
 
-视觉冻结候选稿。所有位图资源均为 PNG，微信 / H5 通用，不依赖 inline SVG。
-文字（标题、名称、状态、Tab）一律程序渲染，未烘焙进任何图片。
+这是设计源，不是运行目录。生产页面从 `assets/themes/math-lab/specialist/` 加载，不从这里加载。文字一律程序渲染，不烘焙进图片。
+
+设计目录可以同时留下高分辨率母版和实际要用的较小文件。文件名里的 `@2x` 在这里只是历史文件名，不表示运行时要加载一张更高密度的图。
 
 ## domains/（8 个训练域图标）
 
-统一规格：256×256 基础版 + 512×512 @2x，透明背景，主体居中约占画布 70%，
-56px 显示尺寸下可辨认。统一 semi-flat 风格：同一线条粗细、同一圆角逻辑、
-同一柔和单色明暗、无投影、无外层卡片。组内同色系（幂与乘方=蓝，乘法与凑整=暖橙，数与分数=薄荷绿）。
+统一规格：256×256 是运行时用的那张；512×512 的 `@2x` 只留在设计目录。透明背景。显示尺寸 56–72px，256px 对当前手机已经够。统一 semi-flat 风格：同一线条粗细、同一圆角逻辑、同一柔和单色明暗、无投影、无外层卡片。组内同色系（幂与乘方=蓝，乘法与凑整=暖橙，数与分数=薄荷绿）。
 
 | filename | purpose | recommended display size | transparent | crop allowed | stretch allowed | platform notes |
 |---|---|---|---|---|---|---|
-| domain-squares.png (+@2x) | 平方：2×2 面积格，左上格加深 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 微信/H5 通用 |
-| domain-cubes.png (+@2x) | 立方：等距立方体三面 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
-| domain-powers.png (+@2x) | 常见幂：三级上升阶梯 + 悬浮方块 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
-| domain-products.png (+@2x) | 常用乘积：4×4 点阵 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
-| domain-special-products.png (+@2x) | 凑整乘积家族：两块拼合成完整方块 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
-| domain-fraction-decimal.png (+@2x) | 分数到小数：横线分数 ½ ↔ 0.5 | 64–72px 方形 | 是 | 否 | 否（等比缩放） | 含数学符号字形，属冻结语义 |
-| domain-halves.png (+@2x) | 半数与翻倍：一变二 + ×2 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
-| domain-complements.png (+@2x) | 补数：缺口圆环 + 补位弧块 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+| domain-squares.png | 平方：2×2 面积格，左上格加深。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 微信/H5 通用 |
+| domain-cubes.png | 立方：等距立方体三面。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+| domain-powers.png | 常见幂：三级上升阶梯 + 悬浮方块。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+| domain-products.png | 常用乘积：4×4 点阵。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+| domain-special-products.png | 凑整乘积家族：两块拼合成完整方块。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+| domain-fraction-decimal.png | 分数到小数：横线分数 ½ ↔ 0.5。256px，进入运行目录 | 64–72px 方形 | 是 | 否 | 否（等比缩放） | 含数学符号字形，属冻结语义 |
+| domain-halves.png | 半数与翻倍：一变二 + ×2。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+| domain-complements.png | 补数：缺口圆环 + 补位弧块。256px，进入运行目录 | 56–72px 方形 | 是 | 否 | 否（等比缩放） | 同上 |
+
+同名 `@2x`（512px）只留在本目录，不复制进运行目录。
 
 ## mascot/
 
 | filename | purpose | recommended display size | transparent | crop allowed | stretch allowed | platform notes |
 |---|---|---|---|---|---|---|
-| specialist-mascot.png (+@2x) | 页头右侧品牌吉祥物（现有 welcome 姿态，复用不重绘） | 高 72–88px | 是 | 是（轻量裁切） | 否 | 复用 math-lab 主题现有素材 |
+| specialist-mascot.png | 1024px 设计母版。留在本目录，不进运行目录 | 不直接上屏 | 是 | 否 | 否 | 现有 welcome 姿态，不重绘 |
+| specialist-mascot@2x.png | 512px 实际用图。文件名沿用。运行时清单只把它记成 `mascot.asset` | 高 72–88px | 是 | 是（轻量裁切） | 否 | 不要把 `asset_2x` 当成运行时的键 |
 
 ## groups/ 与 decor/
 
