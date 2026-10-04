@@ -1,7 +1,7 @@
 # VISUAL_TOKENS — 专项训练页（F-B）新增视觉变量
 
 只记录本页新增或确认的变量，不重新定义整个 Design System。
-基准单位 px，按 390 宽逻辑屏给出。
+基准单位 px，按 390 宽逻辑屏给出。这些是默认值。375 等窄屏可以在不改变层级、不小于 44×44 可点区域的前提下用更紧的间距。
 
 ## 分组容器 Group
 
@@ -35,7 +35,7 @@
 | specialist.icon.chip.radius | 14 | 容器圆角 |
 | specialist.icon.chip.bg.alpha | 0.10 | 组色 10% 透明度底 |
 | specialist.title.size | 15 | domain 名称（semibold） |
-| specialist.status.size | 12 | 状态文字（弱灰 #8A94A6，无 Badge、无交通灯色） |
+| specialist.status.size | 12 | 状态文字。颜色 `#667085`，弱于域名，但在白底上要能看清。不用 `#8A94A6`。无 Badge、无交通灯色 |
 
 ## 页头 Header
 
@@ -44,7 +44,7 @@
 | specialist.header.kicker.size | 11 | EXPLORE MATH（caps，灰） |
 | specialist.header.title.size | 28 | 探索数学世界（bold） |
 | specialist.header.subtitle.size | 13 | 副标题（灰） |
-| specialist.header.mascot.height | 80 | 吉祥物高度上限，不抢标题 |
+| specialist.header.mascot.height | 80 | 吉祥物高度上限，不抢标题。窄屏可以再小一点，保持和标题区的比例即可 |
 | specialist.header.hint.size | 13 | 「今天想练哪个？」普通小字，无气泡 |
 | specialist.tabs.height | 36 | 分段控件高度；选中态青绿 #2FA37C 填充 |
 
