@@ -26,7 +26,7 @@
 | filename | purpose | recommended display size | transparent | crop allowed | stretch allowed | platform notes |
 |---|---|---|---|---|---|---|
 | specialist-mascot.png | 1024px 设计母版。留在本目录，不进运行目录 | 不直接上屏 | 是 | 否 | 否 | 现有 welcome 姿态，不重绘 |
-| specialist-mascot@2x.png | 512px 实际用图。文件名沿用。运行时清单只把它记成 `mascot.asset` | 高 72–88px | 是 | 是（轻量裁切） | 否 | 不要把 `asset_2x` 当成运行时的键 |
+| specialist-mascot@2x.png | 512px 设计源。文件名留在本目录。运行时复制成 `specialist-mascot-512.png`，清单键只有 `mascot.asset` | 高 72–88px | 是 | 是（轻量裁切） | 否 | 运行目录不保留 `@2x` 这个名字 |
 
 ## groups/ 与 decor/
 
