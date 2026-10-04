@@ -5,7 +5,9 @@
  * bundles straight from assets/.
  *
  * H5: display-size WebP (512px) for mascots, as main's h5/theme.js prefers;
- * SVG for the logo and edge decoration (SVG is tier "有" on H5).
+ * SVG for the logo and edge decoration (SVG is tier "有" on H5). The practice
+ * page's domain icons are not here: they come from the F-B manifest
+ * (app/theme/fb-specialist-assets.js, docs/ui/08_fb_specialist_visual.md).
  */
 import welcome from "../../../assets/themes/math-lab/mascot/mascot-welcome-512.webp";
 import correct from "../../../assets/themes/math-lab/mascot/mascot-correct-512.webp";

@@ -1,8 +1,8 @@
 import { View, Text } from "@tarojs/components";
-import { Fraction, Repeating } from "./math/MathText";
+import { Repeating } from "./math/MathText";
 import { answerDisplay } from "./math/tokens.js";
 
-/** The answer box: digits, a textbook fraction, or 0.( dotted block ) — h5/app.js answerHtml. */
+/** The answer box: digits, or 0.( dotted block ) — h5/app.js answerHtml. Fractions use FractionFields. */
 export default function AnswerBox({ item, answer, tick }) {
   const shown = answerDisplay(item, answer);
   const cls = `answer${shown.kind === "repeating" ? " answer-repeating" : ""}${tick ? " tick" : ""}`;
@@ -16,8 +16,6 @@ export default function AnswerBox({ item, answer, tick }) {
         <View className="rep-slot" aria-hidden="true" />
       </>
     );
-  } else if (shown.kind === "fraction") {
-    body = <Fraction numerator={shown.numerator} denominator={shown.denominator} className="answer-frac" />;
   } else {
     body = <Text className="answer-text">{shown.text}</Text>;
   }

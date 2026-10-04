@@ -11,6 +11,16 @@ export function Fraction({ numerator, denominator, className = "" }) {
   );
 }
 
+/** The empty fraction of a fraction_fields prompt: a bar, nothing above or below. */
+export function BlankFraction({ className = "" }) {
+  return (
+    <View className={`frac frac-blank ${className}`} role="img" aria-label="分数">
+      <Text className="num" />
+      <Text className="den" />
+    </View>
+  );
+}
+
 /** Textbook repeating decimal: dots over the first and the last digit of the block. */
 export function Repeating({ token }) {
   return (
@@ -36,6 +46,7 @@ export default function MathText({ value, className = "" }) {
       {tokens.map((t, i) => {
         if (t.type === "fraction") return <Fraction key={i} numerator={t.numerator} denominator={t.denominator} />;
         if (t.type === "repeating") return <Repeating key={i} token={t} />;
+        if (t.type === "blank_fraction") return <BlankFraction key={i} />;
         return (
           <Text className="math-text" key={i}>
             {t.text}

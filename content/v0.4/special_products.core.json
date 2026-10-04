@@ -1,0 +1,306 @@
+{
+  "domain": "special_products",
+  "version": "0.4.0",
+  "relations": [
+    {
+      "id": "sp-25-4",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "25 × 4 = ?",
+      "canonical_answer": "100",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "25 × 4 = 100",
+      "hook": "四个 25 是一百。",
+      "pattern": {
+        "check": "25 × 4 = 100，不是 250。",
+        "family": [
+          "×25 = ×100 ÷ 4"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "四个 25 是一百。"
+        },
+        {
+          "title": "100",
+          "detail": "25 × 4 = 100"
+        }
+      ],
+      "families": [
+        {
+          "id": "f25",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-125-8",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "relation_network",
+      "prompt": "125 × 8 = ?",
+      "canonical_answer": "1000",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "125 × 8 = 1000",
+      "hook": "八个 125 是一千；1/8 = 0.125 的老朋友。",
+      "pattern": {
+        "check": "125 × 8 = 1000。",
+        "family": [
+          "1/8 = 0.125",
+          "×125 = ×1000 ÷ 8"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "八个 125 是一千；1/8 = 0.125 的老朋友。"
+        },
+        {
+          "title": "1000",
+          "detail": "125 × 8 = 1000"
+        }
+      ],
+      "families": [
+        {
+          "id": "f125",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-25-2",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "anchor",
+      "prompt": "25 × 2 = ?",
+      "canonical_answer": "50",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "25 × 2 = 50",
+      "hook": "25 翻倍是 50。",
+      "pattern": {
+        "check": "25 × 2 = 50。",
+        "family": [
+          "50 ÷ 2 = 25"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "25 翻倍是 50。"
+        },
+        {
+          "title": "50",
+          "detail": "25 × 2 = 50"
+        }
+      ],
+      "families": [
+        {
+          "id": "f25",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-25-3",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "25 × 3 = ?",
+      "canonical_answer": "75",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "25 × 3 = 75",
+      "hook": "75 就是 3/4（0.75）。",
+      "pattern": {
+        "check": "25 × 3 = 75。",
+        "family": [
+          "3/4 = 0.75"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "75 就是 3/4（0.75）。"
+        },
+        {
+          "title": "75",
+          "detail": "25 × 3 = 75"
+        }
+      ],
+      "families": [
+        {
+          "id": "f25",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-25-8",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "25 × 8 = ?",
+      "canonical_answer": "200",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "25 × 8 = 200",
+      "hook": "×25 = ×100÷4：800÷4。",
+      "pattern": {
+        "check": "25 × 8 = 200，不是 2000。",
+        "family": [
+          "8 × 100 = 800",
+          "800 ÷ 4 = 200"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "×25 = ×100÷4：800÷4。"
+        },
+        {
+          "title": "200",
+          "detail": "25 × 8 = 200"
+        }
+      ],
+      "families": [
+        {
+          "id": "f25",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-125-2",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "anchor",
+      "prompt": "125 × 2 = ?",
+      "canonical_answer": "250",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "125 × 2 = 250",
+      "hook": "125 翻倍是 250。",
+      "pattern": {
+        "check": "125 × 2 = 250。",
+        "family": [
+          "250 ÷ 2 = 125"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "125 翻倍是 250。"
+        },
+        {
+          "title": "250",
+          "detail": "125 × 2 = 250"
+        }
+      ],
+      "families": [
+        {
+          "id": "f125",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-125-4",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "transformation",
+      "prompt": "125 × 4 = ?",
+      "canonical_answer": "500",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "125 × 4 = 500",
+      "hook": "×125 = ×1000÷8：4000÷8。",
+      "pattern": {
+        "check": "125 × 4 = 500。不要和 125 × 8 混淆。",
+        "family": [
+          "4 × 1000 = 4000",
+          "4000 ÷ 8 = 500"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "×125 = ×1000÷8：4000÷8。"
+        },
+        {
+          "title": "500",
+          "detail": "125 × 4 = 500"
+        }
+      ],
+      "families": [
+        {
+          "id": "f125",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    },
+    {
+      "id": "sp-25-6",
+      "domain": "special_products",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "25 × 6 = ?",
+      "canonical_answer": "150",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "25 × 6 = 150",
+      "hook": "25×2 的三倍：50×3 = 150。",
+      "pattern": {
+        "check": "25 × 6 = 150。",
+        "family": [
+          "25 × 2 = 50",
+          "50 × 3 = 150"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "25×2 的三倍：50×3 = 150。"
+        },
+        {
+          "title": "150",
+          "detail": "25 × 6 = 150"
+        }
+      ],
+      "families": [
+        {
+          "id": "f25",
+          "type": "scaling",
+          "role": "member"
+        }
+      ],
+      "entry_after": null
+    }
+  ]
+}

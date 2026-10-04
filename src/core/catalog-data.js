@@ -1,4 +1,4 @@
-/** Auto-synced from content/v0.1 + content/v0.2c *.core.json — do not edit by hand. */
+/** Auto-synced from content/v0.1 + content/v0.2c + content/v0.4 *.core.json — do not edit by hand. */
 export const CORE_RELATIONS = [
   {
     "id": "square-6",
@@ -3573,9 +3573,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "retrieval_anchor",
-    "prompt": "0.5 是哪个分数？",
+    "prompt": "0.5 = ?/?",
     "canonical_answer": "1/2",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.5 = 1/2",
     "hook": "一半就是 1/2。",
@@ -3612,9 +3612,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "anchor",
-    "prompt": "0.25 是哪个分数？",
+    "prompt": "0.25 = ?/?",
     "canonical_answer": "1/4",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.25 = 1/4",
     "hook": "0.25 是 0.5 的一半：1/4。",
@@ -3655,9 +3655,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "anchor",
-    "prompt": "0.75 是哪个分数？",
+    "prompt": "0.75 = ?/?",
     "canonical_answer": "3/4",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.75 = 3/4",
     "hook": "3 个 0.25：3/4。",
@@ -3698,9 +3698,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "structure",
-    "prompt": "0.2 是哪个分数？",
+    "prompt": "0.2 = ?/?",
     "canonical_answer": "1/5",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.2 = 1/5",
     "hook": "0.2 是五分之一：1/5。",
@@ -3741,9 +3741,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "anchor",
-    "prompt": "0.4 是哪个分数？",
+    "prompt": "0.4 = ?/?",
     "canonical_answer": "2/5",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.4 = 2/5",
     "hook": "2 个 0.2：2/5。",
@@ -3784,9 +3784,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "anchor",
-    "prompt": "0.6 是哪个分数？",
+    "prompt": "0.6 = ?/?",
     "canonical_answer": "3/5",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.6 = 3/5",
     "hook": "3 个 0.2：3/5。",
@@ -3827,9 +3827,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "anchor",
-    "prompt": "0.8 是哪个分数？",
+    "prompt": "0.8 = ?/?",
     "canonical_answer": "4/5",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.8 = 4/5",
     "hook": "比 1 少 0.2：4/5。",
@@ -3870,9 +3870,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "structure",
-    "prompt": "0.1 是哪个分数？",
+    "prompt": "0.1 = ?/?",
     "canonical_answer": "1/10",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.1 = 1/10",
     "hook": "十分之一就是 1/10。",
@@ -3909,9 +3909,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "structure",
-    "prompt": "0.3 是哪个分数？",
+    "prompt": "0.3 = ?/?",
     "canonical_answer": "3/10",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.3 = 3/10",
     "hook": "3 个 0.1：3/10。",
@@ -3952,9 +3952,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 2,
     "hook_type": "structure",
-    "prompt": "0.7 是哪个分数？",
+    "prompt": "0.7 = ?/?",
     "canonical_answer": "7/10",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.7 = 7/10",
     "hook": "7 个 0.1：7/10。",
@@ -3995,9 +3995,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "anchor",
-    "prompt": "0.125 是哪个分数？",
+    "prompt": "0.125 = ?/?",
     "canonical_answer": "1/8",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.125 = 1/8",
     "hook": "0.125 是 0.25 的一半：1/8。",
@@ -4038,9 +4038,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "anchor",
-    "prompt": "0.375 是哪个分数？",
+    "prompt": "0.375 = ?/?",
     "canonical_answer": "3/8",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.375 = 3/8",
     "hook": "3 个 0.125：3/8。",
@@ -4081,9 +4081,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "anchor",
-    "prompt": "0.625 是哪个分数？",
+    "prompt": "0.625 = ?/?",
     "canonical_answer": "5/8",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.625 = 5/8",
     "hook": "0.5 加 0.125：5/8。",
@@ -4124,9 +4124,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "anchor",
-    "prompt": "0.875 是哪个分数？",
+    "prompt": "0.875 = ?/?",
     "canonical_answer": "7/8",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.875 = 7/8",
     "hook": "比 1 少 0.125：7/8。",
@@ -4167,9 +4167,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.05 是哪个分数？",
+    "prompt": "0.05 = ?/?",
     "canonical_answer": "1/20",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.05 = 1/20",
     "hook": "5/100 约到最简：1/20。",
@@ -4210,9 +4210,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.15 是哪个分数？",
+    "prompt": "0.15 = ?/?",
     "canonical_answer": "3/20",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.15 = 3/20",
     "hook": "15/100 约到最简：3/20。",
@@ -4253,9 +4253,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.35 是哪个分数？",
+    "prompt": "0.35 = ?/?",
     "canonical_answer": "7/20",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.35 = 7/20",
     "hook": "35/100 约到最简：7/20。",
@@ -4296,9 +4296,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.04 是哪个分数？",
+    "prompt": "0.04 = ?/?",
     "canonical_answer": "1/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.04 = 1/25",
     "hook": "4/100 约到最简：1/25。",
@@ -4339,9 +4339,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.08 是哪个分数？",
+    "prompt": "0.08 = ?/?",
     "canonical_answer": "2/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.08 = 2/25",
     "hook": "8/100 约到最简：2/25。",
@@ -4382,9 +4382,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.45 是哪个分数？",
+    "prompt": "0.45 = ?/?",
     "canonical_answer": "9/20",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.45 = 9/20",
     "hook": "45/100 约到最简：9/20。",
@@ -4425,9 +4425,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.55 是哪个分数？",
+    "prompt": "0.55 = ?/?",
     "canonical_answer": "11/20",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.55 = 11/20",
     "hook": "55/100 约到最简：11/20。",
@@ -4468,9 +4468,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.65 是哪个分数？",
+    "prompt": "0.65 = ?/?",
     "canonical_answer": "13/20",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.65 = 13/20",
     "hook": "65/100 约到最简：13/20。",
@@ -4511,9 +4511,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.12 是哪个分数？",
+    "prompt": "0.12 = ?/?",
     "canonical_answer": "3/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.12 = 3/25",
     "hook": "12/100 约到最简：3/25。",
@@ -4554,9 +4554,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.16 是哪个分数？",
+    "prompt": "0.16 = ?/?",
     "canonical_answer": "4/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.16 = 4/25",
     "hook": "16/100 约到最简：4/25。",
@@ -4597,9 +4597,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.24 是哪个分数？",
+    "prompt": "0.24 = ?/?",
     "canonical_answer": "6/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.24 = 6/25",
     "hook": "24/100 约到最简：6/25。",
@@ -4640,9 +4640,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.32 是哪个分数？",
+    "prompt": "0.32 = ?/?",
     "canonical_answer": "8/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.32 = 8/25",
     "hook": "32/100 约到最简：8/25。",
@@ -4683,9 +4683,9 @@ export const CORE_RELATIONS = [
     "level": "core_recall",
     "tier": 3,
     "hook_type": "transformation",
-    "prompt": "0.48 是哪个分数？",
+    "prompt": "0.48 = ?/?",
     "canonical_answer": "12/25",
-    "answer_type": "fraction",
+    "answer_type": "fraction_fields",
     "direction": "inverse",
     "relation": "0.48 = 12/25",
     "hook": "48/100 约到最简：12/25。",
@@ -4883,5 +4883,1649 @@ export const CORE_RELATIONS = [
         "role": "member"
       }
     ]
+  },
+  {
+    "id": "half-64",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "64 的一半是？",
+    "canonical_answer": "32",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "64 的一半是 32",
+    "hook": "64 是 2⁶，一半就是 2⁵ = 32。",
+    "pattern": {
+      "check": "64 是偶数，一半仍是整数。",
+      "family": [
+        "32 × 2 = 64"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "64 是 2⁶，一半就是 2⁵ = 32。"
+      },
+      {
+        "title": "32",
+        "detail": "64 的一半是 32"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-72",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "72 的一半是？",
+    "canonical_answer": "36",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "72 的一半是 36",
+    "hook": "70+2 各半：35+1 = 36。",
+    "pattern": {
+      "check": "先拆再各半，不要整段竖式。",
+      "family": [
+        "36 × 2 = 72"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "70+2 各半：35+1 = 36。"
+      },
+      {
+        "title": "36",
+        "detail": "72 的一半是 36"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-96",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "96 的一半是？",
+    "canonical_answer": "48",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "96 的一半是 48",
+    "hook": "100−4 各半：50−2 = 48。",
+    "pattern": {
+      "check": "靠近 100 时，先借 100 再减。",
+      "family": [
+        "48 × 2 = 96"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "100−4 各半：50−2 = 48。"
+      },
+      {
+        "title": "48",
+        "detail": "96 的一半是 48"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-98",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "98 的一半是？",
+    "canonical_answer": "49",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "98 的一半是 49",
+    "hook": "100−2 各半：50−1 = 49。",
+    "pattern": {
+      "check": "98 的一半不是 50。",
+      "family": [
+        "49 × 2 = 98"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "100−2 各半：50−1 = 49。"
+      },
+      {
+        "title": "49",
+        "detail": "98 的一半是 49"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-52",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "52 的一半是？",
+    "canonical_answer": "26",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "52 的一半是 26",
+    "hook": "40+12 各半：20+6 = 26。",
+    "pattern": {
+      "check": "52 跨过 50，拆开再各半。",
+      "family": [
+        "26 × 2 = 52"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "40+12 各半：20+6 = 26。"
+      },
+      {
+        "title": "26",
+        "detail": "52 的一半是 26"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-54",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "54 的一半是？",
+    "canonical_answer": "27",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "54 的一半是 27",
+    "hook": "50+4 各半：25+2 = 27。",
+    "pattern": {
+      "check": "个位 4 的一半是 2，不是 4。",
+      "family": [
+        "27 × 2 = 54"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "50+4 各半：25+2 = 27。"
+      },
+      {
+        "title": "27",
+        "detail": "54 的一半是 27"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-62",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "62 的一半是？",
+    "canonical_answer": "31",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "62 的一半是 31",
+    "hook": "60+2 各半：30+1 = 31。",
+    "pattern": {
+      "check": "62 的一半不是 30。",
+      "family": [
+        "31 × 2 = 62"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "60+2 各半：30+1 = 31。"
+      },
+      {
+        "title": "31",
+        "detail": "62 的一半是 31"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-78",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "78 的一半是？",
+    "canonical_answer": "39",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "78 的一半是 39",
+    "hook": "80−2 各半：40−1 = 39。",
+    "pattern": {
+      "check": "先借 80，再把少掉的 2 折半。",
+      "family": [
+        "39 × 2 = 78"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "80−2 各半：40−1 = 39。"
+      },
+      {
+        "title": "39",
+        "detail": "78 的一半是 39"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-86",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "86 的一半是？",
+    "canonical_answer": "43",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "86 的一半是 43",
+    "hook": "80+6 各半：40+3 = 43。",
+    "pattern": {
+      "check": "86 不是 80 加 10。6 的一半是 3。",
+      "family": [
+        "43 × 2 = 86"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "80+6 各半：40+3 = 43。"
+      },
+      {
+        "title": "43",
+        "detail": "86 的一半是 43"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-94",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "94 的一半是？",
+    "canonical_answer": "47",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "94 的一半是 47",
+    "hook": "100−6 各半：50−3 = 47。",
+    "pattern": {
+      "check": "94 比 100 少 6，一半少 3。",
+      "family": [
+        "47 × 2 = 94"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "100−6 各半：50−3 = 47。"
+      },
+      {
+        "title": "47",
+        "detail": "94 的一半是 47"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-38",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "38 的一半是？",
+    "canonical_answer": "19",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "38 的一半是 19",
+    "hook": "40−2 各半：20−1 = 19。",
+    "pattern": {
+      "check": "38 的一半不是 18，也不是 20。",
+      "family": [
+        "19 × 2 = 38"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "40−2 各半：20−1 = 19。"
+      },
+      {
+        "title": "19",
+        "detail": "38 的一半是 19"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-46",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "46 的一半是？",
+    "canonical_answer": "23",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "46 的一半是 23",
+    "hook": "40+6 各半：20+3 = 23。",
+    "pattern": {
+      "check": "跨十时不要把 46 拆成 40 和 16。",
+      "family": [
+        "23 × 2 = 46"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "40+6 各半：20+3 = 23。"
+      },
+      {
+        "title": "23",
+        "detail": "46 的一半是 23"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-58",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "58 的一半是？",
+    "canonical_answer": "29",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "58 的一半是 29",
+    "hook": "60−2 各半：30−1 = 29。",
+    "pattern": {
+      "check": "58 比 60 少 2，一半少 1。",
+      "family": [
+        "29 × 2 = 58"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "60−2 各半：30−1 = 29。"
+      },
+      {
+        "title": "29",
+        "detail": "58 的一半是 29"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "half-74",
+    "domain": "halves",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "74 的一半是？",
+    "canonical_answer": "37",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "74 的一半是 37",
+    "hook": "80−6 各半：40−3 = 37。",
+    "pattern": {
+      "check": "74 的一半不是 36，也不是 38。",
+      "family": [
+        "37 × 2 = 74"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "80−6 各半：40−3 = 37。"
+      },
+      {
+        "title": "37",
+        "detail": "74 的一半是 37"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-55",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "55 + ? = 100",
+    "canonical_answer": "45",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "55 和 45 凑成 100",
+    "hook": "对半开：50+50 两边各让 5。",
+    "pattern": {
+      "check": "55 + 45 = 100。十位不要也按 10 去凑。",
+      "family": [
+        "45 和 55 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "对半开：50+50 两边各让 5。"
+      },
+      {
+        "title": "45",
+        "detail": "55 和 45 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-89",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "reasonableness",
+    "prompt": "89 + ? = 100",
+    "canonical_answer": "11",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "89 和 11 凑成 100",
+    "hook": "89 离 100 只差 11。",
+    "pattern": {
+      "check": "89 + 11 = 100。",
+      "family": [
+        "11 和 89 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "89 离 100 只差 11。"
+      },
+      {
+        "title": "11",
+        "detail": "89 和 11 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-95",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "reasonableness",
+    "prompt": "95 + ? = 100",
+    "canonical_answer": "5",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "95 和 5 凑成 100",
+    "hook": "95 离 100 只差 5。",
+    "pattern": {
+      "check": "95 + 5 = 100。",
+      "family": [
+        "5 和 95 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "95 离 100 只差 5。"
+      },
+      {
+        "title": "5",
+        "detail": "95 和 5 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-13",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "13 + ? = 100",
+    "canonical_answer": "87",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "13 和 87 凑成 100",
+    "hook": "个位凑 10（3→7），十位凑 9（1→8）。",
+    "pattern": {
+      "check": "13 + 87 = 100。十位凑 10 会得到 97，那是错的。",
+      "family": [
+        "87 和 13 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（3→7），十位凑 9（1→8）。"
+      },
+      {
+        "title": "87",
+        "detail": "13 和 87 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-27",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "27 + ? = 100",
+    "canonical_answer": "73",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "27 和 73 凑成 100",
+    "hook": "个位凑 10（7→3），十位凑 9（2→7）。",
+    "pattern": {
+      "check": "27 + 73 = 100。",
+      "family": [
+        "73 和 27 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（7→3），十位凑 9（2→7）。"
+      },
+      {
+        "title": "73",
+        "detail": "27 和 73 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-48",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "48 + ? = 100",
+    "canonical_answer": "52",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "48 和 52 凑成 100",
+    "hook": "个位凑 10（8→2），十位凑 9（4→5）。",
+    "pattern": {
+      "check": "48 + 52 = 100。",
+      "family": [
+        "52 和 48 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（8→2），十位凑 9（4→5）。"
+      },
+      {
+        "title": "52",
+        "detail": "48 和 52 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-64",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "64 + ? = 100",
+    "canonical_answer": "36",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "64 和 36 凑成 100",
+    "hook": "个位凑 10（4→6），十位凑 9（6→3）。",
+    "pattern": {
+      "check": "64 + 36 = 100。",
+      "family": [
+        "36 和 64 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（4→6），十位凑 9（6→3）。"
+      },
+      {
+        "title": "36",
+        "detail": "64 和 36 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-68",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "68 + ? = 100",
+    "canonical_answer": "32",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "68 和 32 凑成 100",
+    "hook": "个位凑 10（8→2），十位凑 9（6→3）。",
+    "pattern": {
+      "check": "68 + 32 = 100。",
+      "family": [
+        "32 和 68 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（8→2），十位凑 9（6→3）。"
+      },
+      {
+        "title": "32",
+        "detail": "68 和 32 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-37",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "37 + ? = 100",
+    "canonical_answer": "63",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "37 和 63 凑成 100",
+    "hook": "个位凑 10（7→3），十位凑 9（3→6）。",
+    "pattern": {
+      "check": "37 + 63 = 100。十位也凑 10 会得到 73。",
+      "family": [
+        "63 和 37 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（7→3），十位凑 9（3→6）。"
+      },
+      {
+        "title": "63",
+        "detail": "37 和 63 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-42",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "42 + ? = 100",
+    "canonical_answer": "58",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "42 和 58 凑成 100",
+    "hook": "个位凑 10（2→8），十位凑 9（4→5）。",
+    "pattern": {
+      "check": "42 + 58 = 100。",
+      "family": [
+        "58 和 42 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（2→8），十位凑 9（4→5）。"
+      },
+      {
+        "title": "58",
+        "detail": "42 和 58 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-76",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "76 + ? = 100",
+    "canonical_answer": "24",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "76 和 24 凑成 100",
+    "hook": "个位凑 10（6→4），十位凑 9（7→2）。",
+    "pattern": {
+      "check": "76 + 24 = 100。",
+      "family": [
+        "24 和 76 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（6→4），十位凑 9（7→2）。"
+      },
+      {
+        "title": "24",
+        "detail": "76 和 24 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "comp-83",
+    "domain": "complements",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "83 + ? = 100",
+    "canonical_answer": "17",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "83 和 17 凑成 100",
+    "hook": "个位凑 10（3→7），十位凑 9（8→1）。",
+    "pattern": {
+      "check": "83 + 17 = 100。",
+      "family": [
+        "17 和 83 也凑成 100"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "个位凑 10（3→7），十位凑 9（8→1）。"
+      },
+      {
+        "title": "17",
+        "detail": "83 和 17 凑成 100"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-2",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "anchor",
+    "prompt": "2³ = ?",
+    "canonical_answer": "8",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2³ = 8",
+    "hook": "2×2×2，小九九老朋友。",
+    "pattern": {
+      "check": "2³ 就是 2 乘三次，不是 2×3。",
+      "family": [
+        "2 × 2 × 2 = 8"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "2×2×2，小九九老朋友。"
+      },
+      {
+        "title": "8",
+        "detail": "2³ = 8"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-3",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "3³ = ?",
+    "canonical_answer": "27",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "3³ = 27",
+    "hook": "先平方再三倍：9×3。",
+    "pattern": {
+      "check": "3³ = 3² × 3，不是 3×3。",
+      "family": [
+        "3² = 9"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "先平方再三倍：9×3。"
+      },
+      {
+        "title": "27",
+        "detail": "3³ = 27"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-5",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "relation_network",
+    "prompt": "5³ = ?",
+    "canonical_answer": "125",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "5³ = 125",
+    "hook": "25×5；125 是 1/8 家族老朋友。",
+    "pattern": {
+      "check": "5³ = 5² × 5。不要和 5×3 混淆。",
+      "family": [
+        "5² = 25",
+        "1/8 = 0.125"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "25×5；125 是 1/8 家族老朋友。"
+      },
+      {
+        "title": "125",
+        "detail": "5³ = 125"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-4",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "4³ = ?",
+    "canonical_answer": "64",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "4³ = 64",
+    "hook": "16×4；64 也是 8²、2⁶。",
+    "pattern": {
+      "check": "4³ = 4² × 4。",
+      "family": [
+        "4² = 16",
+        "8² = 64",
+        "2⁶ = 64"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "16×4；64 也是 8²、2⁶。"
+      },
+      {
+        "title": "64",
+        "detail": "4³ = 64"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-6",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "structure",
+    "prompt": "6³ = ?",
+    "canonical_answer": "216",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "6³ = 216",
+    "hook": "36×6 = 216。",
+    "pattern": {
+      "check": "6³ = 6² × 6。",
+      "family": [
+        "6² = 36"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "36×6 = 216。"
+      },
+      {
+        "title": "216",
+        "detail": "6³ = 216"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-8",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "8³ = ?",
+    "canonical_answer": "512",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "8³ = 512",
+    "hook": "64×8；512 也是 2⁹。",
+    "pattern": {
+      "check": "8³ = 8² × 8。",
+      "family": [
+        "8² = 64",
+        "2⁹ = 512"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "64×8；512 也是 2⁹。"
+      },
+      {
+        "title": "512",
+        "detail": "8³ = 512"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-7",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "7³ = ?",
+    "canonical_answer": "343",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "7³ = 343",
+    "hook": "49×7 = 343，诚实锚点。",
+    "pattern": {
+      "check": "7³ = 7² × 7。343 不是 7×7。",
+      "family": [
+        "7² = 49"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "49×7 = 343，诚实锚点。"
+      },
+      {
+        "title": "343",
+        "detail": "7³ = 343"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "cube-9",
+    "domain": "cubes",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "9³ = ?",
+    "canonical_answer": "729",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "9³ = 729",
+    "hook": "81×9 = 729，诚实锚点。",
+    "pattern": {
+      "check": "9³ = 9² × 9。729 不是 9×9。",
+      "family": [
+        "9² = 81"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "81×9 = 729，诚实锚点。"
+      },
+      {
+        "title": "729",
+        "detail": "9³ = 729"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-2-5",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "structure",
+    "prompt": "2⁵ = ?",
+    "canonical_answer": "32",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2⁵ = 32",
+    "hook": "翻倍链：16 再翻倍。",
+    "pattern": {
+      "check": "2⁵ = 2⁴ × 2，不是 2×5。",
+      "family": [
+        "2⁴ = 16"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "翻倍链：16 再翻倍。"
+      },
+      {
+        "title": "32",
+        "detail": "2⁵ = 32"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-2-6",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "relation_network",
+    "prompt": "2⁶ = ?",
+    "canonical_answer": "64",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2⁶ = 64",
+    "hook": "32 翻倍；也是 8²、4³。",
+    "pattern": {
+      "check": "2⁶ = 64。这和 4³ = 64 是同值不同题。",
+      "family": [
+        "2⁵ = 32",
+        "8² = 64",
+        "4³ = 64"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "32 翻倍；也是 8²、4³。"
+      },
+      {
+        "title": "64",
+        "detail": "2⁶ = 64"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-2-7",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "2⁷ = ?",
+    "canonical_answer": "128",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2⁷ = 128",
+    "hook": "64 翻倍；也是 16×8。",
+    "pattern": {
+      "check": "2⁷ = 128，不是 2×7。",
+      "family": [
+        "2⁶ = 64",
+        "16 × 8 = 128"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "64 翻倍；也是 16×8。"
+      },
+      {
+        "title": "128",
+        "detail": "2⁷ = 128"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-2-8",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "2⁸ = ?",
+    "canonical_answer": "256",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2⁸ = 256",
+    "hook": "128 翻倍；也是 16²。",
+    "pattern": {
+      "check": "2⁸ = 256。这和 16² = 256 是同值不同题。",
+      "family": [
+        "2⁷ = 128",
+        "16² = 256"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "128 翻倍；也是 16²。"
+      },
+      {
+        "title": "256",
+        "detail": "2⁸ = 256"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-3-4",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "3⁴ = ?",
+    "canonical_answer": "81",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "3⁴ = 81",
+    "hook": "3² 再平方：9² = 81。",
+    "pattern": {
+      "check": "3⁴ = (3²)²。这和 9² = 81 是同值不同题。",
+      "family": [
+        "3² = 9",
+        "9² = 81"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "3² 再平方：9² = 81。"
+      },
+      {
+        "title": "81",
+        "detail": "3⁴ = 81"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-5-4",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "5⁴ = ?",
+    "canonical_answer": "625",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "5⁴ = 625",
+    "hook": "25² = 625，平方域老朋友。",
+    "pattern": {
+      "check": "5⁴ = (5²)²。这和 25² = 625 是同值不同题。",
+      "family": [
+        "5² = 25",
+        "25² = 625"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "25² = 625，平方域老朋友。"
+      },
+      {
+        "title": "625",
+        "detail": "5⁴ = 625"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-2-9",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "relation_network",
+    "prompt": "2⁹ = ?",
+    "canonical_answer": "512",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2⁹ = 512",
+    "hook": "256 翻倍；也是 8³。",
+    "pattern": {
+      "check": "2⁹ = 512。这和 8³ = 512 是同值不同题。",
+      "family": [
+        "2⁸ = 256",
+        "8³ = 512"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "256 翻倍；也是 8³。"
+      },
+      {
+        "title": "512",
+        "detail": "2⁹ = 512"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-2-10",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "2¹⁰ = ?",
+    "canonical_answer": "1024",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "2¹⁰ = 1024",
+    "hook": "512 翻倍；约等于一千，估算锚点。",
+    "pattern": {
+      "check": "2¹⁰ = 1024，不是 1000，也不是 2×10。",
+      "family": [
+        "2⁹ = 512"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "512 翻倍；约等于一千，估算锚点。"
+      },
+      {
+        "title": "1024",
+        "detail": "2¹⁰ = 1024"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "pow-3-5",
+    "domain": "powers",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "retrieval_anchor",
+    "prompt": "3⁵ = ?",
+    "canonical_answer": "243",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "3⁵ = 243",
+    "hook": "81×3 = 243，诚实锚点。",
+    "pattern": {
+      "check": "3⁵ = 3⁴ × 3。243 不是 3×5。",
+      "family": [
+        "3⁴ = 81"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "81×3 = 243，诚实锚点。"
+      },
+      {
+        "title": "243",
+        "detail": "3⁵ = 243"
+      }
+    ],
+    "families": [],
+    "entry_after": null
+  },
+  {
+    "id": "sp-25-4",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "anchor",
+    "prompt": "25 × 4 = ?",
+    "canonical_answer": "100",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "25 × 4 = 100",
+    "hook": "四个 25 是一百。",
+    "pattern": {
+      "check": "25 × 4 = 100，不是 250。",
+      "family": [
+        "×25 = ×100 ÷ 4"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "四个 25 是一百。"
+      },
+      {
+        "title": "100",
+        "detail": "25 × 4 = 100"
+      }
+    ],
+    "families": [
+      {
+        "id": "f25",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-125-8",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "relation_network",
+    "prompt": "125 × 8 = ?",
+    "canonical_answer": "1000",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "125 × 8 = 1000",
+    "hook": "八个 125 是一千；1/8 = 0.125 的老朋友。",
+    "pattern": {
+      "check": "125 × 8 = 1000。",
+      "family": [
+        "1/8 = 0.125",
+        "×125 = ×1000 ÷ 8"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "八个 125 是一千；1/8 = 0.125 的老朋友。"
+      },
+      {
+        "title": "1000",
+        "detail": "125 × 8 = 1000"
+      }
+    ],
+    "families": [
+      {
+        "id": "f125",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-25-2",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 1,
+    "hook_type": "anchor",
+    "prompt": "25 × 2 = ?",
+    "canonical_answer": "50",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "25 × 2 = 50",
+    "hook": "25 翻倍是 50。",
+    "pattern": {
+      "check": "25 × 2 = 50。",
+      "family": [
+        "50 ÷ 2 = 25"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "25 翻倍是 50。"
+      },
+      {
+        "title": "50",
+        "detail": "25 × 2 = 50"
+      }
+    ],
+    "families": [
+      {
+        "id": "f25",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-25-3",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "relation_network",
+    "prompt": "25 × 3 = ?",
+    "canonical_answer": "75",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "25 × 3 = 75",
+    "hook": "75 就是 3/4（0.75）。",
+    "pattern": {
+      "check": "25 × 3 = 75。",
+      "family": [
+        "3/4 = 0.75"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "75 就是 3/4（0.75）。"
+      },
+      {
+        "title": "75",
+        "detail": "25 × 3 = 75"
+      }
+    ],
+    "families": [
+      {
+        "id": "f25",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-25-8",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "transformation",
+    "prompt": "25 × 8 = ?",
+    "canonical_answer": "200",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "25 × 8 = 200",
+    "hook": "×25 = ×100÷4：800÷4。",
+    "pattern": {
+      "check": "25 × 8 = 200，不是 2000。",
+      "family": [
+        "8 × 100 = 800",
+        "800 ÷ 4 = 200"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "×25 = ×100÷4：800÷4。"
+      },
+      {
+        "title": "200",
+        "detail": "25 × 8 = 200"
+      }
+    ],
+    "families": [
+      {
+        "id": "f25",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-125-2",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "anchor",
+    "prompt": "125 × 2 = ?",
+    "canonical_answer": "250",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "125 × 2 = 250",
+    "hook": "125 翻倍是 250。",
+    "pattern": {
+      "check": "125 × 2 = 250。",
+      "family": [
+        "250 ÷ 2 = 125"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "125 翻倍是 250。"
+      },
+      {
+        "title": "250",
+        "detail": "125 × 2 = 250"
+      }
+    ],
+    "families": [
+      {
+        "id": "f125",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-125-4",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 2,
+    "hook_type": "transformation",
+    "prompt": "125 × 4 = ?",
+    "canonical_answer": "500",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "125 × 4 = 500",
+    "hook": "×125 = ×1000÷8：4000÷8。",
+    "pattern": {
+      "check": "125 × 4 = 500。不要和 125 × 8 混淆。",
+      "family": [
+        "4 × 1000 = 4000",
+        "4000 ÷ 8 = 500"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "×125 = ×1000÷8：4000÷8。"
+      },
+      {
+        "title": "500",
+        "detail": "125 × 4 = 500"
+      }
+    ],
+    "families": [
+      {
+        "id": "f125",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
+  },
+  {
+    "id": "sp-25-6",
+    "domain": "special_products",
+    "level": "core_recall",
+    "tier": 3,
+    "hook_type": "structure",
+    "prompt": "25 × 6 = ?",
+    "canonical_answer": "150",
+    "answer_type": "integer",
+    "direction": "forward",
+    "relation": "25 × 6 = 150",
+    "hook": "25×2 的三倍：50×3 = 150。",
+    "pattern": {
+      "check": "25 × 6 = 150。",
+      "family": [
+        "25 × 2 = 50",
+        "50 × 3 = 150"
+      ]
+    },
+    "frames": [
+      {
+        "title": "这一步",
+        "detail": "25×2 的三倍：50×3 = 150。"
+      },
+      {
+        "title": "150",
+        "detail": "25 × 6 = 150"
+      }
+    ],
+    "families": [
+      {
+        "id": "f25",
+        "type": "scaling",
+        "role": "member"
+      }
+    ],
+    "entry_after": null
   }
 ];

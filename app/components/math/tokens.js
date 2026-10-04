@@ -7,13 +7,15 @@
  *   { type: "text", text }
  *   { type: "fraction", numerator, denominator, label }   3/4
  *   { type: "repeating", intPart, digits, label }         0.(142857)
+ *   { type: "blank_fraction", label }                     ?/?  (an empty bar)
  *       digits: [{ ch, dot }] — a dot over the first and the last digit of
  *       the block (one digit: a dot over it). No brackets are shown.
  */
 
 // Same pattern as h5/math-text.js MATH_TOKEN: 0.(6), 0.(142857), a single
-// letter block such as 0.(n) in a pattern line, and n/d with 1–3 digits.
-const MATH_TOKEN = /(\d+)\.\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})/g;
+// letter block such as 0.(n) in a pattern line, n/d with 1–3 digits, and the
+// empty fraction 「?/?」 of a fraction_fields prompt (never shown as text).
+const MATH_TOKEN = /(\d+)\.\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})|(\?\/\?)/g;
 
 /** Screen-reader text, e.g. "0.6，6 循环" (h5/math-text.js repeatingLabel). */
 export function repeatingLabel(intPart, block) {
@@ -36,7 +38,9 @@ export function mathTokens(value) {
   let last = 0;
   for (const match of text.matchAll(MATH_TOKEN)) {
     if (match.index > last) tokens.push({ type: "text", text: text.slice(last, match.index) });
-    if (match[1] !== undefined) {
+    if (match[5] !== undefined) {
+      tokens.push({ type: "blank_fraction", label: "分数" });
+    } else if (match[1] !== undefined) {
       tokens.push(repeatingToken(match[1], match[2]));
     } else {
       tokens.push({ type: "fraction", numerator: match[3], denominator: match[4], label: `${match[3]}/${match[4]}` });
@@ -55,25 +59,46 @@ export function mathLabel(value) {
 }
 
 /**
- * What the answer box shows (h5/app.js answerHtml): the typed digits; a
- * textbook fraction once 「n/d」 is complete; for a repeating decimal the
- * fixed 「0.」 and the dotted block the student types (or an empty slot).
- *   { kind: "plain", text } | { kind: "fraction", numerator, denominator }
- *   | { kind: "repeating", intPart, token | null }
+ * What the answer box shows (h5/app.js answerHtml): the typed digits; for a
+ * repeating decimal the fixed 「0.」 and the dotted block the student types
+ * (or an empty slot). A fraction_fields item has no single answer box: it
+ * uses the shared numerator / denominator boxes (FractionFields).
+ *   { kind: "plain", text } | { kind: "repeating", intPart, token | null }
  */
 export function answerDisplay(item, answer) {
   if (item?.repeatingBlock) {
     const intPart = (/^(\d+)\.\(/.exec(item.canonical_answer || "") || [])[1] || "0";
     return { kind: "repeating", intPart, token: answer ? repeatingToken(intPart, answer) : null };
   }
-  if (item?.needsSlash) {
-    const match = /^(\d+)\/(\d+)$/.exec(answer);
-    if (match) return { kind: "fraction", numerator: match[1], denominator: match[2] };
-  }
   return { kind: "plain", text: answer };
 }
 
-/** A worded prompt (「0.125 是哪个分数？」) rather than a bare relation (「11/20 = ?」). */
+/** A worded prompt (Chinese characters) rather than a bare relation (「11/20 = ?」). */
 export function hasWords(value) {
   return /[\u3400-\u9fff]/.test(String(value ?? ""));
+}
+
+// ---- lists and paper (h5/math-text.js listPromptHtml / printPromptHtml) ----
+
+const BLANK_MARK = "?/?";
+
+/**
+ * A prompt in a list (progress, mistake book, print picker): the prompt only.
+ * 「1/8 = ?」 → 「1/8」 (drawn with a bar); a fraction_fields 「0.125 = ?/?」
+ * stays whole, so it reads 0.125 = an empty fraction bar. Never 「?/?」 as text.
+ */
+export function listPromptText(prompt) {
+  const text = String(prompt ?? "");
+  return text.includes(BLANK_MARK) ? text : text.replace(" = ?", "");
+}
+
+/**
+ * A4 question page: 「1/8 = 」 followed by a writing line; a fraction_fields
+ * prompt is 0.125 = an empty fraction bar, and the bar itself is the blank.
+ * @returns {{ text: string, line: boolean }}
+ */
+export function printPrompt(prompt) {
+  const text = String(prompt ?? "");
+  if (text.includes(BLANK_MARK)) return { text, line: false };
+  return { text: text.replace(" = ?", " = "), line: true };
 }

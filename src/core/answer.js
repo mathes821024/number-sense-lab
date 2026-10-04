@@ -71,6 +71,23 @@ export function parseFraction(raw) {
   return { numerator, denominator, text: `${numerator}/${denominator}` };
 }
 
+/**
+ * fraction_fields: the numerator box and the denominator box become ONE
+ * judging string 「numerator/denominator」, read by integer value (01 → 1).
+ * Either box empty, not a positive integer, or a zero denominator → "" —
+ * no judging string, so no attempt (docs/curriculum/09 §5).
+ * @param {string} numerator
+ * @param {string} denominator
+ * @returns {string}
+ */
+export function composeFractionFields(numerator, denominator) {
+  const n = String(numerator ?? "").trim();
+  const d = String(denominator ?? "").trim();
+  if (!/^\d+$/.test(n) || !/^\d+$/.test(d)) return "";
+  const parsed = parseFraction(`${n}/${d}`);
+  return parsed ? parsed.text : "";
+}
+
 /** "0.(142857)" → "142857"; null when not a repeating canonical form. */
 export function repeatingBlockOf(canonical) {
   const match = /^0\.\((\d+)\)$/.exec(String(canonical ?? "").trim());
@@ -129,7 +146,7 @@ export function judgeAnswer(item, raw) {
 
 function judgeRaw(item, raw) {
   const text = String(raw ?? "").trim();
-  if (item.answer_type === "fraction") return judgeFraction(item, text);
+  if (item.answer_type === "fraction_fields") return judgeFraction(item, text);
   if (item.answer_type === "decimal_repeating") return judgeRepeating(item, text);
 
   const answerType =

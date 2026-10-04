@@ -7,7 +7,7 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { formatMath, repeatingHtml } from "../h5/math-text.js";
+import { formatMath, repeatingHtml, BLANK_FRACTION_HTML } from "../h5/math-text.js";
 import { mathTokens, mathLabel, answerDisplay, repeatingToken } from "../app/components/math/tokens.js";
 import { createTrainingFlow, CORRECT_PAUSE_MS, appendKey, extraKeyFor, resolveInputMode } from "../app/pages/train/flow.js";
 import { homeMode, homeView } from "../app/pages/home/model.js";
@@ -19,6 +19,7 @@ import { loadCoreCatalog, getRelationById, isEntryUnlocked } from "../src/core/c
 import { getActiveLearner, withActiveLearner, emptyState } from "../src/core/store.js";
 import { startSession } from "../src/core/session.js";
 import { MASTERY } from "../src/core/mastery.js";
+import { setPositionLabel } from "../src/core/progress-label.js";
 
 const catalog = loadCoreCatalog();
 const DAY = "2026-10-01";
@@ -34,6 +35,7 @@ function tokensAsH5Html(value) {
   return mathTokens(value)
     .map((t) => {
       if (t.type === "text") return esc(t.text);
+      if (t.type === "blank_fraction") return BLANK_FRACTION_HTML;
       if (t.type === "fraction")
         return `<span class="frac" aria-label="${t.numerator}/${t.denominator}"><span class="num">${t.numerator}</span><span class="den">${t.denominator}</span></span>`;
       const inner = t.digits.map((d) => (d.dot ? `<span class="rd">${esc(d.ch)}</span>` : esc(d.ch))).join("");
@@ -42,7 +44,7 @@ function tokensAsH5Html(value) {
     .join("");
 }
 
-test("math: every student-facing string in the 122 items reads exactly as h5/ formatMath", () => {
+test("math: every student-facing string in the 173 items reads exactly as h5/ formatMath", () => {
   let checked = 0;
   for (const item of catalog) {
     const texts = [item.prompt, item.relation, item.hook, item.canonical_answer, item.pattern?.check, ...(item.pattern?.family || [])];
@@ -52,7 +54,7 @@ test("math: every student-facing string in the 122 items reads exactly as h5/ fo
       checked += 1;
     }
   }
-  assert.equal(catalog.length, 122);
+  assert.equal(catalog.length, 173);
   assert.ok(checked > 600, `checked ${checked} strings`);
 });
 
@@ -60,6 +62,15 @@ test("math: fraction tokens carry a bar (numerator over denominator), stored tex
   const t = mathTokens("3/4 = ?");
   assert.deepEqual(t[0], { type: "fraction", numerator: "3", denominator: "4", label: "3/4" });
   assert.equal(mathLabel("1/8 = 0.125"), "1/8 = 0.125");
+});
+
+test("math: a fraction_fields prompt 「0.125 = ?/?」 reads as 0.125 = an empty fraction bar, never 「?/?」", () => {
+  const t = mathTokens("0.125 = ?/?");
+  assert.deepEqual(t, [{ type: "text", text: "0.125 = " }, { type: "blank_fraction", label: "分数" }]);
+  const html = formatMath("0.125 = ?/?");
+  assert.equal(html, `0.125 = ${BLANK_FRACTION_HTML}`);
+  assert.equal(html.includes("?"), false);
+  assert.match(BLANK_FRACTION_HTML, /class="frac frac-blank"[^>]*><span class="num"><\/span><span class="den"><\/span>/);
 });
 
 test("math: repeating decimals dot the first and last digit, no brackets shown", () => {
@@ -72,10 +83,8 @@ test("math: repeating decimals dot the first and last digit, no brackets shown",
   assert.equal(mathTokens("0.(142857)").some((t) => t.type === "text" && /[()]/.test(t.text)), false);
 });
 
-test("answer box: plain digits, a fraction once n/d is complete, 0.( dotted block ) for repeating", () => {
+test("answer box: plain digits, 0.( dotted block ) for repeating; fractions have no single answer box", () => {
   assert.deepEqual(answerDisplay(byId("square-6"), "36"), { kind: "plain", text: "36" });
-  assert.deepEqual(answerDisplay(byId("ifraction-1-2"), "1/"), { kind: "plain", text: "1/" });
-  assert.deepEqual(answerDisplay(byId("ifraction-1-2"), "1/2"), { kind: "fraction", numerator: "1", denominator: "2" });
   assert.deepEqual(answerDisplay(byId("fraction-1-3"), ""), { kind: "repeating", intPart: "0", token: null });
   const rep = answerDisplay(byId("fraction-1-3"), "3");
   assert.deepEqual(rep.token, repeatingToken("0", "3"));
@@ -87,25 +96,23 @@ test("answer box: plain digits, a fraction once n/d is complete, 0.( dotted bloc
 
 // ---------- input rules (h5/app.js appendDigit) ----------
 
-test("input: integer takes digits only (max 8); decimal takes one 「.」; fraction takes one 「/」", () => {
+test("input: integer takes digits only (max 8); decimal takes one 「.」; no answer type takes 「/」", () => {
   const int = byId("square-6");
   const dec = byId("fraction-1-2");
   const frac = byId("ifraction-1-2");
   const rep = byId("fraction-1-3");
   assert.equal(extraKeyFor(int), null);
   assert.equal(extraKeyFor(dec), ".");
-  assert.equal(extraKeyFor(frac), "/");
+  assert.equal(extraKeyFor(frac), null, "fraction_fields: no 「/」 key");
   assert.equal(extraKeyFor(rep), null, "repeating: no new key");
   assert.equal(appendKey("3", ".", int), null);
   assert.equal(appendKey("3", "/", int), null);
   assert.equal(appendKey("12345678", "9", int), null);
   assert.equal(appendKey("0", ".", dec), "0.");
   assert.equal(appendKey("0.5", ".", dec), null);
-  assert.equal(appendKey("1", "/", frac), "1/");
-  assert.equal(appendKey("1/", "/", frac), null);
-  assert.equal(appendKey("1/2", ".", frac), null);
-  assert.equal(appendKey("1234567/", "8", frac), "1234567/8");
-  assert.equal(appendKey("1234567/8", "9", frac), null);
+  assert.equal(appendKey("0.5", "/", dec), null);
+  assert.equal(appendKey("1", "/", frac), null);
+  assert.equal(appendKey("1", ".", frac), null);
   assert.deepEqual(resolveInputMode(new Set(["physical_keyboard", "onscreen_keypad"])), { inputMode: "onscreen_keypad", mixedInput: true });
   assert.deepEqual(resolveInputMode(new Set(["physical_keyboard"])), { inputMode: "physical_keyboard", mixedInput: false });
 });
@@ -137,22 +144,33 @@ function flowOver(ids, { relations = {}, store } = {}) {
   return { flow, store: base };
 }
 
-const typeAll = (flow, text, mode) => [...text].forEach((ch) => flow.input(ch, mode));
+/** Type an answer as a student would. A fraction_fields 「n/d」 is: numerator box, tap the denominator box, denominator. */
+const typeAll = (flow, text, mode) => {
+  if (flow.view().item?.fractionFields && text.includes("/")) {
+    const [n, d] = text.split("/");
+    flow.focus("numerator");
+    [...n].forEach((ch) => flow.input(ch, mode));
+    flow.focus("denominator");
+    [...d].forEach((ch) => flow.input(ch, mode));
+    return;
+  }
+  [...text].forEach((ch) => flow.input(ch, mode));
+};
 const answerFor = (item) => (item.answer_type === "decimal_repeating" ? item.canonical_answer.replace(/^\d+\.\((\d+)\)$/, "$1") : item.canonical_answer);
 
 test("pause length is inside the 400–700ms contract", () => {
   assert.ok(CORRECT_PAUSE_MS >= 400 && CORRECT_PAUSE_MS <= 700);
 });
 
-test("training: 1 / 10, empty submit → 先写一个数 (no record), fraction → 先写一个分数", () => {
+test("training: 第 1 题 · 共 10 题, empty submit → 先写一个数 (no record), fraction → 先写一个分数", () => {
   const { store } = memStore();
   const flow = createTrainingFlow({ store, catalog, today: () => DAY });
   flow.begin("daily", null);
   const v = flow.view();
   assert.equal(v.screen, "train");
-  assert.equal(`${v.position} / ${v.total}`, "1 / 10");
+  assert.equal(setPositionLabel(v.position, v.total), "第 1 题 · 共 10 题");
   assert.equal(flow.submit(), "nudge");
-  assert.equal(flow.view().nudge, v.item.answer_type === "fraction" ? "先写一个分数" : "先写一个数");
+  assert.equal(flow.view().nudge, v.item.answer_type === "fraction_fields" ? "先写一个分数" : "先写一个数");
   assert.equal(flow.view().screen, "train");
   assert.equal(flow.state.relations[v.item.id], undefined, "nothing recorded");
   const f = flowOver(["ifraction-1-2"]).flow;
@@ -199,7 +217,7 @@ test("wrong: relation + hook, input locked, no retry, reappearance planned, next
 test("needs_simplification: no record, sticky hint until resubmit, then the simplest form is correct", () => {
   const { flow } = flowOver(["ifraction-1-2", "square-6"]);
   typeAll(flow, "2/4");
-  assert.equal(flow.view().answer, "2/4");
+  assert.deepEqual(flow.view().fields, { numerator: "2", denominator: "4", focus: "denominator" });
   assert.equal(flow.submit(), "nudge");
   const v = flow.view();
   assert.equal(v.screen, "train");
@@ -207,8 +225,12 @@ test("needs_simplification: no record, sticky hint until resubmit, then the simp
   assert.equal(v.nudgeSticky, true);
   assert.equal(flow.state.relations["ifraction-1-2"], undefined, "zero records");
   assert.equal(flow.session.answered, 0);
+  // The boxes stay editable: clear the denominator, then the numerator.
   flow.erase();
   flow.erase();
+  assert.equal(flow.view().fields.denominator, "");
+  assert.equal(flow.view().fields.focus, "denominator", "an empty box keeps the focus");
+  flow.focus("numerator");
   flow.erase();
   assert.equal(flow.view().nudge, "2/4 和 1/2 一样大，再约到最简：1/2。", "hint stays while editing");
   typeAll(flow, "1/2");
@@ -233,9 +255,9 @@ test("decimal and repeating answers go through core judging", () => {
 test("inverse relation (decimal → fraction) is a fraction answer with its own record", () => {
   const item = byId("ifraction-1-4");
   assert.equal(item.direction, "inverse");
-  assert.equal(item.answer_type, "fraction");
+  assert.equal(item.answer_type, "fraction_fields");
   const { flow } = flowOver(["ifraction-1-4"]);
-  assert.equal(flow.view().extraKey, "/");
+  assert.equal(flow.view().extraKey, null, "no 「/」 key");
   typeAll(flow, "1/4");
   assert.equal(flow.submit(), "correct");
   assert.ok(flow.state.relations["ifraction-1-4"]);
@@ -300,7 +322,10 @@ test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-se
   const learner = getActiveLearner(store.read());
   assert.equal(homeMode(learner, DAY), "paused");
   assert.equal(homeView(learner, DAY).cta.label, "继续刚才的练习");
-  assert.equal(homeView(learner, DAY).secondary.label, "重新开始一小段");
+  assert.equal(homeView(learner, DAY).lede, "刚才练到一半，继续就好。");
+  assert.deepEqual(homeView(learner, DAY).ledeLines, ["刚才练到一半，", "继续就好。"], "two fixed lede lines");
+  assert.equal(homeView(learner, DAY).ledeLines.join(""), homeView(learner, DAY).lede);
+  assert.equal(homeView(learner, DAY).secondary, null, "one clear action on the resume hero");
   const again = createTrainingFlow({ store, catalog, today: () => DAY });
   again.resume();
   assert.equal(again.view().position, 2);
@@ -320,6 +345,25 @@ test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-se
   assert.equal(end.result.total, 2);
   assert.equal(getActiveLearner(store.read()).activeSession, null);
   assert.equal(homeMode(getActiveLearner(store.read()), DAY), "default", "an early stop is not 'done'");
+});
+
+test("restart from the pause screen (重新开始一小段, moved from Home) uses the same flow.restart", () => {
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog, today: () => DAY, clock: () => 1 });
+  flow.begin("daily", null);
+  const first = flow.session.id;
+  typeAll(flow, answerFor(flow.view().item));
+  flow.submit();
+  flow.advance();
+  assert.equal(flow.pause(), true);
+  flow.restart("daily", null);
+  assert.equal(flow.view().screen, "train");
+  assert.equal(flow.view().position, 1);
+  assert.equal(flow.session.answered, 0);
+  assert.ok(first, "a set was running before the restart");
+  const learner = getActiveLearner(store.read());
+  assert.equal(learner.sessions.length, 0, "the dropped set is not summarised (same as Home's restart was)");
+  assert.equal(Object.keys(learner.relations).length, 1, "the answered attempt stays");
 });
 
 test("restart (重新开始一小段) drops the unfinished set and starts a new one", () => {

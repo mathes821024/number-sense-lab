@@ -2,7 +2,10 @@
 // miniprogram-automator: Home → Training → Correct (auto next) → Wrong
 // (relation, 下一题) → pause / stop / end → Home, fraction / needs_simplification /
 // repeating / decimal input, a full set of 10, v1 → v3 migration in wx storage,
-// and write protection (bad JSON, future version). Screenshots of each screen.
+// write protection (bad JSON, future version), and the migrated pages: 错题本
+// (grouped by domain) → 印到纸上 (selector → A4 preview; no print button in the
+// Mini Program), 最近练得怎么样, and 专项练习 (every domain → a focused set from
+// that domain only). Screenshots of each screen.
 //
 // Needs WeChat DevTools (logged in, 设置 → 安全设置 → 服务端口 on) and
 // miniprogram-automator, which is not a project dependency:
@@ -27,6 +30,17 @@ mkdirSync(SHOTS, { recursive: true });
 const { loadCoreCatalog } = await import(`${REPO}/src/core/content.js`);
 const { VIEWPORT_CASES, seededRaw } = await import(`${REPO}/scripts/viewport-cases.mjs`);
 const { startSession } = await import(`${REPO}/src/core/session.js`);
+const { DOMAIN_ORDER } = await import(`${REPO}/src/core/content.js`);
+const { pagesSeed } = await import(`${REPO}/scripts/pages-seed.mjs`);
+const LABELS = ["平方", "常用乘积", "分数到小数", "半数与翻倍", "补数", "立方", "常见幂", "凑整乘积家族"];
+// docs/ux/05_specialist_grouped_grid.md §2: heading, tint, cards in reading order.
+const GRID_GROUPS = [
+  ["幂与乘方", "sky", ["平方", "立方", "常见幂"]],
+  ["乘法与凑整", "amber", ["常用乘积", "凑整乘积家族"]],
+  ["数与分数", "mint", ["分数到小数", "半数与翻倍", "补数"]],
+];
+const GRID_ORDER = GRID_GROUPS.flatMap(([, , cards]) => cards);
+const STATUS_WORDS = ["还没怎么练", "正在熟悉", "有几题要再巩固", "大多已经很稳"];
 const catalog = loadCoreCatalog();
 const byId = new Map(catalog.map((i) => [i.id, i]));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -154,7 +168,22 @@ async function key(page, label) {
   for (const k of await page.$$(".key")) if ((await k.text()).trim() === label) return k;
   throw new Error(`no key ${label}`);
 }
-async function press(page, text) { for (const ch of text) { await (await key(page, ch)).tap(); await sleep(250); } }
+/** On-screen keys. In a fraction_fields answer 「/」 or 「|」 means "tap the denominator box" (there is no 「/」 key). */
+async function press(page, text) {
+  for (const ch of text) {
+    if (ch === "/" || ch === "|") await (await page.$(".ff-denominator")).tap();
+    else await (await key(page, ch)).tap();
+    await sleep(250);
+  }
+}
+async function fieldsOf(page) {
+  const ff = await page.$(".fraction-fields");
+  if (!ff) return null;
+  const n = await page.$(".ff-numerator");
+  const d = await page.$(".ff-denominator");
+  const focus = /\bis-focus\b/.test((await n.attribute("class")) || "") ? "numerator" : /\bis-focus\b/.test((await d.attribute("class")) || "") ? "denominator" : null;
+  return { focus, n: (await n.text()).trim(), d: (await d.text()).trim() };
+}
 async function tapText(page, sel, label) {
   for (const b of await page.$$(sel)) if ((await b.text()).includes(label)) { await b.tap(); return; }
   throw new Error(`no ${sel} 「${label}」`);
@@ -203,20 +232,27 @@ await step("1 Home", async () => {
   check(!imgs.some((s) => /\.(webp|svg)$/.test(s || "")), "no webp / svg");
   check(!(await has(page, ".logo .theme-img")), "logo slot empty in the Mini Program");
   await shot("01-home");
+  // 专项练习 is a page now (no longer 敬请期待).
   await tapText(page, ".entry", "专项练习");
-  await sleep(300);
-  const toast = await textOf(page, ".toast");
-  check(toast === "专项练习 · 敬请期待", `toast ${toast}`);
-  await shot("01b-home-soon");
-  return `${page.path}; 「${title}」; CTA 「${cta}」/${sub}; cards ${cards.join("/")}; nav ${nav.join("/")} (首页 on); mascot ${imgs.find((s) => /mascot/.test(s))}; no logo image (word mark only); 专项练习 → 「${toast}」`;
+  await sleep(1500);
+  const ex = await mp.currentPage();
+  check(ex.path === "pages/explore/index", `专项练习 → ${ex.path}`);
+  const domains = (await ex.$$(".practice-name")).length;
+  check(domains === 8, `domains ${domains}`);
+  await shot("01b-home-explore");
+  page = await freshHome();
+  return `${page.path}; 「${title}」; CTA 「${cta}」/${sub}; cards ${cards.join("/")}; nav ${nav.join("/")} (首页 on); mascot ${imgs.find((s) => /mascot/.test(s))}; no logo image (word mark only); 专项练习 → ${ex.path} (${domains} domain cards)`;
 });
 
 let first;
+let homeFold = null;
+let ledeLayout = null;
+let endClear = "";
 await step("2 Home → Training (FOCUS)", async () => {
   await sleep(1900);
   page = await startFromHome(page);
   check(page.path === "pages/train/index", `path ${page.path}`);
-  check((await count(page)) === "1 / 10", `count ${await count(page)}`);
+  check((await count(page)) === "第 1 题 · 共 10 题", `count ${await count(page)}`);
   check(!(await has(page, ".tabbar")) && !(await has(page, ".mascot")) && !(await has(page, ".page-decor")), "focus: no nav / mascot / decor");
   const label = await textOf(page, ".practice-label");
   const root = JSON.parse(await stored());
@@ -228,7 +264,7 @@ await step("2 Home → Training (FOCUS)", async () => {
   check(nudge === "先写一个数", `nudge ${nudge}`);
   check((await learner()).relations[first.id] === undefined, "empty submit stored nothing");
   await shot("02-training");
-  return `${page.path} (query ${JSON.stringify(page.query)}); 「1 / 10」, 「${label}」, no nav / mascot / decor; wx storage version 3; empty 提交 → 「${nudge}」, nothing stored`;
+  return `${page.path} (query ${JSON.stringify(page.query)}); 「第 1 题 · 共 10 题」, 「${label}」, no nav / mascot / decor; wx storage version 3; empty 提交 → 「${nudge}」, nothing stored`;
 });
 
 await step("3 Correct → auto next", async () => {
@@ -241,14 +277,14 @@ await step("3 Correct → auto next", async () => {
   const keys = (await page.$$(".key")).length;
   const imgs = await Promise.all((await page.$$(".theme-img")).map((e) => e.attribute("src")));
   await shot("03-correct");
-  await waitCount(page, "2 / 10");
+  await waitCount(page, "第 2 题 · 共 10 题");
   const ms = Date.now() - t0;
   const att = (await learner()).relations[first.id].attempts.at(-1);
   check(title === "太棒了！" && word === "对" && keys === 0 && !(await has(page, ".tabbar")), `correct ${title} ${word} keys ${keys}`);
   check(imgs.some((s) => /mascot-correct-512.*\.png$/.test(s || "")), `mascot ${imgs}`);
   check(ms >= 600 && ms < 2000, `advanced after ${ms}ms`);
   check(att.correct === true && att.inputMode === "onscreen_keypad", JSON.stringify(att));
-  return `${first.id} 「${blockOf(first)}」 → 「${title}」 「${word}」, correct mascot PNG, no keypad / nav / button; 2 / 10 after ${ms}ms with no tap (700ms + automation polling); wx attempt correct, onscreen_keypad`;
+  return `${first.id} 「${blockOf(first)}」 → 「${title}」 「${word}」, correct mascot PNG, no keypad / nav / button; 「第 2 题 · 共 10 题」 after ${ms}ms with no tap (700ms + automation polling); wx attempt correct, onscreen_keypad`;
 });
 
 await step("4 Wrong → 下一题", async () => {
@@ -278,10 +314,10 @@ await step("4 Wrong → 下一题", async () => {
   check(l.relations[item.id].attempts.at(-1).correct === false, "wrong stored");
   check(Object.keys(l.activeSession.reappearPlan || {}).includes(item.id), "reappearance planned");
   await tapText(page, ".screen-wrong .cta", "下一题");
-  await waitCount(page, "3 / 10");
+  await waitCount(page, "第 3 题 · 共 10 题");
   const next = await currentItem();
   check(next.id !== item.id, "different item");
-  return `${item.id} typed 「${wrongFor(item)}」 → stays >1.3s on 「${w.eq}」; 小提示 / 看这里 / 看看这个规律 / 看看这几步; thinking mascot PNG; no keypad / nav / retry; pattern expands; wx: wrong attempt + reappearPlan; 下一题 → 3 / 10 (${next.id})`;
+  return `${item.id} typed 「${wrongFor(item)}」 → stays >1.3s on 「${w.eq}」; 小提示 / 看这里 / 看看这个规律 / 看看这几步; thinking mascot PNG; no keypad / nav / retry; pattern expands; wx: wrong attempt + reappearPlan; 下一题 → 「第 3 题 · 共 10 题」 (${next.id})`;
 });
 
 await step("5 Pause → 继续做 / 先停 → end → Home", async () => {
@@ -289,6 +325,8 @@ await step("5 Pause → 继续做 / 先停 → end → Home", async () => {
   await tapText(page, ".pill-quiet", "先停一下");
   await waitFor(page, ".screen-pause");
   const ask = await textOf(page, ".ask");
+  const restartHere = await textOf(page, ".pause-restart");
+  check(restartHere === "重新开始一小段", `pause restart ${restartHere}`);
   await shot("05-pause");
   await tapText(page, ".screen-pause .cta", "继续做");
   await waitFor(page, ".screen-train");
@@ -341,21 +379,81 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   await boot(JSON.stringify(seededRoot(["ifraction-1-2", "fraction-1-3", "fraction-1-2", "fraction-1-7"])));
   page = await freshHome();
   const h = { t: await textOf(page, ".bubble-title"), cta: await textOf(page, ".home-cta .entry-name"), sec: await textOf(page, ".home-secondary") };
-  check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && h.sec === "重新开始一小段", JSON.stringify(h));
+  check(h.t === "还有一小段" && h.cta === "继续刚才的练习" && !h.sec, JSON.stringify(h));
+  // Resume lede: exactly two lines 「刚才练到一半，」 / 「继续就好。」, each a single rendered line inside the bubble.
+  const ledeLines = [];
+  for (const l of await page.$$(".bubble-line")) {
+    const o = await l.offset();
+    const s = await l.size();
+    ledeLines.push({ text: (await l.text()).trim(), top: Math.round(o.top), left: Math.round(o.left), w: Math.round(s.width), h: Math.round(s.height) });
+  }
+  const bubble = { o: await (await page.$(".bubble")).offset(), s: await (await page.$(".bubble")).size() };
+  const bubbleRight = Math.round(bubble.o.left + bubble.s.width);
+  check(
+    ledeLines.length === 2 && ledeLines[0].text === "刚才练到一半，" && ledeLines[1].text === "继续就好。" &&
+      ledeLines.every((l) => l.h > 0 && l.h <= 26 && l.left + l.w <= bubbleRight - 8) && ledeLines[1].top > ledeLines[0].top,
+    `resume lede lines ${JSON.stringify(ledeLines)} bubble right ${bubbleRight}`,
+  );
+  ledeLayout = { lines: ledeLines, bubbleRight };
+  // Above the fold on the 390×753 window: the resume hero and all four cards, fully.
+  const sysH = (await mp.systemInfo()).windowHeight;
+  const nav = await (await page.$(".tabbar")).offset();
+  const fold = [];
+  for (const e of await page.$$(".entry")) {
+    const o = await e.offset();
+    const s = await e.size();
+    fold.push({ name: (await (await e.$(".entry-name")).text()).trim(), top: Math.round(o.top), bottom: Math.round(o.top + s.height) });
+  }
+  const navTop = Math.round(nav.top);
+  const vis = (n) => fold.find((f) => f.name === n);
+  check(vis("继续刚才的练习").bottom <= navTop && vis("专项练习").bottom <= navTop && vis("错题本").bottom <= navTop, `fold ${JSON.stringify(fold)} nav ${navTop}`);
+  check(vis("最近练得怎么样").bottom <= navTop, `最近练得怎么样 not fully above the nav ${JSON.stringify(vis("最近练得怎么样"))}`);
+  homeFold = { window: sysH, navTop, cards: fold, progressFull: vis("最近练得怎么样").bottom <= navTop };
+  await shot("07-home-resume");
   page = await startFromHome(page, "继续刚才的练习");
-  check((await currentItem()).id === "ifraction-1-2" && (await count(page)) === "2 / 5", "resumed at item 2");
-  await press(page, "2/4");
-  const den = await textOf(page, ".answer-frac .den");
-  check(den === "4", `answer fraction den ${den}`);
+  check((await currentItem()).id === "ifraction-1-2" && (await count(page)) === "第 2 题 · 共 5 题", "resumed at item 2");
+  for (const k of await page.$$(".key")) check((await k.text()).trim() !== "/", "no 「/」 key");
+  let ff = await fieldsOf(page);
+  check(ff && ff.focus === "numerator" && ff.n === "" && ff.d === "", `fields ${JSON.stringify(ff)}`);
+  check((await textOf(page, ".question-fields .question")) === "0.5 =", "stem 0.5 =");
+  await shot("10a-fraction-fields-empty");
+  await tapText(page, ".key", "提交");
+  await sleep(300);
+  check((await textOf(page, ".nudge")) === "先写一个分数", "empty → 先写一个分数");
+  await press(page, "1|0");
+  await tapText(page, ".key", "提交");
+  await sleep(300);
+  check((await textOf(page, ".nudge")) === "先写一个分数", "1 over 0 → 先写一个分数");
+  check((await learner()).relations["ifraction-1-2"] === undefined, "empty / zero stored nothing");
+  await tapText(page, ".key", "删除");
+  await sleep(200);
+  await tapText(page, ".key", "删除");
+  await sleep(200);
+  ff = await fieldsOf(page);
+  check(ff.focus === "denominator" && ff.d === "" && ff.n === "1", `backspace stays ${JSON.stringify(ff)}`);
+  await (await page.$(".ff-numerator")).tap();
+  await sleep(200);
+  await tapText(page, ".key", "删除");
+  await sleep(200);
+  await press(page, "02|04");
+  ff = await fieldsOf(page);
+  check(ff.n === "2" && ff.d === "4", `typed 02 over 04 shows 2 over 4 ${JSON.stringify(ff)}`);
+  await shot("10b-typed-02-04-shows-2-4");
   await tapText(page, ".key", "提交");
   await sleep(400);
   const nudge = await textOf(page, ".nudge");
   const nudgeFracs = (await page.$$(".nudge .frac")).length;
   check(nudge === "24 和 12 一样大，再约到最简：12。" && nudgeFracs === 3, `nudge ${nudge} fracs ${nudgeFracs}`); // text() joins each fraction's numerator and denominator
   check((await learner()).relations["ifraction-1-2"] === undefined, "needs_simplification stored nothing");
+  ff = await fieldsOf(page);
+  check(ff.n === "2" && ff.d === "4", `no auto-simplify ${JSON.stringify(ff)}`);
   await shot("10-needs-simplification");
-  for (let i = 0; i < 3; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
-  await press(page, "1/2");
+  for (let i = 0; i < 2; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
+  await press(page, "2");
+  await (await page.$(".ff-numerator")).tap();
+  await sleep(200);
+  for (let i = 0; i < 2; i++) { await tapText(page, ".key", "删除"); await sleep(200); }
+  await press(page, "01");
   await tapText(page, ".key", "提交");
   await waitFor(page, ".screen-correct");
   await waitFor(page, ".screen-train");
@@ -379,7 +477,26 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
   await waitFor(page, ".screen-correct");
   const l = await learner();
   check(l.relations["ifraction-1-2"].attempts.length === 1 && l.relations["fraction-1-3"].attempts[0].correct && l.relations["fraction-1-2"].attempts[0].correct, "recorded once each");
-  return `seeded v3 paused set → 「还有一小段」/继续刚才的练习 → 2 / 5; 2/4 drawn as a fraction → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (${nudgeFracs} drawn fractions, 0 records) → 1/2 ✓; 0.( slot ) → 3 dotted (.rd) → correct relation 「1/3 = 0.3̇」 with no brackets ✓; 「.5」 ✓`;
+  return `seeded v3 paused set → 「还有一小段」/继续刚才的练习 → 「第 2 题 · 共 5 题」; 0.5 = [分子]/[分母] (no 「/」 key) → empty and 1 over 0 → 「先写一个分数」 (0 records); typed 02 over 04 shows 2 over 4 → 「2/4 和 1/2 一样大，再约到最简：1/2。」 (${nudgeFracs} drawn fractions, 0 records) → 01 over 02 ✓; 0.( slot ) → 3 dotted (.rd) → correct relation 「1/3 = 0.3̇」 with no brackets ✓; 「.5」 ✓`;
+});
+
+await step("7b Complements: 「37 + ? = 100」", async () => {
+  await boot(JSON.stringify(seededRoot(["comp-37"])));
+  page = await freshHome();
+  page = await startFromHome(page, "继续刚才的练习");
+  check((await currentItem()).id === "comp-37", "comp-37 on screen");
+  const q = await textOf(page, ".question");
+  const c = await count(page);
+  check(q === "37 + ? = 100", `prompt 「${q}」`);
+  check(c === "第 2 题 · 共 2 题" && !/\//.test(c), `count 「${c}」`);
+  await press(page, "63");
+  await shot("13a-complement-37");
+  await tapText(page, ".key", "提交");
+  await waitFor(page, ".screen-correct");
+  const rel = await textOf(page, ".correct-eq");
+  await shot("13b-complement-37-correct");
+  check(rel === "37 和 63 凑成 100", `relation ${rel}`);
+  return `「${q}」, 「${c}」 → 63 → correct 「${rel}」`;
 });
 
 await step("8 v1 → v2 → v3 migration in wx storage", async () => {
@@ -454,16 +571,206 @@ for (const c of VIEWPORT_CASES) {
   });
 }
 
+// ---- migrated pages: 错题本 / 印到纸上 / 最近练得怎么样 / 专项练习 ---------------
+const seedP = pagesSeed(catalog);
+const RAWP = JSON.stringify(seedP.root);
+const rowTexts = async (p, sel) => Promise.all((await p.$$(sel)).map(async (e) => (await e.text()).replace(/\s+/g, " ").trim()));
+async function relaunch(path) {
+  await mp.reLaunch(path);
+  await sleep(1500);
+  return mp.currentPage();
+}
+
+await step("11 错题本 → 印到纸上 (selector → A4 preview, no print button)", async () => {
+  await boot(RAWP);
+  page = await relaunch("/pages/mistakes/index");
+  check(page.path === "pages/mistakes/index", `path ${page.path}`);
+  const groups = await rowTexts(page, ".group-label");
+  check(groups.join("/") === LABELS.join("/"), `groups ${groups}`);
+  const rows = await rowTexts(page, ".mistake-group .list-row");
+  check(rows.length === seedP.mistakes.length, `rows ${rows.length}`);
+  // No slash fraction and no 「?/?」 in any row (a complement's own 「55 + ? = 100」 is the prompt itself).
+  check(!rows.some((t) => /\//.test(t)), `a slash in a row: ${rows.find((t) => /\//.test(t))}`);
+  const fb = await page.$(".mistake-group .frac-blank");
+  check(fb, "fraction_fields row has the empty bar");
+  const num = await (await fb.$(".num")).offset();
+  const den = await (await fb.$(".den")).offset();
+  check(num.top < den.top && Math.abs(num.left - den.left) < 3, `stacked ${JSON.stringify(num)} ${JSON.stringify(den)}`);
+  check(!(await has(page, ".badge")) && (await has(page, ".tabbar")), "nav, no badges");
+  check((await textOf(page, ".tab.is-on .tab-label")) === "错题本", "nav 错题本 on");
+  await shot("20-mistakes");
+  await tapText(page, ".cta", "印这些题");
+  await sleep(1500);
+  page = await mp.currentPage();
+  check(page.path === "pages/print/index", `print path ${page.path}`);
+  const cnt = await textOf(page, ".pick-count");
+  check(cnt === `已选 ${seedP.mistakes.length} 题`, `count ${cnt}`);
+  check((await page.$$(".pick")).length === seedP.mistakes.length && (await has(page, ".tabbar")), "rows + nav");
+  await shot("21-print-select");
+  await tapText(page, ".cta", "预览题目");
+  await sleep(800);
+  const items = (await page.$$(".sheet-item")).length;
+  check(items === seedP.mistakes.length, `sheet items ${items}`);
+  const buttons = await rowTexts(page, ".cta");
+  check(!buttons.some((t) => /打印/.test(t)), `no print button in the Mini Program: ${buttons}`);
+  const note = await textOf(page, ".print-note");
+  check(/^小程序里不能直接打印/.test(note || ""), `note ${note}`);
+  check(await has(page, ".sheet .frac-blank"), "A4 fraction_fields drawn as a bar");
+  await shot("22-a4-preview");
+  await tapText(page, ".cta", "答案单独一页");
+  await sleep(600);
+  check((await page.$$(".sheet-answers .sheet-item")).length === items && !(await has(page, ".sheet-list .blank")), "answers separate");
+  await shot("23-a4-answers");
+  return `groups ${groups.join("/")}; ${rows.length} rows, 0.5 = stacked empty bar, no slash; 印这些题 → 「${cnt}」 → A4 preview ${items} items, buttons ${buttons.join("/")}, note 「${note}」; answers on their own page`;
+});
+
+await step("12 最近练得怎么样 → 选题打印", async () => {
+  page = await relaunch("/pages/home/index");
+  await tapText(page, ".entry", "最近练得怎么样");
+  await sleep(1500);
+  page = await mp.currentPage();
+  check(page.path === "pages/progress/index", `path ${page.path}`);
+  const sessions = await rowTexts(page, ".sessions .list-row");
+  check(sessions.length === 2 && /先停了/.test(sessions[0]) && /做完了/.test(sessions[1]), `sessions ${sessions}`);
+  const outcomes = (await page.$$(".outcomes .list-row")).length;
+  check(outcomes === seedP.practiced, `outcomes ${outcomes}`);
+  check(await has(page, ".tabbar"), "nav");
+  await shot("24-progress");
+  await tapText(page, ".cta", "选题打印");
+  await sleep(1500);
+  page = await mp.currentPage();
+  const cnt = await textOf(page, ".pick-count");
+  check(page.path === "pages/print/index" && cnt === `已选 ${seedP.mistakes.length} 题`, `print from progress ${page.path} ${cnt}`);
+  return `${sessions.join(" | ")}; ${outcomes} outcomes; 选题打印 → ${page.path} 「${cnt}」`;
+});
+
+await step("13 viewing pages leaves the record untouched", async () => {
+  const raw = await stored();
+  check(raw === RAWP, "stored record changed");
+  return "nsl-v01-state byte-identical after 错题本 / 印到纸上 / 最近练得怎么样";
+});
+
+await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zones, 2 columns, every tile its F-B PNG → its own domain only", async () => {
+  page = await relaunch("/pages/mistakes/index");
+  await tapText(page, ".tab", "练习");
+  await sleep(1500);
+  page = await mp.currentPage();
+  check(page.path === "pages/explore/index", `tab 练习 → ${page.path}`);
+  check((await textOf(page, ".tab.is-on .tab-label")) === "练习", "nav 练习 on");
+  // 05 §2: three light navigation headings, in order, each over its cards.
+  const heads = await rowTexts(page, ".practice-group-title");
+  check(heads.join("/") === GRID_GROUPS.map(([h]) => h).join("/"), `group headings ${heads}`);
+  const groups = await page.$$(".practice-group");
+  check(groups.length === 3, `${groups.length} groups`);
+  const geo = [];
+  const tiles = [];
+  const order = [];
+  for (const [gi, g] of groups.entries()) {
+    const cards = await g.$$(".practice-card");
+    const names = [];
+    const boxes = [];
+    for (const c of cards) {
+      names.push((await (await c.$(".practice-name")).text()).trim());
+      const st = (await (await c.$(".practice-status")).text()).trim();
+      check(STATUS_WORDS.includes(st), `${names[names.length - 1]} status 「${st}」`);
+      const o = await c.offset();
+      const z = await c.size();
+      boxes.push({ left: Math.round(o.left), top: Math.round(o.top), w: Math.round(z.width), h: Math.round(z.height) });
+      // Every tile shows the manifest's F-B PNG for its domain_id (docs/ui/08 §1): a file, never SVG, never empty.
+      const t = await c.$(".tile");
+      const cls = (await t.attribute("class")) || "";
+      const img = await t.$(".theme-img");
+      const src = img ? await img.attribute("src") : "";
+      const glyph = (await t.$(".tile-glyph .icon")) ? (await (await t.$(".tile-glyph .icon")).text()).trim() : "";
+      tiles.push(`${names[names.length - 1]}:${src ? `png:${src.split("/").pop()}` : glyph ? "glyph" : "EMPTY"}:${(cls.match(/tone-(\w+)/) || [])[1] || "notone"}`);
+      const domainId = DOMAIN_ORDER[LABELS.indexOf(names[names.length - 1])];
+      check(/\.png$/.test(src) && src.includes(`/assets/themes/math-lab/specialist/domains/domain-${domainId.replaceAll("_", "-")}`) && !src.includes("concept-design"), `${names[names.length - 1]}: F-B PNG for ${domainId} (${src || glyph || "EMPTY"})`);
+      check(cls.includes(`tone-${GRID_GROUPS[gi][1]}`), `${names[names.length - 1]} tint ${cls}`);
+    }
+    check(names.join("/") === GRID_GROUPS[gi][2].join("/"), `group ${heads[gi]} cards ${names}`);
+    // Two columns: 1st left, 2nd right on the same row; an odd 3rd card sits under the 1st, same width (never stretched).
+    check(boxes[1].left > boxes[0].left + boxes[0].w - 1 && Math.abs(boxes[1].top - boxes[0].top) <= 1, `${heads[gi]} row 1 ${JSON.stringify(boxes)}`);
+    check(Math.abs(boxes[0].w - boxes[1].w) <= 1 && boxes[0].h >= 44 && boxes[0].w >= 44, `${heads[gi]} card size ${JSON.stringify(boxes)}`);
+    if (boxes[2]) check(Math.abs(boxes[2].left - boxes[0].left) <= 1 && Math.abs(boxes[2].w - boxes[0].w) <= 1 && boxes[2].top > boxes[0].top + boxes[0].h - 1, `${heads[gi]} 3rd card ${JSON.stringify(boxes)}`);
+    geo.push(`${heads[gi]} ${boxes.map((x) => `${x.left},${x.top} ${x.w}×${x.h}`).join(" | ")}`);
+    order.push(...names);
+  }
+  check(!tiles.some((t) => t.includes(":EMPTY:")), `tiles ${tiles}`);
+  // F-B header (08 §2): kicker, title, subtitle, tabs, the quiet helper line; the reused welcome mascot.
+  const head = [await textOf(page, ".fb-kicker"), await textOf(page, ".title"), await textOf(page, ".lede"), await textOf(page, ".fb-hint")];
+  check(head.join("/") === "EXPLORE MATH/探索数学世界/从一个主题开始，走更远的路/今天想练哪个？", `header ${head}`);
+  const mascotImg = await page.$(".fb-mascot .fb-mascot-img");
+  const mascotSrc = mascotImg ? await mascotImg.attribute("src") : "";
+  const mascotH = mascotImg ? Math.round((await (await page.$(".fb-mascot")).size()).height) : 0;
+  const headH = Math.round((await (await page.$(".fb-head-text")).size()).height);
+  check(/\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
+  const zones = [];
+  for (const g of groups) zones.push(`${(await g.attribute("class")).match(/tone-(\w+)/)[1]}:${(await (await g.$(".practice-group-en")).text()).trim()}`);
+  check(zones.join("/") === "sky:POWERS/amber:PRODUCTS/mint:NUMBERS", `zones ${zones}`);
+  // 05 §1: no 敬请期待 cards on the practice page; 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图.
+  for (const sel of [".soon-tile", ".soon-chip", ".soon-name", ".section-label"]) check(!(await has(page, sel)), `no ${sel}`);
+  await shot("25-explore");
+  const all = await page.$$(".practice-card");
+  const lastCard = all[all.length - 1];
+  const lastPageBottom = (await lastCard.offset()).top + (await lastCard.size()).height; // at scroll 0: page = viewport coordinates
+  await mp.pageScrollTo(400);
+  await sleep(600);
+  await shot("25b-explore-more");
+  await mp.pageScrollTo(2000);
+  await sleep(600);
+  await shot("25c-explore-end");
+  const winH = (await mp.systemInfo()).windowHeight;
+  const navH = (await (await page.$(".tabbar")).size()).height;
+  const scrollTop = await page.scrollTop();
+  check(scrollTop > 0, `page did not scroll (${scrollTop})`);
+  const lastBottom = Math.round(lastPageBottom - scrollTop);
+  check(lastBottom <= Math.round(winH - navH) + 1, `last card ${lastBottom} under the nav (top ${Math.round(winH - navH)})`);
+  endClear = `${lastBottom} ≤ ${Math.round(winH - navH)}`;
+  await mp.pageScrollTo(0);
+  await sleep(300);
+  // 知识地图 only says 敬请期待 this round: no navigation, and the eight cards are not drawn again.
+  await tapText(page, ".seg", "知识地图");
+  await sleep(400);
+  const note = await textOf(page, ".toast.is-on");
+  const after = await mp.currentPage();
+  check(after.path === "pages/explore/index" && (await after.$$(".practice-card")).length === 8, `知识地图 changed the page (${after.path})`);
+  check(/敬请期待/.test(note || ""), `知识地图 notice 「${note}」`);
+  await shot("25d-knowledge-map-soon");
+  const sets = [];
+  for (const [n, label] of GRID_ORDER.entries()) {
+    const domain = DOMAIN_ORDER[LABELS.indexOf(label)];
+    page = await relaunch("/pages/explore/index");
+    await (await page.$$(".practice-card"))[n].tap();
+    await sleep(700);
+    const t = await textOf(page, ".focus-card .title");
+    check(t === label, `card ${n + 1} → confirm 「${t}」, want 「${label}」`);
+    if (n === 0 || n === 4 || n === 7) await shot(`26-${n + 1}-focus-${domain}`);
+    await tapText(page, ".cta", "开始这一小段");
+    await sleep(1500);
+    const tp = await mp.currentPage();
+    await waitFor(tp, ".screen-train");
+    const s = (await learner()).activeSession;
+    check(s.mode === "focused" && s.domain === domain, `${label}: session ${s.mode}/${s.domain}`);
+    const off = s.queue.filter((id) => byId.get(id).domain !== domain);
+    check(off.length === 0, `${domain} set mixes ${off}`);
+    if (n === 0 || n === 4 || n === 7) await shot(`27-${n + 1}-train-${domain}`);
+    sets.push(`${label} ${s.queue.length}`);
+  }
+  return `headings ${heads.join("/")}; grid ${order.join("/")}; ${geo.join("; ")}; tiles ${tiles.join(",")}; no 敬请期待 cards; 知识地图 → 「${note}」; list end clears the nav (${endClear}); focused sets ${sets.join(", ")} — each from its own domain`;
+});
+
 phase = "teardown";
 hooked.push(...(await appErrors()));
 await mp.callWxMethod("removeStorageSync", KEY);
 await mp.close();
 
 const errorEvents = events.filter((e) => e.src !== "automator.console" || e.type === "error" || e.type === "warn");
-const report = { results: out, viewport: viewportRows, appHookedErrors: hooked, automatorErrorEvents: errorEvents, allConsoleCount: events.length };
+const report = { results: out, homeFold, viewport: viewportRows, appHookedErrors: hooked, automatorErrorEvents: errorEvents, allConsoleCount: events.length };
 writeFileSync(`${SHOTS}/weapp-e2e-events.json`, JSON.stringify({ ...report, allEvents: events }, null, 2));
 console.log(out.join("\n"));
 console.log("\nAPP-HOOKED ERRORS", JSON.stringify(hooked, null, 1));
 console.log("AUTOMATOR ERROR/WARN EVENTS", JSON.stringify(errorEvents, null, 1));
+console.log("HOME FOLD", JSON.stringify(homeFold));
+console.log("RESUME LEDE", JSON.stringify(ledeLayout));
 console.log(`\n${out.length - failed}/${out.length} passed`);
 process.exit(failed ? 1 : 0);

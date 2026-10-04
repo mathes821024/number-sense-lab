@@ -102,7 +102,7 @@ body {
 /* Reduced motion: H5 reads the system preference; the Mini Program has no
    verified signal, so its pages carry .motion-low (things simply appear). */
 @media (prefers-reduced-motion: reduce) {
-  .screen, .math.question, .screen-correct .ok, .screen-correct .hero-spark, .screen-wrong .panel, .answer.tick { animation: none; }
+  .screen, .math.question, .screen-correct .ok, .screen-correct .hero-spark, .screen-wrong .panel, .answer.tick, .fraction-fields.tick { animation: none; }
   .key, .cta, .quiet, .entry { transition: none; }
 }
 .motion-low .screen,
@@ -110,7 +110,8 @@ body {
 .motion-low .ok,
 .motion-low .hero-spark,
 .motion-low .panel,
-.motion-low .answer.tick { animation: none; }
+.motion-low .answer.tick,
+.motion-low .fraction-fields.tick { animation: none; }
 .motion-low .key, .motion-low .cta, .motion-low .quiet, .motion-low .entry { transition: none; }
 
 /* ---------- type ---------- */
@@ -302,6 +303,12 @@ body {
 @media (min-width: 446px) {
   .mascot-hero { width: 196px; }
 }
+/* Resume hero (还有一小段): about 13% smaller, so 专项练习 / 错题本 / 最近练得怎么样 stay above the fold. */
+.home-hero.is-resume { min-height: 150px; margin-top: 12px; }
+.home-hero.is-resume .mascot-hero { width: 144px; }
+@media (min-width: 446px) {
+  .home-hero.is-resume .mascot-hero { width: 170px; }
+}
 .bubble {
   position: relative;
   flex: 1;
@@ -327,6 +334,9 @@ body {
 }
 .bubble-title { display: block; margin: 0; font-size: 18px; font-weight: 800; line-height: 1.3; color: var(--color-brand-text); }
 .bubble-text { display: block; margin: 6px 0 0; font-size: 14px; line-height: 1.55; color: var(--text-secondary); }
+/* The resume lede is two fixed lines (「刚才练到一半，」 / 「继续就好。」): each line is its own block and never wraps inside. */
+.bubble-text .bubble-line { display: block; }
+.bubble-text.is-split .bubble-line { white-space: nowrap; }
 
 /* Four entry cards; 开始练习 is the clear main path (solid brand card). */
 .entries { display: flex; flex-direction: column; margin-top: 16px; }
@@ -387,6 +397,21 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
+
+/* Short-height phones: ≤ 650px of usable height (e.g. iPhone 6/7/8 in WeChat, 603px under the
+   native title bar). Same hierarchy and text sizes, the nav unchanged; only a little vertical
+   room comes back, in this order: mascot, hero spacing, bubble padding, CTA height, card gaps.
+   So the hero and all four Home cards sit above the nav. 390 / 430 phones are not affected. */
+@media (max-height: 650px) {
+  .home-hero { min-height: 140px; margin-top: 8px; }
+  .mascot-hero { width: 136px; }
+  .home-hero.is-resume { min-height: 122px; margin-top: 4px; }
+  .home-hero.is-resume .mascot-hero { width: 118px; }
+  .home .bubble { padding: 10px 14px; }
+  .home .entries { margin-top: 10px; }
+  .home .entry { margin-bottom: 8px; }
+  .home .entry-start { min-height: 68px; padding-top: 10px; padding-bottom: 10px; }
+}
 .device-note { text-align: center; }
 
 /* ---------- Training: FOCUS mode (no mascot, no decoration, no counts) ---------- */
@@ -402,7 +427,7 @@ body {
   font-size: var(--fs-label);
   font-weight: 800;
 }
-/* Calm position in the set: 「2 / 10」 and a still bar. No transition, no timer. */
+/* Calm position in the set: 「第 2 题 · 共 10 题」 and a still bar. No transition, no timer. */
 .set-progress { display: flex; align-items: center; margin-top: 16px; }
 .set-count {
   flex: none;
@@ -465,6 +490,68 @@ body {
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }
+/* fraction_fields: 「0.125 =」, then a numerator box over a bar over a
+   denominator box (docs/curriculum/09 §2). No 「/」 anywhere. */
+.question-fields {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 22px 0 14px;
+}
+.question-fields .math.question { margin: 0 14px 0 0; white-space: nowrap; flex: none; }
+.fraction-fields {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 112px;
+  max-width: 100%;
+}
+.ff-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 58px;
+  padding: 0 8px;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  font-family: var(--font-math);
+  font-size: var(--fs-answer);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.ff-box.is-focus { border-color: var(--color-brand-primary); }
+.ff-digits { white-space: nowrap; }
+/* Sized for the short integers real content uses (1–4 digits: normal size).
+   Unusual long input (the 15-digit technical guard) takes one moderate step
+   down and wraps inside the box — never clipped, never shrunk further. */
+.ff-box.is-long .ff-digits {
+  font-size: 24px;
+  line-height: 1.15;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  text-align: center;
+  padding: 6px 0;
+}
+.ff-caret {
+  width: 2px;
+  height: 0.9em;
+  margin-left: 2px;
+  background: var(--color-brand-primary);
+}
+.ff-bar {
+  height: 4px;
+  margin: 7px 4px;
+  border-radius: 2px;
+  background: var(--text-primary);
+}
+.fraction-fields.tick { animation: tick 0.14s ease; }
 .nudge {
   display: block;
   min-height: 22px;
@@ -526,6 +613,9 @@ body {
   .practice-zone { margin-top: 12px; padding: 14px 16px 12px; }
   .math.question { margin: 12px 0; line-height: 1.25; }
   .answer { min-height: 60px; }
+  .question-fields { margin: 10px 0 6px; }
+  .ff-box { min-height: 50px; }
+  .ff-bar { margin: 5px 4px; }
   .nudge { margin-top: 4px; min-height: 21px; }
   .keys { margin-top: 10px; grid-gap: 8px; gap: 8px; }
   .key { min-height: 50px; }
@@ -540,6 +630,8 @@ body {
   .math.question { margin: 8px 0; }
   .math.question.is-words { font-size: 32px; }
   .answer { min-height: 52px; }
+  .question-fields { margin: 6px 0 4px; }
+  .ff-box { min-height: 46px; }
   .keys { grid-gap: 6px; gap: 6px; }
   .key { min-height: 46px; }
 }
@@ -557,6 +649,8 @@ body {
 }
 .ask { display: block; margin: 0; font-size: var(--fs-title); font-weight: 800; }
 .stay { display: block; margin: 8px 0 0; color: var(--text-secondary); font-size: var(--fs-body); }
+/* Low-priority restart under 继续做 / 先停 (moved here from Home). */
+.pause-restart { justify-content: center; margin-top: 14px; color: var(--color-brand-text); font-size: 15px; font-weight: 700; }
 
 /* ---------- FEEDBACK: correct (short, auto-advances) ---------- */
 .feedback-hero { position: relative; display: flex; justify-content: center; margin-top: 20px; }
@@ -739,10 +833,9 @@ body {
 .question .frac,
 .correct-eq .frac,
 .eq .frac { font-size: 0.62em; }
-/* fraction answers use a textbook bar inside the answer box */
-.answer .answer-frac { font-size: 0.72em; }
-.answer .answer-frac .num,
-.answer .answer-frac .den { min-width: 1.4em; }
+/* the empty fraction of a fraction_fields prompt (mistake book, progress, print) */
+.frac-blank .num,
+.frac-blank .den { min-width: 1.4em; min-height: 0.9em; }
 /* repeating decimal: textbook dots. One digit: a dot above it. Several
    digits: dots above the first and last. The dot is a text glyph. */
 .rep { display: inline; white-space: nowrap; }
@@ -766,3 +859,335 @@ body {
 }
 .answer-repeating .rep { letter-spacing: 0.04em; }
 .nudge .frac { font-size: 0.9em; }
+
+/* ======================================================================
+ * Ordinary pages migrated from h5/: 专项练习, 错题本, 最近练得怎么样, the
+ * shared print selector and the A4 page (h5/styles.css, same values).
+ * ==================================================================== */
+
+/* ---------- type on ordinary pages ---------- */
+.title {
+  display: block;
+  margin: 0;
+  font-weight: 800;
+  font-size: var(--fs-title);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.back + .title, .back + .card, .back + .empty { margin-top: 20px; }
+.section-label, .group-label {
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-label);
+  font-weight: 800;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+.section-label::before, .group-label::before {
+  content: "";
+  width: 12px;
+  height: 4px;
+  flex: none;
+  margin-right: 8px;
+  border-radius: var(--radius-chip);
+  background: var(--color-brand-secondary);
+}
+.section-note { display: block; margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; }
+
+/* Back pill (回首页 / 返回练习 / 回错题本 / 返回选题). */
+.quiet.back {
+  padding: 0 16px 0 12px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-button);
+  background: var(--surface-card);
+  color: var(--text-primary);
+}
+.quiet-pressed { transform: translateY(1px); }
+.back-mark { margin-right: 6px; font-size: 18px; }
+
+/* Secondary CTA with an icon (选题打印 / 印这些题); disabled CTA (预览题目 with nothing chosen). */
+.cta.with-icon .cta-mark { margin-right: 8px; font-size: 20px; }
+.cta.is-disabled {
+  background: var(--color-disabled);
+  color: var(--text-primary);
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* ---------- 练习 / Explore ---------- */
+.segmented {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 4px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-chip);
+  background: var(--surface-card-strong);
+}
+.seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-chip);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.seg + .seg { margin-left: 4px; }
+.seg.is-on { background: var(--color-brand-primary); color: var(--color-brand-primary-ink); }
+/* Future tabs (敬请期待): quieter than the real one, still readable. */
+.seg.seg-soon {
+  flex-direction: column;
+  padding: 2px 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.seg-name { display: block; }
+.seg-note { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
+
+/* 主题训练 as F-B, the warm branded learning panel (docs/ui/08_fb_specialist_visual.md,
+   the F-B VISUAL_TOKENS; h5/styles.css, same values); layout and
+   content per docs/ux/05. Header: kicker, title, subtitle, the existing welcome mascot
+   at one side (≤ 80px, never taller than the title block, no bubble). Three navigation
+   groups, each a light colour zone drawn in CSS (no picture); inside, compact
+   two-column white tiles: the F-B icon on its group chip, the name, one weak status
+   line. A group's odd last tile stays in the left column and is never stretched.
+   Sized so the longest name (凑整乘积家族) and status (有几题要再巩固) stay on one line
+   at 375 (px scale with the width here, so every phone keeps that). */
+.fb-head { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; }
+.fb-head-text { flex: 1; min-width: 0; }
+.fb-kicker { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; line-height: 1.4; color: var(--text-secondary); }
+.fb-head .title { margin-top: 4px; }
+.fb-head .lede { margin-top: 6px; font-size: 13px; line-height: 1.5; }
+.fb-mascot { position: relative; flex: none; width: 74px; height: 74px; margin-top: 2px; margin-left: 8px; }
+.fb-mascot-img { display: block; width: 74px; height: 74px; }
+/* Two small CSS sparkles (no decor picture). */
+.fb-spark { position: absolute; width: 7px; height: 7px; border-radius: 1px; transform: rotate(45deg); opacity: 0.85; }
+.fb-spark-1 { left: -6px; top: 12px; background: var(--color-accent-sun); }
+.fb-spark-2 { right: -2px; bottom: 20px; width: 5px; height: 5px; background: var(--fb-accent-mint); }
+.screen-explore .segmented { margin-top: 14px; }
+/* 「今天想练哪个？」: a quiet helper line, weaker than the group titles (05 §1, 08 §2). */
+.fb-hint { display: block; margin-top: 14px; font-size: 13px; font-weight: 400; line-height: 1.4; color: var(--text-secondary); }
+.practice-groups { margin-top: 10px; }
+.practice-group { margin: 0 -4px; padding: 12px 6px; border-radius: 20px; background: var(--fb-group-bg-mint); }
+.practice-group + .practice-group { margin-top: 20px; }
+.practice-group.tone-sky { background: var(--fb-group-bg-sky); }
+.practice-group.tone-amber { background: var(--fb-group-bg-amber); }
+.practice-group-head { display: flex; flex-direction: row; align-items: center; min-height: 24px; margin: 0 6px 10px; }
+.practice-group-dot { width: 8px; height: 8px; flex: none; margin-right: 8px; border-radius: 50%; background: var(--fb-accent-mint); }
+.tone-sky .practice-group-dot { background: var(--fb-accent-sky); }
+.tone-amber .practice-group-dot { background: var(--fb-accent-amber); }
+.practice-group-title { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
+.practice-group-en { display: block; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 1.3px; line-height: 1.3; color: var(--fb-group-meta-color); }
+.practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-gap: 8px; gap: 8px; }
+.practice-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 76px;
+  padding: 6px 2px 6px 4px;
+  border-radius: 16px;
+  background: var(--fb-tile-bg);
+  box-shadow: var(--fb-tile-shadow);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.practice-card:active, .practice-card-pressed { transform: translateY(1px); }
+.practice-card .tile { margin-right: 6px; }
+.practice-text { display: flex; flex-direction: column; min-width: 0; }
+.practice-name { display: block; font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; color: var(--text-primary); }
+.practice-name.is-long { font-size: 14px; }
+.practice-status { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status-color); }
+/* The icon chip (64px): the group colour at 10%, the F-B picture inside at 56px (VISUAL_TOKENS icon / icon.chip). */
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: 14px;
+  background: var(--fb-chip-mint);
+}
+.tile.tone-sky { background: var(--fb-chip-sky); }
+.tile.tone-amber { background: var(--fb-chip-amber); }
+.tile-art { width: 56px; height: 56px; }
+.tile-art .theme-img { width: 56px; height: 56px; }
+/* Safe fallback: no file, or the file failed to load — the interface glyph, never an empty chip. */
+.tile-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--text-primary);
+  font-size: 28px;
+}
+
+.screen .section-label { margin-top: 26px; }
+
+/* Focused-practice entry: a tinted brand panel, not another white card. */
+.focus-card {
+  border: 0;
+  background: linear-gradient(160deg, var(--surface-card-strong), var(--color-brand-mist));
+}
+.focus-card .tile { margin-bottom: 14px; }
+
+/* ---------- lists (progress / mistake book / print selector) ---------- */
+.list {
+  margin: 12px 0 0;
+  border: 1PX solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 12px 18px;
+  border-bottom: 1PX solid var(--border-subtle);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.list-row:last-child { border-bottom: 0; }
+.row-prompt, .row-text, .pick-text { font-weight: 700; }
+.row-prompt { margin-right: 12px; }
+.meta { flex: none; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+/* Reports read like a ledger — hairline rows on the paper, not stacked cards. */
+.list.ledger { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.list.ledger .list-row { padding: 13px 2px; }
+
+/* Empty states: one sentence and a way back. */
+.empty { display: flex; align-items: center; margin-top: 20px; }
+.empty .lede { margin: 0 0 0 14px; }
+.mascot-empty { width: 78px; }
+
+/* Progress: latest outcome per practiced relation — a word plus a shape. */
+.screen-progress .section-label { margin: 26px 0 0; }
+/* Two columns like a worksheet ledger (screen 7); one column on very narrow phones. */
+.outcomes { display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 20px; column-gap: 20px; }
+@media (max-width: 340px) { .outcomes { grid-template-columns: 1fr; } }
+.outcome {
+  display: flex;
+  align-items: center;
+  flex: none;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-chip);
+  font-size: 13px;
+  font-weight: 800;
+}
+.outcome .om { margin-right: 4px; line-height: 1; }
+.outcome.is-right { background: var(--feedback-correct-tint); color: var(--feedback-correct-ink); }
+.outcome.is-wrong { background: var(--feedback-wrong-tint); color: var(--feedback-wrong-ink); }
+
+/* Mistake Book */
+.mistake-group .group-label { margin: 22px 0 0; }
+.mistake-group .list { margin-top: 8px; }
+.screen-mistakes .segmented { margin-top: 14px; }
+.screen-mistakes .segmented + .lede { margin-top: 14px; }
+/* Two actions side by side: print (secondary) and practice (solid). */
+.action-pair { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; gap: 10px; margin-top: 28px; }
+.action-pair .cta { margin-top: 0; }
+
+/* ---------- filters / chips ---------- */
+.filters { display: flex; flex-wrap: wrap; margin-top: 14px; }
+.chip {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin: 0 8px 8px 0;
+  padding: 0 16px;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-chip);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chip.is-on {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary-ink);
+}
+
+/* ---------- shared print selector ---------- */
+.pick-bar { display: flex; align-items: center; margin: 4px 0 0; }
+.pick-action { min-width: 44px; margin-right: 18px; padding: 0 6px; justify-content: center; color: var(--color-brand-text); }
+.pick-count { margin-left: auto; font-size: var(--fs-label); font-weight: 800; color: var(--text-secondary); }
+.picks .list-row { justify-content: flex-start; padding: 0 16px; cursor: pointer; }
+.pick-box {
+  position: relative;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-right: 12px;
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--surface-card-strong);
+}
+.pick-box.is-on { border-color: var(--color-brand-primary); background: var(--color-brand-primary); }
+.pick-tick {
+  display: none;
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border-right: 2.5px solid var(--color-brand-primary-ink);
+  border-bottom: 2.5px solid var(--color-brand-primary-ink);
+  transform: rotate(45deg);
+}
+.pick-box.is-on .pick-tick { display: block; }
+.pick-text { flex: 1; min-width: 0; margin-right: 12px; }
+.more-picks { margin-top: 10px; color: var(--color-brand-text); }
+.screen-print .cta { margin-top: 24px; }
+
+/* ---------- paper preview: black on white, no theme decoration (app/paper.css) ---------- */
+.sheet {
+  margin-top: 16px;
+  padding: 22px 20px;
+  border: 1PX solid var(--paper-edge);
+  border-radius: 0;
+  background: var(--paper-bg);
+  color: var(--paper-ink);
+  box-shadow: none;
+}
+.sheet-title { display: block; margin: 0; font-size: 22px; font-weight: 800; color: var(--paper-ink); }
+.sheet-sub { display: block; margin: 6px 0 0; font-size: 13px; color: var(--paper-sub); }
+.sheet-list { margin: 12px 0 0; column-count: 2; column-gap: 20px; }
+.sheet-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.8;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.sheet-n { flex: none; margin-right: 0.35em; color: var(--paper-ink); }
+.sheet .frac { font-weight: 600; }
+.sheet .blank {
+  display: inline-block;
+  min-width: 52px;
+  height: 1.2em;
+  margin-left: 6px;
+  border-bottom: 1.5px solid var(--paper-rule);
+}
+/* A4: the empty fraction bar is the blank — room to write above and below it. */
+.sheet .frac-blank { font-size: 1em; margin-left: 0.2em; }
+.sheet .frac-blank .num,
+.sheet .frac-blank .den { min-width: 2.6em; min-height: 1.25em; }

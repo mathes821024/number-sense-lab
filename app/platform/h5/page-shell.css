@@ -11,3 +11,41 @@
     radial-gradient(circle at 88% 92%, var(--surface-warm), transparent 28%);
   background-attachment: fixed;
 }
+
+/*
+ * H5 only: printing the A4 page (h5/styles.css @media print). Taro's router
+ * keeps each page in a fixed, scrolling `.taro_page`; on paper only the page
+ * that shows the sheet is printed, unclipped, with no bottom entries, no
+ * buttons and no theme surface. The Mini Program has no print path.
+ */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  html, body { background: var(--paper-bg) !important; color: var(--paper-ink); }
+  .taro_router > .taro_page { background: var(--paper-bg) !important; background-image: none !important; }
+  .taro_router > .taro_page:not(:has(.screen-a4)) { display: none !important; }
+  .taro_router, .taro_router > .taro_page, .taro_page .taro_page_stationed {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    transform: none !important;
+  }
+  .page, .page.has-nav { min-height: 0; padding: 0 !important; }
+  .stage { width: 100%; max-width: none; padding: 0; }
+  .no-print, .tabbar, .toast { display: none !important; }
+  .screen { animation: none; }
+  .sheet { border: 0; box-shadow: none; border-radius: 0; padding: 0; margin-top: 0; }
+  .sheet-title { font-size: 16pt; }
+  .sheet-sub { font-size: 10pt; }
+  .sheet-list { column-count: 2; column-gap: 10mm; column-fill: auto; }
+  .sheet-item { font-size: 12pt; line-height: 2.2; margin: 0 0 1.5mm; }
+  .sheet .blank { min-width: 18mm; }
+}
+
+/*
+ * H5 only: px stay px in the browser (in the Mini Program they scale with the
+ * screen width), so from 386px wide the long tile name (凑整乘积家族) has room
+ * for the normal 15px again — h5/styles.css, same rule.
+ */
+@media (min-width: 386px) {
+  .practice-name.is-long { font-size: 15px; }
+}

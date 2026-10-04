@@ -13,6 +13,8 @@ import {
 } from "../../platform/current";
 import Keypad from "../../components/Keypad";
 import AnswerBox from "../../components/AnswerBox";
+import FractionFields from "../../components/FractionFields";
+import { promptStem } from "../../../src/core/fraction-fields.js";
 import SetProgress from "../../components/SetProgress";
 import MathText from "../../components/math/MathText";
 import { hasWords } from "../../components/math/tokens.js";
@@ -25,6 +27,9 @@ import Notice from "../../components/Notice";
 import useNotice from "../../components/useNotice";
 import { createTrainingFlow, CORRECT_PAUSE_MS } from "./flow.js";
 import { getRecord } from "../record.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
+import { trainingIntent } from "./intent.js";
+import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
 
 /** FOCUS screens: no bottom entries while the student is answering (02_ux_spec §4). */
 const FOCUS = new Set(["train", "correct", "wrong", "pause"]);
@@ -51,11 +56,16 @@ export default function Train() {
   const interrupted = useRef(false);
 
   useEffect(() => {
-    const intent = params.intent || "start-daily";
-    if (intent === "resume") flow.resume();
-    else if (intent === "restart-daily") flow.restart("daily", null);
-    else if (intent === "see-last") flow.showLast();
-    else flow.begin("daily", null);
+    const intent = trainingIntent(params);
+    if (intent.kind === "resume") flow.resume();
+    else if (intent.kind === "restart") flow.restart(intent.mode, intent.domain);
+    else if (intent.kind === "last") flow.showLast();
+    else flow.begin(intent.mode, intent.domain);
+    // 练这些错题 with no current mistakes starts nothing: back to the Mistake Book (h5/app.js beginSession).
+    if (intent.mode === MISTAKE_BOOK_SOURCE && flow.view().screen === "empty") {
+      navigate.toTab("mistakes");
+      return () => clearTimeout(timer.current);
+    }
     rerender();
     return () => clearTimeout(timer.current);
   }, []);
@@ -89,6 +99,9 @@ export default function Train() {
       bumpTick();
       rerender();
     }
+  };
+  const focusBox = (which) => {
+    if (flow.focus(which)) rerender();
   };
   const erase = (mode = "onscreen_keypad") => {
     if (flow.erase(mode)) {
@@ -134,6 +147,11 @@ export default function Train() {
     flow.stop();
     rerender();
   };
+  /** 重新开始一小段 (pause screen): the flow's existing restart — drop the unfinished set, start a new daily one. */
+  const restart = () => {
+    flow.restart("daily", null);
+    rerender();
+  };
 
   let body = null;
   if (view.screen === "train" && view.item) {
@@ -148,8 +166,17 @@ export default function Train() {
         <SetProgress position={view.position} total={view.total} />
         <View className="practice-zone">
           <Text className="practice-label">看清关系，再写答案</Text>
-          <MathText value={view.item.prompt} className={hasWords(view.item.prompt) ? "question is-words" : "question"} key={view.item.id} />
-          <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
+          {view.fields ? (
+            <View className="question-fields" key={view.item.id}>
+              <MathText value={promptStem(view.item.prompt)} className="question" />
+              <FractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+            </View>
+          ) : (
+            <>
+              <MathText value={view.item.prompt} className={hasWords(view.item.prompt) ? "question is-words" : "question"} key={view.item.id} />
+              <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
+            </>
+          )}
           <View className="nudge" data-testid="nudge">
             {view.nudge ? <MathText value={view.nudge} /> : null}
           </View>
@@ -170,10 +197,10 @@ export default function Train() {
       />
     );
   } else if (view.screen === "pause") {
-    body = <PauseDialog onResume={unpause} onStop={stop} />;
+    body = <PauseDialog onResume={unpause} onStop={stop} onRestart={restart} />;
   } else if (view.screen === "end") {
     body = (
-      <SessionEnd result={view.result} onHome={() => navigate.toHome()} onProgress={() => showSoon("最近练得怎么样")} />
+      <SessionEnd result={view.result} onHome={() => navigate.toHome()} onProgress={() => navigate.toPage("progress")} />
     );
   } else {
     body = (
@@ -190,7 +217,7 @@ export default function Train() {
   return (
     <View
       className={`page${withNav ? " has-nav" : ""} ${motionClass}`}
-      style={{ paddingTop: `calc(16px + ${safeArea.top})`, paddingBottom: withNav ? undefined : `calc(32px + ${safeArea.bottom})` }}
+      style={withNav ? navPageStyle() : { paddingTop: `calc(16px + ${safeArea.top})`, paddingBottom: `calc(32px + ${safeArea.bottom})` }}
     >
       <View className="stage">{body}</View>
       {withNav ? (
@@ -199,7 +226,7 @@ export default function Train() {
           <BottomNav
             active=""
             bottomInset={safeArea.bottom}
-            onTap={(id, label) => (id === "home" ? navigate.toHome() : showSoon(label))}
+            onTap={(id, label) => (id === "home" ? navigate.toHome() : tabHandler("", showSoon)(id, label))}
           />
         </>
       ) : null}

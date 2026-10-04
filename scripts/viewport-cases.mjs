@@ -1,8 +1,15 @@
 // Worst-case Training screens for the viewport checks (H5 Playwright and the
 // WeChat DevTools automator use the same list). Found by scanning content:
 // the longest prompt per answer_type (CJK counts a full em, Latin / digits
-// ~0.6em), plus the tallest states — a fraction answer with the
-// needs_simplification nudge showing, and the longest repeating block.
+// ~0.6em), plus the tallest states — a fraction_fields answer (numerator
+// box over denominator box) with the needs_simplification nudge showing, and
+// the longest repeating block; plus the longest prompt of each v0.4 domain.
+//
+// `type` is the keys to press; in a fraction_fields case 「|」 means "tap the
+// denominator box" (there is no 「/」 key). `legacy` marks the pre-v0.4 cases
+// whose short-screen 提交 position predates this work (known, out of scope);
+// fraction_fields cases are never legacy: docs/curriculum/09 §3 requires 提交
+// on the keypad screen without scrolling.
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession } from "../src/core/session.js";
 
@@ -15,14 +22,28 @@ for (const item of catalog) {
 }
 const repeatingLongest = catalog.filter((i) => i.answer_type === "decimal_repeating").sort((a, b) => b.canonical_answer.length - a.canonical_answer.length)[0];
 export const blockOf = (item) => (item.answer_type === "decimal_repeating" ? item.canonical_answer.replace(/^\d+\.\((\d+)\)$/, "$1") : item.canonical_answer);
-const unsimplified = (item) => { const [n, d] = item.canonical_answer.split("/").map(Number); return `${n * 2}/${d * 2}`; };
+/** Keys for the doubled (not simplest) fraction: numerator, 「|」 = tap the denominator box, denominator. */
+export const unsimplified = (item) => { const [n, d] = item.canonical_answer.split("/").map(Number); return `${n * 2}|${d * 2}`; };
+/** Keys for the simplest fraction in the two boxes. */
+export const fieldKeys = (item) => item.canonical_answer.replace("/", "|");
+const widestFraction = catalog
+  .filter((i) => i.answer_type === "fraction_fields")
+  .sort((a, b) => b.canonical_answer.length - a.canonical_answer.length || width(b.prompt) - width(a.prompt))[0];
 
 /** { name, item, type: keys to press, submit: press 提交 first (shows the nudge) } */
 export const VIEWPORT_CASES = [
-  { name: "integer-longest", item: longest.integer, type: blockOf(longest.integer) },
-  { name: "fraction-longest+nudge", item: longest.fraction, type: unsimplified(longest.fraction), submit: true },
-  { name: "decimal-longest", item: longest.decimal, type: blockOf(longest.decimal) },
-  { name: "repeating-longest", item: repeatingLongest, type: blockOf(repeatingLongest) },
+  { name: "integer-longest", item: longest.integer, type: blockOf(longest.integer), legacy: true },
+  { name: "fraction-fields-longest+nudge", item: longest.fraction_fields, type: unsimplified(longest.fraction_fields), submit: true },
+  { name: "fraction-fields-widest+nudge", item: widestFraction, type: unsimplified(widestFraction), submit: true },
+  { name: "decimal-longest", item: longest.decimal, type: blockOf(longest.decimal), legacy: true },
+  { name: "repeating-longest", item: repeatingLongest, type: blockOf(repeatingLongest), legacy: true },
+  // v0.4: the longest prompt of each new domain (all integer answers).
+  ...["halves", "complements", "cubes", "powers", "special_products"].map((domain) => {
+    const item = catalog
+      .filter((i) => i.domain === domain)
+      .reduce((best, i) => (!best || width(i.prompt) > width(best.prompt) || (width(i.prompt) === width(best.prompt) && i.canonical_answer.length > best.canonical_answer.length) ? i : best), null);
+    return { name: `${domain}-longest`, item, type: item.canonical_answer };
+  }),
 ];
 
 export function today() {

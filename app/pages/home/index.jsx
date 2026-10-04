@@ -10,6 +10,7 @@ import Icon from "../../components/icon/Icon";
 import useNotice from "../../components/useNotice";
 import { homeView, HOME_ENTRIES, DEVICE_NOTE } from "./model.js";
 import { getRecord } from "../record.js";
+import { tabHandler, navPageStyle } from "../tabs.js";
 
 function readLearner(record) {
   return getActiveLearner(record.read());
@@ -44,7 +45,7 @@ export default function Home() {
   );
 
   return (
-    <View className={`page has-nav ${motionClass}`} style={{ paddingTop: `calc(16px + ${safeArea.top})` }}>
+    <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">
         <View className="screen home" data-testid="home">
           <HomeDecor />
@@ -57,12 +58,16 @@ export default function Home() {
               </View>
             </View>
           </View>
-          <View className="home-hero">
+          <View className={`home-hero${view.mode === "paused" ? " is-resume" : ""}`}>
             <Mascot pose="welcome" className="mascot-hero" />
             <View className="bubble">
               <View className="bubble-tail" aria-hidden="true" />
               <Text className="bubble-title">{view.title}</Text>
-              <Text className="bubble-text">{view.lede}</Text>
+              <View className={`bubble-text${view.ledeLines.length > 1 ? " is-split" : ""}`}>
+                {view.ledeLines.map((line, i) => (
+                  <Text key={i} className="bubble-line">{line}</Text>
+                ))}
+              </View>
             </View>
           </View>
           <View className="entries">
@@ -85,13 +90,15 @@ export default function Home() {
                 <Text>{view.secondary.label}</Text>
               </View>
             ) : null}
-            {HOME_ENTRIES.map((e) => entry({ ...e, onTap: () => showSoon(e.label) }))}
+            {HOME_ENTRIES.map((e) =>
+              entry({ ...e, onTap: () => (e.id === "progress" ? navigate.toPage("progress") : navigate.toTab(e.id)) }),
+            )}
           </View>
           <Text className="fine device-note">{DEVICE_NOTE}</Text>
         </View>
       </View>
       <Notice text={notice} />
-      <BottomNav active="home" bottomInset={safeArea.bottom} onTap={(id, label) => (id === "home" ? null : showSoon(label))} />
+      <BottomNav active="home" bottomInset={safeArea.bottom} onTap={tabHandler("home", showSoon)} />
     </View>
   );
 }

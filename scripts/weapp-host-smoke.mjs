@@ -129,6 +129,15 @@ const prompt = () => byClass("question")[0];
 const itemNow = () => { const s = learner().activeSession; const it = byId.get(s.queue[s.cursor]); check(it && byClass("screen-train").length === 1, `item ${s.queue[s.cursor]}`); return it; };
 const blockOf = (item) => (item.answer_type === "decimal_repeating" ? item.canonical_answer.replace(/^\d+\.\((\d+)\)$/, "$1") : item.canonical_answer);
 
+// SMOKE_PART=fraction: a second app launch over a stored set whose next item
+// is ifraction-1-2 (the main run starts it and reports its result).
+const PART = process.env.SMOKE_PART || "main";
+if (PART === "fraction") {
+  const { seededRaw } = await import(join(REPO, "scripts/viewport-cases.mjs"));
+  storage.set("nsl-v01-state", seededRaw("ifraction-1-2"));
+}
+const mainOnly = (name, fn) => (PART === "main" ? step(name, fn) : null);
+
 await step("weapp boot", async () => {
   check(existsSync(join(DIST, "app.json")) && existsSync(join(DIST, "pages/home/index.wxml")) && existsSync(join(DIST, "pages/train/index.wxml")), "dist files");
   loadingRoute = "app";
@@ -139,24 +148,24 @@ await step("weapp boot", async () => {
   openPage("pages/home/index");
   await tick(80);
   const cta = byClass("home-cta")[0];
-  check(cta && text(cta).includes("开始今天的练习"), `home cta ${cta && text(cta)}`);
+  check(cta && text(cta).includes(PART === "fraction" ? "继续刚才的练习" : "开始今天的练习"), `home cta ${cta && text(cta)}`);
   const nav = byClass("tab-label").map(text);
   const img = byClass("theme-img")[0];
   return `App() + Page(home) ran; setData tree shows 「${text(cta)}」; nav ${nav.join("/")}; mascot image node ${JSON.stringify(Object.fromEntries(Object.entries(img || {}).filter(([k]) => k !== "cn")))}`;
 });
 
-await step("Home → Training", async () => {
+await mainOnly("Home → Training", async () => {
   tap(byClass("home-cta")[0]);
   await tick(100);
   check(stack.at(-1).route === "pages/train/index", `route ${stack.at(-1).route}`);
   const count = text(byClass("set-count")[0]);
-  check(count === "1 / 10", `count ${count}`);
+  check(count === "第 1 题 · 共 10 题", `count ${count}`);
   check(byClass("tabbar").length === 0 && byClass("mascot").length === 0, "focus: no nav, no mascot");
   return `navigateTo pages/train/index?intent=start-daily; 「${count}」; prompt 「${text(prompt())}」; no nav/mascot`;
 });
 
 let first;
-await step("Correct (keypad tap → short pause → next)", async () => {
+await mainOnly("Correct (keypad tap → short pause → next)", async () => {
   first = itemNow();
   for (const ch of blockOf(first)) { tap(keyNode(ch)); await tick(5); }
   const shown = text(byClass("answer-box")[0] || byClass("answer-text")[0]);
@@ -167,15 +176,15 @@ await step("Correct (keypad tap → short pause → next)", async () => {
   const t0 = Date.now();
   while (!byClass("set-count")[0] && Date.now() - t0 < 3000) await tick(20);
   const adv = Date.now() - t0;
-  check(text(byClass("set-count")[0]) === "2 / 10", "2 / 10");
+  check(text(byClass("set-count")[0]) === "第 2 题 · 共 10 题", "第 2 题 · 共 10 题");
   check(adv > 550 && adv < 1500, `pause ${adv}ms`);
   const root = JSON.parse(storage.get("nsl-v01-state"));
   check(root.version === 3, `version ${root.version}`);
   check(learner().relations[first.id].attempts[0].correct === true, "stored");
-  return `${first.id} → ${first.canonical_answer}; card 「${text(card)}」; auto-advanced after ~${adv}ms to 2 / 10; wx storage (v3) has the correct attempt; typed 「${shown}」`;
+  return `${first.id} → ${first.canonical_answer}; card 「${text(card)}」; auto-advanced after ~${adv}ms to 「第 2 题 · 共 10 题」; wx storage (v3) has the correct attempt; typed 「${shown}」`;
 });
 
-await step("Wrong (relation stays, 下一题, no retry)", async () => {
+await mainOnly("Wrong (relation stays, 下一题, no retry)", async () => {
   const item = itemNow();
   const typed = item.canonical_answer === "1" ? "2" : "1";
   tap(keyNode(typed));
@@ -190,10 +199,46 @@ await step("Wrong (relation stays, 下一题, no retry)", async () => {
   await tick(50);
   const count = text(byClass("set-count")[0]);
   const after = itemNow();
-  check(count === "3 / 10" && after.id !== item.id, `after ${count} ${after.id}`);
+  check(count === "第 3 题 · 共 10 题" && after.id !== item.id, `after ${count} ${after.id}`);
   const st = learner();
   check(st.relations[item.id].attempts.at(-1).correct === false && st.activeSession.answered === 2, "stored wrong");
   return `${item.id} typed ${typed}; stays 1.2s on 「${text(eq)}」; no keypad; 下一题 → ${count}, different item ${after.id}; wx storage answered 2`;
+});
+
+if (PART === "fraction") await step("Fraction fields (two boxes, no 「/」 key, not-an-attempt, needs_simplification, correct)", async () => {
+  // This part runs as its own app launch over a stored unfinished set (the
+  // record is read once per launch): see SMOKE_PART below.
+  tap(byClass("home-cta")[0]);
+  await tick(100);
+  check(stack.at(-1).route === "pages/train/index", `route ${stack.at(-1).route}`);
+  await tick(80);
+  check(itemNow().id === "ifraction-1-2", "seeded ifraction-1-2");
+  const box = (w) => byClass(`ff-${w}`)[0];
+  const focusOf = () => (` ${box("numerator")?.cl} `.includes(" is-focus ") ? "numerator" : ` ${box("denominator")?.cl} `.includes(" is-focus ") ? "denominator" : null);
+  check(byClass("fraction-fields").length === 1 && box("numerator") && box("denominator") && byClass("ff-bar").length === 1, "two boxes and a bar");
+  check(!byClass("key").some((k) => text(k) === "/"), "no 「/」 key");
+  check(text(byClass("question")[0]).trim() === "0.5 =" && byClass("answer").length === 0, `stem 「${text(byClass("question")[0])}」, no single answer box`);
+  check(focusOf() === "numerator", "focus starts on the numerator");
+  const nudge = () => text(byClass("nudge")[0]);
+  tap(keyNode("提交")); await tick(20);
+  check(nudge() === "先写一个分数", `empty → ${nudge()}`);
+  tap(keyNode("1")); tap(box("denominator")); await tick(10);
+  check(focusOf() === "denominator", "tap moves the focus");
+  tap(keyNode("0")); tap(keyNode("提交")); await tick(20);
+  check(nudge() === "先写一个分数" && !learner().relations["ifraction-1-2"], "1 over 0 → not an attempt");
+  tap(keyNode("删除")); tap(keyNode("删除")); await tick(10);
+  check(focusOf() === "denominator" && text(box("denominator")).trim() === "" && text(box("numerator")).trim() === "1", "backspace stays in the empty box");
+  tap(box("numerator")); tap(keyNode("删除")); tap(keyNode("0")); tap(keyNode("2")); tap(box("denominator")); tap(keyNode("0")); tap(keyNode("4")); await tick(10);
+  check(text(box("numerator")).trim() === "2" && text(box("denominator")).trim() === "4", `02 over 04 shows ${text(box("numerator"))} over ${text(box("denominator"))}`);
+  check(text(byClass("set-count")[0]) === "第 2 题 · 共 2 题", `count ${text(byClass("set-count")[0])}`);
+  tap(keyNode("提交")); await tick(20);
+  check(/一样大，再约到最简/.test(nudge()) && !learner().relations["ifraction-1-2"], `2 over 4 → ${nudge()}`);
+  check(text(box("numerator")).trim() === "2" && text(box("denominator")).trim() === "4", "no auto-simplify");
+  tap(keyNode("删除")); tap(keyNode("2")); tap(box("numerator")); tap(keyNode("删除")); tap(keyNode("1")); tap(keyNode("提交")); await tick(30);
+  check(byClass("screen-correct").length === 1, "1 over 2 → correct");
+  const a = learner().relations["ifraction-1-2"].attempts;
+  check(a.length === 1 && a[0].correct === true, "recorded once, correct");
+  return "0.5 = [分子] over [分母] (focus 分子, no 「/」 key); empty and 1 over 0 → 「先写一个分数」 (0 records); backspace stays; typed 02 over 04 shows 2 over 4 → needs_simplification, still 2 over 4 (0 records); 「第 2 题 · 共 2 题」; 1 over 2 → correct (1 record)";
 });
 
 await step("storage went through wx.*StorageSync", async () => {
@@ -203,6 +248,13 @@ await step("storage went through wx.*StorageSync", async () => {
   return `${calls.length} calls (${[...ops].join(", ")}) on key nsl-v01-state`;
 });
 
+if (PART === "main") {
+  const { spawnSync } = await import("node:child_process");
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env: { ...process.env, SMOKE_PART: "fraction" }, encoding: "utf8" });
+  const lines = (child.stdout || "").split("\n").filter((l) => /^(PASS|FAIL) /.test(l) && !/weapp boot|storage went through/.test(l));
+  if (child.status !== 0 || lines.length === 0) failed++;
+  results.push(...(lines.length ? lines.map((l) => l.replace(/^(PASS|FAIL) /, "$1 [2nd launch] ")) : [`FAIL [2nd launch] fraction part did not run: ${child.stderr}`]));
+}
 console.log(results.join("\n"));
 console.log(`\n${results.length - failed}/${results.length} passed`);
 process.exit(failed ? 1 : 0);

@@ -1,0 +1,292 @@
+{
+  "domain": "powers",
+  "version": "0.4.0",
+  "relations": [
+    {
+      "id": "pow-2-5",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "2⁵ = ?",
+      "canonical_answer": "32",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2⁵ = 32",
+      "hook": "翻倍链：16 再翻倍。",
+      "pattern": {
+        "check": "2⁵ = 2⁴ × 2，不是 2×5。",
+        "family": [
+          "2⁴ = 16"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "翻倍链：16 再翻倍。"
+        },
+        {
+          "title": "32",
+          "detail": "2⁵ = 32"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-2-6",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "relation_network",
+      "prompt": "2⁶ = ?",
+      "canonical_answer": "64",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2⁶ = 64",
+      "hook": "32 翻倍；也是 8²、4³。",
+      "pattern": {
+        "check": "2⁶ = 64。这和 4³ = 64 是同值不同题。",
+        "family": [
+          "2⁵ = 32",
+          "8² = 64",
+          "4³ = 64"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "32 翻倍；也是 8²、4³。"
+        },
+        {
+          "title": "64",
+          "detail": "2⁶ = 64"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-2-7",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "2⁷ = ?",
+      "canonical_answer": "128",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2⁷ = 128",
+      "hook": "64 翻倍；也是 16×8。",
+      "pattern": {
+        "check": "2⁷ = 128，不是 2×7。",
+        "family": [
+          "2⁶ = 64",
+          "16 × 8 = 128"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "64 翻倍；也是 16×8。"
+        },
+        {
+          "title": "128",
+          "detail": "2⁷ = 128"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-2-8",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "2⁸ = ?",
+      "canonical_answer": "256",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2⁸ = 256",
+      "hook": "128 翻倍；也是 16²。",
+      "pattern": {
+        "check": "2⁸ = 256。这和 16² = 256 是同值不同题。",
+        "family": [
+          "2⁷ = 128",
+          "16² = 256"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "128 翻倍；也是 16²。"
+        },
+        {
+          "title": "256",
+          "detail": "2⁸ = 256"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-3-4",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "3⁴ = ?",
+      "canonical_answer": "81",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "3⁴ = 81",
+      "hook": "3² 再平方：9² = 81。",
+      "pattern": {
+        "check": "3⁴ = (3²)²。这和 9² = 81 是同值不同题。",
+        "family": [
+          "3² = 9",
+          "9² = 81"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "3² 再平方：9² = 81。"
+        },
+        {
+          "title": "81",
+          "detail": "3⁴ = 81"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-5-4",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "relation_network",
+      "prompt": "5⁴ = ?",
+      "canonical_answer": "625",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "5⁴ = 625",
+      "hook": "25² = 625，平方域老朋友。",
+      "pattern": {
+        "check": "5⁴ = (5²)²。这和 25² = 625 是同值不同题。",
+        "family": [
+          "5² = 25",
+          "25² = 625"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "25² = 625，平方域老朋友。"
+        },
+        {
+          "title": "625",
+          "detail": "5⁴ = 625"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-2-9",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "relation_network",
+      "prompt": "2⁹ = ?",
+      "canonical_answer": "512",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2⁹ = 512",
+      "hook": "256 翻倍；也是 8³。",
+      "pattern": {
+        "check": "2⁹ = 512。这和 8³ = 512 是同值不同题。",
+        "family": [
+          "2⁸ = 256",
+          "8³ = 512"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "256 翻倍；也是 8³。"
+        },
+        {
+          "title": "512",
+          "detail": "2⁹ = 512"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-2-10",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "2¹⁰ = ?",
+      "canonical_answer": "1024",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "2¹⁰ = 1024",
+      "hook": "512 翻倍；约等于一千，估算锚点。",
+      "pattern": {
+        "check": "2¹⁰ = 1024，不是 1000，也不是 2×10。",
+        "family": [
+          "2⁹ = 512"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "512 翻倍；约等于一千，估算锚点。"
+        },
+        {
+          "title": "1024",
+          "detail": "2¹⁰ = 1024"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "pow-3-5",
+      "domain": "powers",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "retrieval_anchor",
+      "prompt": "3⁵ = ?",
+      "canonical_answer": "243",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "3⁵ = 243",
+      "hook": "81×3 = 243，诚实锚点。",
+      "pattern": {
+        "check": "3⁵ = 3⁴ × 3。243 不是 3×5。",
+        "family": [
+          "3⁴ = 81"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "81×3 = 243，诚实锚点。"
+        },
+        {
+          "title": "243",
+          "detail": "3⁵ = 243"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    }
+  ]
+}

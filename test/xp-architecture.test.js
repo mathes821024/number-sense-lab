@@ -111,14 +111,16 @@ test("per-platform files exist only under app/platform", () => {
   }
 });
 
-test("one shared page set: no pages-h5 / pages-wechat, no duplicate Home / Training / Correct / Wrong", () => {
+test("one shared page set: no pages-h5 / pages-wechat, no duplicate Home / Training / Explore / Mistakes / Progress / Print / Correct / Wrong", () => {
   for (const dir of ["app/pages-h5", "app/pages-wechat", "app/pages-weapp", "pages-h5", "pages-wechat"]) {
     assert.equal(existsSync(join(root, dir)), false, dir);
   }
   const config = readFileSync(join(root, "app/app.config.js"), "utf8");
-  assert.match(config, /pages: \["pages\/home\/index", "pages\/train\/index"\]/);
+  const SHARED = ["home", "train", "explore", "mistakes", "progress", "print"];
+  const listed = [...config.matchAll(/"(pages\/[a-z]+\/index)"/g)].map((m) => m[1]);
+  assert.deepEqual(listed, SHARED.map((p) => `pages/${p}/index`), "one entry per page, home first");
   const pages = files(join(root, "app/pages"), [".jsx"]).map((f) => relative(root, f));
-  assert.deepEqual(pages.sort(), ["app/pages/home/index.jsx", "app/pages/train/index.jsx"]);
+  assert.deepEqual(pages.sort(), SHARED.map((p) => `app/pages/${p}/index.jsx`).sort());
   const comps = files(join(root, "app/components"), [".jsx"]).map((f) => relative(root, f));
   for (const name of ["CorrectFeedback", "WrongFeedback", "Keypad"]) {
     assert.equal(comps.filter((c) => c.includes(name)).length, 1, name);

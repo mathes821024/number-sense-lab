@@ -31,6 +31,25 @@
   --tint-sky: #E4ECFD;
   --tint-mint: #DFF3EA;
 
+  /* 练习页 F-B (docs/ui/08_fb_specialist_visual.md; the F-B VISUAL_TOKENS).
+     Group colour only on the group zone, its dot and its icon chip; never across groups. */
+  --fb-group-bg-sky: #EAF2FB;
+  --fb-group-bg-amber: #FDF3E7;
+  --fb-group-bg-mint: #E9F6F0;
+  --fb-accent-sky: #4A8FD9;
+  --fb-accent-amber: #F2994A;
+  --fb-accent-mint: #2FA37C;
+  --fb-chip-sky: rgba(74, 143, 217, 0.10);
+  --fb-chip-amber: rgba(242, 153, 74, 0.10);
+  --fb-chip-mint: rgba(47, 163, 124, 0.10);
+  --fb-tile-bg: #FFFFFF;
+  --fb-tile-shadow: 0 2px 8px rgba(31, 58, 86, 0.06);
+  /* specialist.status.color: the four learner-status words only. */
+  --fb-status-color: #667085;
+  /* specialist.group.metaColor: the English group label (POWERS / PRODUCTS / NUMBERS) only.
+     Same value today, a separate token: making one lighter must not change the other. */
+  --fb-group-meta-color: #667085;
+
   /* color.surface.* / color.text.* / color.border.* */
   --surface-page: #F7F3E8;
   --surface-card: #FFFDF8;

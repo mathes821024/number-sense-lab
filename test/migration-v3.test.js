@@ -198,15 +198,18 @@ test("createLearnerId prefers randomUUID and falls back to a v4 shape", () => {
   assert.match(createLearnerId(null), v4);
 });
 
-test("migrated activeSession resumes on its original queue; new 47 stay unpracticed", () => {
+test("migrated activeSession resumes on its original queue; new 47 (and v0.4's 51) stay unpracticed", () => {
   const catalog = loadCoreCatalog();
   const { state } = upgradeState(fixture("state-v1.json"), { createLearnerId: () => "L", today: "2026-09-29" });
   const learner = getActiveLearner(state);
   const peeked = peekCurrent(learner.activeSession, catalog);
   assert.equal(peeked.item.id, "fraction-1-4", "cursor 2 of the preserved queue");
-  const newIds = catalog.slice(75).map((item) => item.id);
+  const newIds = catalog.slice(75, 122).map((item) => item.id);
   assert.equal(newIds.length, 47);
   for (const id of newIds) assert.equal(learner.relations[id], undefined);
+  const v04Ids = catalog.slice(122).map((item) => item.id);
+  assert.equal(v04Ids.length, 51);
+  for (const id of v04Ids) assert.equal(learner.relations[id], undefined);
   const result = submitAnswer({
     item: peeked.item,
     state: learner,

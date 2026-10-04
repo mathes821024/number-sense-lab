@@ -1,0 +1,378 @@
+{
+  "domain": "complements",
+  "version": "0.4.0",
+  "relations": [
+    {
+      "id": "comp-55",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "structure",
+      "prompt": "55 + ? = 100",
+      "canonical_answer": "45",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "55 和 45 凑成 100",
+      "hook": "对半开：50+50 两边各让 5。",
+      "pattern": {
+        "check": "55 + 45 = 100。十位不要也按 10 去凑。",
+        "family": [
+          "45 和 55 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "对半开：50+50 两边各让 5。"
+        },
+        {
+          "title": "45",
+          "detail": "55 和 45 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-89",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "reasonableness",
+      "prompt": "89 + ? = 100",
+      "canonical_answer": "11",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "89 和 11 凑成 100",
+      "hook": "89 离 100 只差 11。",
+      "pattern": {
+        "check": "89 + 11 = 100。",
+        "family": [
+          "11 和 89 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "89 离 100 只差 11。"
+        },
+        {
+          "title": "11",
+          "detail": "89 和 11 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-95",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 1,
+      "hook_type": "reasonableness",
+      "prompt": "95 + ? = 100",
+      "canonical_answer": "5",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "95 和 5 凑成 100",
+      "hook": "95 离 100 只差 5。",
+      "pattern": {
+        "check": "95 + 5 = 100。",
+        "family": [
+          "5 和 95 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "95 离 100 只差 5。"
+        },
+        {
+          "title": "5",
+          "detail": "95 和 5 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-13",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "13 + ? = 100",
+      "canonical_answer": "87",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "13 和 87 凑成 100",
+      "hook": "个位凑 10（3→7），十位凑 9（1→8）。",
+      "pattern": {
+        "check": "13 + 87 = 100。十位凑 10 会得到 97，那是错的。",
+        "family": [
+          "87 和 13 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（3→7），十位凑 9（1→8）。"
+        },
+        {
+          "title": "87",
+          "detail": "13 和 87 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-27",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "27 + ? = 100",
+      "canonical_answer": "73",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "27 和 73 凑成 100",
+      "hook": "个位凑 10（7→3），十位凑 9（2→7）。",
+      "pattern": {
+        "check": "27 + 73 = 100。",
+        "family": [
+          "73 和 27 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（7→3），十位凑 9（2→7）。"
+        },
+        {
+          "title": "73",
+          "detail": "27 和 73 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-48",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "48 + ? = 100",
+      "canonical_answer": "52",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "48 和 52 凑成 100",
+      "hook": "个位凑 10（8→2），十位凑 9（4→5）。",
+      "pattern": {
+        "check": "48 + 52 = 100。",
+        "family": [
+          "52 和 48 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（8→2），十位凑 9（4→5）。"
+        },
+        {
+          "title": "52",
+          "detail": "48 和 52 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-64",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "64 + ? = 100",
+      "canonical_answer": "36",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "64 和 36 凑成 100",
+      "hook": "个位凑 10（4→6），十位凑 9（6→3）。",
+      "pattern": {
+        "check": "64 + 36 = 100。",
+        "family": [
+          "36 和 64 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（4→6），十位凑 9（6→3）。"
+        },
+        {
+          "title": "36",
+          "detail": "64 和 36 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-68",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 2,
+      "hook_type": "structure",
+      "prompt": "68 + ? = 100",
+      "canonical_answer": "32",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "68 和 32 凑成 100",
+      "hook": "个位凑 10（8→2），十位凑 9（6→3）。",
+      "pattern": {
+        "check": "68 + 32 = 100。",
+        "family": [
+          "32 和 68 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（8→2），十位凑 9（6→3）。"
+        },
+        {
+          "title": "32",
+          "detail": "68 和 32 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-37",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "37 + ? = 100",
+      "canonical_answer": "63",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "37 和 63 凑成 100",
+      "hook": "个位凑 10（7→3），十位凑 9（3→6）。",
+      "pattern": {
+        "check": "37 + 63 = 100。十位也凑 10 会得到 73。",
+        "family": [
+          "63 和 37 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（7→3），十位凑 9（3→6）。"
+        },
+        {
+          "title": "63",
+          "detail": "37 和 63 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-42",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "42 + ? = 100",
+      "canonical_answer": "58",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "42 和 58 凑成 100",
+      "hook": "个位凑 10（2→8），十位凑 9（4→5）。",
+      "pattern": {
+        "check": "42 + 58 = 100。",
+        "family": [
+          "58 和 42 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（2→8），十位凑 9（4→5）。"
+        },
+        {
+          "title": "58",
+          "detail": "42 和 58 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-76",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "76 + ? = 100",
+      "canonical_answer": "24",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "76 和 24 凑成 100",
+      "hook": "个位凑 10（6→4），十位凑 9（7→2）。",
+      "pattern": {
+        "check": "76 + 24 = 100。",
+        "family": [
+          "24 和 76 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（6→4），十位凑 9（7→2）。"
+        },
+        {
+          "title": "24",
+          "detail": "76 和 24 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    },
+    {
+      "id": "comp-83",
+      "domain": "complements",
+      "level": "core_recall",
+      "tier": 3,
+      "hook_type": "structure",
+      "prompt": "83 + ? = 100",
+      "canonical_answer": "17",
+      "answer_type": "integer",
+      "direction": "forward",
+      "relation": "83 和 17 凑成 100",
+      "hook": "个位凑 10（3→7），十位凑 9（8→1）。",
+      "pattern": {
+        "check": "83 + 17 = 100。",
+        "family": [
+          "17 和 83 也凑成 100"
+        ]
+      },
+      "frames": [
+        {
+          "title": "这一步",
+          "detail": "个位凑 10（3→7），十位凑 9（8→1）。"
+        },
+        {
+          "title": "17",
+          "detail": "83 和 17 凑成 100"
+        }
+      ],
+      "families": [],
+      "entry_after": null
+    }
+  ]
+}

@@ -35,22 +35,52 @@ import { buildMistakeBook } from "../src/core/mistakes.js";
 import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { createBrowserStore, localDay } from "../app/platform/h5/browser-store.js";
 import { createCue } from "./sound.js";
-import { formatMath, repeatingHtml } from "./math-text.js";
+import {
+  emptyFields,
+  focusField,
+  typeDigit,
+  eraseDigit,
+  fieldsAnswer,
+  fieldSize,
+  promptStem,
+} from "../src/core/fraction-fields.js";
+import { setPositionLabel } from "../src/core/progress-label.js";
+import { DOMAIN_GLYPHS, domainTone, isLongLabel, practiceGroups } from "../src/core/practice-groups.js";
+import { formatMath, repeatingHtml, listPromptHtml, printPromptHtml } from "./math-text.js";
 import { activeTheme, applyTheme, asset, loadTheme, preloadAssets } from "./theme.js";
+import { domainIconUrl, loadSpecialistAssets, specialistMascotUrl } from "./specialist-assets.js";
 
 // Theme layer: math-lab is the only runtime theme (no picker, no switching).
 // Pictures resolve through the theme manifest; if it cannot load, screens
 // still work with words and shapes only.
 applyTheme(document);
-await loadTheme();
+await Promise.all([loadTheme(), loadSpecialistAssets()]);
 // Home needs the welcome picture first; feedback pictures wait for training.
 preloadAssets([activeTheme().mascot.welcome], { priority: "high" });
 
-/** Domain icon from the theme's asset slot; falls back to text only. */
+/**
+ * Domain icon (docs/ui/08_fb_specialist_visual.md §1): the F-B PNG the manifest names
+ * for this `domain_id`, on its group's light chip. The interface glyph sits in the
+ * same tile and shows when the manifest has no file or the file fails to load
+ * (the `error` listener below), so no tile is ever empty.
+ */
 function domainArt(domain) {
-  const art = asset(activeTheme().icons[domain] || "");
-  return `<span class="tile tile-${domain}" aria-hidden="true">${art}</span>`;
+  const src = domainIconUrl(domain);
+  const glyph = DOMAIN_GLYPHS[domain] ? `<span class="tile-glyph">${icon(DOMAIN_GLYPHS[domain])}</span>` : "";
+  const tone = domainTone(domain);
+  const art = src ? `<img class="tile-art" src="${src}" alt="" decoding="async" draggable="false">` : "";
+  return `<span class="tile tile-${domain}${tone ? ` tone-${tone}` : ""}${art ? " has-art" : ""}" aria-hidden="true">${art}${glyph}</span>`;
 }
+// A domain picture that fails to load falls back to its glyph (no empty icon).
+document.addEventListener(
+  "error",
+  (event) => {
+    const img = event.target;
+    if (img && img.classList && img.classList.contains("tile-art")) img.closest(".tile")?.classList.replace("has-art", "is-broken");
+    if (img && img.classList && img.classList.contains("fb-mascot-img")) img.closest(".fb-mascot")?.remove();
+  },
+  true,
+);
 
 /**
  * Mascot from the theme manifest (welcome on Home / empty states, correct and
@@ -107,6 +137,8 @@ const app = document.getElementById("app");
 let session = state.activeSession || null;
 let currentItem = null;
 let answer = "";
+/** fraction_fields items: the shared numerator / denominator boxes (src/core/fraction-fields.js). */
+let fields = emptyFields();
 let inputModes = new Set();
 let startedAt = 0;
 let nearEnd = false;
@@ -245,30 +277,31 @@ function renderHome() {
   const mode = homeMode();
   let title = "和数字做朋友";
   let lede = "把常会用到的数字关系，练到能直接想起来。";
+  // One block per line; the resume lede is two fixed lines (Owner Plan B).
+  let ledeLines = [lede];
   let ctaLabel = "开始今天的练习";
   let ctaSub = "大约 5～10 分钟";
   let ctaAction = "start-daily";
 
   if (mode === "paused") {
     title = "还有一小段";
-    lede = "刚才做到一半。已经做的会留下。";
+    lede = "刚才练到一半，继续就好。";
+    ledeLines = ["刚才练到一半，", "继续就好。"];
     ctaLabel = "继续刚才的练习";
     ctaSub = "";
     ctaAction = "resume";
   } else if (mode === "done") {
     title = "今天这段练完了";
     lede = "可以停在这里，也可以再看一眼结果。";
+    ledeLines = [lede];
     ctaLabel = "看看这次";
     ctaSub = "";
     ctaAction = "see-last";
   }
 
+  // One clear action on the resume hero; 重新开始一小段 lives on the pause screen.
   const extra =
-    mode === "paused"
-      ? `<button class="home-secondary" type="button" data-action="restart-daily">重新开始一小段</button>`
-      : mode === "done"
-        ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>`
-        : "";
+    mode === "done" ? `<button class="home-secondary" type="button" data-action="start-daily">再练一小段</button>` : "";
 
   // Four entry cards (03_ui_spec §5 v0.3; 02_ux_spec §5). 开始今天的练习 (05 §6) is the main path.
   const entry = (action, tone, iconName, label, sub, extraClass = "") =>
@@ -283,11 +316,11 @@ function renderHome() {
     <header class="home-bar">
       <p class="home-kicker">${brandMark()}<span class="wordmark"><span class="wordmark-zh">数感训练场</span><span class="wordmark-en">Number Sense Lab</span></span></p>
     </header>
-    <div class="home-hero">
+    <div class="home-hero${mode === "paused" ? " is-resume" : ""}">
       ${mascot("welcome", "mascot-hero")}
       <div class="bubble">
         <h1 class="bubble-title">${title}</h1>
-        <p class="bubble-text">${lede}</p>
+        <p class="bubble-text${ledeLines.length > 1 ? " is-split" : ""}">${ledeLines.map((l) => `<span class="bubble-line">${l}</span>`).join("")}</p>
       </div>
     </div>
     <div class="entries">
@@ -301,52 +334,55 @@ function renderHome() {
   </section>`;
 }
 
-/** Placeholder names shown as the board shows them; every one answers 敬请期待. */
-const SOON_DOMAINS = [
-  ["cube", "立方"],
-  ["puzzle-piece", "补数"],
-  ["circles-four", "倍数与因数"],
-  ["lightbulb", "规律探索"],
-];
-
-function soonButton(name, iconName, className = "soon-tile") {
-  return `<button class="${className}" type="button" data-action="soon" data-soon="${name}">
-      <span class="soon-icon" aria-hidden="true">${icon(iconName)}</span>
-      <span class="soon-copy"><span class="soon-name">${name}</span><span class="soon-badge">敬请期待</span></span>
-    </button>`;
-}
-
-/** 练习: pick one of the three real domains; the rest are placeholders. */
+/**
+ * 练习 · 主题训练 (docs/ux/05_specialist_grouped_grid.md), drawn as F-B, the warm
+ * branded learning panel (docs/ui/08_fb_specialist_visual.md): a header with the
+ * existing welcome mascot at one side, then three navigation groups, each a light
+ * colour zone (CSS) with two-column white tiles (icon, name, one weak status line).
+ * The whole tile is the button. A released tile opens its confirmation; a tile
+ * without released content only answers 敬请期待. 知识地图 is the other entry and
+ * only says 敬请期待 this round; 概念 / 例题 / 动画 / 规律探索 are not tiles here.
+ */
 function renderExplore() {
-  const domains = DOMAIN_ORDER.map((domain) => {
-    const items = filterByDomain(domain, catalog);
-    const summary = summarizeDomain(items, state.relations);
-    return `<button class="domain" type="button" data-action="focus" data-domain="${domain}">
-      ${domainArt(domain)}
-      <span class="domain-copy"><span class="domain-name">${domainLabel(domain)}</span>
-      <small>${summary}</small></span>
-      <span class="chev" aria-hidden="true">${icon("caret-right")}</span>
+  const card = (c) =>
+    `<button class="practice-card${c.released ? "" : " is-soon"}" type="button" data-action="${c.released ? "focus" : "soon"}" data-domain="${c.domain}"${c.released ? "" : ` data-soon="${c.label}"`} aria-label="${c.aria}">
+      ${domainArt(c.domain)}
+      <span class="practice-text">
+        <span class="practice-name${isLongLabel(c.label) ? " is-long" : ""}">${c.label}</span>
+        <span class="practice-status">${c.status}</span>
+      </span>
     </button>`;
-  }).join("");
-  const soon = SOON_DOMAINS.map(([ic, name]) => soonButton(name, ic)).join("");
-  const extras = [
-    ["lightbulb-filament", "概念"],
-    ["notebook", "例题"],
-    ["play-circle", "动画"],
-  ]
-    .map(([ic, name]) => soonButton(name, ic, "soon-chip"))
+  const groups = practiceGroups(catalog, state.relations)
+    .map(
+      (g) => `<section class="practice-group tone-${g.tone}" data-group="${g.id}" aria-labelledby="group-${g.id}">
+      <div class="practice-group-head">
+        <span class="practice-group-dot" aria-hidden="true"></span>
+        <h2 class="practice-group-title" id="group-${g.id}">${g.label}</h2>
+        <span class="practice-group-en" aria-hidden="true">${g.en}</span>
+      </div>
+      <div class="practice-grid">${g.cards.map(card).join("")}</div>
+    </section>`,
+    )
     .join("");
-  return `<section class="screen" id="explore">
-    <h1 class="title">探索数学世界</h1>
-    <p class="lede">从一个主题开始，走更远的路</p>
+  const mascotSrc = specialistMascotUrl();
+  const mascotArt = mascotSrc
+    ? `<span class="fb-mascot" aria-hidden="true"><span class="fb-spark fb-spark-1"></span><span class="fb-spark fb-spark-2"></span><img class="fb-mascot-img" src="${mascotSrc}" alt="" decoding="async" draggable="false"></span>`
+    : "";
+  return `<section class="screen screen-explore" id="explore">
+    <div class="fb-head">
+      <div class="fb-head-text">
+        <p class="fb-kicker" lang="en">EXPLORE MATH</p>
+        <h1 class="title">探索数学世界</h1>
+        <p class="lede">从一个主题开始，走更远的路</p>
+      </div>
+      ${mascotArt}
+    </div>
     <div class="segmented" role="group" aria-label="练习方式">
       <button class="seg is-on" type="button" aria-pressed="true">主题训练</button>
       <button class="seg" type="button" aria-pressed="false" data-action="soon" data-soon="知识地图">知识地图</button>
     </div>
-    <div class="domains">${domains}</div>
-    <p class="section-label">更多方向</p>
-    <div class="soon">${soon}</div>
-    <div class="soon-row">${extras}</div>
+    <p class="fb-hint">今天想练哪个？</p>
+    <div class="practice-groups">${groups}</div>
   </section>`;
 }
 
@@ -471,32 +507,38 @@ function renderTrain() {
       <button class="cta" type="button" data-action="home">回首页</button></section>`;
   }
   const pill = nearEnd ? "快完成了" : revisit ? "再试一次" : domainLabel(currentItem.domain);
-  // Integer: empty slot. Plain decimal: 「.」. Fraction: 「/」 in the same slot.
+  // Integer: empty slot. Plain decimal: 「.」. Fraction: no 「/」 — the digits
+  // go into the focused numerator / denominator box.
   // Repeating decimal: no new key; the answer box itself is 0.( … ).
   const dotKey = currentItem.needsDecimalPoint
     ? `<button class="key" type="button" data-digit=".">.</button>`
-    : currentItem.needsSlash
-      ? `<button class="key" type="button" data-digit="/" aria-label="分数线">/</button>`
-      : `<span class="key ghost" aria-hidden="true"></span>`;
+    : `<span class="key ghost" aria-hidden="true"></span>`;
   const answerClass = currentItem.repeatingBlock ? "answer answer-repeating" : "answer";
   // Calm position in this short set (02_ux_spec §3 step 7): a count and a
   // still bar. Not a timer; nothing animates or counts down.
   const total = Math.max(1, session?.targetCount || 1);
   const position = Math.min(total, (session?.answered || 0) + 1);
 
-  return `<section class="screen" id="train">
+  return `<section class="screen${currentItem.fractionFields ? " is-fields" : ""}" id="train">
     <div class="top">
       <button class="quiet" type="button" data-action="pause">先停一下</button>
       <span class="pill">${pill}</span>
     </div>
     <div class="set-progress">
-      <span class="set-count" id="set-count">${position} / ${total}</span>
+      <span class="set-count" id="set-count">${setPositionLabel(position, total)}</span>
       <progress class="set-bar" max="${total}" value="${position - 1}" aria-labelledby="set-count"></progress>
     </div>
     <div class="practice-zone">
       <p class="practice-label">看清关系，再写答案</p>
-      <h1 class="question">${formatMath(currentItem.prompt)}</h1>
-      <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>
+      ${
+        currentItem.fractionFields
+          ? `<div class="question-fields">
+        <h1 class="question">${formatMath(promptStem(currentItem.prompt))}</h1>
+        <div class="fraction-fields" id="answer" aria-live="polite" data-focus="${fields.focus}">${fieldsHtml()}</div>
+      </div>`
+          : `<h1 class="question">${formatMath(currentItem.prompt)}</h1>
+      <div class="${answerClass}" id="answer" aria-live="polite">${answerHtml()}</div>`
+      }
       <p class="nudge" id="nudge">${nudgeHtml}</p>
     </div>
     <div class="keys" id="keys">
@@ -567,6 +609,7 @@ function renderPause() {
       <p class="stay">已经做的会留下。</p>
       <button class="cta" type="button" data-action="resume-train">继续做</button>
       <button class="cta secondary" type="button" data-action="stop-session">先停</button>
+      <button class="quiet pause-restart" type="button" data-action="restart-daily">重新开始一小段</button>
     </div>
   </section>`;
 }
@@ -627,9 +670,7 @@ function renderProgress() {
     <ul class="list outcomes" id="recent-outcomes">${outcomes
       .map(
         (row) =>
-          `<li data-id="${row.id}" data-outcome="${row.latestCorrect ? "right" : "wrong"}"><span>${formatMath(
-            row.prompt.replace(" = ?", ""),
-          )}</span><span class="outcome ${row.latestCorrect ? "is-right" : "is-wrong"}"><span class="om" aria-hidden="true">${
+          `<li data-id="${row.id}" data-outcome="${row.latestCorrect ? "right" : "wrong"}"><span>${listPromptHtml(row.prompt)}</span><span class="outcome ${row.latestCorrect ? "is-right" : "is-wrong"}"><span class="om" aria-hidden="true">${
             row.latestCorrect ? "✓" : "×"
           }</span>${row.latestCorrect ? "对" : "错"}</span></li>`,
       )
@@ -667,7 +708,7 @@ function renderMistakes() {
       <ul class="list">${group.items
         .map(
           (item) =>
-            `<li data-id="${item.id}"><span>${formatMath(item.prompt.replace(" = ?", ""))}</span><span class="meta">${item.label}</span></li>`,
+            `<li data-id="${item.id}"><span>${listPromptHtml(item.prompt)}</span><span class="meta">${item.label}</span></li>`,
         )
         .join("")}</ul>`,
     )
@@ -697,7 +738,7 @@ function printBackLink() {
 function printRow(c) {
   return `<li data-id="${c.id}"><label class="pick">
       <input type="checkbox" data-print-id="${c.id}"${c.selected ? " checked" : ""}>
-      <span class="pick-text">${formatMath(c.prompt.replace(" = ?", ""))}</span>
+      <span class="pick-text">${listPromptHtml(c.prompt)}</span>
       ${c.label ? `<span class="meta">${c.label}</span>` : ""}
     </label></li>`;
 }
@@ -772,12 +813,7 @@ function renderA4() {
   }
 
   const sub = [sheet.day, sheet.domain].filter(Boolean).join(" · ");
-  const prompts = sheet.prompts
-    .map(
-      (p) =>
-        `<li data-id="${p.id}"><span>${formatMath(p.prompt.replace(" = ?", " = "))}</span><span class="blank"></span></li>`,
-    )
-    .join("");
+  const prompts = sheet.prompts.map((p) => `<li data-id="${p.id}">${printPromptHtml(p.prompt)}</li>`).join("");
 
   const questionSheet = `<div class="sheet" id="a4-sheet">
       <h2>${sheet.title}</h2>
@@ -810,7 +846,20 @@ function renderA4() {
   </section>`;
 }
 
-/** Answer box content: plain digits, a textbook fraction, or a dotted repeating block. */
+/** The numerator box over a bar over the denominator box. */
+function fieldsHtml() {
+  const box = (which, label) => {
+    const value = fields[which];
+    const focused = fields.focus === which;
+    const size = fieldSize(value);
+    return `<button class="ff-box ff-${which}${focused ? " is-focus" : ""}${value ? "" : " is-empty"}${size ? ` is-${size}` : ""}" type="button" data-field="${which}" data-value="${value}" aria-label="${label}" aria-pressed="${focused}"><span class="ff-digits">${escapeHtml(
+      value,
+    )}</span>${focused ? '<span class="ff-caret" aria-hidden="true"></span>' : ""}</button>`;
+  };
+  return `${box("numerator", "分子")}<span class="ff-bar" aria-hidden="true"></span>${box("denominator", "分母")}`;
+}
+
+/** Answer box content: plain digits or a dotted repeating block. */
 function answerHtml() {
   if (currentItem?.repeatingBlock) {
     // Student types only the block; the box shows textbook dots, no brackets.
@@ -819,12 +868,6 @@ function answerHtml() {
       return `<span class="rep-int">${intPart}.</span><span class="rep-slot" aria-hidden="true"></span>`;
     }
     return repeatingHtml(intPart, answer);
-  }
-  if (currentItem?.needsSlash) {
-    const match = /^(\d+)\/(\d+)$/.exec(answer);
-    if (match) {
-      return `<span class="frac answer-frac" aria-label="${match[1]}/${match[2]}"><span class="num">${match[1]}</span><span class="den">${match[2]}</span></span>`;
-    }
   }
   return escapeHtml(answer);
 }
@@ -851,6 +894,11 @@ function bind() {
   app.querySelectorAll("[data-digit]").forEach((el) => {
     el.addEventListener("click", onDigit);
   });
+  const fieldBox = document.getElementById("answer");
+  if (fieldBox && fieldBox.classList.contains("fraction-fields")) {
+    // One listener on the container: the boxes are redrawn on every key.
+    fieldBox.addEventListener("click", onField);
+  }
   app.querySelectorAll("input[data-print-id]").forEach((el) => {
     el.addEventListener("change", onPrintToggle);
   });
@@ -1027,8 +1075,7 @@ function onAction(event) {
   if (action === "del") {
     if (screenName !== "train" || submitting) return;
     inputModes.add("onscreen_keypad");
-    answer = answer.slice(0, -1);
-    syncAnswer();
+    eraseOne();
     return;
   }
   if (action === "advance") {
@@ -1054,34 +1101,64 @@ function onDigit(event) {
   appendDigit(digit);
 }
 
+/** Tap the numerator or the denominator box. */
+function onField(event) {
+  const target = event.target instanceof Element ? event.target.closest("[data-field]") : null;
+  if (!target || screenName !== "train" || submitting || !currentItem?.fractionFields) return;
+  const next = focusField(fields, target.getAttribute("data-field"));
+  if (!next) return;
+  fields = next;
+  syncAnswer(false);
+}
+
 function appendDigit(digit) {
   if (screenName !== "train" || submitting) return;
-  if (digit === ".") {
+  if (currentItem?.fractionFields) {
+    // Digits only, into the focused box only.
+    const next = typeDigit(fields, digit);
+    if (!next) return;
+    fields = next;
+  } else if (digit === ".") {
     if (!currentItem?.needsDecimalPoint) return;
     if (answer.includes(".")) return;
     answer += ".";
-  } else if (digit === "/") {
-    // Only fraction answers take 「/」, and only one of it.
-    if (!currentItem?.needsSlash) return;
-    if (answer.includes("/")) return;
-    answer += "/";
   } else {
-    if (answer.replace(/[./]/g, "").length >= 8) return;
+    if (!/^\d$/.test(digit)) return;
+    if (answer.replace(/\./g, "").length >= 8) return;
     answer += digit;
   }
   syncAnswer();
   cue.tap();
 }
 
-function syncAnswer() {
+/** Backspace: the last digit of the answer, or of the focused fraction box only. */
+function eraseOne() {
+  if (currentItem?.fractionFields) {
+    // An empty box stays focused; nothing jumps to the other box.
+    const next = eraseDigit(fields);
+    if (next) fields = next;
+  } else {
+    answer = answer.slice(0, -1);
+  }
+  syncAnswer();
+}
+
+function syncAnswer(tick = true) {
   const el = document.getElementById("answer");
   if (el) {
-    el.innerHTML = answerHtml();
-    el.classList.remove("tick");
-    void el.offsetWidth;
-    el.classList.add("tick");
+    if (currentItem?.fractionFields) {
+      el.innerHTML = fieldsHtml();
+      el.setAttribute("data-focus", fields.focus);
+    } else {
+      el.innerHTML = answerHtml();
+    }
+    if (tick) {
+      el.classList.remove("tick");
+      void el.offsetWidth;
+      el.classList.add("tick");
+    }
   }
-  if (!nudgeSticky) setNudge("");
+  if (tick && !nudgeSticky) setNudge("");
 }
 
 function sessionSeed(mode, domain) {
@@ -1134,6 +1211,7 @@ function showQuestion() {
     return;
   }
   answer = "";
+  fields = emptyFields();
   nudgeHtml = "";
   nudgeSticky = false;
   inputModes = new Set();
@@ -1154,7 +1232,8 @@ function doSubmit() {
     item: currentItem,
     state,
     session,
-    raw: answer,
+    // fraction_fields: both boxes → ONE judging string (or "" = not an attempt).
+    raw: currentItem.fractionFields ? fieldsAnswer(fields) : answer,
     meta: {
       day: today(),
       inputMode: mode.inputMode,
@@ -1228,16 +1307,11 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     inputModes.add("physical_keyboard");
     appendDigit(".");
-  } else if (event.key === "/" || event.key === "Divide") {
-    event.preventDefault();
-    inputModes.add("physical_keyboard");
-    appendDigit("/");
   } else if (event.key === "Backspace") {
     event.preventDefault();
     if (submitting) return;
     inputModes.add("physical_keyboard");
-    answer = answer.slice(0, -1);
-    syncAnswer();
+    eraseOne();
   } else if (event.key === "Enter") {
     event.preventDefault();
     doSubmit();

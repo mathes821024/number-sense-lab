@@ -41,9 +41,8 @@ const REQUIRED_ASSETS = [
   "brand.appIcon",
   "brand.avatar",
   "logo.mark",
-  "domain.squares",
-  "domain.products",
-  "domain.fractions",
+  // The eight `domain.<domain_id>` icons are not math-lab slots any more: they come
+  // only from assets/themes/math-lab/specialist/asset-manifest.json, the runtime copy of the F-B hand-off (docs/ui/08; test/fb-specialist.test.js).
   "decor.cloud1",
   "decor.cloud2",
   "decor.hill",
@@ -107,13 +106,12 @@ test("no theme selector, theme settings or theme switching in the shell", () => 
 });
 
 test("theme object keeps the documented structure and asset slots", () => {
-  for (const key of ["id", "manifest", "colors", "typography", "radius", "shadows", "background", "mascot", "brand", "icons", "marks", "motion", "sounds"]) {
+  for (const key of ["id", "manifest", "colors", "typography", "radius", "shadows", "background", "mascot", "brand", "marks", "motion", "sounds"]) {
     assert.ok(key in mathLabTheme, `theme.${key}`);
   }
   const slots = [
     ...Object.values(mathLabTheme.mascot),
     ...Object.values(mathLabTheme.brand),
-    ...Object.values(mathLabTheme.icons),
     ...Object.values(mathLabTheme.background),
   ];
   for (const name of REQUIRED_ASSETS) assert.ok(slots.includes(name), `theme names slot ${name}`);
@@ -144,8 +142,11 @@ test("every locked slot resolves through the manifest to a project-local file", 
       // Pages load the 512px copy; the 1024px master is only a dense-screen candidate.
       assert.match(html, new RegExp(`<img src="[^"]+mascot-${pose}-512\\.png" srcset="[^"]+-512\\.png 512w, [^"]+mascot-${pose}\\.png 1024w"`));
     }
-    for (const [domain, slot] of Object.entries(mathLabTheme.icons)) {
-      assert.match(asset(slot), /^<img [^>]*alt=""/, `icon for ${domain}`);
+    // 08 §1: the math-lab pack no longer maps any domain icon (no second mapping source).
+    assert.equal("icons" in mathLabTheme, false, "theme names no domain icons");
+    assert.equal("domain" in manifestJson.assets, false, "math-lab manifest has no domain group");
+    for (const domain of ["squares", "cubes", "powers", "products", "special_products", "fraction_decimal", "halves", "complements"]) {
+      assert.equal(asset(`domain.${domain}`), "", `${domain}: not a math-lab slot`);
     }
     assert.equal(asset("mascot.not-in-this-theme"), "", "missing optional asset falls back to nothing");
     // A manifest for another theme is refused, so no pictures rather than wrong ones.
@@ -274,9 +275,9 @@ test("training (FOCUS) markup has no mascot, decoration or theme art", () => {
   assert.doesNotMatch(pause, /mascot|asset\(|decor/);
 });
 
-test("training shows a calm 「k / N」 position and a still bar, never a timer", () => {
+test("training shows a calm 「第 k 题 · 共 N 题」 position and a still bar, never a timer", () => {
   const train = section("renderTrain");
-  assert.match(train, /id="set-count">\$\{position\} \/ \$\{total\}</);
+  assert.match(train, /id="set-count">\$\{setPositionLabel\(position, total\)\}</);
   assert.match(train, /<progress class="set-bar"/);
   const code = train.replace(/\/\/.*$/gm, "");
   assert.doesNotMatch(code, /%|倒计时|countdown|setTimeout|setInterval|秒/);
@@ -307,9 +308,13 @@ test("placeholders only say 敬请期待 and change nothing", () => {
   const show = section("showSoon").replace(/\/\/.*$/gm, "");
   assert.match(show, /敬请期待/);
   assert.doesNotMatch(show, /state|save|persist|render\(/);
-  for (const name of ["知识地图", "立方", "补数", "倍数与因数", "规律探索", "概念", "例题", "动画", "已掌握", "全部", "昵称", "清空练习记录", "关于数感训练场"]) {
+  for (const name of ["知识地图", "已掌握", "全部", "昵称", "清空练习记录", "关于数感训练场"]) {
     assert.match(appJs, new RegExp(name), `placeholder ${name}`);
   }
+  // 05: 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图 and are not 敬请期待 cards on the practice page.
+  const explore = appJs.slice(appJs.indexOf("function renderExplore"), appJs.indexOf("function renderFocusConfirm"));
+  assert.doesNotMatch(explore, /规律探索|概念|例题|动画|SOON_DOMAINS|soonButton/);
+  assert.doesNotMatch(appJs, /倍数与因数/);
   // No 动画 preference state and no 再做一遍 (07 §占位, 05 §11/§17).
   assert.doesNotMatch(appJs, /prefs\.(animation|motion)|再做一遍/);
   assert.match(indexHtml, /id="toast" role="status"/);
