@@ -2,6 +2,13 @@
   "page": "specialist-training",
   "variant": "F-B warm branded learning panel",
   "status": "current-visual-baseline",
+  "semantics": {
+    "directory": "design-source",
+    "domains.asset": "256px design file. This is the only domain picture copied into the runtime directory.",
+    "domains.asset_2x": "512px design derivative. It stays here. It is not a runtime file, and the name does not mean the client loads a high-density copy.",
+    "mascot.asset": "1024px design master. It stays here. It is not the runtime mascot.",
+    "mascot.asset_2x": "512px design derivative. The runtime manifest exposes this picture as mascot.asset only. Do not keep asset_2x as a runtime key."
+  },
   "domains": {
     "squares": {
       "asset": "assets/specialist/domains/domain-squares.png",

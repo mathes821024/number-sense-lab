@@ -28,7 +28,7 @@
 
 欢迎、答对、思考三张已经锁定。不再为了更像最初那张人物稿重新生成。
 
-练习页八个域的设计原稿在 `concept-design/F-B-final/`。运行时改到 `assets/themes/math-lab/specialist/`，生产页面不再加载概念稿目录。分组浅底用样式画，不用分组底图。知识地图仍是以后的入口。换这些 PNG 不改 `domain_id`。
+练习页的设计原稿在 `concept-design/F-B-final/`。运行目录 `assets/themes/math-lab/specialist/` 只放 8 张 256px 域图标、1 张 512px 吉祥物和生成的清单。同步只走 `scripts/sync-fb-assets.mjs`。分组浅底用样式画。知识地图仍是以后的入口。换这些 PNG 不改 `domain_id`。
 
 ## 什么用图，什么用界面画
 
