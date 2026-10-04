@@ -28,7 +28,7 @@
 
 欢迎、答对、思考三张已经锁定。不再为了更像最初那张人物稿重新生成。
 
-练习页八个域的现行文件在 `concept-design/F-B-final/asset-manifest.json`。分组浅底用样式画，不用分组底图。知识地图仍是以后的入口。换这些 PNG 不改 `domain_id`。
+练习页八个域的设计原稿在 `concept-design/F-B-final/`。运行时改到 `assets/themes/math-lab/specialist/`，生产页面不再加载概念稿目录。分组浅底用样式画，不用分组底图。知识地图仍是以后的入口。换这些 PNG 不改 `domain_id`。
 
 ## 什么用图，什么用界面画
 
