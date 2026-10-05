@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数感训练场 · 15² 反馈样例</title>
+  <style>
+    body { margin: 0; font-family: "Sora", "PingFang SC", sans-serif; background: #e7f6f4; color: #102033; }
+    header { padding: 28px 24px 8px; max-width: 1200px; margin: 0 auto; }
+    h1 { margin: 0; font-size: 28px; letter-spacing: -0.03em; }
+    p { color: #4d6474; }
+    .switch { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 24px 0; max-width: 1200px; margin: 0 auto; }
+    button { border: 0; border-radius: 999px; padding: 10px 14px; font: inherit; background: white; cursor: pointer; }
+    button.on { background: #0c7c86; color: white; }
+    .board { padding: 20px 24px 40px; max-width: 480px; margin: 0 auto; }
+    iframe { width: 100%; height: 760px; border: 0; border-radius: 28px; background: #e7f6f4; box-shadow: 0 16px 40px rgba(16, 32, 51, 0.08); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>15² 的三种反馈</h1>
+    <p>只比较教学信息。没有判题，没有动画播放，没有声音。A+ 视觉方向仍然有效。</p>
+  </header>
+  <div class="switch">
+    <button class="on" data-src="minimal.html">A 最短钩子</button>
+    <button data-src="pattern.html">B 规律与这一家</button>
+    <button data-src="storyboard.html">C 记忆分镜</button>
+  </div>
+  <div class="board"><iframe id="view" title="反馈样例" src="minimal.html"></iframe></div>
+  <script>
+    const view = document.getElementById("view");
+    document.querySelector(".switch").addEventListener("click", (e) => {
+      const src = e.target.dataset && e.target.dataset.src;
+      if (!src) return;
+      view.src = src;
+      document.querySelectorAll(".switch button").forEach((b) => b.classList.toggle("on", b === e.target));
+    });
+  </script>
+</body>
+</html>
