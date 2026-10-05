@@ -1,0 +1,60 @@
+/* Option C — 数感工作室. Static visual mockup only. */
+:root {
+  --bg: #f4efe6;
+  --ink: #161616;
+  --soft: #5e584f;
+  --blue: #2436f2;
+  --hot: #ff5a36;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: "Sora", "PingFang SC", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+.phone { width: min(100%, 430px); margin: 0 auto; padding: 28px 22px 40px; }
+.rule { height: 8px; width: 72px; background: var(--hot); margin-bottom: 22px; }
+.en { margin: 0; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blue); }
+h1 { margin: 8px 0 0; font-family: "Newsreader", serif; font-weight: 500; font-size: 52px; letter-spacing: -0.04em; line-height: 0.95; }
+.lede { max-width: 16em; margin: 16px 0 0; font-size: 16px; line-height: 1.45; color: var(--soft); }
+.cta {
+  display: inline-flex; flex-direction: column; justify-content: center;
+  min-height: 56px; margin-top: 28px; padding: 0 22px; border: 0; border-radius: 4px;
+  background: var(--ink); color: #f4efe6; font: inherit; font-size: 16px; font-weight: 600;
+}
+.cta small { font-size: 11px; letter-spacing: 0.08em; font-weight: 500; opacity: 0.7; }
+.rows { margin-top: 36px; border-top: 1px solid rgba(22,22,22,0.15); }
+.rows button {
+  width: 100%; display: flex; justify-content: space-between; align-items: baseline;
+  padding: 16px 0; border: 0; border-bottom: 1px solid rgba(22,22,22,0.15);
+  background: transparent; font: inherit; font-size: 18px; text-align: left;
+}
+.rows em { font-style: normal; color: var(--hot); font-family: "Newsreader", serif; font-size: 22px; }
+.links { display: flex; flex-direction: column; align-items: flex-start; }
+.rows button span { min-width: 0; }
+.rows em { flex: 0 0 auto; padding-left: 12px; }
+.links button, .quiet {
+  border: 0; background: transparent; color: var(--soft); font: inherit; font-size: 14px;
+  padding: 8px 0; text-align: left;
+}
+.fine { margin-top: 24px; font-size: 12px; color: #7a7368; line-height: 1.5; }
+.question {
+  margin: 36px 0 12px; font-family: "Newsreader", serif; font-weight: 500;
+  font-size: 76px; letter-spacing: -0.05em; line-height: 0.9;
+}
+.answer { height: 64px; border: 0; border-bottom: 2px solid var(--ink); background: transparent; }
+.keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 28px; }
+.key {
+  min-height: 52px; border: 1px solid rgba(22,22,22,0.12); background: transparent;
+  font: inherit; font-size: 20px;
+}
+.key.go { grid-column: 1 / -1; background: var(--blue); color: white; border: 0; font-weight: 600; }
+.demoted { color: var(--soft); font-size: 18px; }
+.wrong { margin-top: 10px; padding: 8px 0 8px 16px; border-left: 6px solid var(--hot); }
+.relation { margin: 0; font-family: "Newsreader", serif; font-size: 40px; font-weight: 500; letter-spacing: -0.04em; }
+.hint { margin: 8px 0 12px; }
+.mark { margin: 0; color: var(--hot); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.end h1 { font-size: 72px; }
+.star { color: var(--hot); font-size: 18px; }
+.familiar { font-family: "Newsreader", serif; font-size: 22px; }
