@@ -229,7 +229,7 @@ export default function Train() {
                 : promptStem(view.item.prompt);
               return (
                 <View
-                  className={`question-fields${hasWords(view.item.prompt) ? " is-words" : ""}`}
+                  className={`question-fields${hasWords(view.item.prompt) ? " is-words" : ""}${view.item.answer_type === "signed_fraction_fields" ? " is-signed-fraction" : ""}`}
                   key={view.item.id}
                   data-testid={formula?.kind === "unary_abs" ? "formula-abs" : undefined}
                 >

@@ -536,6 +536,42 @@ body {
     margin: 0 0 12px;
     white-space: normal;
   }
+  /* A long rational expression and a signed fraction answer share one narrow
+     card. Scale the notation together and allow the answer term to wrap as a
+     unit on very small screens; the editable numerator/denominator remain
+     48px high touch targets. */
+  .question-fields.is-signed-fraction {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 18px 0 10px;
+  }
+  .question-fields.is-signed-fraction .math.question {
+    flex: 0 1 auto;
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .question-fields.is-signed-fraction .signed-fraction-fields {
+    flex: none;
+  }
+  .question-fields.is-signed-fraction .sff-sign {
+    width: 36px;
+    min-height: 48px;
+    margin-right: 6px;
+    font-size: 24px;
+  }
+  .question-fields.is-signed-fraction .fraction-fields {
+    min-width: 72px;
+  }
+  .question-fields.is-signed-fraction .ff-box {
+    min-height: 48px;
+    font-size: 24px;
+  }
+  .question-fields.is-signed-fraction .ff-bar {
+    height: 3px;
+    margin: 4px 2px;
+  }
 }
 .fraction-fields {
   display: inline-flex;

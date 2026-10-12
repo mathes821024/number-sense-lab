@@ -102,9 +102,12 @@ test("shared UI exposes a visible ± key and H5 maps minus keys to the same acti
   assert.match(keypad, /切换正负号/);
   assert.match(page, /SignedFractionFields/);
   assert.match(page, /flow\.toggleSign/);
-  assert.match(page, /question-fields\$\{hasWords\(view\.item\.prompt\) \? " is-words" : ""\}/);
+  assert.match(page, /is-signed-fraction/);
   assert.match(signedFields, /fields\.sign/, "the shared field renders the three-state sign slot");
   assert.match(css, /\.question-fields\.is-words\s*\{[^}]*flex-direction:\s*column/s);
+  assert.match(css, /\.question-fields\.is-signed-fraction\s*\{[^}]*flex-wrap:\s*wrap/s);
+  assert.match(css, /\.question-fields\.is-signed-fraction \.math\.question\s*\{[^}]*font-size:\s*28px/s);
+  assert.match(css, /\.question-fields\.is-signed-fraction \.ff-box\s*\{[^}]*min-height:\s*48px/s);
   assert.match(h5, /event\.key === "-"/);
   assert.match(h5, /event\.key === "Subtract"/);
   assert.match(h5, /toggle-sign/);
