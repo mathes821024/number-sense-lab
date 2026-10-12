@@ -330,6 +330,64 @@ export function completeDomainCatalog(domain) {
   });
 }
 
+
+/** Power-entry semantic keys: 27 forward + 27 inverse = 54 slots. */
+export function powerEntrySemanticKeys() {
+  const keys = [];
+  for (const [base, end] of [[2, 10], [3, 6], [5, 5], [10, 6]]) {
+    for (let exponent = 1; exponent <= end; exponent += 1) {
+      const forward = exponent === 2
+        ? `square:forward:${base}`
+        : exponent === 3
+          ? `cube:forward:${base}`
+          : `power:forward:${base}:${exponent}`;
+      keys.push(forward, `power:inverse:${base}:${exponent}`);
+    }
+  }
+  return keys;
+}
+
+/**
+ * First-release student entry catalog for complete/reference practice.
+ * Warehouse may be larger; entry filters squares to 1..20 and cubes to 1..9.
+ * Powers entry exposes all 54 slots, reusing square/cube identities (no new mastery ids).
+ */
+export function practiceEntryCatalog(domain) {
+  if (!DOMAIN_ORDER.includes(domain)) {
+    throw new Error(`CONTRACT_CONFLICT: unknown domain ${domain}`);
+  }
+  if (domain === "squares") {
+    return completeDomainCatalog("squares").filter((item) => {
+      const match = /^square:(?:forward|inverse):(\d+)$/.exec(item.semantic_key);
+      if (!match) return false;
+      const value = Number(match[1]);
+      return value >= 1 && value <= 20;
+    });
+  }
+  if (domain === "cubes") {
+    return completeDomainCatalog("cubes").filter((item) => {
+      const match = /^cube:(?:forward|inverse):(\d+)$/.exec(item.semantic_key);
+      if (!match) return false;
+      const value = Number(match[1]);
+      return value >= 1 && value <= 9;
+    });
+  }
+  if (domain === "powers") {
+    const byKey = new Map();
+    for (const item of loadFactCatalog({ includeReference: true })) {
+      byKey.set(item.semantic_key, item);
+    }
+    const out = [];
+    for (const key of powerEntrySemanticKeys()) {
+      const item = byKey.get(key);
+      if (!item) throw new Error(`CONTRACT_CONFLICT: missing power entry fact ${key}`);
+      out.push(item);
+    }
+    return out;
+  }
+  return completeDomainCatalog(domain);
+}
+
 export function verifyFactCollections(catalog = loadFactCatalog({ includeReference: true })) {
   const keys = new Set(catalog.map((item) => item.semantic_key));
   const requireKey = (key) => {

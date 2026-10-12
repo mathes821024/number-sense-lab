@@ -9,17 +9,17 @@
 import { judgeAnswer } from "./answer.js";
 import { feedbackFor } from "./feedback.js";
 import {
-  completeDomainCatalog,
   getRelationById,
   listProductPracticeVariants,
+  practiceEntryCatalog,
   referencePresentation,
   resolvePracticeVariant,
 } from "./content.js";
 import { createRng, shuffleWith } from "./shuffle.js";
 import {
   DEFAULT_SESSION_SIZE,
+  MAX_REAPPEARS_PER_ITEM,
   nextItem,
-  planWrongReappear,
 } from "./schedule.js";
 
 export const REFERENCE_MODE = "reference";
@@ -27,6 +27,23 @@ export const REFERENCE_SOURCE = "reference_practice";
 
 /** Minimum answered items between two variants from the same product family. */
 export const FAMILY_SPACING_GAP = 2;
+
+/**
+ * Reference-practice wrong reappear: exactly WRONG_REAPPEAR_GAP (=2) other
+ * answered items between the wrong answer and the revisit.
+ * insertAt = answered + gap (not answered + 1 + gap). Leaves global mastery
+ * schedule.planWrongReappear untouched.
+ */
+export function planReferenceWrongReappear(session, itemId, gap = FAMILY_SPACING_GAP) {
+  const count = session.reappearCount[itemId] || 0;
+  if (count >= MAX_REAPPEARS_PER_ITEM) return session;
+  const insertAt = session.answered + gap;
+  return {
+    ...session,
+    reappearPlan: { ...session.reappearPlan, [itemId]: insertAt },
+    reappearCount: { ...session.reappearCount, [itemId]: count + 1 },
+  };
+}
 
 export function referenceTitleFor(domain) {
   return domain === "products" ? "乘除关系练习" : "完整关系练习";
@@ -88,7 +105,7 @@ export function buildSpacedVariantQueue(variants, size, rng) {
 export function startReferenceSession(opts) {
   const domain = opts.domain;
   if (!domain) throw new Error("CONTRACT_CONFLICT: reference session requires a domain");
-  const catalog = opts.catalog || completeDomainCatalog(domain);
+  const catalog = opts.catalog || practiceEntryCatalog(domain);
   if (!catalog.length) {
     throw new Error(`CONTRACT_CONFLICT: no complete catalog for ${domain}`);
   }
@@ -135,7 +152,7 @@ export function startReferenceSession(opts) {
 }
 
 export function peekReferenceItem(session, catalog) {
-  const domainCatalog = catalog || completeDomainCatalog(session.domain);
+  const domainCatalog = catalog || practiceEntryCatalog(session.domain);
   const { itemId, session: next, nearEnd } = nextItem(session);
   if (!itemId) return { item: null, session: next, nearEnd: false, revisit: false };
 
@@ -180,7 +197,7 @@ export function submitReferenceAnswer({ item, state, session, raw, meta, catalog
     }),
   };
   if (judged.kind === "wrong") {
-    nextSession = planWrongReappear(nextSession, outcomeId);
+    nextSession = planReferenceWrongReappear(nextSession, outcomeId);
   }
 
   // Persist only the transient active session. Relations / skills stay byte-identical.

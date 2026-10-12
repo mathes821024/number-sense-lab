@@ -20,6 +20,13 @@ import { skillById } from "./skill-catalog.js";
 const BANDS = ["foundation", "standard", "transfer"];
 const FRACTION_DENOMINATORS = [2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 20];
 
+function gcdInt(a, b) {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y) [x, y] = [y, x % y];
+  return x || 1;
+}
+
 /** Required template tags per skill × band (contract §4.2). */
 export const V2_REQUIRED_TEMPLATES = Object.freeze({
   "g7-rational-sign-opposite-absolute": {
@@ -384,9 +391,19 @@ function generateFractionAddSub(skill, coordinates, rng, template) {
   let right;
   let operator;
   if (template === "same_denominator") {
-    const d = rng.pick(FRACTION_DENOMINATORS.filter((v) => v <= bound));
-    left = rational(nonZeroInteger(rng, -bound, bound), d);
-    right = rational(nonZeroInteger(rng, -bound, bound), d);
+    const d = rng.pick(FRACTION_DENOMINATORS.filter((v) => v <= bound && v > 1));
+    function coprimeNumerator() {
+      let n = nonZeroInteger(rng, -bound, bound);
+      let guard = 0;
+      while (gcdInt(Math.abs(n), d) !== 1 && guard < 32) {
+        n = nonZeroInteger(rng, -bound, bound);
+        guard += 1;
+      }
+      if (gcdInt(Math.abs(n), d) !== 1) n = n > 0 ? 1 : -1;
+      return n;
+    }
+    left = rational(coprimeNumerator(), d);
+    right = rational(coprimeNumerator(), d);
     operator = rng.boolean() ? "add" : "subtract";
   } else if (template === "unlike_denominator") {
     left = randomFraction(rng, bound, { positive: true });
@@ -437,9 +454,11 @@ function generateFractionMulDiv(skill, coordinates, rng, template) {
     right = randomFraction(rng, bound);
     operator = rng.boolean() ? "multiply" : "divide";
   } else {
-    // cross_cancel_improper
-    left = rational(rng.integer(bound, bound * 2), rng.pick([2, 3, 4, 5]));
-    right = rational(rng.integer(bound, bound * 2), rng.pick([2, 3, 4, 5]));
+    // cross_cancel_improper — at least one improper fraction
+    const denL = rng.pick([2, 3, 4, 5]);
+    const denR = rng.pick([2, 3, 4, 5]);
+    left = rational(rng.integer(denL + 1, Math.max(denL + 1, bound * 2)), denL);
+    right = rational(rng.integer(denR + 1, Math.max(denR + 1, bound * 2)), denR);
     operator = rng.boolean() ? "multiply" : "divide";
   }
   const result = operator === "multiply" ? multiply(left, right) : divide(left, right);
@@ -459,7 +478,8 @@ function generateFractionMulDiv(skill, coordinates, rng, template) {
 function generatePower(skill, coordinates, rng, template) {
   const bound = Math.min(skill.operand_bounds[coordinates.band], 10);
   if (template === "fraction_base_exp_le_6") {
-    const base = randomFraction(rng, Math.min(bound, 6));
+    let base = randomFraction(rng, Math.min(bound, 6));
+    if (base.denominator === 1) base = rational(base.numerator || 1, rng.pick([2, 3, 4, 5]));
     const exponent = rng.integer(0, 6);
     const result = power(base, exponent);
     return finish({
@@ -579,7 +599,7 @@ function generateMixed(skill, coordinates, rng, template) {
   });
 }
 
-export function generateExerciseV2({ skillId, band, seed, index }) {
+function generateExerciseV2Attempt({ skillId, band, seed, index, attempt = 0 }) {
   const skill = skillById(skillId);
   if (!skill) throw new Error(`unknown skill: ${skillId}`);
   if (!BANDS.includes(band) || !skill.bands.includes(band)) throw new Error(`unknown band: ${band}`);
@@ -587,8 +607,9 @@ export function generateExerciseV2({ skillId, band, seed, index }) {
   const coordinates = { skillId, band, seed: String(seed), index };
   const required = V2_REQUIRED_TEMPLATES[skillId]?.[band];
   if (!required?.length) throw new Error(`no v2 templates for ${skillId}:${band}`);
-  const template = pickTemplate(required, index);
-  const rng = createExerciseRng(`v2\u0000${coordinates.seed}\u0000${skillId}\u0000${band}\u0000${index}\u0000${template}`);
+  // Rotate template with attempt so uniqueness retries still stay in-matrix.
+  const template = pickTemplate(required, index + attempt * 7);
+  const rng = createExerciseRng(`v2\u0000${coordinates.seed}\u0000${skillId}\u0000${band}\u0000${index}\u0000${template}\u0000${attempt}`);
 
   if (skillId === "g7-rational-sign-opposite-absolute") return generateSign(skill, coordinates, rng, template);
   if (skillId === "g7-rational-compare") return generateCompare(skill, coordinates, rng, template);
@@ -599,4 +620,46 @@ export function generateExerciseV2({ skillId, band, seed, index }) {
   if (skillId === "g7-rational-power") return generatePower(skill, coordinates, rng, template);
   if (skillId === "g7-rational-mixed") return generateMixed(skill, coordinates, rng, template);
   throw new Error(`unknown skill: ${skillId}`);
+}
+
+function contentKeyOf(exercise) {
+  return `${exercise.prompt}\u0000${exercise.canonical_answer}`;
+}
+
+/** Deterministic memo: skill|band|seed|index → resolved unique-in-span exercise. */
+const v2ResolvedCache = new Map();
+
+function resolveV2Unique({ skillId, band, seed, index }) {
+  const cacheKey = `${skillId}\u0000${band}\u0000${seed}\u0000${index}`;
+  if (v2ResolvedCache.has(cacheKey)) return v2ResolvedCache.get(cacheKey);
+
+  const used = new Set();
+  const spanStart = Math.max(0, index - 9);
+  for (let prior = spanStart; prior < index; prior += 1) {
+    used.add(contentKeyOf(resolveV2Unique({ skillId, band, seed, index: prior })));
+  }
+
+  let chosen = null;
+  for (let attempt = 0; attempt < 64; attempt += 1) {
+    const candidate = generateExerciseV2Attempt({ skillId, band, seed, index, attempt });
+    const key = contentKeyOf(candidate);
+    if (!used.has(key)) {
+      chosen = candidate;
+      break;
+    }
+  }
+  if (!chosen) {
+    // Last resort: attempt 64 with index salt still deterministic.
+    chosen = generateExerciseV2Attempt({ skillId, band, seed, index, attempt: 64 + index });
+  }
+  v2ResolvedCache.set(cacheKey, chosen);
+  return chosen;
+}
+
+/**
+ * Public v2 entry. Deterministic in (skillId, band, seed, index, generator_version=2).
+ * Enforces unique prompt+canonical_answer within any contiguous 10-index span.
+ */
+export function generateExerciseV2({ skillId, band, seed, index }) {
+  return resolveV2Unique({ skillId, band, seed: String(seed), index });
 }

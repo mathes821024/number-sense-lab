@@ -175,7 +175,7 @@ test("wrong answers reappear after two answered items inside the reference sessi
   session = result.session;
   assert.equal(result.judged.kind, "wrong");
 
-  for (let i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 2; i += 1) {
     const peeked = peekReferenceItem(session, catalog);
     session = peeked.session;
     assert.notEqual(peeked.item.id, wrongId, `gap item ${i}`);

@@ -29,9 +29,11 @@ export function exactDecimal(n, d) {
   }
   if (den !== 1) throw new Error(`non-terminating fraction ${n}/${d}`);
   const places = Math.max(twos, fives);
+  // num / (2^twos * 5^fives) = scaled / 10^places
+  // => scaled = num * 2^(places-twos) * 5^(places-fives)
   let scaled = num;
-  for (let i = twos; i < places; i += 1) scaled *= 5;
-  for (let i = fives; i < places; i += 1) scaled *= 2;
+  for (let i = twos; i < places; i += 1) scaled *= 2;
+  for (let i = fives; i < places; i += 1) scaled *= 5;
   if (places === 0) return String(scaled);
   const digits = String(scaled).padStart(places + 1, "0");
   const whole = digits.slice(0, digits.length - places).replace(/^0+(?=\d)/, "") || "0";

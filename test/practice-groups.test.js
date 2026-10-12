@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { focusView } from "../app/pages/models.js";
-import { loadCoreCatalog, completeDomainCatalog, DOMAIN_ORDER } from "../src/core/content.js";
+import { loadCoreCatalog, practiceEntryCatalog, DOMAIN_ORDER } from "../src/core/content.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -20,8 +20,17 @@ test("focus confirm keeps the core CTA primary and exposes complete practice met
       assert.equal(view.referenceLabel, "乘除关系练习");
       assert.equal(view.referenceSubtitle, "从乘积反推因数，也从因数得到乘积");
       assert.match(view.referenceAria, /乘除关系练习/);
+    } else if (domain === "squares") {
+      assert.equal(view.completeCount, 40);
+      assert.equal(view.referenceLabel, "完整关系练习");
+    } else if (domain === "cubes") {
+      assert.equal(view.completeCount, 18);
+      assert.equal(view.referenceLabel, "完整关系练习");
+    } else if (domain === "powers") {
+      assert.equal(view.completeCount, 54);
+      assert.equal(view.referenceLabel, "完整关系练习");
     } else {
-      assert.equal(view.completeCount, completeDomainCatalog(domain).length);
+      assert.equal(view.completeCount, practiceEntryCatalog(domain).length);
       assert.equal(view.referenceLabel, "完整关系练习");
       assert.match(view.referenceAria, new RegExp(`${view.label}·完整关系练习`));
     }

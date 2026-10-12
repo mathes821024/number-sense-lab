@@ -12,7 +12,7 @@
  * State is the full v3 record. The flow only reads and writes the active
  * learner, exactly like h5/app.js (getActiveLearner / withActiveLearner).
  */
-import { loadCoreCatalog, domainLabel, completeDomainCatalog } from "../../../src/core/content.js";
+import { loadCoreCatalog, domainLabel, practiceEntryCatalog } from "../../../src/core/content.js";
 import { getActiveLearner, withActiveLearner } from "../../../src/core/store.js";
 import { startSession, submitAnswer, peekCurrent, finishSession } from "../../../src/core/session.js";
 import {
@@ -150,7 +150,7 @@ export function createTrainingFlow({
     const peeked = sessionKind === "skill"
       ? peekSkillExercise(session)
       : sessionKind === "reference"
-        ? peekReferenceItem(session, completeDomainCatalog(session.domain))
+        ? peekReferenceItem(session, practiceEntryCatalog(session.domain))
         : peekCurrent(session, catalog);
     session = peeked.session;
     persist(sessionKind === "skill"
@@ -371,7 +371,7 @@ export function createTrainingFlow({
               session,
               raw,
               meta,
-              catalog: completeDomainCatalog(session.domain),
+              catalog: practiceEntryCatalog(session.domain),
             })
           : submitAnswer({ item, state, session, raw, catalog, meta });
       if (!result.feedback.record) {

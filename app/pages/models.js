@@ -7,7 +7,7 @@
  * listLatestOutcomes, buildPrintSelector, buildA4Sheet). Nothing here
  * decides anything about learning, and nothing is written.
  */
-import { DOMAIN_ORDER, domainLabel, completeDomainCatalog, productPracticeVariantStats } from "../../src/core/content.js";
+import { DOMAIN_ORDER, domainLabel, practiceEntryCatalog, productPracticeVariantStats } from "../../src/core/content.js";
 import { studentLabel } from "../../src/core/mastery.js";
 import { grade7Practice, practiceCard, practiceGroups, skillPracticeFocus } from "../../src/core/practice-groups.js";
 import { buildMistakeBook } from "../../src/core/mistakes.js";
@@ -50,7 +50,7 @@ export function focusView(domain, state, catalog) {
   if (!card.released) return null;
   let completeCount = 0;
   try {
-    completeCount = completeDomainCatalog(domain).length;
+    completeCount = practiceEntryCatalog(domain).length;
   } catch {
     completeCount = 0;
   }

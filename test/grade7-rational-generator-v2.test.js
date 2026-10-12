@@ -118,8 +118,8 @@ test("v2 invariants over 1000 exercises per skill-band", () => {
 test("v2 session persistence restores pending wrong reappearance with same exercise_id", () => {
   let state = emptyLearner();
   let session = startSkillSession({
-    skillId: "g7-fraction-mul-div",
-    band: "standard",
+    skillId: "g7-integer-add-sub",
+    band: "foundation",
     day: "2026-10-12",
     seed: "persist-v2",
     size: 6,
@@ -129,10 +129,11 @@ test("v2 session persistence restores pending wrong reappearance with same exerc
   const first = peekSkillExercise(session);
   session = first.session;
   const wrongId = first.exercise.id;
+  const wrongRaw = first.exercise.canonical_answer === "0" ? "1" : "0";
   let result = submitSkillAnswer({
     state,
     session,
-    raw: "0",
+    raw: wrongRaw,
     meta: { day: "2026-10-12", inputMode: "onscreen_keypad", mixedInput: false, elapsedMs: 20 },
   });
   state = result.state;
