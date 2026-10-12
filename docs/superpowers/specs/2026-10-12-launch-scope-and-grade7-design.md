@@ -229,3 +229,17 @@ Atlas / 内容合同 → 七年级引擎 ┤
 - 某平台无法表达精确分数输入或读屏退路；
 - 分层授权无法确定权利主体或文件边界；
 - 发布动作需要尚未授权的账号、签名、审核承诺或付费。
+
+## 13. 合同冻结记录
+
+Owner 于 2026-10-12 明确确认本设计与实施方向，并要求重大改动以中文说明，供其保留最终判断。首次上线实现受以下合同共同约束：
+
+- `docs/architecture/04_learning_asset_tracks.md`：三条学习资产轨道、身份、状态与迁移；
+- `docs/curriculum/10_knowledge_atlas_v01_contract.md`：Atlas 节点、边、状态和入口；
+- `docs/curriculum/11_grade7_rational_skills_contract.md`：七年级有理数 8 技能；
+- `docs/ux/06_reasoning_tools_and_correct_explanation.md`：三工具与答对看原理；
+- `docs/ui/09_scientific_visual_language.md`：温暖数学实验室与科学组件；
+- `docs/governance/four-platform-release-gate.md`：五级发布状态与统一证据；
+- `docs/legal/02_layered_license_design.md`：MPL 软件与内容/品牌保留权利的边界。
+
+Gate 结论：Curriculum、UX/Visual、Architecture 和 License Design 均可进入集中实现。License Cutover（许可证正式切换）仍需权利主体名称、Git 权利核验和专业律师复核，未完成前不得对外发布。

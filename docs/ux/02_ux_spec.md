@@ -1,5 +1,7 @@
 # Number Sense Lab｜数感训练场
 
+> 首次上线有限替代：`docs/ux/06_reasoning_tools_and_correct_explanation.md` 在答对短反馈中增加可选“看原理”，并以“直接算 / 结构算 / 估算检查”统一答对和答错解释。未操作时仍自动进入下一题；查看原理不再次判题或记录，也不改变掌握、调度和错题语义。
+
 # UX Specification v0.1
 
 状态：U0 交互建议，供 Owner 与 ChatGPT 做 UX Gate Review。

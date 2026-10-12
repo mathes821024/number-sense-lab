@@ -1,6 +1,8 @@
 # 平台能力表
 
-状态：跨端架构评审用。不是实施说明，也不改学习契约。
+状态：`FROZEN FOR FIRST-LAUNCH BUILD`。能力退路已冻结；验证事实仍按证据更新，不改学习契约。
+
+2026-10-12 首发补充：H5 与微信已有工程基线，但必须在首发提交上重新获得构建、开发者工具和真机证据；抖音与支付宝为待实现目标。各端状态以 `docs/governance/four-platform-release-gate.md` 为准，未运行一律写 `NOT_RUN`，不能从旧截图或口头跑通推定已验证。
 
 读法：H5 可以更丰富，核心和共用界面不能依赖 C 档。小程序必须能完成同一次训练。
 
@@ -22,7 +24,7 @@
 | 安全区 | 有 | 有 | 有 | 有 | `app/platform/` | B | 顶栏、底部横条、刘海。数值来自各端，组件只留白。 |
 | 物理键盘 | 有 | 弱 | 弱 | 弱 | 仅 H5 增强 | C | 电脑可以键盘作答。小程序以屏幕键盘完成训练。完成训练不能依赖键盘。 |
 | 屏幕数字键盘 | 有 | 有 | 有 | 有 | 共用界面 | A | 这是手机上的主输入。快速连点不能变成放大页面。 |
-| SVG | 有 | 未验证 | 未验证 | 未验证 | 主题资产 | 待核 | 装饰和域图标希望用 SVG。某端未验证或不稳时，同一槽位用 PNG。不把 SVG 当学习逻辑。 |
+| SVG | 有 | 未验证 | 未验证 | 未验证 | 主题资产 | 待核 | 装饰和域图标可用 SVG；科学组件不依赖运行时 SVG。某端未验证或不稳时，同一槽位用 PNG。不把 SVG 当学习逻辑。 |
 | PNG / WebP | 有 | 有 | 有 | 有 | 主题资产 | A | 资产包已有 PNG 和 WebP。小程序若 WebP 不透明或失败，用 PNG。 |
 | 系统字体 | 有 | 有 | 有 | 有 | 共用界面 | A | 中文用系统字体。这是基线。 |
 | 运行时外链字体 | 能加载 | 受限 | 受限 | 受限 | 禁止作为基线 | C | 当前 H5 的 `fonts.googleapis.com` 是实现痕迹，不是契约。小程序适配前去掉。真要特殊拉丁字体，放进构建产物，不在打开时请求。 |
@@ -33,11 +35,40 @@
 | 剪贴板 | 有 | 有 | 有 | 有 | `app/platform/` | B | 当前产品用不到。先不建接口。 |
 | 题目页内容 | 有 | 有 | 有 | 有 | 共用 | A | 选题和排版四端共用。黑字白底，题目和答案不同页。 |
 | 系统打印 | `window.print` | 无 | 无 | 无 | 仅 H5 增强 | C | 只是 H5 把已经生成的题目页送去系统打印。小程序不靠它完成学习。 |
-| 保存或分享题目页 | 下载 | 保存或转发 | 未验证 | 未验证 | `app/platform/` | B | 小程序把同一张题目页带出去的方式。垂直切片先不做。 |
+| 保存或分享题目页 | 下载 | 保存或转发 | 未验证 | 未验证 | `app/platform/` | B | 小程序把同一张题目页带出去的方式。能力不可用时明示“当前平台暂不支持”，不阻断学习。 |
 | 生命周期 | 页面可见性 | onShow / onHide | 各自 | 各自 | `app/platform/` | B | 隐藏或卸载时取消未完成的音效，并取消共用界面里还没走完的答对短暂停顿。不把未提交输入判错。延时本身不是适配器。 |
-| 减少动态 | 读取系统偏好 | 未验证 | 未验证 | 未验证 | 退路已定 | 待核 | H5 读 `prefers-reduced-motion`。小程序还没验证到可靠的系统信号。没有信号时用低动效：直接出现。不新增动画开关状态。 |
+| 减少动态 | 读取系统偏好 | 未验证 | 未验证 | 未验证 | 退路已定 | 待核 | H5 读 `prefers-reduced-motion`。小程序没有可靠信号或读取异常时，一律低动效：直接出现。不新增动画开关状态。 |
 | 网络请求 | 有 | 有 | 有 | 有 | 现在不用 | A | 训练不靠网络。内容打进客户端。 |
 | 登录 | 以后 | 以后 | 以后 | 以后 | 以后的 `app/platform/` | B | 现在没有账号。先不建。 |
 | 支付 | 以后 | 以后 | 以后 | 以后 | 以后的 `app/platform/` | B | 现在没有支付。先不建。 |
 
 共用学习体验只使用 A，以及已经验证的 B。C 和待核都不能挡住小程序把这一题做完；待核在验证前走该行写明的退路。
+
+## 首发能力处置词
+
+为避免“代码里有接口”和“已经在真机验证”混淆，四端验收记录只使用：
+
+- `verified`：该能力已在当前产物对应的工具/设备证据中验证；
+- `fallback`：未验证或主能力不可用，但已冻结不阻断学习的退路；
+- `unsupported`：该端明确不提供，产品不能依赖。
+
+冻结时的初始处置如下；后续只能用 `docs/governance/four-platform-release-gate.md` 的证据把 `fallback` 升为 `verified`：
+
+| 能力 | H5 | 微信 | 抖音 | 支付宝 |
+| --- | --- | --- | --- | --- |
+| 本地存储 | fallback | fallback | fallback | fallback |
+| 音效 | fallback | fallback | fallback | fallback |
+| 页面切换/底部入口 | fallback | fallback | fallback | fallback |
+| 安全区 | fallback | fallback | fallback | fallback |
+| 物理键盘 | fallback | unsupported | unsupported | unsupported |
+| 屏幕数字键盘 | fallback | fallback | fallback | fallback |
+| SVG | fallback | fallback | fallback | fallback |
+| PNG | fallback | fallback | fallback | fallback |
+| 运行时外链字体 | unsupported | unsupported | unsupported | unsupported |
+| 过渡/减少动态 | fallback | fallback | fallback | fallback |
+| 分享/导出 | fallback | fallback | fallback | fallback |
+| 系统打印 | fallback | unsupported | unsupported | unsupported |
+| 生命周期中断 | fallback | fallback | fallback | fallback |
+| 离线学习 | fallback | fallback | fallback | fallback |
+
+`npm run build:h5` 和 `npm run build:weapp` 在基线提交构建通过，仅将平台推进到 `BUILD_VERIFIED`，不会自动把本表中的运行时能力标为 `verified`。

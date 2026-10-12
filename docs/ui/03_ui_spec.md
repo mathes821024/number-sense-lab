@@ -1,5 +1,7 @@
 # Number Sense Lab｜数感训练场
 
+> 首次上线有限替代：答对仍先显示短反馈并默认自动前进，但 `docs/ux/06_reasoning_tools_and_correct_explanation.md` 增加“看原理”入口；点击后取消自动前进，查看与答错共用的三工具面板，再由“继续”进入下一题。该替代不改变判题、记录次数、掌握、调度或错题语义。
+
 # UI Specification v0.1
 
 状态：UI0 视觉建议，供 Owner 与 ChatGPT 做 UI Gate Review。
