@@ -48,7 +48,7 @@ export function homeView(state, today = localDay()) {
       lede: "可以停在这里，也可以再看一眼结果。",
       ledeLines: ["可以停在这里，也可以再看一眼结果。"],
       cta: { label: "看看这次", sub: "", action: "see-last" },
-      secondary: { label: "再练一小段", action: "start-daily" },
+      secondary: null,
     };
   }
   return {
@@ -61,11 +61,9 @@ export function homeView(state, today = localDay()) {
   };
 }
 
-/** The other three Home cards (03_ui_spec §5 v0.3): 专项练习, 错题本 and 最近练得怎么样. */
+/** Three quiet next-step routes after the primary practice action. */
 export const HOME_ENTRIES = [
   { id: "explore", tone: "explore", icon: "target", label: "专项练习", sub: "按你需要的主题练习" },
   { id: "mistakes", tone: "mistakes", icon: "book-open-text", label: "错题本", sub: "把容易出错的题再练一练" },
   { id: "progress", tone: "progress", icon: "chart-bar", label: "最近练得怎么样", sub: "看看自己的进步" },
 ];
-
-export const DEVICE_NOTE = "练习记录只保存在当前设备，不会自动同步到其他设备。";

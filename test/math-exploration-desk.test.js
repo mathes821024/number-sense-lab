@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { profileView } from "../app/pages/me/model.js";
+import { homeView } from "../app/pages/home/model.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -56,4 +57,19 @@ test("about page carries the approved parent-companion story", () => {
     "错误不是惩罚的理由",
   ]) assert.match(page, new RegExp(line));
   assert.doesNotMatch(page, /https?:|www\.|href=|MIT|开源项目/);
+});
+
+test("completed home has one primary action and no duplicate re-practice action", () => {
+  const home = homeView({
+    sessions: [{ day: "2026-10-12", completed: true, mode: "daily" }],
+    activeSession: null,
+  }, "2026-10-12");
+  assert.equal(home.cta.label, "看看这次");
+  assert.equal(home.secondary, null);
+});
+
+test("home next steps are a compact path and the data note lives in My", () => {
+  const page = read("app/pages/home/index.jsx");
+  assert.match(page, /home-next/);
+  assert.doesNotMatch(page, /device-note|DEVICE_NOTE/);
 });

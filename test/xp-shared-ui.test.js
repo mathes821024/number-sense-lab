@@ -383,7 +383,7 @@ test("entry_after: a fresh daily set never starts a locked inverse item; core un
   assert.equal(isEntryUnlocked(byId("isquare-6"), {}), false);
 });
 
-test("a full set of 10 ends on the end page; Home then says 今天这段练完了 / 看看这次", () => {
+test("a full set of 10 ends on the end page; Home offers one calm result action", () => {
   const { store } = memStore();
   const flow = createTrainingFlow({ store, catalog, today: () => DAY });
   flow.begin("daily", null);
@@ -406,7 +406,7 @@ test("a full set of 10 ends on the end page; Home then says 今天这段练完�
   const home = homeView(flow.state, DAY);
   assert.equal(home.title, "今天这段练完了");
   assert.equal(home.cta.label, "看看这次");
-  assert.equal(home.secondary.label, "再练一小段");
+  assert.equal(home.secondary, null);
 });
 
 test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-set resumes at the next item; 先停 ends early", () => {

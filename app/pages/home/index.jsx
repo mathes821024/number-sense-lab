@@ -5,10 +5,8 @@ import { getStore, navigate, safeArea, motionClass, useScreenLifecycle } from ".
 import ThemeImage, { Mascot } from "../../components/ThemeImage";
 import HomeDecor from "../../components/HomeDecor";
 import BottomNav from "../../components/BottomNav";
-import Notice from "../../components/Notice";
 import Icon from "../../components/icon/Icon";
-import useNotice from "../../components/useNotice";
-import { homeView, HOME_ENTRIES, DEVICE_NOTE } from "./model.js";
+import { homeView, HOME_ENTRIES } from "./model.js";
 import { getRecord } from "../record.js";
 import { tabHandler, navPageStyle } from "../tabs.js";
 
@@ -16,11 +14,10 @@ function readLearner(record) {
   return getActiveLearner(record.read());
 }
 
-/** Home (h5/app.js renderHome): one main path, three secondary cards, the device note, the four entries. */
+/** Home: one main action, then three quiet next steps. */
 export default function Home() {
   const record = getRecord(getStore);
   const [state, setState] = useState(() => readLearner(record));
-  const [notice, showSoon] = useNotice();
   useScreenLifecycle({ onShow: () => setState(readLearner(record)) });
 
   const view = homeView(state);
@@ -80,25 +77,36 @@ export default function Home() {
               extra: " home-cta",
               onTap: () => navigate.toTraining(view.cta.action),
             })}
-            {view.secondary ? (
-              <View
-                className="home-secondary"
-                role="button"
-                data-action={view.secondary.action}
-                onClick={() => navigate.toTraining(view.secondary.action)}
-              >
-                <Text>{view.secondary.label}</Text>
-              </View>
-            ) : null}
-            {HOME_ENTRIES.map((e) =>
-              entry({ ...e, onTap: () => (e.id === "progress" ? navigate.toPage("progress") : navigate.toTab(e.id)) }),
-            )}
           </View>
-          <Text className="fine device-note">{DEVICE_NOTE}</Text>
+          <View className="home-next" aria-label="下一步">
+            <View className="home-next-head">
+              <Text className="home-next-kicker">下一步</Text>
+              <View className="home-next-line" aria-hidden="true" />
+            </View>
+            {HOME_ENTRIES.map((e, index) => (
+              <View
+                key={e.id}
+                className="home-next-item"
+                hoverClass="home-next-pressed"
+                role="button"
+                data-action={e.id}
+                onClick={() => (e.id === "progress" ? navigate.toPage("progress") : navigate.toTab(e.id))}
+              >
+                <View className={`home-next-mark tone-${e.tone}`} aria-hidden="true">
+                  <Icon name={e.icon} />
+                </View>
+                <View className="home-next-copy">
+                  <Text className="home-next-name">{e.label}</Text>
+                  <Text className="home-next-sub">{e.sub}</Text>
+                </View>
+                <Text className="home-next-index" aria-hidden="true">0{index + 1}</Text>
+                <Icon name="caret-right" className="chev" />
+              </View>
+            ))}
+          </View>
         </View>
       </View>
-      <Notice text={notice} />
-      <BottomNav active="home" bottomInset={safeArea.bottom} onTap={tabHandler("home", showSoon)} />
+      <BottomNav active="home" bottomInset={safeArea.bottom} onTap={tabHandler("home")} />
     </View>
   );
 }
