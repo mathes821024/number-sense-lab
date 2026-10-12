@@ -111,12 +111,12 @@ test("per-platform files exist only under app/platform", () => {
   }
 });
 
-test("one shared page set: no pages-h5 / pages-wechat, no duplicate Home / Training / Explore / Mistakes / Progress / Print / Correct / Wrong", () => {
+test("one shared page set: no platform page forks and one shared route per screen", () => {
   for (const dir of ["app/pages-h5", "app/pages-wechat", "app/pages-weapp", "pages-h5", "pages-wechat"]) {
     assert.equal(existsSync(join(root, dir)), false, dir);
   }
   const config = readFileSync(join(root, "app/app.config.js"), "utf8");
-  const SHARED = ["home", "train", "explore", "mistakes", "progress", "print"];
+  const SHARED = ["home", "train", "explore", "mistakes", "progress", "print", "me", "about"];
   const listed = [...config.matchAll(/"(pages\/[a-z]+\/index)"/g)].map((m) => m[1]);
   assert.deepEqual(listed, SHARED.map((p) => `pages/${p}/index`), "one entry per page, home first");
   const pages = files(join(root, "app/pages"), [".jsx"]).map((f) => relative(root, f));
