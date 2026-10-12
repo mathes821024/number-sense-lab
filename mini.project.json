@@ -1,10 +1,13 @@
 {
+  "format": 2,
   "miniprogramRoot": "dist/alipay/",
-  "appid": "2021007109676198",
-  "compileType": "miniprogram",
-  "setting": {
-    "es6": false,
-    "postcss": false,
-    "minified": false
+  "compileType": "mini",
+  "unknownConfig": {
+    "appid": "2021007109676198",
+    "setting": {
+      "es6": false,
+      "postcss": false,
+      "minified": false
+    }
   }
 }

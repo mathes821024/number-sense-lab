@@ -38,7 +38,11 @@ export default defineConfig(async (merge) => {
     compiler: "webpack5",
     cache: { enable: false },
     mini: {
-      compile: { include: shared },
+      // Alipay's IDE re-transpiles to ES5, which breaks native `class extends Map`
+      // in Taro's runtime; compile Taro's own packages to ES5 here instead.
+      compile: {
+        include: env === "alipay" ? [...shared, (p) => /[\\/]@tarojs[\\/]/.test(p)] : shared,
+      },
       imageUrlLoaderOption: { limit: 0 },
       webpackChain: looseEsm,
       postcss: {
