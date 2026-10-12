@@ -571,14 +571,23 @@ body {
 }
 .signed-fraction-fields.tick { animation: tick 0.14s ease; }
 .sff-sign {
-  width: 24px;
-  margin-right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 48px;
+  min-height: 58px;
+  margin-right: 10px;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-input);
+  background: var(--surface-card);
   color: var(--text-primary);
   font-family: var(--font-math);
   font-size: var(--fs-answer);
   font-weight: 800;
   text-align: center;
 }
+.sff-sign.is-empty { color: transparent; }
 .nudge {
   display: block;
   min-height: 22px;

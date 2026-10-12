@@ -2,6 +2,12 @@ import { View, Text } from "@tarojs/components";
 import { fieldSize } from "../../src/core/fraction-fields.js";
 
 export default function SignedFractionFields({ fields, onFocus, tick }) {
+  const signLabel = fields.sign === "-"
+    ? "负分数"
+    : fields.sign === "+"
+      ? "显式正分数"
+      : "未填写符号，默认正分数";
+  const signGlyph = fields.sign === "-" ? "−" : fields.sign;
   const box = (which) => {
     const value = fields[which];
     const focused = fields.focus === which;
@@ -24,12 +30,14 @@ export default function SignedFractionFields({ fields, onFocus, tick }) {
     <View
       className={`signed-fraction-fields${tick ? " tick" : ""}`}
       aria-live="polite"
-      aria-label={fields.negative ? "负分数" : "正分数"}
+      aria-label={signLabel}
       data-testid="signed-fraction-fields"
       data-focus={fields.focus}
-      data-negative={fields.negative ? "true" : "false"}
+      data-sign={fields.sign || "blank"}
     >
-      <Text className="sff-sign" aria-hidden="true">{fields.negative ? "−" : "+"}</Text>
+      <View className={`sff-sign${fields.sign ? "" : " is-empty"}`} aria-hidden="true">
+        <Text>{signGlyph}</Text>
+      </View>
       <View className="fraction-fields">
         {box("numerator")}
         <View className="ff-bar" aria-hidden="true" />

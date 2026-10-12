@@ -9,7 +9,7 @@ import {
 import { composeSignedFractionFields } from "./answer.js";
 
 export function emptySignedFields() {
-  return { negative: false, numerator: "", denominator: "", focus: NUMERATOR };
+  return { sign: "", numerator: "", denominator: "", focus: NUMERATOR };
 }
 
 export function focusSignedField(fields, which) {
@@ -25,12 +25,13 @@ export function eraseSignedDigit(fields) {
 }
 
 export function toggleSignedSign(fields) {
-  return { ...fields, negative: !fields.negative };
+  const nextSign = fields.sign === "" ? "-" : fields.sign === "-" ? "+" : "";
+  return { ...fields, sign: nextSign };
 }
 
 export function signedFieldsAnswer(fields) {
   return composeSignedFractionFields(
-    fields.negative,
+    fields.sign === "-",
     normalizeField(fields.numerator),
     normalizeField(fields.denominator),
   );

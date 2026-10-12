@@ -57,24 +57,39 @@ test("very long safe fields fail closed instead of overflowing during comparison
   assert.equal(judgeAnswer(item, "999999999999999/999999999999998").outcome, null);
 });
 
-test("signed fraction fields toggle sign without putting a sign in either box", () => {
+test("signed fraction fields cycle blank, negative, positive, then blank", () => {
   let fields = emptySignedFields();
+  assert.equal(fields.sign, "");
+
   fields = toggleSignedSign(fields);
-  assert.deepEqual(fields, { negative: true, numerator: "", denominator: "", focus: "numerator" });
+  assert.deepEqual(fields, { sign: "-", numerator: "", denominator: "", focus: "numerator" });
   assert.equal(signedFieldsAnswer(fields), "", "a sign alone is not an attempt");
 
+  fields = toggleSignedSign(fields);
+  assert.equal(fields.sign, "+");
+
+  fields = toggleSignedSign(fields);
+  assert.equal(fields.sign, "");
+});
+
+test("blank and explicit positive signs both compose a positive fraction", () => {
+  let fields = emptySignedFields();
   fields = typeSignedDigit(fields, "0");
   fields = typeSignedDigit(fields, "2");
   fields = focusSignedField(fields, "denominator");
   fields = typeSignedDigit(fields, "0");
   fields = typeSignedDigit(fields, "4");
+  assert.equal(signedFieldsAnswer(fields), "2/4");
+
+  fields = toggleSignedSign(fields);
   assert.equal(signedFieldsAnswer(fields), "-2/4");
+
+  fields = toggleSignedSign(fields);
+  assert.equal(signedFieldsAnswer(fields), "2/4");
   assert.equal(typeSignedDigit(fields, "-"), null, "the denominator never accepts a sign");
 
   fields = eraseSignedDigit(fields);
   assert.equal(fields.denominator, "");
-  fields = toggleSignedSign(fields);
-  assert.equal(fields.negative, false);
 });
 
 test("shared UI exposes a visible ± key and H5 maps minus keys to the same action", () => {
@@ -88,7 +103,7 @@ test("shared UI exposes a visible ± key and H5 maps minus keys to the same acti
   assert.match(page, /SignedFractionFields/);
   assert.match(page, /flow\.toggleSign/);
   assert.match(page, /question-fields\$\{hasWords\(view\.item\.prompt\) \? " is-words" : ""\}/);
-  assert.match(signedFields, /fields\.negative \? "−" : "\+"/, "the current positive sign is visible, not an ambiguous blank");
+  assert.match(signedFields, /fields\.sign/, "the shared field renders the three-state sign slot");
   assert.match(css, /\.question-fields\.is-words\s*\{[^}]*flex-direction:\s*column/s);
   assert.match(h5, /event\.key === "-"/);
   assert.match(h5, /event\.key === "Subtract"/);

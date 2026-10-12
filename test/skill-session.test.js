@@ -135,7 +135,7 @@ test("a negative fraction answer never carries its sign into the next absolute-v
 
   assert.equal(flow.view().item.prompt, "|9/2| = ?");
   assert.equal(flow.view().item.canonical_answer, "9/2");
-  assert.equal(flow.view().fields.negative, false);
+  assert.equal(flow.view().fields.sign, "");
 });
 
 test("training intent validates skill id and band before entering skill practice", () => {
