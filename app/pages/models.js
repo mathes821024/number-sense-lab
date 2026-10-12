@@ -39,6 +39,15 @@ export function grade7View(state) {
   return grade7Practice((state && state.skills) || {});
 }
 
+// The first-release generators deliberately begin these two skills with
+// integers.  On the learning path, name the larger mathematical capability
+// the learner is building; keep the catalog label and stable skill identity
+// unchanged for practice, persistence and compatibility.
+const GRADE7_PATH_LABELS = Object.freeze({
+  "g7-integer-add-sub": "有理数加减",
+  "g7-integer-mul-div": "有理数乘除",
+});
+
 /** The same eight skill cards, ordered into four display-only learning stages. */
 export function grade7PathView(state) {
   const base = grade7View(state);
@@ -50,7 +59,11 @@ export function grade7PathView(state) {
       skills: stage.skills.map((skillId) => {
         const card = byId.get(skillId);
         if (!card) throw new Error(`CONTRACT_CONFLICT: unknown Grade 7 path skill ${skillId}`);
-        return { ...card, structureKind: structureKindForSkill(skillId) };
+        return {
+          ...card,
+          label: GRADE7_PATH_LABELS[skillId] || card.label,
+          structureKind: structureKindForSkill(skillId),
+        };
       }),
     })),
   };

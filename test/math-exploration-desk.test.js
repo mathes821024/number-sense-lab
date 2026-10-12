@@ -102,6 +102,10 @@ test("Grade 7 path changes presentation only", () => {
   for (const skill of flat) {
     assert.equal(skill.band, cards.find((card) => card.skillId === skill.skillId).band);
   }
+  assert.equal(flat.find((skill) => skill.skillId === "g7-integer-add-sub").label, "有理数加减");
+  assert.equal(flat.find((skill) => skill.skillId === "g7-integer-mul-div").label, "有理数乘除");
+  assert.equal(cards.find((card) => card.skillId === "g7-integer-add-sub").label, "整数加减");
+  assert.equal(cards.find((card) => card.skillId === "g7-integer-mul-div").label, "整数乘除");
 });
 
 test("four semantic mascot states reuse the existing three runtime slots", () => {
