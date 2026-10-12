@@ -1,0 +1,10 @@
+{
+  "miniprogramRoot": "dist/alipay/",
+  "appid": "TODO_ALIPAY_APPID",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  }
+}

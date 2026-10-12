@@ -21,7 +21,7 @@ export default defineConfig(async (merge) => {
     deviceRatio: { 375: 2, 640: 2.34 / 2, 750: 1, 828: 1.81 / 2 },
     sourceRoot: "app",
     outputRoot: `dist/${env}`,
-    plugins: [],
+    plugins: env === "alipay" ? ["@tarojs/plugin-platform-alipay"] : [],
     defineConstants: {},
     // H5 page icons: the pack's small app-icon copies (manifest brand.appIconSmall / brand.touchIcon).
     copy: {

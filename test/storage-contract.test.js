@@ -1,9 +1,11 @@
 /**
- * One storage contract, two implementations. The SAME cases run against
- * app/platform/h5/browser-store.js (a fake localStorage) and
+ * One storage contract, three implementations. The SAME cases run against
+ * app/platform/h5/browser-store.js (a fake localStorage),
  * app/platform/wechat/wx-store.js (a fake wx with *StorageSync, which returns
- * "" for a missing key). Current semantics: v4 state, v1 → v2 → v3 → v4 migration,
- * write protection for unreadable / future / failed-migration records.
+ * "" for a missing key), and app/platform/alipay/my-store.js (a fake my with
+ * *StorageSync, which returns { data: undefined } for a missing key).
+ * Current semantics: v4 state, v1 → v2 → v3 → v4 migration, write protection
+ * for unreadable / future / failed-migration records.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -13,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { STATE_KEY } from "../src/adapter/storage-contract.js";
 import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { createWechatStore, wxBackend } from "../app/platform/wechat/wx-store.js";
+import { createAlipayStore, myBackend } from "../app/platform/alipay/my-store.js";
 import { getActiveLearner, withActiveLearner, withActiveLearnerNickname, isValidV4, STATE_VERSION } from "../src/core/store.js";
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
@@ -50,6 +53,20 @@ function fakeWx(initial) {
     getStorageSync: (k) => (log.push(["get", k]), map.has(k) ? map.get(k) : ""),
     setStorageSync: (k, v) => (log.push(["set", k]), map.set(k, v)),
     removeStorageSync: (k) => (log.push(["remove", k]), map.delete(k)),
+    raw: (k) => map.get(k),
+    keys: () => [...map.keys()],
+    log,
+  };
+}
+
+/** my-shaped storage: { data: undefined } for missing keys, object parameters. */
+function fakeMy(initial) {
+  const map = new Map(initial || []);
+  const log = [];
+  return {
+    getStorageSync: ({ key }) => (log.push(["get", key]), { data: map.has(key) ? map.get(key) : undefined }),
+    setStorageSync: ({ key, data }) => (log.push(["set", key]), map.set(key, data)),
+    removeStorageSync: ({ key }) => (log.push(["remove", key]), map.delete(key)),
     raw: (k) => map.get(k),
     keys: () => [...map.keys()],
     log,
@@ -97,6 +114,27 @@ const TARGETS = {
           removeStorageSync: (k) => writes.push([k, null]),
         };
         return { store: createWechatStore(a, STATE_KEY, { createId: () => "tmp" }), writes };
+      },
+    };
+  },
+  alipay: (initial) => {
+    const api = fakeMy(initial);
+    return {
+      storage: api,
+      store: (deps) => createAlipayStore(api, STATE_KEY, deps),
+      raw: () => api.raw(STATE_KEY),
+      keys: () => api.keys(),
+      writes: () => api.log.filter(([op]) => op !== "get").length,
+      throwing: () => {
+        const writes = [];
+        const a = {
+          getStorageSync: () => {
+            throw new Error("denied");
+          },
+          setStorageSync: ({ key, data }) => writes.push([key, data]),
+          removeStorageSync: ({ key }) => writes.push([key, null]),
+        };
+        return { store: createAlipayStore(a, STATE_KEY, { createId: () => "tmp" }), writes };
       },
     };
   },
