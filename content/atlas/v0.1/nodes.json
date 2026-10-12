@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "nodes": [
+    {
+      "id": "foundation.number-representation",
+      "label": "数与表示",
+      "band": "foundation",
+      "layer": "representation",
+      "track": "atlas_only",
+      "status": "contracted",
+      "prerequisites": [],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "facts.complements-10-20-100",
+      "label": "10、20、100 以内凑整",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "contracted",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#31-有限事实全集"
+    },
+    {
+      "id": "facts.products-1-19",
+      "label": "小九九与 1～19 乘法关系",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "contracted",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#31-有限事实全集"
+    },
+    {
+      "id": "facts.squares-cubes-powers",
+      "label": "平方、立方与常见幂",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "contracted",
+      "prerequisites": ["facts.products-1-19"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#31-有限事实全集"
+    },
+    {
+      "id": "representation.fraction-decimal-percent-repeating",
+      "label": "分数、小数、百分数与循环小数",
+      "band": "foundation",
+      "layer": "representation",
+      "track": "calculation_skill",
+      "status": "contracted",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#32-基础运算关系"
+    },
+    {
+      "id": "skills.roots",
+      "label": "开方与幂的反向关系",
+      "band": "junior",
+      "layer": "relation-family",
+      "track": "calculation_skill",
+      "status": "contracted",
+      "prerequisites": ["facts.squares-cubes-powers"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "skills.reduce-fractions",
+      "label": "约分",
+      "band": "foundation",
+      "layer": "strategy",
+      "track": "calculation_skill",
+      "status": "contracted",
+      "prerequisites": ["representation.fraction-decimal-percent-repeating"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#32-基础运算关系"
+    },
+    {
+      "id": "skills.common-denominator",
+      "label": "通分",
+      "band": "foundation",
+      "layer": "strategy",
+      "track": "calculation_skill",
+      "status": "contracted",
+      "prerequisites": ["skills.reduce-fractions"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#32-基础运算关系"
+    },
+    {
+      "id": "formula.perfect-square",
+      "label": "完全平方公式",
+      "band": "junior",
+      "layer": "formula",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["facts.squares-cubes-powers"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "formula.difference-of-squares",
+      "label": "平方差公式",
+      "band": "junior",
+      "layer": "formula",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["facts.squares-cubes-powers"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "formula.cube-identities",
+      "label": "立方公式",
+      "band": "junior",
+      "layer": "formula",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["facts.squares-cubes-powers"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "reasoning.estimation-interval",
+      "label": "估算与区间",
+      "band": "transfer",
+      "layer": "estimate-verify",
+      "track": "atlas_only",
+      "status": "contracted",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#33-结构与检验"
+    },
+    {
+      "id": "reasoning.last-digit-parity-factor",
+      "label": "尾数、奇偶与因数结构",
+      "band": "transfer",
+      "layer": "estimate-verify",
+      "track": "atlas_only",
+      "status": "contracted",
+      "prerequisites": ["facts.products-1-19"],
+      "released_entry": null,
+      "review_evidence": "docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md#33-结构与检验"
+    },
+    {
+      "id": "grade7.rational-numbers",
+      "label": "有理数",
+      "band": "grade7",
+      "layer": "relation-family",
+      "track": "calculation_skill",
+      "status": "contracted",
+      "prerequisites": ["foundation.number-representation", "representation.fraction-decimal-percent-repeating"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/11_grade7_rational_skills_contract.md"
+    },
+    {
+      "id": "future.exponents",
+      "label": "指数",
+      "band": "future",
+      "layer": "transfer",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["facts.squares-cubes-powers"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "future.logarithms",
+      "label": "对数",
+      "band": "future",
+      "layer": "transfer",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["future.exponents"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "future.inequalities",
+      "label": "不等式",
+      "band": "future",
+      "layer": "transfer",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["grade7.rational-numbers"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "future.geometry-models",
+      "label": "几何模型",
+      "band": "future",
+      "layer": "transfer",
+      "track": "atlas_only",
+      "status": "mapped",
+      "prerequisites": ["reasoning.estimation-interval"],
+      "released_entry": null,
+      "review_evidence": "docs/curriculum/10_knowledge_atlas_v01_contract.md"
+    },
+    {
+      "id": "facts.products-core",
+      "label": "已发布常用乘积",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "released",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": "fact-domain:products",
+      "review_evidence": "docs/curriculum/06_v04_content_contract.md"
+    },
+    {
+      "id": "facts.complements-core",
+      "label": "已发布补数",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "released",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": "fact-domain:complements",
+      "review_evidence": "docs/curriculum/06_v04_content_contract.md"
+    },
+    {
+      "id": "facts.squares-core",
+      "label": "已发布平方",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "released",
+      "prerequisites": ["facts.products-core"],
+      "released_entry": "fact-domain:squares",
+      "review_evidence": "docs/curriculum/06_v04_content_contract.md"
+    },
+    {
+      "id": "facts.cubes-core",
+      "label": "已发布立方",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "released",
+      "prerequisites": ["facts.products-core"],
+      "released_entry": "fact-domain:cubes",
+      "review_evidence": "docs/curriculum/06_v04_content_contract.md"
+    },
+    {
+      "id": "facts.powers-core",
+      "label": "已发布常见幂",
+      "band": "foundation",
+      "layer": "fact",
+      "track": "fact_memory",
+      "status": "released",
+      "prerequisites": ["facts.products-core"],
+      "released_entry": "fact-domain:powers",
+      "review_evidence": "docs/curriculum/06_v04_content_contract.md"
+    },
+    {
+      "id": "representation.fraction-decimal-core",
+      "label": "已发布分数与小数",
+      "band": "foundation",
+      "layer": "representation",
+      "track": "fact_memory",
+      "status": "released",
+      "prerequisites": ["foundation.number-representation"],
+      "released_entry": "fact-domain:fraction_decimal",
+      "review_evidence": "docs/curriculum/04_v02c_relation_families.md"
+    }
+  ]
+}
