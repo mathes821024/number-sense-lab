@@ -9,8 +9,9 @@ import Icon from "./icon/Icon";
  * correct relation is the largest thing, then the short hook (小提示) and
  * 「看这里」. The pattern and the steps open only when asked. No keypad, no
  * retry of this item; the student presses 「下一题」.
+ * Optional promptAriaLabel / relationAriaLabel: formula-first contract Chinese SR.
  */
-export default function WrongFeedback({ prompt, feedback, onNext, onPause }) {
+export default function WrongFeedback({ prompt, feedback, onNext, onPause, promptAriaLabel, relationAriaLabel }) {
   const [showPattern, setShowPattern] = useState(false);
   const [showFrames, setShowFrames] = useState(false);
   const fb = feedback || {};
@@ -22,14 +23,14 @@ export default function WrongFeedback({ prompt, feedback, onNext, onPause }) {
         <Text>先停一下</Text>
       </View>
       <View className="wrong-head">
-        <MathText value={prompt} className="demoted" />
+        <MathText value={prompt} className="demoted" ariaLabel={promptAriaLabel} />
         <View className="wrong-art">
           <Mascot pose="thinking" className="mascot-side" />
           <ThemeImage slot="decor.question" className="hero-question" />
         </View>
       </View>
       <View className="panel">
-        <MathText value={fb.relation || ""} className="eq" />
+        <MathText value={fb.relation || ""} className="eq" ariaLabel={relationAriaLabel} />
         <View className="hook">
           <View className="hint-label">
             <Icon name="lightbulb" />
