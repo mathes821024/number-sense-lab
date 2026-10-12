@@ -103,6 +103,21 @@ test("shared training flow resumes the same generated exercise without touching 
   assert.deepEqual(resumed.state.activeSession, { id: "relation-kept" });
 });
 
+test("shared training flow advances to the next skill exercise after a correct answer", () => {
+  const store = createMemoryStore(emptyState({ learnerId: "L-advance", createdOn: DAY }));
+  const flow = createTrainingFlow({ store, today: () => DAY, clock: () => 42, now: () => 100 });
+  flow.beginSkill(SKILL, "foundation", "advance-seed");
+  const first = flow.view().item;
+  const answer = first.canonical_answer;
+  if (answer.startsWith("-")) flow.toggleSign();
+  for (const digit of answer.replace("-", "")) flow.input(digit);
+
+  assert.equal(flow.submit(), "correct");
+  assert.equal(flow.advance(), "train");
+  assert.notEqual(flow.view().item.id, first.id);
+  assert.equal(flow.view().position, 2);
+});
+
 test("training intent validates skill id and band before entering skill practice", () => {
   assert.deepEqual(trainingIntent({ intent: "start-skill", skill: SKILL, band: "standard" }), {
     kind: "begin-skill",

@@ -360,7 +360,9 @@ export function createTrainingFlow({
     advance() {
       if (screen !== "correct" && screen !== "wrong") return screen;
       submitting = false;
-      const done = session.answered >= session.targetCount || session.cursor >= session.queue.length;
+      const done = sessionKind === "skill"
+        ? session.answered >= session.targetCount
+        : session.answered >= session.targetCount || session.cursor >= session.queue.length;
       if (done) end(false);
       else showQuestion();
       return screen;
