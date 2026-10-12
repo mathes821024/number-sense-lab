@@ -80,11 +80,16 @@ test("signed fraction fields toggle sign without putting a sign in either box", 
 test("shared UI exposes a visible ± key and H5 maps minus keys to the same action", () => {
   const keypad = readFileSync(new URL("../app/components/Keypad.jsx", import.meta.url), "utf8");
   const page = readFileSync(new URL("../app/pages/train/index.jsx", import.meta.url), "utf8");
+  const signedFields = readFileSync(new URL("../app/components/SignedFractionFields.jsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app/app.css", import.meta.url), "utf8");
   const h5 = readFileSync(new URL("../app/platform/h5/index.js", import.meta.url), "utf8");
   assert.match(keypad, /signKey/);
   assert.match(keypad, /切换正负号/);
   assert.match(page, /SignedFractionFields/);
   assert.match(page, /flow\.toggleSign/);
+  assert.match(page, /question-fields\$\{hasWords\(view\.item\.prompt\) \? " is-words" : ""\}/);
+  assert.match(signedFields, /fields\.negative \? "−" : "\+"/, "the current positive sign is visible, not an ambiguous blank");
+  assert.match(css, /\.question-fields\.is-words\s*\{[^}]*flex-direction:\s*column/s);
   assert.match(h5, /event\.key === "-"/);
   assert.match(h5, /event\.key === "Subtract"/);
   assert.match(h5, /toggle-sign/);

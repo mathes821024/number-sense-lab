@@ -29,7 +29,7 @@ export default function SignedFractionFields({ fields, onFocus, tick }) {
       data-focus={fields.focus}
       data-negative={fields.negative ? "true" : "false"}
     >
-      <Text className="sff-sign" aria-hidden="true">{fields.negative ? "−" : ""}</Text>
+      <Text className="sff-sign" aria-hidden="true">{fields.negative ? "−" : "+"}</Text>
       <View className="fraction-fields">
         {box("numerator")}
         <View className="ff-bar" aria-hidden="true" />

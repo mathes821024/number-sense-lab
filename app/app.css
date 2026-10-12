@@ -500,6 +500,17 @@ body {
   margin: 22px 0 14px;
 }
 .question-fields .math.question { margin: 0 14px 0 0; white-space: nowrap; flex: none; }
+@media (max-width: 480px) {
+  .question-fields.is-words {
+    flex-direction: column;
+    width: 100%;
+  }
+  .question-fields.is-words .math.question {
+    max-width: 100%;
+    margin: 0 0 12px;
+    white-space: normal;
+  }
+}
 .fraction-fields {
   display: inline-flex;
   flex-direction: column;

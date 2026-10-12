@@ -229,11 +229,12 @@ test("model: both boxes become ONE judging string 「n/d」 by integer value, or
   assert.equal(composeFractionFields("1/2", "3"), "");
 });
 
-test("prompt: the training stem drops 「?/?」 (the boxes follow it)", () => {
+test("prompt: the training stem drops the answer placeholder before fraction boxes", () => {
   assert.equal(promptStem("0.125 = ?/?"), "0.125 =");
   assert.equal(hasBlankFraction("0.125 = ?/?"), true);
   assert.equal(hasBlankFraction("1/8 = ?"), false);
-  assert.equal(promptStem("1/8 = ?"), "1/8 = ?");
+  assert.equal(promptStem("|-5/6| = ?"), "|-5/6| =");
+  assert.equal(promptStem("(-5/6) 的相反数是？"), "(-5/6) 的相反数是？");
 });
 
 // ---------- acceptance 1–7 through the shared training flow (real Core) ----------

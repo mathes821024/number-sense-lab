@@ -183,7 +183,7 @@ export default function Train() {
         <View className="practice-zone">
           <Text className="practice-label">看清关系，再写答案</Text>
           {view.fields ? (
-            <View className="question-fields" key={view.item.id}>
+            <View className={`question-fields${hasWords(view.item.prompt) ? " is-words" : ""}`} key={view.item.id}>
               <MathText value={promptStem(view.item.prompt)} className="question" />
               {view.item.answer_type === "signed_fraction_fields" ? (
                 <SignedFractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />

@@ -118,6 +118,26 @@ test("shared training flow advances to the next skill exercise after a correct a
   assert.equal(flow.view().position, 2);
 });
 
+test("a negative fraction answer never carries its sign into the next absolute-value fraction", () => {
+  const skill = "g7-rational-sign-opposite-absolute";
+  const store = createMemoryStore(emptyState({ learnerId: "L-sign-reset", createdOn: DAY }));
+  const flow = createTrainingFlow({ store, today: () => DAY, clock: () => 42, now: () => 100 });
+  flow.beginSkill(skill, "standard", "seq-1");
+
+  assert.equal(flow.view().item.canonical_answer, "-1/10");
+  flow.toggleSign();
+  flow.input("1");
+  flow.focus("denominator");
+  flow.input("1");
+  flow.input("0");
+  assert.equal(flow.submit(), "correct");
+  assert.equal(flow.advance(), "train");
+
+  assert.equal(flow.view().item.prompt, "|9/2| = ?");
+  assert.equal(flow.view().item.canonical_answer, "9/2");
+  assert.equal(flow.view().fields.negative, false);
+});
+
 test("training intent validates skill id and band before entering skill practice", () => {
   assert.deepEqual(trainingIntent({ intent: "start-skill", skill: SKILL, band: "standard" }), {
     kind: "begin-skill",
