@@ -13,6 +13,7 @@
 ## Global Constraints
 
 - Preserve all historical IDs and semantic keys.
+- Fact domains are generated at sync/build time into a stable materialized catalog; runtime code selects from that catalog and must not synthesize anonymous facts.
 - Reference practice never enters daily practice, mastery, Mistake Book, or scheduler state.
 - Do not modify legacy `h5/app.js` as a second product implementation.
 - Do not redesign visual style, deploy, merge, or submit a Mini Program.
@@ -20,6 +21,7 @@
 ## Review Focus
 
 - Core and reference duplicates must collapse by semantic key while preserving the historical core ID.
+- The 190 product fact families must expose exactly 551 materialized practice variants without creating new mastery relation identities; square diagonals must not duplicate the same division prompt.
 - Percentage answers must be exact decimal strings with a visible `%` suffix and no floating comparison.
 - Repeating decimals must round-trip exactly through the existing repeating representation.
 - Refreshing a reference session must not turn it into a mastery-focused session.
@@ -36,11 +38,11 @@
 
 **Interfaces:**
 - Consumes: `semanticKeyOf`, `collectionOf`, `loadFactCatalog`.
-- Produces: `completeDomainCatalog(domain)` returning the semantic-key-deduplicated union.
+- Produces: `completeDomainCatalog(domain)` returning the semantic-key-deduplicated union; product facts include build-time-materialized `practice_variants` with stable `practice_variant_id` values for multiply and exact-division directions.
 
-- [ ] **Step 1: Write failing tests** for 43 finite fractions in four directions, 16 repeating fractions in two directions, and 50 half plus 50 double facts. Assert historical core IDs win every overlap.
+- [ ] **Step 1: Write failing tests** for 43 finite fractions in four directions, 16 repeating fractions in two directions, and 50 half plus 50 double facts. Assert historical core IDs win every overlap. Also assert 190 product fact families produce exactly 190 multiply plus 361 exact-division variants, every divisor is nonzero, every quotient is an integer in `1..19`, `7 × 8 = 56` exposes `56 ÷ 7 = 8` and `56 ÷ 8 = 7`, while `7 × 7 = 49` exposes only one `49 ÷ 7 = 7` variant.
 - [ ] **Step 2: Run** `node --test test/content-collections.test.js` and confirm the new assertions fail because the generated references and union API are absent.
-- [ ] **Step 3: Generate only missing reference facts** in `scripts/sync-content.mjs`; use integer arithmetic and canonical strings, then add `completeDomainCatalog(domain)` in `src/core/content.js`.
+- [ ] **Step 3: Generate only missing reference facts and product practice variants** in `scripts/sync-content.mjs`; use integer arithmetic and canonical strings, preserve every historical product `relation_id`, and assign stable variant keys such as `<relation_id>:multiply`, `<relation_id>:divide-a`, and `<relation_id>:divide-b` (omitting the duplicate diagonal direction). Then add `completeDomainCatalog(domain)` in `src/core/content.js`. Runtime code must read these materialized variants rather than constructing division prompts ad hoc.
 - [ ] **Step 4: Run** `npm run sync-content && node --test test/content-collections.test.js`; expect exact semantic coverage, no duplicate ID, and no duplicate semantic key.
 - [ ] **Step 5: Confirm** `git diff -- src/core/catalog-data.js` is empty and generated changes are limited to reference data.
 
@@ -76,9 +78,9 @@
 - Consumes: `completeDomainCatalog(domain)`, day, seed, domain, size.
 - Produces: `startReferenceSession`, `peekReferenceItem`, `submitReferenceAnswer`, `finishReferenceSession`.
 
-- [ ] **Step 1: Write failing tests** for deterministic 10-item queues, ordinary answer judging, wrong reappearance after two answered items, pause/resume, and a full session leaving `relations`, `skills`, schedules, and mistake predicates unchanged.
+- [ ] **Step 1: Write failing tests** for deterministic 10-item queues, ordinary answer judging, wrong reappearance after two answered items, pause/resume, and a full session leaving `relations`, `skills`, schedules, and mistake predicates unchanged. For product sessions, pin that a queue item stores its stable `practice_variant_id`, supports both multiplication and division variants, and places at least two answered items between two variants from the same fact family.
 - [ ] **Step 2: Run** `node --test test/reference-session.test.js test/train-flow.test.js`; expect module/API failures.
-- [ ] **Step 3: Implement** the isolated session module. It may keep `outcomes` and transient reappearance data in `activeSession`, but it must not call `applyAttempt`, `scheduleAfterAttempt`, or write a relation.
+- [ ] **Step 3: Implement** the isolated session module. It may keep `outcomes`, selected `practice_variant_id`, and transient reappearance data in `activeSession`, but it must not call `applyAttempt`, `scheduleAfterAttempt`, or write a relation. Queue construction must select only materialized variants and enforce the two-intervening-item spacing rule for repeated fact families.
 - [ ] **Step 4: Add** `intent=start-reference&domain=<domain>` to the shared training flow and preserve that intent across refresh/resume.
 - [ ] **Step 5: Rerun** both tests; inspect one serialized learner before and after reference completion and assert only the transient/summary session fields allowed by the spec changed.
 
@@ -97,7 +99,7 @@
 
 - [ ] **Step 1: Write failing source/DOM tests** proving the existing core CTA remains primary, the reference CTA appears only when a complete domain catalog exists, and its accessible label includes the domain and complete count.
 - [ ] **Step 2: Run** the two tests and confirm they fail before UI wiring.
-- [ ] **Step 3: Implement** the secondary action with existing tokens. Do not introduce new colors, mascots, navigation tabs, or mastery wording.
+- [ ] **Step 3: Implement** the secondary action with existing tokens. Use `乘除关系练习` for the product domain and describe it as `从乘积反推因数，也从因数得到乘积`; retain `完整关系练习` for the other domains. Do not introduce new colors, mascots, navigation tabs, or mastery wording.
 - [ ] **Step 4: Rerun** the two tests and confirm the ordinary focused route is unchanged.
 
 ### Task 5: Full verification and evidence
@@ -108,5 +110,5 @@
 - [ ] **Step 1: Run** `npm test`.
 - [ ] **Step 2: Run** `npm run check:atlas` and `npm run sync-content`; confirm core catalog has no diff.
 - [ ] **Step 3: Run** `npm run build:h5`, `npm run build:weapp`, and `npm run check:weapp-package`.
-- [ ] **Step 4: Smoke at 375px**: open a complete products session, a percentage item, a repeating-decimal reverse item, and a double item; verify submit, wrong feedback, pause/resume, refresh, console errors, and static 404s.
+- [ ] **Step 4: Smoke at 375px**: open a product session and complete at least one multiplication direction plus both reverse divisions of a non-square product; also open a square-root reverse item, a cube-root reverse item, a percentage item, a repeating-decimal reverse item, and a double item. Verify submit, wrong feedback, pause/resume, refresh, console errors, static 404s, and that no two variants of one product family appear with fewer than two answered items between them.
 - [ ] **Step 5: Report** exact branch/SHA, changed files, generated counts, commands, pass/fail/skip/unverified items, screenshots for failures, and confirm no deploy/merge occurred.
