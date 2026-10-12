@@ -16,6 +16,11 @@ import AnswerBox from "../../components/AnswerBox";
 import FractionFields from "../../components/FractionFields";
 import SignedFractionFields from "../../components/SignedFractionFields";
 import { promptStem } from "../../../src/core/fraction-fields.js";
+import {
+  displayPromptFor,
+  isUnaryOpposite,
+  oppositeDisplayModel,
+} from "../../../src/core/formula-first-display.js";
 import SetProgress from "../../components/SetProgress";
 import MathText from "../../components/math/MathText";
 import { hasWords } from "../../components/math/tokens.js";
@@ -182,7 +187,37 @@ export default function Train() {
         <SetProgress position={view.position} total={view.total} />
         <View className="practice-zone">
           <Text className="practice-label">看清关系，再写答案</Text>
-          {view.fields ? (
+          {isUnaryOpposite(view.item) ? (() => {
+            const formula = oppositeDisplayModel(view.item.operands, view.item.canonical_answer);
+            return (
+            <View
+              className="formula-equation"
+              key={view.item.id}
+              data-testid="formula-opposite"
+              role="group"
+              aria-label={formula.ariaLabel}
+            >
+              <MathText value={formula.knownText} className="question formula-known" />
+              <Text className="formula-op" aria-hidden="true">+</Text>
+              {view.item.answer_type === "signed_fraction_fields" ? (
+                <SignedFractionFields
+                  fields={view.fields}
+                  onFocus={focusBox}
+                  tick={tick % 2 === 1}
+                  className="is-formula-term"
+                />
+              ) : (
+                <AnswerBox
+                  item={view.item}
+                  answer={view.answer}
+                  tick={tick % 2 === 1}
+                  className="is-formula-term"
+                />
+              )}
+              <Text className="formula-tail" aria-hidden="true">= 0</Text>
+            </View>
+            );
+          })() : view.fields ? (
             <View className={`question-fields${hasWords(view.item.prompt) ? " is-words" : ""}`} key={view.item.id}>
               <MathText value={promptStem(view.item.prompt)} className="question" />
               {view.item.answer_type === "signed_fraction_fields" ? (
@@ -217,7 +252,7 @@ export default function Train() {
     body = (
       <WrongFeedback
         key={`${view.item?.id}-${view.position}`}
-        prompt={view.item?.prompt || ""}
+        prompt={displayPromptFor(view.item)}
         feedback={view.feedback}
         onNext={advance}
         onPause={pause}

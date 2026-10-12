@@ -588,6 +588,89 @@ body {
   text-align: center;
 }
 .sff-sign.is-empty { color: transparent; }
+
+/* Formula-first unary opposite: known + blank = 0 (curriculum §10, UI §6).
+   The answer fields are one term in the equation — visual weight matches the stem. */
+.formula-equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 10px;
+  margin: 18px 0 12px;
+  max-width: 100%;
+}
+.formula-equation .math.question.formula-known {
+  margin: 0;
+  white-space: nowrap;
+  flex: none;
+  font-size: clamp(28px, 8vw, var(--fs-question));
+  line-height: 1.2;
+}
+.formula-equation .formula-op,
+.formula-equation .formula-tail {
+  font-family: var(--font-math);
+  font-size: clamp(28px, 8vw, var(--fs-question));
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.formula-equation .signed-fraction-fields.is-formula-term {
+  align-items: center;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .sff-sign {
+  width: 36px;
+  min-height: 44px;
+  margin-right: 6px;
+  font-size: 28px;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .fraction-fields {
+  min-width: 72px;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .ff-box {
+  min-height: 44px;
+  font-size: 28px;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .ff-bar {
+  height: 3px;
+  margin: 4px 2px;
+}
+.formula-equation .answer.is-formula-term {
+  display: inline-flex;
+  min-width: 72px;
+  min-height: 52px;
+  padding: 0 12px;
+  margin: 0;
+  font-size: 28px;
+}
+@media (max-width: 400px) {
+  .formula-equation {
+    gap: 6px 8px;
+    margin: 12px 0 8px;
+  }
+  .formula-equation .math.question.formula-known,
+  .formula-equation .formula-op,
+  .formula-equation .formula-tail {
+    font-size: 28px;
+  }
+  .formula-equation .signed-fraction-fields.is-formula-term .sff-sign,
+  .formula-equation .signed-fraction-fields.is-formula-term .ff-box,
+  .formula-equation .answer.is-formula-term {
+    font-size: 24px;
+  }
+  .formula-equation .signed-fraction-fields.is-formula-term .sff-sign {
+    width: 32px;
+    min-height: 40px;
+  }
+  .formula-equation .signed-fraction-fields.is-formula-term .ff-box {
+    min-height: 40px;
+  }
+  .formula-equation .answer.is-formula-term {
+    min-height: 44px;
+    min-width: 64px;
+  }
+}
+
 .nudge {
   display: block;
   min-height: 22px;

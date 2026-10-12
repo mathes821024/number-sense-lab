@@ -4,6 +4,7 @@ import { generateExercise } from "./grade7-rational-generator.js";
 import { MASTERY } from "./mastery.js";
 import { addDays } from "./scheduler.js";
 import { skillById } from "./skill-catalog.js";
+import { displayRelationFor } from "./formula-first-display.js";
 
 const DEFAULT_SIZE = 10;
 const WRONG_REAPPEAR_GAP = 2;
@@ -66,7 +67,7 @@ function scheduleAfter(previous, next, day) {
 }
 
 function feedbackForExercise(exercise, judged) {
-  const relation = exercise.prompt.replace(/\?\s*$/, exercise.canonical_answer);
+  const relation = displayRelationFor(exercise);
   if (judged.kind === "empty" || judged.kind === "invalid") {
     return {
       message: exercise.answer_type === "signed_fraction_fields" ? "先写一个分数" : "先写一个数",

@@ -1,7 +1,7 @@
 import { View, Text } from "@tarojs/components";
 import { fieldSize } from "../../src/core/fraction-fields.js";
 
-export default function SignedFractionFields({ fields, onFocus, tick }) {
+export default function SignedFractionFields({ fields, onFocus, tick, className = "" }) {
   const signLabel = fields.sign === "-"
     ? "负分数"
     : fields.sign === "+"
@@ -28,7 +28,7 @@ export default function SignedFractionFields({ fields, onFocus, tick }) {
   };
   return (
     <View
-      className={`signed-fraction-fields${tick ? " tick" : ""}`}
+      className={`signed-fraction-fields${tick ? " tick" : ""}${className ? ` ${className}` : ""}`}
       aria-live="polite"
       aria-label={signLabel}
       data-testid="signed-fraction-fields"

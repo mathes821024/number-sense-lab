@@ -3,9 +3,9 @@ import { Repeating } from "./math/MathText";
 import { answerDisplay } from "./math/tokens.js";
 
 /** The answer box: digits, or 0.( dotted block ) — h5/app.js answerHtml. Fractions use FractionFields. */
-export default function AnswerBox({ item, answer, tick }) {
+export default function AnswerBox({ item, answer, tick, className = "" }) {
   const shown = answerDisplay(item, answer);
-  const cls = `answer${shown.kind === "repeating" ? " answer-repeating" : ""}${tick ? " tick" : ""}`;
+  const cls = `answer${shown.kind === "repeating" ? " answer-repeating" : ""}${tick ? " tick" : ""}${className ? ` ${className}` : ""}`;
   let body;
   if (shown.kind === "repeating") {
     body = shown.token ? (
