@@ -52,7 +52,7 @@ export const V2_REQUIRED_TEMPLATES = Object.freeze({
   "g7-fraction-add-sub": {
     foundation: ["same_denominator"],
     standard: ["unlike_denominator"],
-    transfer: ["signed_unlike_integer_result"],
+    transfer: ["signed_unlike_denominator", "signed_integer_result"],
   },
   "g7-fraction-mul-div": {
     foundation: ["positive_simple_cancel"],
@@ -101,6 +101,73 @@ function randomFraction(rng, bound, { allowInteger = false, positive = false } =
     return rational(numerator + (numerator > 0 ? 1 : -1), denominator);
   }
   return value;
+}
+
+function coprimeNumerator(rng, denominator, minimum, maximum) {
+  const candidates = [];
+  for (let value = minimum; value <= maximum; value += 1) {
+    if (value !== 0 && gcdInt(value, denominator) === 1) candidates.push(value);
+  }
+  if (!candidates.length) throw new Error(`CONTRACT_CONFLICT: no coprime numerator for ${denominator}`);
+  return rng.pick(candidates);
+}
+
+function hasCrossCancellation(operands) {
+  const { left, right, operator } = operands;
+  if (operator === "multiply") {
+    return gcdInt(left.numerator, right.denominator) > 1
+      || gcdInt(right.numerator, left.denominator) > 1;
+  }
+  if (operator === "divide") {
+    return gcdInt(left.numerator, right.numerator) > 1
+      || gcdInt(right.denominator, left.denominator) > 1;
+  }
+  return false;
+}
+
+/** Runtime contract assertion: a template label must match the actual visible mathematics. */
+export function assertV2TemplateContract(exercise) {
+  const operands = exercise?.operands || {};
+  const template = operands.template;
+  const answer = exercise?.canonical_answer || "";
+  const prompt = exercise?.prompt || "";
+  const signed = operands.left?.numerator < 0 || operands.right?.numerator < 0;
+
+  if (template === "same_denominator") {
+    if (operands.left.denominator === 1 || operands.left.denominator !== operands.right.denominator) {
+      throw new Error("CONTRACT_CONFLICT: same_denominator template does not have equal non-integer denominators");
+    }
+  } else if (template === "unlike_denominator") {
+    if (operands.left.denominator === 1 || operands.right.denominator === 1
+      || operands.left.denominator === operands.right.denominator) {
+      throw new Error("CONTRACT_CONFLICT: unlike_denominator template does not have two unlike fractions");
+    }
+  } else if (template === "signed_unlike_denominator") {
+    if (!signed || operands.left.denominator === 1 || operands.right.denominator === 1
+      || operands.left.denominator === operands.right.denominator) {
+      throw new Error("CONTRACT_CONFLICT: signed_unlike_denominator template is not signed and unlike");
+    }
+  } else if (template === "signed_integer_result") {
+    if (!signed || answer.includes("/")) {
+      throw new Error("CONTRACT_CONFLICT: signed_integer_result template is not signed with an integer result");
+    }
+  } else if (template === "positive_simple_cancel") {
+    if (operands.operator !== "multiply" || operands.left.numerator <= 0
+      || operands.right.numerator <= 0 || !hasCrossCancellation(operands)) {
+      throw new Error("CONTRACT_CONFLICT: positive_simple_cancel template has no real cancellation");
+    }
+  } else if (template === "cross_cancel_improper") {
+    const improper = Math.abs(operands.left.numerator) > operands.left.denominator
+      || Math.abs(operands.right.numerator) > operands.right.denominator;
+    if (!improper || !hasCrossCancellation(operands)) {
+      throw new Error("CONTRACT_CONFLICT: cross_cancel_improper template lacks cancellation or an improper fraction");
+    }
+  } else if (template === "parentheses_multi_sign") {
+    if ((prompt.match(/\(/g) || []).length < 2 || (prompt.match(/-/g) || []).length < 2) {
+      throw new Error("CONTRACT_CONFLICT: parentheses_multi_sign template lacks two parenthesized negatives");
+    }
+  }
+  return exercise;
 }
 
 function explanations(result, directSteps, structureSummary, estimateSummary) {
@@ -312,7 +379,15 @@ function generateIntegerMulDiv(skill, coordinates, rng, template) {
     const operator = template === "two_term_exact_div" && rng.boolean() ? "multiply" : (rng.boolean() ? "multiply" : "divide");
     let left;
     let right;
-    if (operator === "multiply") {
+    if (template === "parentheses_multi_sign" && operator === "multiply") {
+      left = rational(-rng.integer(1, bound));
+      right = rational(-rng.integer(1, bound));
+    } else if (template === "parentheses_multi_sign") {
+      const divisor = -rng.integer(1, bound);
+      const quotient = rng.integer(1, bound);
+      left = rational(divisor * quotient);
+      right = rational(divisor);
+    } else if (operator === "multiply") {
       left = rational(nonZeroInteger(rng, -bound, bound));
       right = rational(nonZeroInteger(rng, -bound, bound));
     } else {
@@ -406,19 +481,25 @@ function generateFractionAddSub(skill, coordinates, rng, template) {
     right = rational(coprimeNumerator(), d);
     operator = rng.boolean() ? "add" : "subtract";
   } else if (template === "unlike_denominator") {
-    left = randomFraction(rng, bound, { positive: true });
-    right = randomFraction(rng, bound, { positive: true });
-    if (left.denominator === right.denominator) {
-      right = rational(right.numerator, right.denominator === 2 ? 3 : 2);
-    }
+    const denominators = FRACTION_DENOMINATORS.filter((value) => value <= bound && value > 1);
+    const leftDenominator = rng.pick(denominators);
+    const rightDenominator = rng.pick(denominators.filter((value) => value !== leftDenominator));
+    left = rational(coprimeNumerator(rng, leftDenominator, 1, leftDenominator - 1), leftDenominator);
+    right = rational(coprimeNumerator(rng, rightDenominator, 1, rightDenominator - 1), rightDenominator);
+    operator = rng.boolean() ? "add" : "subtract";
+  } else if (template === "signed_unlike_denominator") {
+    const denominators = FRACTION_DENOMINATORS.filter((value) => value <= bound && value > 1);
+    const leftDenominator = rng.pick(denominators);
+    const rightDenominator = rng.pick(denominators.filter((value) => value !== leftDenominator));
+    left = rational(-coprimeNumerator(rng, leftDenominator, 1, leftDenominator - 1), leftDenominator);
+    right = rational(coprimeNumerator(rng, rightDenominator, 1, rightDenominator - 1), rightDenominator);
     operator = rng.boolean() ? "add" : "subtract";
   } else {
-    // signed_unlike_integer_result — craft to integer when possible
-    const d = rng.pick([2, 3, 4, 5, 6]);
-    const a = nonZeroInteger(rng, -bound, bound);
-    const b = d - (a % d === 0 ? d : a % d); // make a/d + b/d tendency — simpler: a/d + (kd-a)/d = k
+    // signed_integer_result — complementary signed fractions necessarily share a reduced denominator.
+    const d = rng.pick([2, 3, 4, 5, 6].filter((value) => value <= bound));
+    const a = coprimeNumerator(rng, d, 1, d - 1);
     const k = nonZeroInteger(rng, -3, 3);
-    left = rational(a, d);
+    left = rational(-a, d);
     right = subtract(rational(k), left);
     operator = "add";
   }
@@ -442,8 +523,12 @@ function generateFractionMulDiv(skill, coordinates, rng, template) {
   let right;
   let operator;
   if (template === "positive_simple_cancel") {
-    left = randomFraction(rng, bound, { positive: true });
-    right = randomFraction(rng, bound, { positive: true });
+    const factor = rng.pick([2, 3]);
+    const leftDenominators = FRACTION_DENOMINATORS.filter((value) => value <= bound && gcdInt(value, factor) === 1);
+    const leftDenominator = rng.pick(leftDenominators);
+    const rightDenominator = rng.pick(FRACTION_DENOMINATORS.filter((value) => value <= bound && value % factor === 0));
+    left = rational(factor, leftDenominator);
+    right = rational(coprimeNumerator(rng, rightDenominator, 1, bound), rightDenominator);
     operator = "multiply";
   } else if (template === "division") {
     left = randomFraction(rng, bound);
@@ -454,12 +539,16 @@ function generateFractionMulDiv(skill, coordinates, rng, template) {
     right = randomFraction(rng, bound);
     operator = rng.boolean() ? "multiply" : "divide";
   } else {
-    // cross_cancel_improper — at least one improper fraction
-    const denL = rng.pick([2, 3, 4, 5]);
-    const denR = rng.pick([2, 3, 4, 5]);
-    left = rational(rng.integer(denL + 1, Math.max(denL + 1, bound * 2)), denL);
-    right = rational(rng.integer(denR + 1, Math.max(denR + 1, bound * 2)), denR);
+    // cross_cancel_improper — construct a real cancellation before applying the operation.
+    const factor = rng.pick([2, 3]);
+    const denominators = [2, 3, 4, 5].filter((value) => gcdInt(value, factor) === 1);
+    const denL = rng.pick(denominators);
+    const denR = rng.pick(denominators);
     operator = rng.boolean() ? "multiply" : "divide";
+    left = rational(factor * (denL + 1), denL);
+    right = operator === "multiply"
+      ? rational(1, factor * denR)
+      : rational(factor, denR + factor * denR);
   }
   const result = operator === "multiply" ? multiply(left, right) : divide(left, right);
   const symbol = operator === "multiply" ? "×" : "÷";
@@ -611,19 +700,29 @@ function generateExerciseV2Attempt({ skillId, band, seed, index, attempt = 0 }) 
   const template = pickTemplate(required, index + attempt * 7);
   const rng = createExerciseRng(`v2\u0000${coordinates.seed}\u0000${skillId}\u0000${band}\u0000${index}\u0000${template}\u0000${attempt}`);
 
-  if (skillId === "g7-rational-sign-opposite-absolute") return generateSign(skill, coordinates, rng, template);
-  if (skillId === "g7-rational-compare") return generateCompare(skill, coordinates, rng, template);
-  if (skillId === "g7-integer-add-sub") return generateIntegerAddSub(skill, coordinates, rng, template);
-  if (skillId === "g7-integer-mul-div") return generateIntegerMulDiv(skill, coordinates, rng, template);
-  if (skillId === "g7-fraction-add-sub") return generateFractionAddSub(skill, coordinates, rng, template);
-  if (skillId === "g7-fraction-mul-div") return generateFractionMulDiv(skill, coordinates, rng, template);
-  if (skillId === "g7-rational-power") return generatePower(skill, coordinates, rng, template);
-  if (skillId === "g7-rational-mixed") return generateMixed(skill, coordinates, rng, template);
-  throw new Error(`unknown skill: ${skillId}`);
+  let exercise;
+  if (skillId === "g7-rational-sign-opposite-absolute") exercise = generateSign(skill, coordinates, rng, template);
+  else if (skillId === "g7-rational-compare") exercise = generateCompare(skill, coordinates, rng, template);
+  else if (skillId === "g7-integer-add-sub") exercise = generateIntegerAddSub(skill, coordinates, rng, template);
+  else if (skillId === "g7-integer-mul-div") exercise = generateIntegerMulDiv(skill, coordinates, rng, template);
+  else if (skillId === "g7-fraction-add-sub") exercise = generateFractionAddSub(skill, coordinates, rng, template);
+  else if (skillId === "g7-fraction-mul-div") exercise = generateFractionMulDiv(skill, coordinates, rng, template);
+  else if (skillId === "g7-rational-power") exercise = generatePower(skill, coordinates, rng, template);
+  else if (skillId === "g7-rational-mixed") exercise = generateMixed(skill, coordinates, rng, template);
+  else throw new Error(`unknown skill: ${skillId}`);
+  return assertV2TemplateContract(exercise);
 }
 
 function contentKeyOf(exercise) {
   return `${exercise.prompt}\u0000${exercise.canonical_answer}`;
+}
+
+export function selectUniqueV2Candidate({ usedKeys, candidateAtAttempt, maxAttempts = 64 }) {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const candidate = candidateAtAttempt(attempt);
+    if (!usedKeys.has(contentKeyOf(candidate))) return candidate;
+  }
+  throw new Error(`CONTRACT_CONFLICT: unable to generate unique v2 exercise after ${maxAttempts} attempts`);
 }
 
 /** Deterministic memo: skill|band|seed|index → resolved unique-in-span exercise. */
@@ -639,19 +738,10 @@ function resolveV2Unique({ skillId, band, seed, index }) {
     used.add(contentKeyOf(resolveV2Unique({ skillId, band, seed, index: prior })));
   }
 
-  let chosen = null;
-  for (let attempt = 0; attempt < 64; attempt += 1) {
-    const candidate = generateExerciseV2Attempt({ skillId, band, seed, index, attempt });
-    const key = contentKeyOf(candidate);
-    if (!used.has(key)) {
-      chosen = candidate;
-      break;
-    }
-  }
-  if (!chosen) {
-    // Last resort: attempt 64 with index salt still deterministic.
-    chosen = generateExerciseV2Attempt({ skillId, band, seed, index, attempt: 64 + index });
-  }
+  const chosen = selectUniqueV2Candidate({
+    usedKeys: used,
+    candidateAtAttempt: (attempt) => generateExerciseV2Attempt({ skillId, band, seed, index, attempt }),
+  });
   v2ResolvedCache.set(cacheKey, chosen);
   return chosen;
 }

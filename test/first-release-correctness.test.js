@@ -10,7 +10,11 @@ import {
 } from "../src/core/content.js";
 import { exactDecimal, exactPercent, gcd } from "../src/core/reference-facts.js";
 import { generateExercise } from "../src/core/grade7-rational-generator.js";
-import { V2_REQUIRED_TEMPLATES } from "../src/core/grade7-rational-generator-v2.js";
+import {
+  V2_REQUIRED_TEMPLATES,
+  assertV2TemplateContract,
+  selectUniqueV2Candidate,
+} from "../src/core/grade7-rational-generator-v2.js";
 import { SKILL_IDS } from "../src/core/skill-catalog.js";
 import {
   finishReferenceSession,
@@ -37,6 +41,64 @@ function contentKey(exercise) {
   return `${exercise.prompt}\u0000${exercise.canonical_answer}`;
 }
 
+function decimalRatio(text) {
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(text);
+  assert.ok(match, `invalid exact decimal ${text}`);
+  const fractionDigits = match[3] || "";
+  const denominator = 10n ** BigInt(fractionDigits.length);
+  const magnitude = BigInt(`${match[2]}${fractionDigits}`);
+  return {
+    numerator: match[1] ? -magnitude : magnitude,
+    denominator,
+  };
+}
+
+function fractionRatio(text) {
+  const match = /^(-?\d+)\/(\d+)$/.exec(text);
+  assert.ok(match, `invalid fraction ${text}`);
+  return { numerator: BigInt(match[1]), denominator: BigInt(match[2]) };
+}
+
+function assertEquivalent(leftNumerator, leftDenominator, right, label) {
+  assert.equal(
+    BigInt(leftNumerator) * right.denominator,
+    right.numerator * BigInt(leftDenominator),
+    label,
+  );
+}
+
+function assertFiniteCatalogMath(catalog) {
+  const byKey = new Map(catalog.map((item) => [item.semantic_key, item]));
+  for (const [n, d] of finiteFractionValues()) {
+    const frac = `${n}/${d}`;
+    const toDec = byKey.get(`fraction_decimal:to_decimal:${frac}`);
+    const toFrac = byKey.get(`fraction_decimal:to_fraction:${frac}`);
+    const toPct = byKey.get(`fraction_decimal:to_percent:${frac}`);
+    const fromPct = byKey.get(`fraction_decimal:from_percent:${frac}`);
+    assert.ok(toDec && toFrac && toPct && fromPct, `missing directions for ${frac}`);
+    assertEquivalent(n, d, decimalRatio(toDec.canonical_answer), `${frac} decimal`);
+    assertEquivalent(n, d, fractionRatio(toFrac.canonical_answer), `${frac} reverse decimal`);
+    const percent = decimalRatio(toPct.canonical_answer);
+    assertEquivalent(n * 100, d, percent, `${frac} percent`);
+    assertEquivalent(n, d, fractionRatio(fromPct.canonical_answer), `${frac} reverse percent`);
+    assert.equal(toPct.prompt, `${frac} = ?%`);
+    assert.equal(fromPct.prompt, `${toPct.canonical_answer}% = ?/?`);
+  }
+}
+
+function hasCrossCancellation(operands) {
+  const { left, right, operator } = operands;
+  if (operator === "multiply") {
+    return gcd(Math.abs(left.numerator), right.denominator) > 1
+      || gcd(Math.abs(right.numerator), left.denominator) > 1;
+  }
+  if (operator === "divide") {
+    return gcd(Math.abs(left.numerator), Math.abs(right.numerator)) > 1
+      || gcd(right.denominator, left.denominator) > 1;
+  }
+  return false;
+}
+
 // ---------- P0: exact decimal / percent math ----------
 
 test("P0 exactDecimal/exactPercent use integer rational math (sentinels)", () => {
@@ -55,22 +117,11 @@ test("P0 every finite fraction four directions have mathematically equivalent an
   const byKey = new Map(catalog.map((item) => [item.semantic_key, item]));
   const values = finiteFractionValues();
   assert.equal(values.length, 43);
-  for (const [n, d] of values) {
-    const frac = `${n}/${d}`;
-    const decimal = exactDecimal(n, d);
-    const percent = exactPercent(n, d);
-    const toDec = byKey.get(`fraction_decimal:to_decimal:${frac}`);
-    const toFrac = byKey.get(`fraction_decimal:to_fraction:${frac}`);
-    const toPct = byKey.get(`fraction_decimal:to_percent:${frac}`);
-    const fromPct = byKey.get(`fraction_decimal:from_percent:${frac}`);
-    assert.ok(toDec, frac);
-    assert.equal(toDec.canonical_answer, decimal);
-    assert.equal(toFrac.canonical_answer, frac);
-    assert.equal(toPct.canonical_answer, percent);
-    assert.equal(fromPct.canonical_answer, frac);
-    assert.equal(toPct.prompt, `${frac} = ?%`);
-    assert.equal(fromPct.prompt, `${percent}% = ?/?`);
-  }
+  assertFiniteCatalogMath(catalog);
+  const sabotaged = catalog.map((item) => item.semantic_key === "fraction_decimal:to_percent:1/8"
+    ? { ...item, canonical_answer: "5" }
+    : item);
+  assert.throws(() => assertFiniteCatalogMath(sabotaged), /1\/8 percent/);
   // Explicit sentinels against known prior bugs
   assert.equal(byKey.get("fraction_decimal:to_percent:1/8").canonical_answer, "12.5");
   assert.notEqual(byKey.get("fraction_decimal:to_percent:1/8").canonical_answer, "5");
@@ -109,6 +160,18 @@ test("P1 v2 rolling ten-item windows have unique prompt+answer content keys", ()
       }
     }
   }
+});
+
+test("P1 uniqueness exhaustion fails closed instead of silently returning a duplicate", () => {
+  const duplicate = { prompt: "0 的相反数是？", canonical_answer: "0" };
+  assert.throws(
+    () => selectUniqueV2Candidate({
+      usedKeys: new Set([contentKey(duplicate)]),
+      maxAttempts: 64,
+      candidateAtAttempt: () => duplicate,
+    }),
+    /CONTRACT_CONFLICT.*unique/i,
+  );
 });
 
 test("P1 v1 missing-version output stays byte-identical for golden seed index 0..5", () => {
@@ -151,8 +214,13 @@ test("P1 template tags match operands and prompt mathematics", () => {
     if (template === "unlike_denominator") {
       assert.notEqual(operands.left.denominator, operands.right.denominator);
     }
-    if (template === "signed_unlike_integer_result") {
+    if (template === "signed_unlike_denominator") {
+      assert.notEqual(operands.left.denominator, operands.right.denominator);
+      assert.ok(operands.left.numerator < 0 || operands.right.numerator < 0);
+    }
+    if (template === "signed_integer_result") {
       assert.equal(answer.includes("/"), false);
+      assert.ok(operands.left.numerator < 0 || operands.right.numerator < 0);
     }
     if (template === "two_term_exact_div" && operands.operator === "divide") {
       assert.notEqual(operands.right.numerator, 0);
@@ -183,11 +251,18 @@ test("P1 template tags match operands and prompt mathematics", () => {
     if (template === "positive_simple_cancel") {
       assert.ok(operands.left.numerator > 0 && operands.right.numerator > 0);
       assert.equal(operands.operator, "multiply");
+      assert.equal(hasCrossCancellation(operands), true);
     }
     if (template === "cross_cancel_improper") {
       assert.ok(Math.abs(operands.left.numerator) > operands.left.denominator
         || Math.abs(operands.right.numerator) > operands.right.denominator);
+      assert.equal(hasCrossCancellation(operands), true);
     }
+    if (template === "parentheses_multi_sign") {
+      assert.ok((prompt.match(/\(/g) || []).length >= 2);
+      assert.ok((prompt.match(/-/g) || []).length >= 2);
+    }
+    assert.doesNotThrow(() => assertV2TemplateContract(exercise));
   }
   // Required templates still appear
   for (const skillId of SKILL_IDS) {
