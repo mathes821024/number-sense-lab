@@ -15,6 +15,7 @@
  */
 
 import { cloneJson } from "./json-clone.js";
+import { normalizeNickname } from "./learner-profile.js";
 
 export const STATE_VERSION = 4;
 
@@ -92,6 +93,40 @@ export function withActiveLearner(state, learner) {
         // profile is identity; a learner update never replaces it
         profile: previous.profile || learner.profile || { learner_id: id, created_on: null },
       },
+    },
+  };
+}
+
+/** Update only the optional local display name; learner identity stays fixed. */
+export function withActiveLearnerNickname(state, value) {
+  const id = state.active_learner_id;
+  const learner = getActiveLearner(state);
+  return {
+    ...state,
+    learners: {
+      ...state.learners,
+      [id]: {
+        ...learner,
+        profile: {
+          ...learner.profile,
+          learner_id: learner.profile?.learner_id || id,
+          created_on: learner.profile?.created_on ?? null,
+          nickname: normalizeNickname(value),
+        },
+      },
+    },
+  };
+}
+
+/** Merge display preferences without touching learning evidence. */
+export function withActiveLearnerPrefs(state, patch) {
+  const id = state.active_learner_id;
+  const learner = getActiveLearner(state);
+  return {
+    ...state,
+    learners: {
+      ...state.learners,
+      [id]: { ...learner, prefs: { ...learner.prefs, ...(patch || {}) } },
     },
   };
 }

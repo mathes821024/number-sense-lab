@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { STATE_KEY } from "../src/adapter/storage-contract.js";
 import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { createWechatStore, wxBackend } from "../app/platform/wechat/wx-store.js";
-import { getActiveLearner, withActiveLearner, isValidV4, STATE_VERSION } from "../src/core/store.js";
+import { getActiveLearner, withActiveLearner, withActiveLearnerNickname, isValidV4, STATE_VERSION } from "../src/core/store.js";
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
 
@@ -189,6 +189,26 @@ for (const target of Object.keys(TARGETS)) {
     assert.equal(root.active_learner_id, "L-3");
     assert.equal(t.raw(), raw);
     assert.equal(t.writes(), 0);
+  });
+
+  test(`[${target}] an old v4 without nickname gains one without rewriting learning evidence`, () => {
+    const seed = TARGETS[target]();
+    seed.store({ createId: () => "L-profile", today: () => DAY }).read();
+    const beforeRaw = seed.raw();
+    const before = JSON.parse(beforeRaw);
+    const t = TARGETS[target]([[STATE_KEY, beforeRaw]]);
+    const store = t.store({ createId: () => "never", today: () => DAY });
+    const root = store.read();
+    const next = withActiveLearnerNickname(root, "晨曦");
+    assert.equal(store.write(next), true);
+    const saved = JSON.parse(t.raw());
+    const id = saved.active_learner_id;
+    assert.equal(saved.learners[id].profile.nickname, "晨曦");
+    assert.equal(saved.learners[id].profile.learner_id, before.learners[id].profile.learner_id);
+    assert.equal(saved.learners[id].profile.created_on, before.learners[id].profile.created_on);
+    for (const key of ["relations", "sessions", "activeSession", "skills", "activeSkillSession"]) {
+      assert.deepEqual(saved.learners[id][key], before.learners[id][key], key);
+    }
   });
 
   test(`[${target}] write-protect: bad JSON is never overwritten`, () => {
