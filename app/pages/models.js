@@ -7,12 +7,13 @@
  * listLatestOutcomes, buildPrintSelector, buildA4Sheet). Nothing here
  * decides anything about learning, and nothing is written.
  */
-import { DOMAIN_ORDER, domainLabel } from "../../src/core/content.js";
+import { DOMAIN_ORDER, domainLabel, practiceEntryCatalog, productPracticeVariantStats } from "../../src/core/content.js";
 import { studentLabel } from "../../src/core/mastery.js";
-import { practiceCard, practiceGroups } from "../../src/core/practice-groups.js";
+import { grade7Practice, practiceCard, practiceGroups, skillPracticeFocus } from "../../src/core/practice-groups.js";
 import { buildMistakeBook } from "../../src/core/mistakes.js";
 import { listLatestOutcomes } from "../../src/core/progress.js";
 import { buildA4Sheet, buildPrintSelector } from "../../src/core/a4.js";
+import { GRADE7_STAGES, structureKindForSkill } from "./explore/structure.js";
 
 /**
  * 专项练习 · 主题训练 is the shared grouped grid (src/core/practice-groups.js,
@@ -33,11 +34,65 @@ export function exploreView(state, catalog) {
   return practiceGroups(catalog, relationsOf(state));
 }
 
+/** Seven-grade skills are a parallel track, not extra fact-domain cards. */
+export function grade7View(state) {
+  return grade7Practice((state && state.skills) || {});
+}
+
+// The first-release generators deliberately begin these two skills with
+// integers.  On the learning path, name the larger mathematical capability
+// the learner is building; keep the catalog label and stable skill identity
+// unchanged for practice, persistence and compatibility.
+const GRADE7_PATH_LABELS = Object.freeze({
+  "g7-integer-add-sub": "有理数加减",
+  "g7-integer-mul-div": "有理数乘除",
+});
+
+/** The same eight skill cards, ordered into four display-only learning stages. */
+export function grade7PathView(state) {
+  const base = grade7View(state);
+  const byId = new Map(base.cards.map((card) => [card.skillId, card]));
+  return {
+    ...base,
+    stages: GRADE7_STAGES.map((stage) => ({
+      ...stage,
+      skills: stage.skills.map((skillId) => {
+        const card = byId.get(skillId);
+        if (!card) throw new Error(`CONTRACT_CONFLICT: unknown Grade 7 path skill ${skillId}`);
+        return {
+          ...card,
+          label: GRADE7_PATH_LABELS[skillId] || card.label,
+          structureKind: structureKindForSkill(skillId),
+        };
+      }),
+    })),
+  };
+}
+
+/** Confirmation for one Grade 7 skill and an explicitly chosen difficulty band. */
+export function skillFocusView(skillId, band, state) {
+  return skillPracticeFocus(skillId, band, (state && state.skills) || {});
+}
+
 /** The focused-practice confirmation for one domain; null for anything that is not a released domain. */
 export function focusView(domain, state, catalog) {
   if (typeof domain !== "string" || !DOMAIN_ORDER.includes(domain)) return null;
   const card = practiceCard(domain, catalog, relationsOf(state));
   if (!card.released) return null;
+  let completeCount = 0;
+  try {
+    completeCount = practiceEntryCatalog(domain).length;
+  } catch {
+    completeCount = 0;
+  }
+  const isProducts = domain === "products";
+  const referenceLabel = isProducts ? "乘除关系练习" : "完整关系练习";
+  const referenceSubtitle = isProducts ? "从乘积反推因数，也从因数得到乘积" : null;
+  if (isProducts && completeCount > 0) {
+    const stats = productPracticeVariantStats();
+    // Keep completeCount as fact-family count; expose directions separately.
+    completeCount = stats.directions || completeCount;
+  }
   return {
     domain,
     label: card.label,
@@ -46,13 +101,25 @@ export function focusView(domain, state, catalog) {
     slot: card.slot,
     glyph: card.glyph,
     tone: card.tone,
+    completeCount,
+    hasCompletePractice: completeCount > 0,
+    referenceLabel,
+    referenceSubtitle,
+    referenceAria: completeCount > 0
+      ? `${card.label}·${referenceLabel}，共 ${completeCount} 条`
+      : null,
   };
 }
 
 /** Mistake Book: core's grouping by domain (empty groups already left out) plus the group names. */
 export function mistakesView(state, catalog) {
   const book = buildMistakeBook(catalog, relationsOf(state), studentLabel);
-  return { ...book, groups: book.groups.map((g) => ({ ...g, label: domainLabel(g.domain) })) };
+  return {
+    ...book,
+    emptyMessage: "现在没有需要重新写熟的题。",
+    practiceLabel: book.total === 1 ? "练这 1 题" : "练这些错题",
+    groups: book.groups.map((g) => ({ ...g, label: domainLabel(g.domain) })),
+  };
 }
 
 /** 「10月2日」 (h5/app.js formatDay). */

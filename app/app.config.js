@@ -6,6 +6,8 @@ export default defineAppConfig({
     "pages/mistakes/index",
     "pages/progress/index",
     "pages/print/index",
+    "pages/me/index",
+    "pages/about/index",
   ],
   window: {
     backgroundTextStyle: "light",

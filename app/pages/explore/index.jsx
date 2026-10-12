@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Image } from "@tarojs/components";
+import { View, Text } from "@tarojs/components";
 import { loadCoreCatalog } from "../../../src/core/content.js";
 import { getActiveLearner } from "../../../src/core/store.js";
 import { getStore, navigate, safeArea, motionClass, useScreenLifecycle } from "../../platform/current";
@@ -10,19 +10,17 @@ import BackButton from "../../components/BackButton";
 import useNotice from "../../components/useNotice";
 import { getRecord } from "../record.js";
 import { tabHandler, navPageStyle } from "../tabs.js";
-import { exploreView, focusView } from "../models.js";
+import { exploreView, focusView, grade7PathView, skillFocusView } from "../models.js";
 import { isLongLabel } from "../../../src/core/practice-groups.js";
-import { assetFor } from "../../theme/index.js";
+import MathStructureIcon from "../../components/MathStructureIcon";
+import MascotCompanion from "../../components/MascotCompanion";
 
 const catalog = loadCoreCatalog();
 
 /**
  * 专项练习 (h5/app.js renderExplore + renderFocusConfirm), 主题训练 as the
- * grouped two-column grid (docs/ux/05_specialist_grouped_grid.md) drawn as F-B,
- * the warm branded learning panel (docs/ui/08_fb_specialist_visual.md): a header
- * with the existing welcome mascot at one side, then three navigation groups,
- * each a light colour zone with two-column white tiles (F-B icon, name, one weak
- * status line). The whole tile is the button; a released card opens its confirmation, and
+ * three fact shelves and a four-stage Grade 7 path. Every row keeps the same
+ * domain / skill identity and opens the same confirmation; layout is display only.
  * 开始这一小段 starts a focused set from that one domain only (core
  * startSession, mode "focused"). A card without released content only answers
  * 敬请期待. 知识地图 is the other entry and, this round, only says 敬请期待;
@@ -32,14 +30,50 @@ export default function Explore() {
   const record = getRecord(getStore);
   const [state, setState] = useState(() => getActiveLearner(record.read()));
   const [focused, setFocused] = useState(null);
+  const [focusedSkill, setFocusedSkill] = useState(null);
+  const [skillBand, setSkillBand] = useState("foundation");
   const [notice, showSoon] = useNotice();
   useScreenLifecycle({ onShow: () => setState(getActiveLearner(record.read())) });
 
   const focus = focused ? focusView(focused, state, catalog) : null;
-  const mascotSrc = assetFor("specialist.mascot");
-  const [mascotOk, setMascotOk] = useState(true);
+  const skillFocus = focusedSkill ? skillFocusView(focusedSkill, skillBand, state) : null;
   let body;
-  if (focus) {
+  if (skillFocus) {
+    body = (
+      <View className="screen" data-testid="skill-confirm" data-skill={skillFocus.skillId} data-band={skillFocus.band}>
+        <BackButton label="返回练习" action="explore" onTap={() => setFocusedSkill(null)} />
+        <View className="card skill-focus-card">
+          <Text className="skill-focus-kicker">七年级有理数</Text>
+          <Text className="title">{skillFocus.label}</Text>
+          <Text className="lede">{skillFocus.lede}</Text>
+          <View className="band-options" role="group" aria-label="选择练习层级">
+            {skillFocus.bands.map((band) => (
+              <View
+                className={`band-option${band.value === skillFocus.band ? " is-on" : ""}`}
+                role="button"
+                aria-pressed={band.value === skillFocus.band}
+                key={band.value}
+                data-band={band.value}
+                onClick={() => setSkillBand(band.value)}
+              >
+                <Text>{band.label}</Text>
+              </View>
+            ))}
+          </View>
+          <Text className="body skill-focus-status">当前状态：{skillFocus.status}</Text>
+        </View>
+        <View
+          className="cta"
+          hoverClass="cta-pressed"
+          role="button"
+          data-action="start-skill"
+          onClick={() => navigate.toTraining("start-skill", { skill: skillFocus.skillId, band: skillFocus.band })}
+        >
+          <Text>开始 10 道 · {skillFocus.bandLabel}</Text>
+        </View>
+      </View>
+    );
+  } else if (focus) {
     body = (
       <View className="screen" data-testid="focus-confirm" data-domain={focus.domain}>
         <BackButton label="返回练习" action="explore" onTap={() => setFocused(null)} />
@@ -58,6 +92,23 @@ export default function Explore() {
         >
           <Text>开始这一小段</Text>
         </View>
+        {focus.hasCompletePractice ? (
+          <View className="reference-entry">
+            <View
+              className="cta secondary"
+              hoverClass="cta-pressed"
+              role="button"
+              data-action="start-reference"
+              aria-label={focus.referenceAria}
+              onClick={() => navigate.toTraining("start-reference", { domain: focus.domain })}
+            >
+              <Text>{focus.referenceLabel || "完整关系练习"}</Text>
+            </View>
+            {focus.referenceSubtitle ? (
+              <Text className="body reference-subtitle">{focus.referenceSubtitle}</Text>
+            ) : null}
+          </View>
+        ) : null}
       </View>
     );
   } else {
@@ -69,13 +120,7 @@ export default function Explore() {
             <Text className="title">探索数学世界</Text>
             <Text className="lede">从一个主题开始，走更远的路</Text>
           </View>
-          {mascotSrc && mascotOk ? (
-            <View className="fb-mascot" aria-hidden="true" data-slot="specialist.mascot">
-              <View className="fb-spark fb-spark-1" />
-              <View className="fb-spark fb-spark-2" />
-              <Image className="fb-mascot-img" src={mascotSrc} mode="aspectFit" onError={() => setMascotOk(false)} />
-            </View>
-          ) : null}
+          <MascotCompanion pose="welcome" interactive className="fb-mascot" observation="先看关系，再决定怎么算。" />
         </View>
         <View className="segmented" role="group" aria-label="练习方式">
           <View className="seg is-on" aria-pressed="true">
@@ -98,11 +143,11 @@ export default function Explore() {
                   {g.en}
                 </Text>
               </View>
-              <View className="practice-grid">
+              <View className="practice-shelf">
                 {g.cards.map((c) => (
                   <View
-                    className={`practice-card${c.released ? "" : " is-soon"}`}
-                    hoverClass="practice-card-pressed"
+                    className={`practice-shelf-item${c.released ? "" : " is-soon"}`}
+                    hoverClass="practice-shelf-pressed"
                     role="button"
                     aria-label={c.aria}
                     key={c.domain}
@@ -116,11 +161,65 @@ export default function Explore() {
                       <Text className={`practice-name${isLongLabel(c.label) ? " is-long" : ""}`}>{c.label}</Text>
                       <Text className="practice-status">{c.status}</Text>
                     </View>
+                    <View className="practice-track" aria-hidden="true"><View className="practice-track-point" /></View>
+                    <Text className="practice-open" aria-hidden="true">进入</Text>
                   </View>
                 ))}
               </View>
             </View>
           ))}
+        </View>
+        <View className="grade7-section" data-section="grade7-rational">
+          <View className="grade7-head">
+            <View>
+              <Text className="grade7-kicker">GRADE 7 · SKILLS</Text>
+              <Text className="grade7-title">七年级有理数</Text>
+            </View>
+            <Text className="grade7-count">8 项</Text>
+          </View>
+          <Text className="grade7-lede">从符号、绝对值到四则与乘方，按层级逐项练习。</Text>
+          <View className="grade7-path">
+            {grade7PathView(state).stages.map((stage, stageIndex) => (
+              <View className="grade7-stage" key={stage.id} data-stage={stage.id}>
+                <View className="stage-rail" aria-hidden="true">
+                  <View className="stage-node"><Text>{stageIndex + 1}</Text></View>
+                  {stageIndex < 3 ? <View className="stage-connector" /> : null}
+                </View>
+                <View className="stage-content">
+                  <View className="stage-heading">
+                    <Text className="stage-title">{stage.label}</Text>
+                    <Text className="stage-note">{stage.note}</Text>
+                  </View>
+                  <View className="stage-skills">
+                    {stage.skills.map((card) => (
+                      <View
+                        className="skill-path-row"
+                        hoverClass="skill-path-row-pressed"
+                        role="button"
+                        aria-label={card.aria}
+                        key={card.skillId}
+                        data-skill={card.skillId}
+                        onClick={() => {
+                          setSkillBand(card.band);
+                          setFocusedSkill(card.skillId);
+                        }}
+                      >
+                        <MathStructureIcon kind={card.structureKind} />
+                        <View className="skill-path-copy">
+                          <Text className="skill-name">{card.label}</Text>
+                          <View className="skill-meta">
+                            <Text className="skill-band">{card.bandLabel}</Text>
+                            <Text className="skill-status">{card.status}</Text>
+                          </View>
+                        </View>
+                        <Text className="skill-arrow" aria-hidden="true">›</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
         </View>
       </View>
     );
@@ -131,7 +230,16 @@ export default function Explore() {
     <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">{body}</View>
       <Notice text={notice} />
-      <BottomNav active="explore" bottomInset={safeArea.bottom} onTap={(id, label) => (id === "explore" ? setFocused(null) : onTab(id, label))} />
+      <BottomNav
+        active="explore"
+        bottomInset={safeArea.bottom}
+        onTap={(id, label) => {
+          if (id === "explore") {
+            setFocused(null);
+            setFocusedSkill(null);
+          } else onTab(id, label);
+        }}
+      />
     </View>
   );
 }

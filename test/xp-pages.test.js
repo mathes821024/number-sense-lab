@@ -15,6 +15,8 @@ import { listPromptText, printPrompt, mathTokens } from "../app/components/math/
 import {
   exploreView,
   focusView,
+  grade7View,
+  skillFocusView,
   mistakesView,
   progressView,
   printSelectView,
@@ -36,7 +38,16 @@ import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { defaultPrintSelection } from "../src/core/a4.js";
 import { summarizeDomain } from "../src/core/mastery.js";
 import { filterByDomain } from "../src/core/content.js";
-import { CARD_STATUS_WORDS, PRACTICE_GROUPS, SOON_STATUS, domainSlot, practiceCard, practiceGroups } from "../src/core/practice-groups.js";
+import {
+  BAND_LABELS,
+  CARD_STATUS_WORDS,
+  PRACTICE_GROUPS,
+  SOON_STATUS,
+  domainSlot,
+  practiceCard,
+  practiceGroups,
+} from "../src/core/practice-groups.js";
+import { SKILL_IDS } from "../src/core/skill-catalog.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
@@ -94,6 +105,59 @@ test("主题训练: exactly the three navigation groups of 05 §2, in order, eac
     assert.equal(c.label, LABELS[DOMAIN_ORDER.indexOf(c.domain)]);
     assert.equal(c.released, true, `${c.domain} is released`);
   }
+});
+
+test("七年级有理数: a separate eight-skill section, never a ninth fact-domain card", () => {
+  const factCards = exploreView({ relations: {}, skills: {} }, catalog).flatMap((g) => g.cards);
+  const grade7 = grade7View({ relations: {}, skills: {} });
+  assert.equal(factCards.length, 8, "the frozen fact grid stays exactly eight cards");
+  assert.deepEqual(factCards.map((c) => c.domain).sort(), [...DOMAIN_ORDER].sort());
+  assert.equal(grade7.label, "七年级有理数");
+  assert.deepEqual(grade7.cards.map((card) => card.skillId), SKILL_IDS);
+  assert.equal(grade7.cards.length, 8);
+  for (const card of grade7.cards) {
+    assert.equal(card.band, "foundation");
+    assert.equal(card.bandLabel, "基础");
+    assert.equal(DOMAIN_ORDER.includes(card.skillId), false, `${card.skillId} is a skill, not a fact domain`);
+  }
+});
+
+test("七年级有理数: confirmation chooses a named band and produces a safe skill intent", () => {
+  const skillId = SKILL_IDS[0];
+  for (const [band, label] of Object.entries(BAND_LABELS)) {
+    const focus = skillFocusView(skillId, band, { skills: {} });
+    assert.equal(focus.skillId, skillId);
+    assert.equal(focus.band, band);
+    assert.equal(focus.bandLabel, label);
+    assert.deepEqual(trainingIntent({ intent: "start-skill", skill: skillId, band }), {
+      kind: "begin-skill",
+      skillId,
+      band,
+    });
+  }
+  assert.equal(skillFocusView("nope", "foundation", { skills: {} }), null);
+  assert.equal(skillFocusView(skillId, "nope", { skills: {} }), null);
+});
+
+test("七年级有理数 page: four-stage path opens the same confirmation and training intent", () => {
+  const page = read("app/pages/explore/index.jsx");
+  assert.match(page, /grade7PathView\(state\)\.stages\.map/);
+  assert.match(page, /data-section="grade7-rational"/);
+  assert.match(page, /data-stage=\{stage\.id\}/);
+  assert.match(page, /stage\.skills\.map/);
+  assert.match(page, /data-skill=\{card\.skillId\}/);
+  assert.match(page, /<MathStructureIcon kind=\{card\.structureKind\} \/>/);
+  assert.match(page, /setFocusedSkill\(card\.skillId\)/);
+  assert.match(page, /skillFocus\.bands\.map/);
+  assert.match(page, /setSkillBand\(band\.value\)/);
+  assert.match(page, /navigate\.toTraining\("start-skill", \{ skill: skillFocus\.skillId, band: skillFocus\.band \}\)/);
+  const css = read("app/app.css");
+  assert.match(css, /\.grade7-section \{/);
+  assert.match(css, /\.grade7-path \{/);
+  assert.match(css, /\.grade7-stage \{[^}]*grid-template-columns: 36px minmax\(0, 1fr\);/);
+  assert.match(css, /\.skill-path-row \{[^}]*min-height: 70px;/);
+  assert.doesNotMatch(css, /\.skill-grid \{/);
+  assert.match(css, /\.band-option \{[^}]*min-height: 44px;/);
 });
 
 test("主题训练: the groups never reach learning — scheduler, mastery, mistakes and content do not know them", () => {
@@ -181,13 +245,15 @@ test("主题训练 pages (Taro + h5/): the same shared model, F-B header and gro
     assert.match(src, /practice-group-en/);
     assert.match(src, /is-long/);
   }
-  for (const css of [read("app/app.css"), read("h5/styles.css")]) {
-    assert.match(css, /\.practice-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
-    const card = css.match(/\n\.practice-card \{[\s\S]*?\n\}/)[0];
-    assert.match(card, /background: var\(--fb-tile-bg\);/, "white tiles on the group zone");
-    assert.match(card, /box-shadow: var\(--fb-tile-shadow\);/, "a very light shadow, not a floating card");
-    assert.match(card, /border-radius: 16px;/);
-    assert.match(card, /min-height: 76px;/, "compact tile, still well above 44×44");
+  const appCss = read("app/app.css");
+  assert.match(appCss, /\.practice-shelf \{[^}]*border-top:/);
+  const shelf = appCss.match(/\n\.practice-shelf-item \{[\s\S]*?\n\}/)[0];
+  assert.match(shelf, /display: flex;/, "facts are calm rows instead of a card wall");
+  assert.match(shelf, /min-height: 72px;/, "comfortable tap target");
+  assert.doesNotMatch(shelf, /box-shadow:/, "shelf rows do not float as individual cards");
+  assert.match(appCss, /\.practice-track \{/);
+
+  for (const css of [appCss, read("h5/styles.css")]) {
     for (const tone of ["sky", "amber"]) {
       assert.match(css, new RegExp(`\\.practice-group\\.tone-${tone} \\{ background: var\\(--fb-group-bg-${tone}\\); \\}`), `${tone} zone in CSS`);
       assert.match(css, new RegExp(`\\.tile\\.tone-${tone} \\{ background: var\\(--fb-chip-${tone}\\); \\}`), `${tone} chip`);
@@ -198,9 +264,14 @@ test("主题训练 pages (Taro + h5/): the same shared model, F-B header and gro
     assert.match(css, /\.practice-name \{[^}]*font-size: 15px;[^}]*white-space: nowrap;[^}]*color: var\(--text-primary\);/);
     assert.match(css, /\.practice-group-title \{[^}]*font-size: 16px; font-weight: 800;/);
     assert.match(css, /\.fb-hint \{[^}]*font-size: 13px; font-weight: 400;[^}]*color: var\(--text-secondary\);/, "helper line weaker than the group titles");
-    assert.match(css, /\.fb-mascot \{[^}]*width: 74px; height: 74px;/, "mascot (≤ 80 token) no taller than the title block, even after rpx rounding at 430");
+    assert.match(css, /\.fb-mascot \{[^}]*width: 74px;/, "companion picture keeps the compact 74px header token");
     assert.match(css, /width: 64px;\n  height: 64px;\n  flex: none;\n  border-radius: 14px;/, "64px icon chip");
   }
+  const legacyCss = read("h5/styles.css");
+  assert.match(legacyCss, /\.practice-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/, "legacy h5 reference remains unchanged");
+  const legacyCard = legacyCss.match(/\n\.practice-card \{[\s\S]*?\n\}/)[0];
+  assert.match(legacyCard, /background: var\(--fb-tile-bg\);/);
+  assert.match(legacyCard, /box-shadow: var\(--fb-tile-shadow\);/);
 });
 
 test("focus confirm: a released domain only; anything else is null", () => {
@@ -261,6 +332,22 @@ test("错题本: grouped by domain in DOMAIN_ORDER (new domains included), empty
   assert.equal(mistakesView({ relations: {} }, catalog).groups.length, 0);
   const page = read("app/pages/mistakes/index.jsx");
   assert.doesNotMatch(page, /className="[^"]*badge|items\.length\}|\.length\} 题/);
+  assert.doesNotMatch(page, /已掌握|seg-soon|data-soon=\{name\}/, "首版不展示不可用的未来标签");
+  assert.match(page, /book\.practiceLabel/);
+  assert.match(page, /book\.emptyMessage/);
+});
+
+test("错题本 presentation: one item gets a singular action and the approved calm empty copy", () => {
+  const only = catalog.find((item) => item.domain === "products");
+  const one = mistakesView({ relations: { [only.id]: wrongOnce() } }, catalog);
+  assert.equal(one.total, 1);
+  assert.equal(one.practiceLabel, "练这 1 题");
+  assert.equal(one.emptyMessage, "现在没有需要重新写熟的题。");
+
+  const two = catalog.filter((item) => item.domain === "products").slice(0, 2);
+  const many = mistakesView({ relations: Object.fromEntries(two.map((item) => [item.id, wrongOnce()])) }, catalog);
+  assert.equal(many.total, 2);
+  assert.equal(many.practiceLabel, "练这些错题");
 });
 
 test("错题本: a fraction_fields mistake is listed as 0.125 = an empty fraction bar (stacked, no slash)", () => {
@@ -360,9 +447,9 @@ test("print selection is page state: the pages never write the learner record", 
     const src = read(`app/pages/${p}/index.jsx`);
     assert.doesNotMatch(src, /\.write\(|withActiveLearner|recordAttempt|setStorage|localStorage/, p);
   }
-  // State version and key are untouched by the migration.
+  // The storage key stays stable while the additive learner schema is now v4.
   assert.equal(STATE_KEY, "nsl-v01-state");
-  assert.equal(STATE_VERSION, 3);
+  assert.equal(STATE_VERSION, 4);
 });
 
 test("home short-height mode (≤ 650px usable height): same blocks, a little less vertical room, text and nav unchanged (h5/ and Taro)", () => {

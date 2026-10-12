@@ -14,7 +14,7 @@ import {
   emptyState,
   getActiveLearner,
   withActiveLearner,
-  isValidV3,
+  isValidV4,
 } from "../src/core/store.js";
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
@@ -70,7 +70,7 @@ test("v1 → v2 → v3 hops one version at a time and keeps all history", () => 
   assert.equal(learner.prefs.sound, false);
 });
 
-test("upgradeState: v1 fixture becomes v3 with exactly one new learner_id", () => {
+test("upgradeState: v1 fixture reaches v4 with exactly one new learner_id", () => {
   const ids = counter();
   const { state, changed, from } = upgradeState(fixture("state-v1.json"), {
     createLearnerId: ids,
@@ -79,7 +79,7 @@ test("upgradeState: v1 fixture becomes v3 with exactly one new learner_id", () =
   assert.equal(from, 1);
   assert.equal(changed, true);
   assert.equal(ids.calls(), 1);
-  assert.ok(isValidV3(state));
+  assert.ok(isValidV4(state));
   assert.equal(getActiveLearner(state).relations["square-12"].attempts.length, 4);
 });
 
@@ -129,16 +129,16 @@ test("unknown version and unusable v3 throw instead of guessing", () => {
   );
 });
 
-test("adapter: v1 in storage → v3 written back under the same key, id stable across reloads", () => {
+test("adapter: v1 in storage → v4 written back under the same key, id stable across reloads", () => {
   const raw = JSON.stringify(fixture("state-v1.json"));
   const storage = memoryStorage([[KEY, raw]]);
   const ids = counter("uuid");
   const store = createBrowserStore(storage, KEY, { createId: ids, today: () => "2026-09-29" });
   const first = store.read();
-  assert.equal(first.version, 3);
+  assert.equal(first.version, 4);
   assert.equal(first.active_learner_id, "uuid-1");
   const saved = JSON.parse(storage.raw(KEY));
-  assert.equal(saved.version, 3);
+  assert.equal(saved.version, 4);
   assert.equal(saved.learners["uuid-1"].relations["fraction-1-8"].attempts.length, 4);
   const second = createBrowserStore(storage, KEY, { createId: ids, today: () => "2026-09-30" }).read();
   assert.equal(second.active_learner_id, "uuid-1");
@@ -163,7 +163,7 @@ test("adapter: bad JSON is not overwritten by read, nor by a later save", () => 
   const storage = memoryStorage([[KEY, "{not-json"]]);
   const store = createBrowserStore(storage, KEY, { createId: () => "tmp" });
   const loaded = store.read();
-  assert.equal(loaded.version, 3);
+  assert.equal(loaded.version, 4);
   assert.equal(store.lastReadProblem, "unreadable");
   assert.equal(storage.raw(KEY), "{not-json", "read never overwrites");
   assert.equal(store.write(loaded), false, "write refused");
@@ -180,12 +180,12 @@ test("adapter: unknown future version is not overwritten", () => {
   assert.equal(storage.raw(KEY), raw);
 });
 
-test("adapter: a brand-new device writes v3 directly with one learner_id", () => {
+test("adapter: a brand-new device writes v4 directly with one learner_id", () => {
   const storage = memoryStorage();
   const ids = counter("fresh");
   const root = createBrowserStore(storage, KEY, { createId: ids, today: () => "2026-09-29" }).read();
-  assert.equal(root.version, 3);
-  assert.equal(JSON.parse(storage.raw(KEY)).version, 3);
+  assert.equal(root.version, 4);
+  assert.equal(JSON.parse(storage.raw(KEY)).version, 4);
   assert.equal(root.learners["fresh-1"].profile.created_on, "2026-09-29");
   createBrowserStore(storage, KEY, { createId: ids }).read();
   assert.equal(ids.calls(), 1);

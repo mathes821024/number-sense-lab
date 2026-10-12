@@ -64,6 +64,26 @@ test("math: fraction tokens carry a bar (numerator over denominator), stored tex
   assert.equal(mathLabel("1/8 = 0.125"), "1/8 = 0.125");
 });
 
+test("math: caret powers display as textbook superscripts in both shared renderers", () => {
+  const stored = "(-2)^2 + 5^3 + (3/4)^6 + 2^10 = ?";
+  assert.deepEqual(
+    mathTokens(stored).filter((token) => token.type === "superscript"),
+    [
+      { type: "superscript", exponent: "2", label: "2 次方" },
+      { type: "superscript", exponent: "3", label: "3 次方" },
+      { type: "superscript", exponent: "6", label: "6 次方" },
+      { type: "superscript", exponent: "10", label: "10 次方" },
+    ],
+  );
+  assert.equal(mathLabel("(-2)^2 = ?"), "(-2) 的 2 次方 = ?");
+
+  const html = formatMath(stored);
+  assert.doesNotMatch(html, /\^/);
+  assert.match(html, /\(-2\)<sup class="math-sup" aria-label="2 次方">2<\/sup>/);
+  assert.match(html, /5<sup class="math-sup" aria-label="3 次方">3<\/sup>/);
+  assert.match(html, /2<sup class="math-sup" aria-label="10 次方">10<\/sup>/);
+});
+
 test("math: a fraction_fields prompt 「0.125 = ?/?」 reads as 0.125 = an empty fraction bar, never 「?/?」", () => {
   const t = mathTokens("0.125 = ?/?");
   assert.deepEqual(t, [{ type: "text", text: "0.125 = " }, { type: "blank_fraction", label: "分数" }]);
@@ -115,6 +135,92 @@ test("input: integer takes digits only (max 8); decimal takes one 「.」; no an
   assert.equal(appendKey("1", ".", frac), null);
   assert.deepEqual(resolveInputMode(new Set(["physical_keyboard", "onscreen_keypad"])), { inputMode: "onscreen_keypad", mixedInput: true });
   assert.deepEqual(resolveInputMode(new Set(["physical_keyboard"])), { inputMode: "physical_keyboard", mixedInput: false });
+});
+
+test("signed input: ± is independent from the decimal extra key and works after digits", () => {
+  const signed = {
+    id: "gx:test:signed:0",
+    domain: "squares",
+    answer_type: "signed_integer",
+    canonical_answer: "-7",
+    prompt: "3 - 10 = ?",
+    relation: "3 - 10 = -7",
+    hook: "先看方向",
+    pattern: { check: "", family: [] },
+    frames: [],
+    entry_after: null,
+  };
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog: [signed], today: () => DAY, clock: () => 1 });
+  flow.begin("focused", "squares");
+  assert.equal(flow.view().signKey, "±");
+  assert.equal(flow.view().extraKey, null);
+  flow.input("7");
+  assert.equal(flow.toggleSign(), true);
+  assert.equal(flow.view().answer, "-7");
+  flow.pause();
+  flow.unpause();
+  assert.equal(flow.view().answer, "-7", "pause/resume keeps the signed input");
+  assert.equal(flow.submit(), "correct");
+});
+
+test("signed input: a sign alone is not recorded and physical-keyboard mode is preserved", () => {
+  const signed = {
+    id: "gx:test:signed:1",
+    domain: "squares",
+    answer_type: "signed_integer",
+    canonical_answer: "-4",
+    prompt: "1 - 5 = ?",
+    relation: "1 - 5 = -4",
+    hook: "先看方向",
+    pattern: { check: "", family: [] },
+    frames: [],
+    entry_after: null,
+  };
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog: [signed], today: () => DAY, clock: () => 2 });
+  flow.begin("focused", "squares");
+  flow.toggleSign("physical_keyboard");
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.state.relations[signed.id], undefined);
+  flow.input("4", "physical_keyboard");
+  assert.equal(flow.submit(), "correct");
+  assert.equal(flow.state.relations[signed.id].attempts[0].inputMode, "physical_keyboard");
+});
+
+test("signed fraction input: denominator zero, simplification, erase and correct all stay in one shared flow", () => {
+  const signedFraction = {
+    id: "gx:test:signed-fraction:0",
+    domain: "squares",
+    answer_type: "signed_fraction_fields",
+    canonical_answer: "-1/2",
+    prompt: "(-3/4) + (1/4) = ?",
+    relation: "(-3/4) + (1/4) = -1/2",
+    hook: "先通分，再看符号",
+    pattern: { check: "", family: [] },
+    frames: [],
+    entry_after: null,
+  };
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog: [signedFraction], today: () => DAY, clock: () => 3 });
+  flow.begin("focused", "squares");
+  flow.toggleSign();
+  flow.input("2");
+  flow.focus("denominator");
+  flow.input("0");
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.state.relations[signedFraction.id], undefined);
+  flow.erase();
+  flow.input("4");
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.view().nudgeSticky, true);
+  flow.erase();
+  flow.input("2");
+  flow.focus("numerator");
+  flow.erase();
+  flow.input("1");
+  assert.equal(flow.submit(), "correct");
+  assert.equal(flow.state.relations[signedFraction.id].attempts.length, 1);
 });
 
 // ---------- the flow over the real core ----------
@@ -277,7 +383,7 @@ test("entry_after: a fresh daily set never starts a locked inverse item; core un
   assert.equal(isEntryUnlocked(byId("isquare-6"), {}), false);
 });
 
-test("a full set of 10 ends on the end page; Home then says 今天这段练完了 / 看看这次", () => {
+test("a full set of 10 ends on the end page; Home offers one calm result action", () => {
   const { store } = memStore();
   const flow = createTrainingFlow({ store, catalog, today: () => DAY });
   flow.begin("daily", null);
@@ -300,7 +406,7 @@ test("a full set of 10 ends on the end page; Home then says 今天这段练完�
   const home = homeView(flow.state, DAY);
   assert.equal(home.title, "今天这段练完了");
   assert.equal(home.cta.label, "看看这次");
-  assert.equal(home.secondary.label, "再练一小段");
+  assert.equal(home.secondary, null);
 });
 
 test("stop / resume: 先停一下 → 继续做 keeps the answer; leaving mid-set resumes at the next item; 先停 ends early", () => {
@@ -433,7 +539,7 @@ test("record keeper works without structuredClone (absent in the Mini Program JS
     const a = record.read();
     a.learners = {};
     assert.notDeepEqual(record.read().learners, {}, "a read copy is not the kept state");
-    assert.equal(JSON.parse(map.get(STATE_KEY)).version, 3);
+    assert.equal(JSON.parse(map.get(STATE_KEY)).version, 4);
   } finally {
     globalThis.structuredClone = saved;
   }

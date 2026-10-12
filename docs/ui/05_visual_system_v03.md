@@ -1,5 +1,7 @@
 # Number Sense Lab｜视觉系统 v0.3
 
+> 首次上线有限替代：`docs/ui/09_scientific_visual_language.md` 与 `docs/ux/06_reasoning_tools_and_correct_explanation.md` 自 2026-10-12 的合同冻结起，替代本文关于吉祥物出现频率、幼儿式反馈语气、知识地图占位，以及“答对只能自动离开、没有看原理入口”的表述。颜色令牌、主题语义、打印、对错含义和学习机制仍以本文及上位合同为准。
+
 状态：微信上线前的视觉重构契约，供 ChatGPT 做 Visual Gate Review。
 
 本文只定义视觉表达层。不改学习逻辑、调度、掌握、错题本、进度语义、打印语义、判题、本地优先，也不增加后端或账号。

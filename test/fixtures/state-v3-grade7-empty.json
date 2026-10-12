@@ -1,0 +1,43 @@
+{
+  "version": 3,
+  "active_learner_id": "learner-grade7",
+  "learners": {
+    "learner-grade7": {
+      "profile": { "learner_id": "learner-grade7", "created_on": "2026-09-01", "nickname": "小研究员" },
+      "relations": {
+        "square-7": {
+          "status": "learning",
+          "attempts": [
+            { "correct": true, "day": "2026-10-10", "slow": false, "inputMode": "onscreen_keypad", "elapsedMs": 1200, "mixedInput": false }
+          ],
+          "schedule": { "due_day": "2026-10-11", "bucket": "1d", "reason": "first-correct" }
+        }
+      },
+      "sessions": [
+        { "id": "s-old", "day": "2026-10-10", "mode": "daily", "domain": null, "correct": 1, "total": 1, "completed": true, "earlyStop": false, "grewFamiliar": [] }
+      ],
+      "activeSession": {
+        "id": "s-active",
+        "mode": "daily",
+        "source": "scheduler",
+        "domain": null,
+        "day": "2026-10-11",
+        "queue": ["square-8", "square-9"],
+        "cursor": 1,
+        "answered": 1,
+        "correctCount": 1,
+        "targetCount": 2,
+        "finished": false,
+        "earlyStop": false,
+        "reappearPlan": {},
+        "reappearCount": {},
+        "outcomes": [{ "id": "square-8", "correct": true, "elapsedMs": 900, "inputMode": "onscreen_keypad" }],
+        "grewFamiliar": []
+      },
+      "prefs": { "sound": false, "theme": "math-lab" },
+      "lastResult": { "id": "s-old", "day": "2026-10-10", "correct": 1, "total": 1 },
+      "owner_note": "keep every unknown learner field"
+    }
+  },
+  "device_note": "keep every unknown root field"
+}

@@ -1,7 +1,7 @@
 /**
  * Fix 01: a stored record that could not be read (bad JSON / unknown version /
  * migration failure) must never be overwritten, not even by a later ordinary
- * save. Readable v1 / v2 / v3 records stay writable.
+ * save. Readable v1 / v2 / v3 / v4 records stay writable.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createBrowserStore } from "../app/platform/h5/browser-store.js";
-import { getActiveLearner, withActiveLearner } from "../src/core/store.js";
+import { getActiveLearner, withActiveLearner, STATE_VERSION } from "../src/core/store.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtureRaw = (name) => readFileSync(join(here, "fixtures", name), "utf8");
@@ -38,7 +38,7 @@ function assertProtected(raw, expectedProblem) {
   const root = store.read();
   assert.equal(store.lastReadProblem, expectedProblem);
   assert.equal(store.writeProtected, true);
-  assert.equal(root.version, 3, "app still gets a usable temporary record");
+  assert.equal(root.version, STATE_VERSION, "app still gets a usable temporary record");
   assert.equal(storage.raw(KEY), raw, "read did not overwrite");
 
   const learner = getActiveLearner(root);
@@ -67,13 +67,13 @@ test("write-protect: bad JSON → read → write(newState) leaves primary key un
   assertProtected('{"version":2,"relations":{"square-15":', "unreadable");
 });
 
-test("write-protect: unknown future version 4 → read → write leaves primary key unchanged", () => {
-  const v4 = JSON.stringify({
-    version: 4,
+test("write-protect: unknown future version 5 → read → write leaves primary key unchanged", () => {
+  const future = JSON.stringify({
+    version: 5,
     active_learner_id: "future-1",
     learners: { "future-1": { profile: { learner_id: "future-1" }, relations: {}, extra: true } },
   });
-  assertProtected(v4, "unknown-version");
+  assertProtected(future, "unknown-version");
 });
 
 test("write-protect: migration failure (malformed v2) → read → write leaves primary key unchanged", () => {
@@ -100,14 +100,14 @@ test("write-protect: storage getItem throwing also protects the primary key", ()
     removeItem: (k) => writes.push([k, null]),
   };
   const store = createBrowserStore(storage, KEY, { createId: () => "tmp" });
-  assert.equal(store.read().version, 3);
+  assert.equal(store.read().version, STATE_VERSION);
   assert.equal(store.lastReadProblem, "unreadable");
   assert.equal(store.write(store.read()), false);
   assert.equal(store.clear(), false);
   assert.deepEqual(writes, []);
 });
 
-test("write-protect: readable v1 / v2 / v3 records stay writable", () => {
+test("write-protect: readable v1 / v2 / v3 / v4 records stay writable", () => {
   for (const name of ["state-v1.json", "state-v2.json"]) {
     const storage = memoryStorage([[KEY, fixtureRaw(name)]]);
     const store = createBrowserStore(storage, KEY, { createId: counter("u"), today: () => "2026-09-29" });
@@ -118,10 +118,10 @@ test("write-protect: readable v1 / v2 / v3 records stay writable", () => {
     learner.prefs.sound = false;
     assert.equal(store.write(withActiveLearner(root, learner)), true, name);
     const saved = JSON.parse(storage.raw(KEY));
-    assert.equal(saved.version, 3, name);
+    assert.equal(saved.version, STATE_VERSION, name);
     assert.equal(saved.learners[saved.active_learner_id].prefs.sound, false, name);
 
-    // The v3 just written is itself readable and writable, with the same id.
+    // The v4 just written is itself readable and writable, with the same id.
     const reload = createBrowserStore(storage, KEY, { createId: () => "never" });
     const root3 = reload.read();
     assert.equal(reload.writeProtected, false, name);

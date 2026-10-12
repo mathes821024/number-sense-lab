@@ -12,10 +12,25 @@
  * State is the full v3 record. The flow only reads and writes the active
  * learner, exactly like h5/app.js (getActiveLearner / withActiveLearner).
  */
-import { loadCoreCatalog, domainLabel } from "../../../src/core/content.js";
+import { loadCoreCatalog, domainLabel, practiceEntryCatalog } from "../../../src/core/content.js";
 import { getActiveLearner, withActiveLearner } from "../../../src/core/store.js";
 import { startSession, submitAnswer, peekCurrent, finishSession } from "../../../src/core/session.js";
+import {
+  finishReferenceSession,
+  isReferenceSession,
+  peekReferenceItem,
+  startReferenceSession,
+  submitReferenceAnswer,
+  REFERENCE_MODE,
+} from "../../../src/core/reference-session.js";
 import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
+import {
+  finishSkillSession,
+  peekSkillExercise,
+  startSkillSession,
+  submitSkillAnswer,
+} from "../../../src/core/skill-session.js";
+import { skillById } from "../../../src/core/skill-catalog.js";
 import { localDay } from "../../../src/adapter/storage-contract.js";
 import {
   emptyFields,
@@ -24,6 +39,14 @@ import {
   eraseDigit,
   fieldsAnswer,
 } from "../../../src/core/fraction-fields.js";
+import {
+  emptySignedFields,
+  eraseSignedDigit,
+  focusSignedField,
+  signedFieldsAnswer,
+  toggleSignedSign,
+  typeSignedDigit,
+} from "../../../src/core/signed-fraction-fields.js";
 
 /** UX contract: 400–700ms. Same value as h5/app.js (correctTimer). */
 export const CORRECT_PAUSE_MS = 700;
@@ -34,6 +57,20 @@ const MAX_DIGITS = 8;
 export function extraKeyFor(item) {
   if (item?.needsDecimalPoint) return ".";
   return null;
+}
+
+export function signKeyFor(item) {
+  return item?.answer_type === "signed_integer" || item?.answer_type === "signed_fraction_fields"
+    ? "±"
+    : null;
+}
+
+function isSignedFraction(item) {
+  return item?.answer_type === "signed_fraction_fields";
+}
+
+function isFractionFields(item) {
+  return Boolean(item?.fractionFields) || item?.answer_type === "fraction_fields" || isSignedFraction(item);
 }
 
 /** h5/app.js resolveInputMode. */
@@ -77,6 +114,8 @@ export function createTrainingFlow({
   let root = store.read();
   let state = getActiveLearner(root);
   let session = null;
+  /** relation | skill */
+  let sessionKind = "relation";
   let item = null;
   let nearEnd = false;
   let revisit = false;
@@ -92,6 +131,7 @@ export function createTrainingFlow({
   let screen = "empty";
   let feedback = null;
   let lastOutcome = null;
+  let currentResult = null;
   /** Screen the pause dialog was opened from. */
   let pausedFrom = null;
 
@@ -107,10 +147,16 @@ export function createTrainingFlow({
   }
 
   function showQuestion() {
-    const peeked = peekCurrent(session, catalog);
+    const peeked = sessionKind === "skill"
+      ? peekSkillExercise(session)
+      : sessionKind === "reference"
+        ? peekReferenceItem(session, practiceEntryCatalog(session.domain))
+        : peekCurrent(session, catalog);
     session = peeked.session;
-    persist({ ...state, activeSession: session });
-    item = peeked.item;
+    persist(sessionKind === "skill"
+      ? { ...state, activeSkillSession: session }
+      : { ...state, activeSession: session });
+    item = sessionKind === "skill" ? peeked.exercise : peeked.item;
     nearEnd = peeked.nearEnd;
     revisit = peeked.revisit;
     if (!item) {
@@ -118,7 +164,7 @@ export function createTrainingFlow({
       return;
     }
     answer = "";
-    fields = emptyFields();
+    fields = isSignedFraction(item) ? emptySignedFields() : emptyFields();
     nudge = "";
     nudgeSticky = false;
     modes = new Set();
@@ -133,8 +179,13 @@ export function createTrainingFlow({
       screen = "end";
       return;
     }
-    const finished = finishSession(state, session, { earlyStop });
+    const finished = sessionKind === "skill"
+      ? finishSkillSession(state, session, { earlyStop })
+      : sessionKind === "reference" || isReferenceSession(session)
+        ? finishReferenceSession(state, session, { earlyStop })
+        : finishSession(state, session, { earlyStop });
     persist(finished.state);
+    currentResult = finished.summary;
     lastOutcome = earlyStop ? "stopped" : "finished";
     session = null;
     item = null;
@@ -142,6 +193,8 @@ export function createTrainingFlow({
   }
 
   function begin(mode = "daily", domain = null) {
+    sessionKind = "relation";
+    currentResult = null;
     session = startSession({
       mode,
       domain,
@@ -173,9 +226,36 @@ export function createTrainingFlow({
     showQuestion();
   }
 
+  function beginSkill(skillId, band = "foundation", seed = null) {
+    sessionKind = "skill";
+    currentResult = null;
+    session = startSkillSession({
+      skillId,
+      band,
+      day: today(),
+      seed: seed ?? `${today()}|${skillId}|${band}|${clock()}`,
+    });
+    persist({ ...state, activeSkillSession: session });
+    showQuestion();
+  }
+
+  function beginReference(domain) {
+    sessionKind = "reference";
+    currentResult = null;
+    session = startReferenceSession({
+      domain,
+      day: today(),
+      seed: sessionSeed(REFERENCE_MODE, domain),
+    });
+    persist({ ...state, activeSession: session });
+    showQuestion();
+  }
+
   const api = {
     /** Home 「开始今天的练习」 / 「再练一小段」. */
     begin,
+    beginSkill,
+    beginReference,
     /** 「重新开始一小段」 (pause screen; was on Home): drop the unfinished set, start a new one. */
     restart(mode = "daily", domain = null) {
       persist({ ...state, activeSession: null });
@@ -189,21 +269,39 @@ export function createTrainingFlow({
         return;
       }
       session = state.activeSession;
+      sessionKind = isReferenceSession(session) ? "reference" : "relation";
       showQuestion();
+    },
+    resumeSkill() {
+      if (!state.activeSkillSession) {
+        screen = "empty";
+        return;
+      }
+      sessionKind = "skill";
+      session = state.activeSkillSession;
+      showQuestion();
+    },
+    restartSkill(skillId, band = "foundation") {
+      persist({ ...state, activeSkillSession: null });
+      session = null;
+      beginSkill(skillId, band);
     },
     /** Home 「看看这次」: the stored end summary. */
     showLast() {
       session = null;
       item = null;
       lastOutcome = null;
+      currentResult = state.lastResult || null;
       screen = "end";
     },
     /** One key from the on-screen keypad or (H5 only) the physical keyboard. */
     input(key, inputMode = "onscreen_keypad") {
       if (screen !== "train" || submitting) return false;
       modes.add(inputMode);
-      if (item?.fractionFields) {
-        const nextFields = typeDigit(fields, key);
+      if (isFractionFields(item)) {
+        const nextFields = isSignedFraction(item)
+          ? typeSignedDigit(fields, key)
+          : typeDigit(fields, key);
         if (nextFields === null) return false;
         fields = nextFields;
       } else {
@@ -217,9 +315,11 @@ export function createTrainingFlow({
     erase(inputMode = "onscreen_keypad") {
       if (screen !== "train" || submitting) return false;
       modes.add(inputMode);
-      if (item?.fractionFields) {
+      if (isFractionFields(item)) {
         // Only the focused box; an empty box stays focused (no jump).
-        const nextFields = eraseDigit(fields);
+        const nextFields = isSignedFraction(item)
+          ? eraseSignedDigit(fields)
+          : eraseDigit(fields);
         if (nextFields) fields = nextFields;
       } else {
         answer = answer.slice(0, -1);
@@ -229,10 +329,23 @@ export function createTrainingFlow({
     },
     /** Tap the numerator or the denominator box (fraction_fields only). */
     focus(which) {
-      if (screen !== "train" || submitting || !item?.fractionFields) return false;
-      const next = focusField(fields, which);
+      if (screen !== "train" || submitting || !isFractionFields(item)) return false;
+      const next = isSignedFraction(item)
+        ? focusSignedField(fields, which)
+        : focusField(fields, which);
       if (next === null) return false;
       fields = next;
+      return true;
+    },
+    toggleSign(inputMode = "onscreen_keypad") {
+      if (screen !== "train" || submitting || !signKeyFor(item)) return false;
+      modes.add(inputMode);
+      if (isSignedFraction(item)) {
+        fields = toggleSignedSign(fields);
+      } else {
+        answer = answer.startsWith("-") ? answer.slice(1) : `-${answer}`;
+      }
+      if (!nudgeSticky) nudge = "";
       return true;
     },
     /** Judge once through Core. "correct" | "wrong" | "nudge" | null (ignored). */
@@ -240,20 +353,27 @@ export function createTrainingFlow({
       if (submitting || screen !== "train" || !item) return null;
       submitting = true;
       const mode = resolveInputMode(modes);
-      const result = submitAnswer({
-        item,
-        state,
-        session,
-        // fraction_fields: both boxes → ONE judging string (or "" = not an attempt).
-        raw: item.fractionFields ? fieldsAnswer(fields) : answer,
-        catalog,
-        meta: {
-          day: today(),
-          inputMode: mode.inputMode,
-          mixedInput: mode.mixedInput,
-          elapsedMs: Math.round(now() - startedAt),
-        },
-      });
+      const raw = isFractionFields(item)
+        ? (isSignedFraction(item) ? signedFieldsAnswer(fields) : fieldsAnswer(fields))
+        : answer;
+      const meta = {
+        day: today(),
+        inputMode: mode.inputMode,
+        mixedInput: mode.mixedInput,
+        elapsedMs: Math.round(now() - startedAt),
+      };
+      const result = sessionKind === "skill"
+        ? submitSkillAnswer({ state, session, raw, meta })
+        : sessionKind === "reference" || isReferenceSession(session)
+          ? submitReferenceAnswer({
+              item,
+              state,
+              session,
+              raw,
+              meta,
+              catalog: practiceEntryCatalog(session.domain),
+            })
+          : submitAnswer({ item, state, session, raw, catalog, meta });
       if (!result.feedback.record) {
         // Not an attempt (empty / malformed / needs_simplification): stay
         // here, keep the answer editable, nothing recorded.
@@ -274,7 +394,9 @@ export function createTrainingFlow({
     advance() {
       if (screen !== "correct" && screen !== "wrong") return screen;
       submitting = false;
-      const done = session.answered >= session.targetCount || session.cursor >= session.queue.length;
+      const done = sessionKind === "skill"
+        ? session.answered >= session.targetCount
+        : session.answered >= session.targetCount || session.cursor >= session.queue.length;
       if (done) end(false);
       else showQuestion();
       return screen;
@@ -308,16 +430,28 @@ export function createTrainingFlow({
         screen,
         item,
         answer,
-        fields: item?.fractionFields ? fields : null,
+        fields: isFractionFields(item) ? fields : null,
         nudge,
         nudgeSticky,
         feedback,
-        pill: nearEnd ? "快完成了" : revisit ? "再试一次" : item ? domainLabel(item.domain) : "",
+        pill: nearEnd
+          ? "快完成了"
+          : revisit
+            ? "再试一次"
+            : sessionKind === "skill"
+              ? (skillById(session?.skill_id)?.label || "七年级有理数")
+              : sessionKind === "reference"
+                ? `完整·${domainLabel(session?.domain || item?.domain)}`
+                : item
+                  ? domainLabel(item.domain)
+                  : "",
         position,
         total,
         extraKey: extraKeyFor(item),
-        result: state.lastResult || null,
+        signKey: signKeyFor(item),
+        result: currentResult || state.lastResult || null,
         lastOutcome,
+        sessionKind,
         writeProtected: Boolean(store.writeProtected),
       };
     },

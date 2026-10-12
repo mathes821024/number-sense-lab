@@ -4,8 +4,8 @@
 // repeating / decimal input, a full set of 10, v1 → v3 migration in wx storage,
 // write protection (bad JSON, future version), and the migrated pages: 错题本
 // (grouped by domain) → 印到纸上 (selector → A4 preview; no print button in the
-// Mini Program), 最近练得怎么样, and 专项练习 (every domain → a focused set from
-// that domain only). Screenshots of each screen.
+// Mini Program), 最近练得怎么样, 专项练习 (every domain → a focused set from
+// that domain only), and 我的 / 产品介绍. Screenshots of each screen.
 //
 // Needs WeChat DevTools (logged in, 设置 → 安全设置 → 服务端口 on) and
 // miniprogram-automator, which is not a project dependency:
@@ -222,7 +222,7 @@ await step("1 Home", async () => {
   const cta = await textOf(page, ".home-cta .entry-name");
   const sub = await textOf(page, ".home-cta .entry-sub");
   const title = await textOf(page, ".bubble-title");
-  const cards = await Promise.all((await page.$$(".entry .entry-name")).map((e) => e.text()));
+  const cards = [cta, ...(await Promise.all((await page.$$(".home-next-name")).map((e) => e.text())))];
   const nav = await Promise.all((await page.$$(".tab-label")).map((e) => e.text()));
   const navOn = await textOf(page, ".tab.is-on .tab-label");
   const imgs = await Promise.all((await page.$$(".theme-img")).map((e) => e.attribute("src")));
@@ -233,7 +233,7 @@ await step("1 Home", async () => {
   check(!(await has(page, ".logo .theme-img")), "logo slot empty in the Mini Program");
   await shot("01-home");
   // 专项练习 is a page now (no longer 敬请期待).
-  await tapText(page, ".entry", "专项练习");
+  await tapText(page, ".home-next-item", "专项练习");
   await sleep(1500);
   const ex = await mp.currentPage();
   check(ex.path === "pages/explore/index", `专项练习 → ${ex.path}`);
@@ -395,14 +395,16 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
     `resume lede lines ${JSON.stringify(ledeLines)} bubble right ${bubbleRight}`,
   );
   ledeLayout = { lines: ledeLines, bubbleRight };
-  // Above the fold on the 390×753 window: the resume hero and all four cards, fully.
+  // Above the fold on the 390×753 window: the resume hero, main action, and three next-step rows, fully.
   const sysH = (await mp.systemInfo()).windowHeight;
   const nav = await (await page.$(".tabbar")).offset();
   const fold = [];
-  for (const e of await page.$$(".entry")) {
+  const foldItems = [...(await page.$$(".home-cta")), ...(await page.$$(".home-next-item"))];
+  for (const e of foldItems) {
     const o = await e.offset();
     const s = await e.size();
-    fold.push({ name: (await (await e.$(".entry-name")).text()).trim(), top: Math.round(o.top), bottom: Math.round(o.top + s.height) });
+    const label = (await e.$(".entry-name")) || (await e.$(".home-next-name"));
+    fold.push({ name: (await label.text()).trim(), top: Math.round(o.top), bottom: Math.round(o.top + s.height) });
   }
   const navTop = Math.round(nav.top);
   const vis = (n) => fold.find((f) => f.name === n);
@@ -626,7 +628,7 @@ await step("11 错题本 → 印到纸上 (selector → A4 preview, no print but
 
 await step("12 最近练得怎么样 → 选题打印", async () => {
   page = await relaunch("/pages/home/index");
-  await tapText(page, ".entry", "最近练得怎么样");
+  await tapText(page, ".home-next-item", "最近练得怎么样");
   await sleep(1500);
   page = await mp.currentPage();
   check(page.path === "pages/progress/index", `path ${page.path}`);
@@ -666,7 +668,7 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   const tiles = [];
   const order = [];
   for (const [gi, g] of groups.entries()) {
-    const cards = await g.$$(".practice-card");
+    const cards = await g.$$(".practice-shelf-item[data-domain]");
     const names = [];
     const boxes = [];
     for (const c of cards) {
@@ -688,10 +690,10 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
       check(cls.includes(`tone-${GRID_GROUPS[gi][1]}`), `${names[names.length - 1]} tint ${cls}`);
     }
     check(names.join("/") === GRID_GROUPS[gi][2].join("/"), `group ${heads[gi]} cards ${names}`);
-    // Two columns: 1st left, 2nd right on the same row; an odd 3rd card sits under the 1st, same width (never stretched).
-    check(boxes[1].left > boxes[0].left + boxes[0].w - 1 && Math.abs(boxes[1].top - boxes[0].top) <= 1, `${heads[gi]} row 1 ${JSON.stringify(boxes)}`);
-    check(Math.abs(boxes[0].w - boxes[1].w) <= 1 && boxes[0].h >= 44 && boxes[0].w >= 44, `${heads[gi]} card size ${JSON.stringify(boxes)}`);
-    if (boxes[2]) check(Math.abs(boxes[2].left - boxes[0].left) <= 1 && Math.abs(boxes[2].w - boxes[0].w) <= 1 && boxes[2].top > boxes[0].top + boxes[0].h - 1, `${heads[gi]} 3rd card ${JSON.stringify(boxes)}`);
+    check(boxes.every((box) => box.h >= 44 && box.w >= 44), `${heads[gi]} row size ${JSON.stringify(boxes)}`);
+    for (let i = 1; i < boxes.length; i += 1) {
+      check(Math.abs(boxes[i].left - boxes[i - 1].left) <= 1 && Math.abs(boxes[i].w - boxes[i - 1].w) <= 1 && boxes[i].top >= boxes[i - 1].top + boxes[i - 1].h - 1, `${heads[gi]} shelf order ${JSON.stringify(boxes)}`);
+    }
     geo.push(`${heads[gi]} ${boxes.map((x) => `${x.left},${x.top} ${x.w}×${x.h}`).join(" | ")}`);
     order.push(...names);
   }
@@ -699,18 +701,19 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   // F-B header (08 §2): kicker, title, subtitle, tabs, the quiet helper line; the reused welcome mascot.
   const head = [await textOf(page, ".fb-kicker"), await textOf(page, ".title"), await textOf(page, ".lede"), await textOf(page, ".fb-hint")];
   check(head.join("/") === "EXPLORE MATH/探索数学世界/从一个主题开始，走更远的路/今天想练哪个？", `header ${head}`);
-  const mascotImg = await page.$(".fb-mascot .fb-mascot-img");
+  const mascotImg = await page.$(".fb-mascot .mascot-companion-image .theme-img");
   const mascotSrc = mascotImg ? await mascotImg.attribute("src") : "";
-  const mascotH = mascotImg ? Math.round((await (await page.$(".fb-mascot")).size()).height) : 0;
+  const mascotH = mascotImg ? Math.round((await mascotImg.size()).height) : 0;
   const headH = Math.round((await (await page.$(".fb-head-text")).size()).height);
-  check(/\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
+  check(/\/assets\/themes\/math-lab\/mascot\/mascot-welcome-512\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH && await has(page, '[data-action="companion-observation"]'), `companion ${mascotSrc} ${mascotH}px (title block ${headH})`);
   const zones = [];
   for (const g of groups) zones.push(`${(await g.attribute("class")).match(/tone-(\w+)/)[1]}:${(await (await g.$(".practice-group-en")).text()).trim()}`);
   check(zones.join("/") === "sky:POWERS/amber:PRODUCTS/mint:NUMBERS", `zones ${zones}`);
   // 05 §1: no 敬请期待 cards on the practice page; 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图.
   for (const sel of [".soon-tile", ".soon-chip", ".soon-name", ".section-label"]) check(!(await has(page, sel)), `no ${sel}`);
   await shot("25-explore");
-  const all = await page.$$(".practice-card");
+  const all = await page.$$(".skill-path-row[data-skill]");
+  check((await page.$$(".grade7-stage[data-stage]")).length === 4 && all.length === 8, "grade 7 path keeps four stages and eight skills");
   const lastCard = all[all.length - 1];
   const lastPageBottom = (await lastCard.offset()).top + (await lastCard.size()).height; // at scroll 0: page = viewport coordinates
   await mp.pageScrollTo(400);
@@ -733,14 +736,14 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   await sleep(400);
   const note = await textOf(page, ".toast.is-on");
   const after = await mp.currentPage();
-  check(after.path === "pages/explore/index" && (await after.$$(".practice-card")).length === 8, `知识地图 changed the page (${after.path})`);
+  check(after.path === "pages/explore/index" && (await after.$$(".practice-shelf-item[data-domain]")).length === 8, `知识地图 changed the page (${after.path})`);
   check(/敬请期待/.test(note || ""), `知识地图 notice 「${note}」`);
   await shot("25d-knowledge-map-soon");
   const sets = [];
   for (const [n, label] of GRID_ORDER.entries()) {
     const domain = DOMAIN_ORDER[LABELS.indexOf(label)];
     page = await relaunch("/pages/explore/index");
-    await (await page.$$(".practice-card"))[n].tap();
+    await (await page.$$(".practice-shelf-item[data-domain]"))[n].tap();
     await sleep(700);
     const t = await textOf(page, ".focus-card .title");
     check(t === label, `card ${n + 1} → confirm 「${t}」, want 「${label}」`);
@@ -757,6 +760,36 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
     sets.push(`${label} ${s.queue.length}`);
   }
   return `headings ${heads.join("/")}; grid ${order.join("/")}; ${geo.join("; ")}; tiles ${tiles.join(",")}; no 敬请期待 cards; 知识地图 → 「${note}」; list end clears the nav (${endClear}); focused sets ${sets.join(", ")} — each from its own domain`;
+});
+
+await step("15 我的昵称 / 产品介绍", async () => {
+  await boot(RAWP);
+  page = await relaunch("/pages/me/index");
+  check(page.path === "pages/me/index", `path ${page.path}`);
+  check((await textOf(page, ".profile-intro .title")).includes("小研究员"), "old record fallback name");
+  const input = await page.$(".nickname-input");
+  check(input, "nickname input missing");
+  await input.input("晨曦");
+  await (await page.$('[data-action="save-nickname"]')).tap();
+  await sleep(400);
+  check((await textOf(page, ".save-status")) === "已保存在这台设备", `save status ${await textOf(page, ".save-status")}`);
+  let saved = JSON.parse(await stored());
+  const activeId = saved.active_learner_id;
+  check(saved.learners[activeId].profile.nickname === "晨曦", "nickname not stored on active learner");
+  await shot("28-me-nickname");
+  page = await relaunch("/pages/me/index");
+  check((await textOf(page, ".profile-intro .title")).includes("晨曦"), "nickname did not survive relaunch");
+  await (await page.$('[data-action="about"]')).tap();
+  await sleep(800);
+  page = await mp.currentPage();
+  check(page.path === "pages/about/index", `about path ${page.path}`);
+  const about = await textOf(page, ".screen-about");
+  for (const line of ["父母陪孩子一起做的一间数学实验室", "不催速度，不比排名，不用题量制造压力", "错误不是惩罚的理由"]) {
+    check(about.includes(line), `about copy ${line}`);
+  }
+  check(!(await has(page, "a")), "about contains an external link");
+  await shot("29-about");
+  return "old record fallback → local nickname persisted after relaunch; parent-companion product story present; no external link";
 });
 
 phase = "teardown";

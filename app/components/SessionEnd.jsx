@@ -1,5 +1,6 @@
 import { View, Text } from "@tarojs/components";
-import ThemeImage, { Mascot } from "./ThemeImage";
+import ThemeImage from "./ThemeImage";
+import MascotCompanion from "./MascotCompanion";
 import MathText from "./math/MathText";
 import Icon from "./icon/Icon";
 
@@ -21,12 +22,13 @@ export default function SessionEnd({ result, onHome, onProgress }) {
   }
   const stopped = Boolean(result.earlyStop);
   return (
-    <View className="screen screen-end" data-testid="end">
+    <View className={`screen screen-end${result.reference || result.mode === "reference" ? " end-mode-reference" : ""}`} data-testid="end">
       <View className="end-art">
-        <Mascot pose={stopped ? "welcome" : "correct"} className="mascot-end" />
+        <MascotCompanion pose={stopped ? "rest" : "discover"} className="mascot-end" />
         {stopped ? null : <ThemeImage slot="decor.sparkle" className="hero-spark" />}
       </View>
-      <Text className="end-title">{stopped ? "先停在这里了" : "先到这里"}</Text>
+      <Text className="end-title">{result.title || (stopped ? "先停在这里了" : "先到这里")}</Text>
+      {result.subtitle ? <Text className="body end-subtitle">{result.subtitle}</Text> : null}
       <Text className="lede end-lede">{stopped ? "已经做的留下了。" : "这一小段练完了。"}</Text>
       <View className="card end-card">
         <Text className="body">{`对了 ${result.correct} 题，做了 ${result.total} 题。`}</Text>

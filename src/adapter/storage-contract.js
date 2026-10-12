@@ -14,8 +14,8 @@
  *
  * Rules (unchanged from the V0.3 browser store):
  * - one key, `nsl-v01-state`
- * - nothing stored → a v3 record is written directly, with one learner_id
- * - v1 → v2 → v3 migration runs in Core; the result is written back only after
+ * - nothing stored → a v4 record is written directly, with one learner_id
+ * - v1 → v2 → v3 → v4 migration runs in Core; the result is written back only after
  *   it succeeded, so a failed migration leaves the old record in place
  * - unreadable text / unknown (future) version / failed migration: the stored
  *   record is never overwritten. read() hands back a temporary empty v3 and
@@ -91,7 +91,7 @@ export function createStateStore(backend, key = STATE_KEY, deps = {}) {
         return failRead("unreadable");
       }
       if (raw === null || raw === undefined || raw === "") {
-        // New device: write v3 directly, with its one learner_id.
+        // New device: write v4 directly, with its one learner_id.
         const fresh = upgradeState(null, { createLearnerId: createId, today: today() }).state;
         backend.setItem(key, JSON.stringify(fresh));
         return fresh;

@@ -93,7 +93,10 @@ export function hasBlankFraction(prompt) {
   return String(prompt ?? "").includes(BLANK_FRACTION);
 }
 
-/** Training screen stem: 「0.125 = ?/?」 → 「0.125 =」 (the boxes follow it). */
+/** Training stem: remove 「?/?」 or a trailing ASCII 「?」 before the answer boxes. */
 export function promptStem(prompt) {
-  return String(prompt ?? "").replace(BLANK_FRACTION, "").trimEnd();
+  return String(prompt ?? "")
+    .replace(BLANK_FRACTION, "")
+    .replace(/\?\s*$/, "")
+    .trimEnd();
 }

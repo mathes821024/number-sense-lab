@@ -1,6 +1,6 @@
 // Taro H5 runtime check of the pages migrated from h5/ (shared with the Mini
-// Program): 专项练习 (the grouped two-column grid of docs/ux/05; every domain
-// card → its confirmation → a focused set from
+// Program): 专项练习 (three semantic shelves plus the Grade 7 learning path;
+// every domain item → its confirmation → a focused set from
 // that domain only), 错题本 (grouped by domain incl. the v0.4 domains, empty
 // groups hidden, fraction_fields drawn stacked), 最近练得怎么样, and the print
 // selector → A4 → answers, with print-media emulation and an A4 PDF. Each at
@@ -145,12 +145,12 @@ for (const [vp, width, height] of VPS) {
         hintW: px(root.querySelector(".fb-hint"), "fontWeight"),
         groupPx: px(root.querySelector(".practice-group-title"), "fontSize"),
         groupW: px(root.querySelector(".practice-group-title"), "fontWeight"),
-        mascot: mascot ? { h: Math.round(mascot.getBoundingClientRect().height), src: mascot.querySelector("img").src, headH: Math.round(headText.height) } : null,
+        mascot: mascot ? { h: Math.round(mascot.querySelector("img").getBoundingClientRect().height), src: mascot.querySelector("img").src, headH: Math.round(headText.height), observe: Boolean(mascot.querySelector('[data-action="companion-observation"]')) } : null,
         zones: [...root.querySelectorAll(".practice-group")].map((g) => ({ bg: getComputedStyle(g).backgroundColor, img: getComputedStyle(g).backgroundImage, en: g.querySelector(".practice-group-en").textContent })),
         groups: [...root.querySelectorAll(".practice-group")].map((g) => ({
           head: g.querySelector(".practice-group-title").textContent,
           role: g.querySelector(".practice-group-title").getAttribute("role"),
-          cards: [...g.querySelectorAll(".practice-card")].map((d) => {
+          cards: [...g.querySelectorAll(".practice-shelf-item[data-domain]")].map((d) => {
             const r = d.getBoundingClientRect();
             const tile = d.querySelector(".tile");
             return {
@@ -195,14 +195,16 @@ for (const [vp, width, height] of VPS) {
     }
     check(v.groups.every((g) => g.role === "heading" && g.cards.every((c) => c.tone === g.cards[0].tone)), "headings + one tint per group");
     for (const g of v.groups) {
-      const [a, b, c] = g.cards.map((x) => x.box);
-      check(b.l >= a.l + a.w - 1 && Math.abs(b.t - a.t) <= 1 && Math.abs(a.w - b.w) <= 1, `${g.head}: two columns ${JSON.stringify(g.cards.map((x) => x.box))}`);
-      if (c) check(Math.abs(c.l - a.l) <= 1 && Math.abs(c.w - a.w) <= 1 && c.t >= a.t + a.h - 1, `${g.head}: 3rd card left, not stretched ${JSON.stringify(c)}`);
+      for (let i = 1; i < g.cards.length; i += 1) {
+        const a = g.cards[i - 1].box;
+        const b = g.cards[i].box;
+        check(Math.abs(b.l - a.l) <= 1 && Math.abs(b.w - a.w) <= 1 && b.t >= a.t + a.h - 1, `${g.head}: shelf order ${JSON.stringify(g.cards.map((x) => x.box))}`);
+      }
     }
     check(v.soon === 0, "no 敬请期待 cards / 更多方向 on the practice page");
     check(v.kicker === "EXPLORE MATH" && v.title === "探索数学世界" && v.lede === "从一个主题开始，走更远的路" && v.hint === "今天想练哪个？", `header ${v.kicker}/${v.title}/${v.lede}/${v.hint}`);
     check(v.hintPx < v.groupPx && v.hintW < v.groupW, `helper line ${v.hintPx}px/${v.hintW} vs group title ${v.groupPx}px/${v.groupW}`);
-    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(v.mascot.src), `mascot ${JSON.stringify(v.mascot)}`);
+    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /assets\/themes\/math-lab\/mascot\/mascot-welcome-512\.(png|webp)$/.test(v.mascot.src) && v.mascot.observe, `companion ${JSON.stringify(v.mascot)}`);
     check(JSON.stringify(v.zones.map((z) => [z.bg, z.img, z.en])) === JSON.stringify([["rgb(234, 242, 251)", "none", "POWERS"], ["rgb(253, 243, 231)", "none", "PRODUCTS"], ["rgb(233, 246, 240)", "none", "NUMBERS"]]), `zones ${JSON.stringify(v.zones)}`);
     check(v.segSoon.join("/") === "知识地图", `segment ${v.segSoon}`);
     check((await navOn()) === "练习", `nav on ${await navOn()}`);
@@ -211,14 +213,16 @@ for (const [vp, width, height] of VPS) {
     await page.click(V('.seg[data-soon="知识地图"]'));
     const toast = await page.textContent(V('[data-testid="toast"]'));
     check(toast === "知识地图 · 敬请期待", `toast ${toast}`);
-    check((await page.$$(V(".practice-card"))).length === 8, "知识地图 does not draw the cards again");
+    check((await page.$$(V(".practice-shelf-item[data-domain]"))).length === 8, "知识地图 does not draw the facts again");
+    check((await page.$$(V(".grade7-stage[data-stage]"))).length === 4, "grade 7 has four stages");
+    check((await page.$$(V(".skill-path-row[data-skill]"))).length === 8, "grade 7 keeps all eight skills");
     // the list end clears the bottom nav
     await toEnd();
     await page.waitForTimeout(150);
     const end = await page.evaluate(() => {
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
       const pg = root.closest(".taro_page") || document;
-      const last = [...root.querySelectorAll(".practice-card")].pop().getBoundingClientRect();
+      const last = [...root.querySelectorAll(".skill-path-row[data-skill]")].pop().getBoundingClientRect();
       const nav = [...pg.querySelectorAll(".tabbar")].find((e) => e.checkVisibility()).getBoundingClientRect();
       return { last: Math.round(last.bottom), nav: Math.round(nav.top) };
     });
@@ -231,7 +235,7 @@ for (const [vp, width, height] of VPS) {
     await page.waitForTimeout(400);
     const fb = await page.evaluate(() => {
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
-      const t = root.querySelector('.practice-card[data-domain="cubes"] .tile');
+      const t = root.querySelector('.practice-shelf-item[data-domain="cubes"] .tile');
       const g = t.querySelector(".tile-glyph .icon");
       return { cls: t.className, glyph: Boolean(g && g.textContent.trim() && g.getBoundingClientRect().width > 4), img: Boolean(t.querySelector("img")) };
     });
@@ -247,7 +251,7 @@ for (const [vp, width, height] of VPS) {
     await step(`${vp} 2.${n + 1} ${LABELS[n]} card → confirm → focused set`, async () => {
       await open("explore");
       await settle("explore");
-      await page.click(V(`.practice-card[data-domain="${domain}"]`));
+      await page.click(V(`.practice-shelf-item[data-domain="${domain}"]`));
       await settle("focus-confirm");
       const c = await page.evaluate(() => {
         const r = [...document.querySelectorAll('[data-testid="focus-confirm"]')].find((e) => e.checkVisibility());
@@ -290,8 +294,8 @@ for (const [vp, width, height] of VPS) {
         ffText: ffRow && ffRow.querySelector(".row-prompt").textContent,
         stacked: Boolean(num && den && num.bottom <= den.top + 2 && Math.abs(num.left - den.left) < 2),
         badges: r.closest(".taro_page").querySelectorAll(".badge, .tab-badge, .dot, [class*=count]").length,
-        segs: [...r.querySelectorAll(".seg")].map((s) => s.textContent),
-        actions: [...r.querySelectorAll(".action-pair .cta")].map((s) => s.textContent.replace(/[\uE000-\uF8FF]/g, "").trim()),
+        scope: r.querySelector(".mistake-scope").textContent,
+        actions: [...r.querySelectorAll(".mistake-actions [data-action]")].map((s) => s.textContent.replace(/[\uE000-\uF8FF]/g, "").trim()),
       };
     });
     check(m.groups.map((g) => g.d).join() === DOMAIN_ORDER.join(), `groups ${m.groups.map((g) => g.d)}`);
@@ -301,7 +305,8 @@ for (const [vp, width, height] of VPS) {
     check(m.stacked && !/[/?]/.test(m.ffText), `fraction_fields row 「${m.ffText}」 stacked ${m.stacked}`);
     check(m.badges === 0, `badges ${m.badges}`);
     check((await navOn()) === "错题本", "nav 错题本 on");
-    check(m.actions.join("/") === "印这些题/练这些错题", `actions ${m.actions}`);
+    check(m.scope === "当前需要再写熟的题", `scope ${m.scope}`);
+    check(m.actions.join("/") === "练这些错题/印这些题", `actions ${m.actions}`);
     const lay = await layout("mistakes", "mistakes");
     await shot("04-mistakes");
     await toEnd();
@@ -316,7 +321,7 @@ for (const [vp, width, height] of VPS) {
     const shown = await page.$$eval(V(".mistake-group"), (els) => els.map((g) => g.dataset.domain));
     check(shown.join() === "halves,powers", `two groups ${shown}`);
     await shot("04c-mistakes-two-groups");
-    return `「${m.title}」 ${m.groups.map((g) => `${g.label}(${g.ids.length})`).join(" ")}; 0.5 = stacked empty bar 「${m.ffText}」; segments ${m.segs.join("/")}; no badges; only halves+powers → ${shown.length} groups; ${lay}`;
+    return `「${m.title}」 ${m.groups.map((g) => `${g.label}(${g.ids.length})`).join(" ")}; 0.5 = stacked empty bar 「${m.ffText}」; current-only scope; no badges; only halves+powers → ${shown.length} groups; ${lay}`;
   });
 
   await step(`${vp} 3b 错题本 empty / 练这些错题`, async () => {
@@ -325,7 +330,9 @@ for (const [vp, width, height] of VPS) {
     await open("mistakes", JSON.stringify(empty));
     await settle("mistakes");
     const isEmpty = await page.getAttribute(V('[data-testid="mistakes"]'), "data-empty");
+    const emptyMessage = await page.textContent(V('[data-testid="mistakes"] .empty .lede'));
     check(isEmpty === "true", "empty state");
+    check(emptyMessage === "现在没有需要重新写熟的题。", `empty copy ${emptyMessage}`);
     await shot("04d-mistakes-empty");
     await open("mistakes");
     await settle("mistakes");
@@ -479,12 +486,34 @@ for (const [vp, width, height] of VPS) {
     await settle("a4");
     await page.click(V('.tabbar [data-tab="explore"]'));
     await settle("explore");
-    await page.click(V('.practice-card[data-domain="cubes"]'));
+    await page.click(V('.practice-shelf-item[data-domain="cubes"]'));
     await settle("focus-confirm");
     const r = await stored();
     check(JSON.stringify(r) === RAW, "stored record changed by viewing pages");
     check(r.version === 3, "version 3");
     return "viewing 错题本 → 选题 → A4 → 专项练习 → confirm leaves nsl-v01-state byte-identical (v3)";
+  });
+
+  await step(`${vp} 6b 我的 / 产品介绍: old record, local nickname, refresh persistence`, async () => {
+    await open("me");
+    await settle("me");
+    check((await page.textContent(V(".profile-intro .title"))).includes("小研究员"), "old record fallback name");
+    await page.fill(V(".nickname-input input"), " 晨曦 ");
+    await page.click(V('[data-action="save-nickname"]'));
+    check((await page.textContent(V(".save-status"))) === "已保存在这台设备", "nickname save status");
+    let saved = await stored();
+    check(saved.learners[saved.active_learner_id].profile.nickname === "晨曦", "nickname stored on current learner");
+    await page.reload();
+    await settle("me");
+    check((await page.textContent(V(".profile-intro .title"))).includes("晨曦"), "nickname survives refresh");
+    const meLayout = await layout("me", "me");
+    await page.click(V('[data-action="about"]'));
+    await settle("about");
+    const about = await page.textContent(V('[data-testid="about"]'));
+    for (const line of ["父母陪孩子一起做的一间数学实验室", "不催速度，不比排名，不用题量制造压力", "错误不是惩罚的理由"]) check(about.includes(line), `about copy ${line}`);
+    check(!(await page.$(V('[data-testid="about"] a'))), "about has no external link");
+    await shot("07-about");
+    return `old v3 record → local nickname persisted; product story present; ${meLayout}`;
   });
 
   await step(`${vp} 7 no errors, no outside requests`, async () => {

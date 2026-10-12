@@ -7,7 +7,7 @@ import { View, Text } from "@tarojs/components";
  * into the focused numerator / denominator box (FractionFields). A repeating
  * decimal needs no extra key: the answer box itself reads 0.( … ).
  */
-export default function Keypad({ extraKey, onKey, onErase, onSubmit }) {
+export default function Keypad({ extraKey, signKey, onKey, onSign, onErase, onSubmit }) {
   const key = (label, onTap, cls = "", dataKey = label, aria) => (
     <View
       className={`key ${cls}`}
@@ -25,7 +25,9 @@ export default function Keypad({ extraKey, onKey, onErase, onSubmit }) {
   return (
     <View className="keys">
       {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => key(d, () => onKey(d)))}
-      {extraKey
+      {signKey
+        ? key(signKey, onSign, "key-sign", "sign", "切换正负号")
+        : extraKey
         ? key(extraKey, () => onKey(extraKey), "", extraKey)
         : <View className="key ghost" aria-hidden="true" />}
       {key("0", () => onKey("0"))}

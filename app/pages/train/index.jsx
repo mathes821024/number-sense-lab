@@ -14,7 +14,15 @@ import {
 import Keypad from "../../components/Keypad";
 import AnswerBox from "../../components/AnswerBox";
 import FractionFields from "../../components/FractionFields";
+import SignedFractionFields from "../../components/SignedFractionFields";
 import { promptStem } from "../../../src/core/fraction-fields.js";
+import {
+  displayAriaLabelFor,
+  displayPromptFor,
+  displayRelationAriaLabelFor,
+  formulaFirstDisplayFor,
+  formulaFirstUiBindings,
+} from "../../../src/core/formula-first-display.js";
 import SetProgress from "../../components/SetProgress";
 import MathText from "../../components/math/MathText";
 import { hasWords } from "../../components/math/tokens.js";
@@ -58,6 +66,9 @@ export default function Train() {
   useEffect(() => {
     const intent = trainingIntent(params);
     if (intent.kind === "resume") flow.resume();
+    else if (intent.kind === "resume-skill") flow.resumeSkill();
+    else if (intent.kind === "begin-skill") flow.beginSkill(intent.skillId, intent.band);
+    else if (intent.kind === "begin-reference") flow.beginReference(intent.domain);
     else if (intent.kind === "restart") flow.restart(intent.mode, intent.domain);
     else if (intent.kind === "last") flow.showLast();
     else flow.begin(intent.mode, intent.domain);
@@ -109,6 +120,13 @@ export default function Train() {
       rerender();
     }
   };
+  const toggleSign = (mode = "onscreen_keypad") => {
+    if (flow.toggleSign(mode)) {
+      cue.tap();
+      bumpTick();
+      rerender();
+    }
+  };
 
   // Hidden or unloaded during the short pause: cancel it, and finish it
   // safely on return (the answer is already recorded; nothing is re-judged).
@@ -133,6 +151,7 @@ export default function Train() {
     if (flow.view().screen !== "train") return false;
     if (k === "enter") submit();
     else if (k === "backspace") erase("physical_keyboard");
+    else if (k === "toggle-sign") toggleSign("physical_keyboard");
     else key(k, "physical_keyboard");
     return true;
   });
@@ -149,7 +168,12 @@ export default function Train() {
   };
   /** 重新开始一小段 (pause screen): the flow's existing restart — drop the unfinished set, start a new daily one. */
   const restart = () => {
-    flow.restart("daily", null);
+    const current = flow.view();
+    if (current.sessionKind === "skill" && flow.session) {
+      flow.restartSkill(flow.session.skill_id, flow.session.band);
+    } else {
+      flow.restart("daily", null);
+    }
     rerender();
   };
 
@@ -166,32 +190,101 @@ export default function Train() {
         <SetProgress position={view.position} total={view.total} />
         <View className="practice-zone">
           <Text className="practice-label">看清关系，再写答案</Text>
-          {view.fields ? (
-            <View className="question-fields" key={view.item.id}>
-              <MathText value={promptStem(view.item.prompt)} className="question" />
-              <FractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
-            </View>
-          ) : (
-            <>
-              <MathText value={view.item.prompt} className={hasWords(view.item.prompt) ? "question is-words" : "question"} key={view.item.id} />
-              <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
-            </>
-          )}
+          {(() => {
+            const formula = formulaFirstDisplayFor(view.item);
+            const stemAria = displayAriaLabelFor(view.item);
+            if (formula?.kind === "unary_opposite") {
+              return (
+                <View
+                  className="formula-equation"
+                  key={view.item.id}
+                  data-testid="formula-opposite"
+                  role="group"
+                  aria-label={stemAria}
+                >
+                  <MathText value={formula.knownText} className="question formula-known" />
+                  <Text className="formula-op" aria-hidden="true">+</Text>
+                  {view.item.answer_type === "signed_fraction_fields" ? (
+                    <SignedFractionFields
+                      fields={view.fields}
+                      onFocus={focusBox}
+                      tick={tick % 2 === 1}
+                      className="is-formula-term"
+                    />
+                  ) : (
+                    <AnswerBox
+                      item={view.item}
+                      answer={view.answer}
+                      tick={tick % 2 === 1}
+                      className="is-formula-term"
+                    />
+                  )}
+                  <Text className="formula-tail" aria-hidden="true">= 0</Text>
+                </View>
+              );
+            }
+            if (view.fields) {
+              const stem = formula?.kind === "unary_abs"
+                ? promptStem(formula.visibleFormula)
+                : promptStem(view.item.prompt);
+              return (
+                <View
+                  className={`question-fields${hasWords(view.item.prompt) ? " is-words" : ""}${view.item.answer_type === "signed_fraction_fields" ? " is-signed-fraction" : ""}`}
+                  key={view.item.id}
+                  data-testid={formula?.kind === "unary_abs" ? "formula-abs" : undefined}
+                >
+                  <MathText value={stem} className="question" ariaLabel={stemAria || undefined} />
+                  {view.item.answer_type === "signed_fraction_fields" ? (
+                    <SignedFractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+                  ) : (
+                    <FractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+                  )}
+                </View>
+              );
+            }
+            return (
+              <>
+                <View key={view.item.id} data-testid={formula?.kind === "unary_abs" ? "formula-abs" : undefined}>
+                  <MathText
+                    value={formula?.kind === "unary_abs" ? formula.visibleFormula : view.item.prompt}
+                    className={hasWords(view.item.prompt) ? "question is-words" : "question"}
+                    ariaLabel={stemAria || undefined}
+                  />
+                </View>
+                <AnswerBox item={view.item} answer={view.answer} tick={tick % 2 === 1} />
+              </>
+            );
+          })()}
           <View className="nudge" data-testid="nudge">
             {view.nudge ? <MathText value={view.nudge} /> : null}
           </View>
         </View>
-        <Keypad extraKey={view.extraKey} onKey={(k) => key(k)} onErase={() => erase()} onSubmit={submit} />
+        <Keypad
+          extraKey={view.extraKey}
+          signKey={view.signKey}
+          onKey={(k) => key(k)}
+          onSign={() => toggleSign()}
+          onErase={() => erase()}
+          onSubmit={submit}
+        />
       </View>
     );
   } else if (view.screen === "correct") {
-    body = <CorrectFeedback relation={view.feedback?.relation || view.item?.relation || ""} />;
+    body = (
+      <CorrectFeedback
+        relation={view.feedback?.relation || view.item?.relation || ""}
+        relationAriaLabel={displayRelationAriaLabelFor(view.item) || undefined}
+      />
+    );
   } else if (view.screen === "wrong") {
+    const ui = formulaFirstUiBindings(view.item);
     body = (
       <WrongFeedback
         key={`${view.item?.id}-${view.position}`}
-        prompt={view.item?.prompt || ""}
+        prompt={displayPromptFor(view.item)}
+        promptAriaLabel={ui?.stemAriaLabel || displayAriaLabelFor(view.item) || undefined}
         feedback={view.feedback}
+        relationAriaLabel={ui?.relationAriaLabel || displayRelationAriaLabelFor(view.item) || undefined}
         onNext={advance}
         onPause={pause}
       />

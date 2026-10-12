@@ -1,5 +1,5 @@
 import { Image, View } from "@tarojs/components";
-import { assetFor } from "../theme/index.js";
+import { assetFor, theme } from "../theme/index.js";
 
 /**
  * A theme picture by semantic slot (mascot.*, decor.*, logo.mark). Pictures
@@ -18,5 +18,6 @@ export default function ThemeImage({ slot, className = "" }) {
 
 /** Mascot poses: welcome on Home and the stop page, correct / thinking on feedback. Never on the question. */
 export function Mascot({ pose, className = "" }) {
-  return <ThemeImage slot={`mascot.${pose}`} className={`mascot ${className}`} />;
+  const slot = theme.mascot[pose] || theme.mascot.welcome;
+  return <ThemeImage slot={slot} className={`mascot ${className}`} />;
 }

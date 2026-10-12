@@ -1,7 +1,7 @@
 /**
  * WeChat Mini Program storage implementation: wx.*StorageSync behind the
  * shared storage contract (src/adapter/storage-contract.js). Same key, same
- * v1 → v2 → v3 migration, same write protection as H5.
+ * v1 → v2 → v3 → v4 migration, same write protection as H5.
  *
  * wx returns "" for a key that is not there; the contract treats "" like
  * null. The contract stores text. Anything else under the key was not written

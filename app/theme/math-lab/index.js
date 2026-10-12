@@ -11,7 +11,14 @@ export default Object.freeze({
   id: "math-lab",
   name: "澄蓝数学实验室",
   englishName: "Bright Number Lab",
-  mascot: Object.freeze({ welcome: "mascot.welcome", correct: "mascot.correct", thinking: "mascot.thinking" }),
+  mascot: Object.freeze({
+    welcome: "mascot.welcome",
+    thinking: "mascot.thinking",
+    discover: "mascot.correct",
+    rest: "mascot.thinking",
+    // Compatibility aliases for existing callers while they move to semantic states.
+    correct: "mascot.correct",
+  }),
   brand: Object.freeze({ logo: "logo.mark" }),
   background: Object.freeze({
     cloud1: "decor.cloud1",

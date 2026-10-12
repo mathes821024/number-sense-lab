@@ -112,7 +112,7 @@ test("browser adapter upgrades the same key and keeps a readable v1 blob", () =>
   const root = store.read();
   const loaded = getActiveLearner(root);
   assert.equal(store.key, key);
-  assert.equal(root.version, 3);
+  assert.equal(root.version, STATE_VERSION);
   assert.equal(root.active_learner_id, "learner-fixed-1");
   assert.equal(loaded.relations["square-10"].status, MASTERY.LEARNING);
   assert.equal(loaded.relations["square-10"].attempts.length, 1);
@@ -120,7 +120,7 @@ test("browser adapter upgrades the same key and keeps a readable v1 blob", () =>
   assert.equal(loaded.relations["square-10"].schedule.reason, "wrong");
   assert.equal(loaded.relations["square-10"].schedule.due_day, "2026-09-29");
   const saved = JSON.parse(storage.raw(key));
-  assert.equal(saved.version, 3);
+  assert.equal(saved.version, STATE_VERSION);
   assert.equal(saved.learners["learner-fixed-1"].relations["square-10"].attempts.length, 1);
 });
 

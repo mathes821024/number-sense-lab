@@ -2,7 +2,7 @@
  * One storage contract, two implementations. The SAME cases run against
  * app/platform/h5/browser-store.js (a fake localStorage) and
  * app/platform/wechat/wx-store.js (a fake wx with *StorageSync, which returns
- * "" for a missing key). V0.3 semantics: v3 state, v1 → v2 → v3 migration,
+ * "" for a missing key). Current semantics: v4 state, v1 → v2 → v3 → v4 migration,
  * write protection for unreadable / future / failed-migration records.
  */
 import assert from "node:assert/strict";
@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { STATE_KEY } from "../src/adapter/storage-contract.js";
 import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { createWechatStore, wxBackend } from "../app/platform/wechat/wx-store.js";
-import { getActiveLearner, withActiveLearner, isValidV3 } from "../src/core/store.js";
+import { getActiveLearner, withActiveLearner, withActiveLearnerNickname, isValidV4, STATE_VERSION } from "../src/core/store.js";
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
 
@@ -108,7 +108,7 @@ function assertProtected(target, raw, problem) {
   const root = store.read();
   assert.equal(store.lastReadProblem, problem, `${target}: problem`);
   assert.equal(store.writeProtected, true, `${target}: protected`);
-  assert.equal(isValidV3(root), true, `${target}: a usable temporary v3`);
+  assert.equal(isValidV4(root), true, `${target}: a usable temporary v4`);
   assert.equal(t.raw(), raw, `${target}: read did not overwrite`);
   const learner = getActiveLearner(root);
   learner.prefs.sound = false;
@@ -128,27 +128,27 @@ function assertProtected(target, raw, problem) {
 }
 
 for (const target of Object.keys(TARGETS)) {
-  test(`[${target}] new device: v3 written directly with one learner_id`, () => {
+  test(`[${target}] new device: v4 written directly with one learner_id`, () => {
     const t = TARGETS[target]();
     const ids = counter("L");
     const store = t.store({ createId: ids, today: () => DAY });
     const root = store.read();
-    assert.equal(root.version, 3);
+    assert.equal(root.version, STATE_VERSION);
     assert.equal(ids.calls(), 1);
     assert.equal(store.writeProtected, false);
     const saved = JSON.parse(t.raw());
-    assert.equal(saved.version, 3);
+    assert.equal(saved.version, STATE_VERSION);
     assert.equal(saved.active_learner_id, "L-1");
     assert.deepEqual(saved.learners["L-1"].profile, { learner_id: "L-1", created_on: DAY });
     assert.equal(typeof t.raw(), "string", "stored as text");
   });
 
-  test(`[${target}] v1 → v2 → v3: migrated, written back once, history kept, id stable`, () => {
+  test(`[${target}] v1 → v2 → v3 → v4: migrated, written back once, history kept, id stable`, () => {
     const v1 = JSON.parse(fixtureRaw("state-v1.json"));
     const t = TARGETS[target]([[STATE_KEY, fixtureRaw("state-v1.json")]]);
     const ids = counter("L");
     const root = t.store({ createId: ids, today: () => DAY }).read();
-    assert.equal(root.version, 3);
+    assert.equal(root.version, STATE_VERSION);
     assert.equal(ids.calls(), 1, "exactly one new learner_id");
     const learner = getActiveLearner(root);
     for (const [id, rel] of Object.entries(v1.relations)) {
@@ -159,7 +159,7 @@ for (const target of Object.keys(TARGETS)) {
     assert.deepEqual(learner.sessions, v1.sessions);
     assert.equal(learner.prefs.sound, false);
     const saved = JSON.parse(t.raw());
-    assert.equal(saved.version, 3);
+    assert.equal(saved.version, STATE_VERSION);
     assert.equal("relations" in saved, false, "no parallel top-level relations");
     // Second launch: same id, no new id, no rewrite.
     const before = t.raw();
@@ -168,7 +168,7 @@ for (const target of Object.keys(TARGETS)) {
     assert.equal(t.raw(), before);
   });
 
-  test(`[${target}] v2 → v3 keeps the v2 record under one learner`, () => {
+  test(`[${target}] v2 → v3 → v4 keeps the v2 record under one learner`, () => {
     const v2 = JSON.parse(fixtureRaw("state-v2.json"));
     const t = TARGETS[target]([[STATE_KEY, fixtureRaw("state-v2.json")]]);
     const root = t.store({ createId: () => "L-2", today: () => DAY }).read();
@@ -177,10 +177,10 @@ for (const target of Object.keys(TARGETS)) {
     assert.deepEqual(Object.keys(learner.relations).sort(), Object.keys(v2.relations).sort());
     assert.deepEqual(learner.sessions, v2.sessions);
     assert.deepEqual(learner.lastResult, v2.lastResult);
-    assert.equal(JSON.parse(t.raw()).version, 3);
+    assert.equal(JSON.parse(t.raw()).version, STATE_VERSION);
   });
 
-  test(`[${target}] a legal v3 is read as is and not rewritten`, () => {
+  test(`[${target}] a legal v4 is read as is and not rewritten`, () => {
     const seed = TARGETS[target]();
     seed.store({ createId: () => "L-3", today: () => DAY }).read();
     const raw = seed.raw();
@@ -191,14 +191,34 @@ for (const target of Object.keys(TARGETS)) {
     assert.equal(t.writes(), 0);
   });
 
+  test(`[${target}] an old v4 without nickname gains one without rewriting learning evidence`, () => {
+    const seed = TARGETS[target]();
+    seed.store({ createId: () => "L-profile", today: () => DAY }).read();
+    const beforeRaw = seed.raw();
+    const before = JSON.parse(beforeRaw);
+    const t = TARGETS[target]([[STATE_KEY, beforeRaw]]);
+    const store = t.store({ createId: () => "never", today: () => DAY });
+    const root = store.read();
+    const next = withActiveLearnerNickname(root, "晨曦");
+    assert.equal(store.write(next), true);
+    const saved = JSON.parse(t.raw());
+    const id = saved.active_learner_id;
+    assert.equal(saved.learners[id].profile.nickname, "晨曦");
+    assert.equal(saved.learners[id].profile.learner_id, before.learners[id].profile.learner_id);
+    assert.equal(saved.learners[id].profile.created_on, before.learners[id].profile.created_on);
+    for (const key of ["relations", "sessions", "activeSession", "skills", "activeSkillSession"]) {
+      assert.deepEqual(saved.learners[id][key], before.learners[id][key], key);
+    }
+  });
+
   test(`[${target}] write-protect: bad JSON is never overwritten`, () => {
     assertProtected(target, "{not-json", "unreadable");
     assertProtected(target, '{"version":2,"relations":{"square-15":', "unreadable");
   });
 
   test(`[${target}] write-protect: a future version is never overwritten`, () => {
-    const v4 = JSON.stringify({ version: 4, active_learner_id: "f", learners: { f: { profile: { learner_id: "f" }, extra: true } } });
-    assertProtected(target, v4, "unknown-version");
+    const future = JSON.stringify({ version: 5, active_learner_id: "f", learners: { f: { profile: { learner_id: "f" }, extra: true } } });
+    assertProtected(target, future, "unknown-version");
     assertProtected(target, JSON.stringify({ relations: {} }), "unknown-version");
   });
 
@@ -218,7 +238,7 @@ for (const target of Object.keys(TARGETS)) {
 
   test(`[${target}] write-protect: a storage read that throws protects the key`, () => {
     const { store, writes } = TARGETS[target]().throwing();
-    assert.equal(store.read().version, 3);
+    assert.equal(store.read().version, STATE_VERSION);
     assert.equal(store.lastReadProblem, "unreadable");
     assert.equal(store.write(store.read()), false);
     assert.equal(store.clear(), false);
@@ -273,7 +293,7 @@ test("[wechat] goes through wx.*StorageSync only and stores text", () => {
   store.write(store.read());
   store.clear();
   assert.equal(typeof api.raw(STATE_KEY), "undefined");
-  // read (nothing → write v3), read (legal v3, no rewrite), write, clear
+  // read (nothing → write v4), read (legal v4, no rewrite), write, clear
   assert.deepEqual(api.log.map(([op]) => op), ["get", "set", "get", "set", "remove"]);
   assert.ok(api.log.every(([, k]) => k === STATE_KEY));
 });

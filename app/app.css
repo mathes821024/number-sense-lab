@@ -102,7 +102,7 @@ body {
 /* Reduced motion: H5 reads the system preference; the Mini Program has no
    verified signal, so its pages carry .motion-low (things simply appear). */
 @media (prefers-reduced-motion: reduce) {
-  .screen, .math.question, .screen-correct .ok, .screen-correct .hero-spark, .screen-wrong .panel, .answer.tick, .fraction-fields.tick { animation: none; }
+  .screen, .math.question, .screen-correct .ok, .screen-correct .hero-spark, .screen-wrong .panel, .answer.tick, .fraction-fields.tick, .signed-fraction-fields.tick { animation: none; }
   .key, .cta, .quiet, .entry { transition: none; }
 }
 .motion-low .screen,
@@ -111,7 +111,8 @@ body {
 .motion-low .hero-spark,
 .motion-low .panel,
 .motion-low .answer.tick,
-.motion-low .fraction-fields.tick { animation: none; }
+.motion-low .fraction-fields.tick,
+.motion-low .signed-fraction-fields.tick { animation: none; }
 .motion-low .key, .motion-low .cta, .motion-low .quiet, .motion-low .entry { transition: none; }
 
 /* ---------- type ---------- */
@@ -299,6 +300,17 @@ body {
   padding: 0 4px;
 }
 .mascot { display: block; flex: none; }
+.mascot-companion { position: relative; display: block; flex: none; animation: mascot-arrive 420ms cubic-bezier(.2,.8,.2,1) both; }
+.mascot-companion-image, .mascot-companion-image .theme-img { display: block; width: 100%; }
+.companion-observe { display: flex; align-items: center; justify-content: center; min-height: 44px; margin-top: -6px; color: var(--color-brand-primary); font-size: 11px; font-weight: 800; text-align: center; cursor: pointer; }
+.companion-observe-pressed { opacity: 0.7; }
+.companion-note { display: block; width: 148px; margin-top: 2px; padding: 8px 10px; border: 1PX solid var(--border-subtle); border-radius: 12px; background: var(--surface-card-strong); box-shadow: var(--shadow-card); color: var(--text-secondary); font-size: 11px; line-height: 1.5; }
+@keyframes mascot-arrive {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.motion-low .mascot-companion { animation: none; }
+@media (prefers-reduced-motion: reduce) { .mascot-companion { animation: none; } }
 .mascot-hero { width: 165px; margin-left: -8px; margin-right: 4px; }
 @media (min-width: 446px) {
   .mascot-hero { width: 196px; }
@@ -398,6 +410,21 @@ body {
   cursor: pointer;
 }
 
+.home-next { margin-top: 8px; border-top: 1PX solid var(--border-subtle); }
+.home-next-head { display: flex; align-items: center; padding: 16px 2px 5px; }
+.home-next-kicker { color: var(--text-secondary); font-size: 11px; font-weight: 800; letter-spacing: 1.4px; }
+.home-next-line { height: 1PX; margin-left: 12px; flex: 1; background: var(--border-subtle); }
+.home-next-item { display: flex; align-items: center; min-height: 64px; border-bottom: 1PX solid var(--border-subtle); color: var(--text-primary); cursor: pointer; }
+.home-next-pressed { opacity: 0.76; }
+.home-next-mark { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; margin: 0 12px 0 2px; flex: none; border-radius: 50%; background: var(--color-brand-tint); color: var(--color-brand-primary); font-size: 19px; }
+.home-next-mark.tone-explore { background: var(--feedback-wrong-tint); color: var(--feedback-wrong-ink); }
+.home-next-mark.tone-mistakes { background: var(--tint-sky); color: var(--color-accent-sky); }
+.home-next-mark.tone-progress { background: var(--tint-sun); color: var(--color-accent-amber); }
+.home-next-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; padding: 10px 0; }
+.home-next-name { color: var(--text-primary); font-size: 15px; font-weight: 800; }
+.home-next-sub { margin-top: 2px; color: var(--text-secondary); font-size: 12px; }
+.home-next-index { margin-left: 8px; color: var(--border-strong); font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+
 /* Short-height phones: ≤ 650px of usable height (e.g. iPhone 6/7/8 in WeChat, 603px under the
    native title bar). Same hierarchy and text sizes, the nav unchanged; only a little vertical
    room comes back, in this order: mascot, hero spacing, bubble padding, CTA height, card gaps.
@@ -411,8 +438,8 @@ body {
   .home .entries { margin-top: 10px; }
   .home .entry { margin-bottom: 8px; }
   .home .entry-start { min-height: 68px; padding-top: 10px; padding-bottom: 10px; }
+  .home-next-item { min-height: 56px; }
 }
-.device-note { text-align: center; }
 
 /* ---------- Training: FOCUS mode (no mascot, no decoration, no counts) ---------- */
 .top { display: flex; justify-content: space-between; align-items: center; }
@@ -499,6 +526,53 @@ body {
   margin: 22px 0 14px;
 }
 .question-fields .math.question { margin: 0 14px 0 0; white-space: nowrap; flex: none; }
+@media (max-width: 480px) {
+  .question-fields.is-words {
+    flex-direction: column;
+    width: 100%;
+  }
+  .question-fields.is-words .math.question {
+    max-width: 100%;
+    margin: 0 0 12px;
+    white-space: normal;
+  }
+  /* A long rational expression and a signed fraction answer share one narrow
+     card. Scale the notation together and allow the answer term to wrap as a
+     unit on very small screens; the editable numerator/denominator remain
+     48px high touch targets. */
+  .question-fields.is-signed-fraction {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 18px 0 10px;
+  }
+  .question-fields.is-signed-fraction .math.question {
+    flex: 0 1 auto;
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .question-fields.is-signed-fraction .signed-fraction-fields {
+    flex: none;
+  }
+  .question-fields.is-signed-fraction .sff-sign {
+    width: 36px;
+    min-height: 48px;
+    margin-right: 6px;
+    font-size: 24px;
+  }
+  .question-fields.is-signed-fraction .fraction-fields {
+    min-width: 72px;
+  }
+  .question-fields.is-signed-fraction .ff-box {
+    min-height: 48px;
+    font-size: 24px;
+  }
+  .question-fields.is-signed-fraction .ff-bar {
+    height: 3px;
+    margin: 4px 2px;
+  }
+}
 .fraction-fields {
   display: inline-flex;
   flex-direction: column;
@@ -552,6 +626,113 @@ body {
   background: var(--text-primary);
 }
 .fraction-fields.tick { animation: tick 0.14s ease; }
+.signed-fraction-fields {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+.signed-fraction-fields.tick { animation: tick 0.14s ease; }
+.sff-sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 48px;
+  min-height: 58px;
+  margin-right: 10px;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-family: var(--font-math);
+  font-size: var(--fs-answer);
+  font-weight: 800;
+  text-align: center;
+}
+.sff-sign.is-empty { color: transparent; }
+
+/* Formula-first unary opposite: known + blank = 0 (curriculum §10, UI §6).
+   The answer fields are one term in the equation — visual weight matches the stem. */
+.formula-equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 10px;
+  margin: 18px 0 12px;
+  max-width: 100%;
+}
+.formula-equation .math.question.formula-known {
+  margin: 0;
+  white-space: nowrap;
+  flex: none;
+  font-size: clamp(28px, 8vw, var(--fs-question));
+  line-height: 1.2;
+}
+.formula-equation .formula-op,
+.formula-equation .formula-tail {
+  font-family: var(--font-math);
+  font-size: clamp(28px, 8vw, var(--fs-question));
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.formula-equation .signed-fraction-fields.is-formula-term {
+  align-items: center;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .sff-sign {
+  width: 36px;
+  min-height: 44px;
+  margin-right: 6px;
+  font-size: 28px;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .fraction-fields {
+  min-width: 72px;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .ff-box {
+  min-height: 44px;
+  font-size: 28px;
+}
+.formula-equation .signed-fraction-fields.is-formula-term .ff-bar {
+  height: 3px;
+  margin: 4px 2px;
+}
+.formula-equation .answer.is-formula-term {
+  display: inline-flex;
+  min-width: 72px;
+  min-height: 52px;
+  padding: 0 12px;
+  margin: 0;
+  font-size: 28px;
+}
+@media (max-width: 400px) {
+  .formula-equation {
+    gap: 6px 8px;
+    margin: 12px 0 8px;
+  }
+  .formula-equation .math.question.formula-known,
+  .formula-equation .formula-op,
+  .formula-equation .formula-tail {
+    font-size: 28px;
+  }
+  .formula-equation .signed-fraction-fields.is-formula-term .sff-sign,
+  .formula-equation .signed-fraction-fields.is-formula-term .ff-box,
+  .formula-equation .answer.is-formula-term {
+    font-size: 24px;
+  }
+  .formula-equation .signed-fraction-fields.is-formula-term .sff-sign {
+    width: 32px;
+    min-height: 40px;
+  }
+  .formula-equation .signed-fraction-fields.is-formula-term .ff-box {
+    min-height: 40px;
+  }
+  .formula-equation .answer.is-formula-term {
+    min-height: 44px;
+    min-width: 64px;
+  }
+}
+
 .nudge {
   display: block;
   min-height: 22px;
@@ -812,6 +993,15 @@ body {
 
 /* ---------- math notation (fraction bar, repeating dots) ---------- */
 .math { display: inline; }
+.math-sup {
+  display: inline;
+  position: relative;
+  top: -0.55em;
+  margin-left: 0.04em;
+  font-size: 0.58em;
+  line-height: 0;
+  font-weight: inherit;
+}
 .frac {
   display: inline-flex;
   flex-direction: column;
@@ -962,8 +1152,9 @@ body {
 .fb-kicker { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; line-height: 1.4; color: var(--text-secondary); }
 .fb-head .title { margin-top: 4px; }
 .fb-head .lede { margin-top: 6px; font-size: 13px; line-height: 1.5; }
-.fb-mascot { position: relative; flex: none; width: 74px; height: 74px; margin-top: 2px; margin-left: 8px; }
-.fb-mascot-img { display: block; width: 74px; height: 74px; }
+.fb-mascot { position: relative; flex: none; width: 74px; margin-top: 2px; margin-left: 8px; }
+.fb-mascot .companion-observe { min-height: 28px; margin: -4px -14px 0; font-size: 9px; }
+.fb-mascot .companion-note { position: absolute; z-index: 2; top: 88px; right: 0; }
 /* Two small CSS sparkles (no decor picture). */
 .fb-spark { position: absolute; width: 7px; height: 7px; border-radius: 1px; transform: rotate(45deg); opacity: 0.85; }
 .fb-spark-1 { left: -6px; top: 12px; background: var(--color-accent-sun); }
@@ -982,27 +1173,29 @@ body {
 .tone-amber .practice-group-dot { background: var(--fb-accent-amber); }
 .practice-group-title { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--text-primary); }
 .practice-group-en { display: block; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: 1.3px; line-height: 1.3; color: var(--fb-group-meta-color); }
-.practice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-gap: 8px; gap: 8px; }
-.practice-card {
+.practice-shelf { border-top: 1PX solid var(--border-subtle); }
+.practice-shelf-item {
   display: flex;
   flex-direction: row;
   align-items: center;
   box-sizing: border-box;
-  min-width: 0;
-  min-height: 76px;
-  padding: 6px 2px 6px 4px;
-  border-radius: 16px;
-  background: var(--fb-tile-bg);
-  box-shadow: var(--fb-tile-shadow);
+  min-width: 0; min-height: 72px;
+  padding: 6px 2px;
+  border-bottom: 1PX solid var(--border-subtle);
   color: var(--text-primary);
   cursor: pointer;
 }
-.practice-card:active, .practice-card-pressed { transform: translateY(1px); }
-.practice-card .tile { margin-right: 6px; }
+.practice-shelf-item:active, .practice-shelf-pressed { opacity: 0.78; }
+.practice-shelf-item .tile { width: 54px; height: 54px; margin-right: 10px; border-radius: 13px; }
+.practice-shelf-item .tile-art, .practice-shelf-item .tile-art .theme-img { width: 48px; height: 48px; }
+.practice-shelf-item .tile-glyph { width: 54px; height: 54px; font-size: 24px; }
 .practice-text { display: flex; flex-direction: column; min-width: 0; }
 .practice-name { display: block; font-size: 15px; font-weight: 700; line-height: 1.3; white-space: nowrap; color: var(--text-primary); }
 .practice-name.is-long { font-size: 14px; }
 .practice-status { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; line-height: 1.35; white-space: nowrap; color: var(--fb-status-color); }
+.practice-track { position: relative; height: 1PX; margin: 0 10px; flex: 1; background: var(--border-subtle); }
+.practice-track-point { position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--color-brand-primary); }
+.practice-open { color: var(--text-secondary); font-size: 11px; font-weight: 700; }
 /* The icon chip (64px): the group colour at 10%, the F-B picture inside at 56px (VISUAL_TOKENS icon / icon.chip). */
 .tile {
   display: flex;
@@ -1031,12 +1224,137 @@ body {
 
 .screen .section-label { margin-top: 26px; }
 
+/* ---------- My: one identity header, evidence strip, then divided rows ---------- */
+.screen-me { padding-bottom: 12px; }
+.profile-head { display: flex; align-items: center; min-height: 116px; padding: 6px 2px 18px; border-bottom: 1PX solid var(--border-subtle); }
+.profile-companion { width: 86px; margin-right: 16px; }
+.profile-intro { flex: 1; min-width: 0; }
+.profile-kicker, .about-kicker { display: block; color: var(--color-brand-primary); font-size: 10px; font-weight: 800; letter-spacing: 1.8px; }
+.profile-intro .title { margin-top: 6px; font-size: 26px; }
+.profile-intro .lede { margin-top: 8px; font-size: 14px; line-height: 1.65; }
+.evidence-strip { display: grid; grid-template-columns: 1fr 1PX 1fr; align-items: stretch; margin: 22px 0 4px; padding: 18px 0; border-top: 1PX solid var(--border-subtle); border-bottom: 1PX solid var(--border-subtle); }
+.evidence-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; text-align: center; }
+.evidence-value { display: block; color: var(--text-primary); font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.evidence-label { display: block; margin-top: 3px; color: var(--text-secondary); font-size: 12px; }
+.evidence-divider { background: var(--border-subtle); }
+.profile-section { margin-top: 26px; }
+.profile-section-title { display: block; color: var(--text-primary); font-size: 17px; font-weight: 800; }
+.profile-section-note { display: block; margin-top: 5px; color: var(--text-secondary); font-size: 13px; }
+.nickname-editor { display: flex; align-items: stretch; margin-top: 12px; }
+.nickname-input { box-sizing: border-box; height: 48px; min-width: 0; flex: 1; padding: 0 14px; border: 1PX solid var(--border-subtle); border-radius: 14px 0 0 14px; background: var(--surface-card); color: var(--text-primary); font-size: 16px; }
+.nickname-save { display: flex; align-items: center; justify-content: center; min-width: 104px; min-height: 48px; padding: 0 14px; border-radius: 0 14px 14px 0; background: var(--color-brand-primary); color: var(--color-brand-primary-ink); font-size: 14px; font-weight: 800; cursor: pointer; }
+.nickname-save-pressed { opacity: 0.86; }
+.save-status { display: block; min-height: 20px; margin-top: 6px; color: var(--color-brand-text); font-size: 12px; }
+.settings-list { margin-top: 16px; border-top: 1PX solid var(--border-subtle); }
+.setting-row { display: flex; align-items: center; min-height: 68px; border-bottom: 1PX solid var(--border-subtle); }
+.setting-row.is-link { cursor: pointer; }
+.setting-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; padding: 12px 12px 12px 2px; }
+.setting-name { display: block; color: var(--text-primary); font-size: 15px; font-weight: 750; }
+.setting-note { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; line-height: 1.45; }
+.setting-value { color: var(--text-secondary); font-size: 13px; }
+.local-data-note { display: flex; align-items: flex-start; margin-top: 22px; padding: 14px 2px; color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+.local-data-mark { margin-right: 8px; color: var(--color-brand-primary); font-size: 16px; line-height: 1.2; }
+
+/* ---------- About: editorial timeline, not another card wall ---------- */
+.screen-about .back { margin-bottom: 26px; }
+.about-hero { padding: 8px 0 26px; border-bottom: 1PX solid var(--border-subtle); }
+.about-hero .title { margin-top: 10px; max-width: 12em; font-size: 30px; line-height: 1.3; }
+.about-lede { display: block; margin-top: 14px; color: var(--text-secondary); font-size: 15px; line-height: 1.8; }
+.about-section { display: grid; grid-template-columns: 38px 1fr; column-gap: 14px; padding: 24px 0; border-bottom: 1PX solid var(--border-subtle); }
+.about-index { color: var(--color-brand-primary); font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+.about-copy { min-width: 0; }
+.about-title { display: block; color: var(--text-primary); font-size: 18px; font-weight: 800; }
+.about-text { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 15px; line-height: 1.85; }
+.about-foot { padding: 28px 0 6px 52px; }
+.about-foot-name { display: block; color: var(--text-primary); font-size: 14px; font-weight: 800; }
+.about-foot-note { display: block; margin-top: 7px; color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+
+@media (max-width: 340px) {
+  .profile-head { align-items: flex-start; }
+  .profile-companion { width: 68px; margin-right: 10px; }
+  .profile-intro .title { font-size: 23px; }
+  .nickname-editor { flex-direction: column; }
+  .nickname-input, .nickname-save { width: 100%; border-radius: 14px; }
+  .nickname-save { margin-top: 8px; }
+}
+
 /* Focused-practice entry: a tinted brand panel, not another white card. */
 .focus-card {
   border: 0;
   background: linear-gradient(160deg, var(--surface-card-strong), var(--color-brand-mist));
 }
 .focus-card .tile { margin-bottom: 14px; }
+
+/* Grade 7 is a separate calculation-skill track, not a fourth fact group. */
+.grade7-section { margin-top: 32px; padding: 22px 0 4px; border-top: 1PX solid var(--border-subtle); }
+.grade7-head { display: flex; align-items: flex-end; justify-content: space-between; }
+.grade7-kicker { display: block; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--text-secondary); }
+.grade7-title { display: block; margin-top: 3px; font-size: 19px; font-weight: 850; color: var(--text-primary); }
+.grade7-count { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.grade7-lede { display: block; margin-top: 7px; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+.grade7-path { margin-top: 18px; }
+.grade7-stage { display: grid; grid-template-columns: 36px minmax(0, 1fr); }
+.stage-rail { position: relative; display: flex; flex-direction: column; align-items: center; }
+.stage-node { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1PX solid var(--color-brand-primary); border-radius: 50%; background: var(--surface-page); color: var(--color-brand-primary); font-size: 11px; font-weight: 800; }
+.stage-connector { width: 1PX; flex: 1; min-height: 128px; background: var(--border-strong); }
+.stage-content { min-width: 0; padding: 2px 0 24px 8px; }
+.stage-heading { display: flex; flex-direction: column; margin-bottom: 8px; }
+.stage-title { color: var(--text-primary); font-size: 16px; font-weight: 850; }
+.stage-note { margin-top: 3px; color: var(--text-secondary); font-size: 11px; }
+.stage-skills { border-top: 1PX solid var(--border-subtle); }
+.skill-path-row { display: flex; align-items: center; min-height: 70px; border-bottom: 1PX solid var(--border-subtle); cursor: pointer; }
+.skill-path-row-pressed { opacity: 0.76; }
+.skill-path-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; padding: 10px 8px 10px 12px; }
+.skill-name { display: block; font-size: 14px; font-weight: 800; line-height: 1.4; color: var(--text-primary); }
+.skill-meta { display: flex; align-items: center; margin-top: 7px; }
+.skill-band { padding: 2px 6px; border-radius: 999px; background: var(--color-brand-mist); font-size: 10px; font-weight: 800; color: var(--color-brand-primary); }
+.skill-status { margin-left: 4px; font-size: 10px; white-space: nowrap; color: var(--text-secondary); }
+.skill-arrow { padding: 10px 3px; color: var(--text-secondary); font-size: 22px; }
+@media (min-width: 768px) {
+  .stage-skills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; }
+}
+.skill-focus-card { border: 0; background: linear-gradient(155deg, var(--surface-card-strong), var(--color-brand-mist)); }
+.skill-focus-kicker { display: block; font-size: 11px; font-weight: 800; letter-spacing: 1.2px; color: var(--color-brand-primary); }
+.skill-focus-card .title { margin-top: 6px; }
+.band-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 18px; }
+.band-option { display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1PX solid var(--border-subtle); border-radius: 12px; background: var(--surface-card-strong); font-size: 13px; font-weight: 800; color: var(--text-secondary); cursor: pointer; }
+.band-option.is-on { border-color: var(--color-brand-primary); background: var(--color-brand-primary); color: var(--color-brand-primary-ink); }
+.skill-focus-status { margin-top: 14px; }
+
+/* Mathematical structure marks: CSS/DOM only, with the skill label beside them. */
+.math-structure-icon { position: relative; display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; flex: none; border-radius: 14px; background: var(--color-brand-mist); color: var(--color-brand-primary); overflow: hidden; }
+.ms-number-line { position: relative; width: 34px; height: 28px; }
+.ms-axis { position: absolute; left: 2px; right: 2px; top: 12px; height: 2px; border-radius: 2px; background: currentColor; }
+.ms-tick { position: absolute; top: 8px; width: 2px; height: 10px; background: currentColor; }
+.ms-tick.is-left { left: 5px; }
+.ms-tick.is-zero { left: 16px; }
+.ms-tick.is-right { right: 5px; }
+.ms-zero { position: absolute; left: 14px; top: 17px; font-size: 8px; font-weight: 800; }
+.ms-point { position: absolute; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ms-point.is-a { left: 4px; }
+.ms-point.is-b { right: 4px; opacity: 0.55; }
+.ms-move { position: absolute; left: 9px; top: -4px; font-size: 26px; font-weight: 400; transform: scaleX(1.5); }
+.ms-groups { display: flex; gap: 4px; font-size: 13px; letter-spacing: 1px; }
+.ms-groups > view { display: flex; align-items: center; justify-content: center; width: 16px; height: 24px; border: 1PX solid currentColor; border-radius: 8px; }
+.ms-fractions { display: flex; flex-direction: column; gap: 8px; width: 30px; }
+.ms-frac-line { height: 2px; background: currentColor; }
+.ms-frac-line.is-short { width: 20px; align-self: center; }
+.ms-area { display: grid; grid-template-columns: 1fr 1fr; width: 28px; height: 28px; border: 1PX solid currentColor; }
+.ms-area > view { border-right: 1PX solid currentColor; border-bottom: 1PX solid currentColor; }
+.ms-area > view:nth-child(2n) { border-right: 0; }
+.ms-area > view:nth-child(n+3) { border-bottom: 0; }
+.ms-area .is-fill { background: currentColor; opacity: 0.35; }
+.ms-power { display: flex; align-items: flex-start; font-family: var(--font-math); font-size: 25px; font-weight: 700; line-height: 1; }
+.ms-power-sup { margin-left: 1px; font-size: 12px; line-height: 1; }
+.ms-tree { position: relative; width: 32px; height: 32px; }
+.ms-tree-top, .ms-tree-dot { position: absolute; border-radius: 50%; background: currentColor; }
+.ms-tree-top { left: 13px; top: 2px; width: 7px; height: 7px; }
+.ms-tree-dot { bottom: 2px; width: 7px; height: 7px; }
+.ms-tree-dot.is-left { left: 3px; }
+.ms-tree-dot.is-right { right: 3px; }
+.ms-tree-branch { position: absolute; top: 10px; width: 2px; height: 15px; background: currentColor; transform-origin: top; }
+.ms-tree-branch.is-left { left: 14px; transform: rotate(42deg); }
+.ms-tree-branch.is-right { right: 14px; transform: rotate(-42deg); }
 
 /* ---------- lists (progress / mistake book / print selector) ---------- */
 .list {
@@ -1093,11 +1411,13 @@ body {
 /* Mistake Book */
 .mistake-group .group-label { margin: 22px 0 0; }
 .mistake-group .list { margin-top: 8px; }
-.screen-mistakes .segmented { margin-top: 14px; }
-.screen-mistakes .segmented + .lede { margin-top: 14px; }
-/* Two actions side by side: print (secondary) and practice (solid). */
-.action-pair { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; gap: 10px; margin-top: 28px; }
-.action-pair .cta { margin-top: 0; }
+.mistake-scope { display: block; margin-top: 10px; color: var(--color-brand-primary); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+.mistake-scope + .lede { margin-top: 12px; }
+.mistake-actions { margin-top: 28px; }
+.mistake-actions .cta { margin-top: 0; }
+.quiet-action { display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 8px; color: var(--color-brand-primary); font-size: 14px; font-weight: 800; cursor: pointer; }
+.quiet-action-pressed { opacity: 0.72; }
+.quiet-action-mark { margin-right: 7px; font-size: 18px; }
 
 /* ---------- filters / chips ---------- */
 .filters { display: flex; flex-wrap: wrap; margin-top: 14px; }
@@ -1191,3 +1511,18 @@ body {
 .sheet .frac-blank { font-size: 1em; margin-left: 0.2em; }
 .sheet .frac-blank .num,
 .sheet .frac-blank .den { min-width: 2.6em; min-height: 1.25em; }
+
+.answer-percent {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.answer-suffix {
+  color: var(--text-secondary);
+  font-weight: 700;
+  user-select: none;
+}
+
+.reference-entry { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.reference-subtitle { color: var(--text-secondary); text-align: center; margin: 0 12px 4px; }
+.end-subtitle { color: var(--text-secondary); text-align: center; margin-top: 4px; }
