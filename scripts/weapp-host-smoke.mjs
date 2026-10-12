@@ -125,7 +125,7 @@ async function step(name, fn) { try { results.push(`PASS ${name} — ${await fn(
 
 const keyNode = (label) => byClass("key").find((k) => text(k) === label);
 const prompt = () => byClass("question")[0];
-// the item on screen = the v3 active session cursor (the same thing the page renders)
+// the item on screen = the v4 active session cursor (the same thing the page renders)
 const itemNow = () => { const s = learner().activeSession; const it = byId.get(s.queue[s.cursor]); check(it && byClass("screen-train").length === 1, `item ${s.queue[s.cursor]}`); return it; };
 const blockOf = (item) => (item.answer_type === "decimal_repeating" ? item.canonical_answer.replace(/^\d+\.\((\d+)\)$/, "$1") : item.canonical_answer);
 
@@ -168,20 +168,23 @@ let first;
 await mainOnly("Correct (keypad tap → short pause → next)", async () => {
   first = itemNow();
   for (const ch of blockOf(first)) { tap(keyNode(ch)); await tick(5); }
-  const shown = text(byClass("answer-box")[0] || byClass("answer-text")[0]);
+  const shown = text(byClass("answer")[0] || byClass("answer-text")[0]);
   tap(keyNode("提交"));
   await tick(30);
   const card = byClass("screen-correct")[0];
-  check(card && text(card).includes("太棒了") && text(card).includes("对"), `correct card ${card && text(card)}`);
+  // Frozen contract (docs/ux/06, scientific-visual plan): the correct screen is
+  // neutral — 「对」, the relation, no 「太棒了」-style praise, no feedback mascot.
+  check(card && text(card).includes("对") && !text(card).includes("太棒了"), `correct card ${card && text(card)}`);
+  check(byClass("theme-img").length === 0, "no feedback mascot image on the correct screen");
   const t0 = Date.now();
   while (!byClass("set-count")[0] && Date.now() - t0 < 3000) await tick(20);
   const adv = Date.now() - t0;
   check(text(byClass("set-count")[0]) === "第 2 题 · 共 10 题", "第 2 题 · 共 10 题");
   check(adv > 550 && adv < 1500, `pause ${adv}ms`);
   const root = JSON.parse(storage.get("nsl-v01-state"));
-  check(root.version === 3, `version ${root.version}`);
+  check(root.version === 4, `version ${root.version}`);
   check(learner().relations[first.id].attempts[0].correct === true, "stored");
-  return `${first.id} → ${first.canonical_answer}; card 「${text(card)}」; auto-advanced after ~${adv}ms to 「第 2 题 · 共 10 题」; wx storage (v3) has the correct attempt; typed 「${shown}」`;
+  return `${first.id} → ${first.canonical_answer}; card 「${text(card)}」; auto-advanced after ~${adv}ms to 「第 2 题 · 共 10 题」; wx storage (v4) has the correct attempt; typed 「${shown}」`;
 });
 
 await mainOnly("Wrong (relation stays, 下一题, no retry)", async () => {
@@ -245,7 +248,9 @@ await step("storage went through wx.*StorageSync", async () => {
   const ops = new Set(calls.map(([op]) => op));
   check(ops.has("getStorageSync") && ops.has("setStorageSync"), [...ops].join());
   check(calls.every(([, k]) => k === "nsl-v01-state" || !k.startsWith("nsl")), "only the contract key");
-  return `${calls.length} calls (${[...ops].join(", ")}) on key nsl-v01-state`;
+  const persisted = JSON.parse(storage.get("nsl-v01-state"));
+  check(persisted.version === 4, `persisted version ${persisted.version}`);
+  return `${calls.length} calls (${[...ops].join(", ")}) on key nsl-v01-state, persisted v${persisted.version}`;
 });
 
 if (PART === "main") {

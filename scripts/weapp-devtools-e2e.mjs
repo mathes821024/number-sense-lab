@@ -280,11 +280,13 @@ await step("3 Correct → auto next", async () => {
   await waitCount(page, "第 2 题 · 共 10 题");
   const ms = Date.now() - t0;
   const att = (await learner()).relations[first.id].attempts.at(-1);
-  check(title === "太棒了！" && word === "对" && keys === 0 && !(await has(page, ".tabbar")), `correct ${title} ${word} keys ${keys}`);
-  check(imgs.some((s) => /mascot-correct-512.*\.png$/.test(s || "")), `mascot ${imgs}`);
+  // Frozen contract (docs/ux/06, scientific-visual plan): neutral feedback only —
+  // the correct screen shows 「对」 with no 「太棒了」-style praise and no mascot.
+  check(title === "对" && word === "对" && keys === 0 && !(await has(page, ".tabbar")), `correct ${title} ${word} keys ${keys}`);
+  check(!imgs.some((s) => /mascot-correct-512.*\.png$/.test(s || "")), `no feedback mascot ${imgs}`);
   check(ms >= 600 && ms < 2000, `advanced after ${ms}ms`);
   check(att.correct === true && att.inputMode === "onscreen_keypad", JSON.stringify(att));
-  return `${first.id} 「${blockOf(first)}」 → 「${title}」 「${word}」, correct mascot PNG, no keypad / nav / button; 「第 2 题 · 共 10 题」 after ${ms}ms with no tap (700ms + automation polling); wx attempt correct, onscreen_keypad`;
+  return `${first.id} 「${blockOf(first)}」 → 「${title}」 「${word}」, neutral feedback, no mascot, no keypad / nav / button; 「第 2 题 · 共 10 题」 after ${ms}ms with no tap (700ms + automation polling); wx attempt correct, onscreen_keypad`;
 });
 
 await step("4 Wrong → 下一题", async () => {
