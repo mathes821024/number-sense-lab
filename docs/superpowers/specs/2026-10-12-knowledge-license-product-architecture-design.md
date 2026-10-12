@@ -412,6 +412,8 @@ Platform Adapter
 
 Owner 审阅本文。通过后才进入 Implementation Plan（实施计划）设计，并把后续工作拆成可独立评审的合同、授权、内容、视觉和平台切片。审阅通过不自动授权修改 LICENSE、实现功能、合并或发布。
 
+Owner 已于 2026-10-12 接受本文方向，并补充首次上线的集中范围。后续设计见 `docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md`；实施拆解见 `docs/superpowers/plans/2026-10-12-launch-program-implementation-plan.md`。新增范围仍须通过各子合同 Gate，不能把本段理解为自动实现、合并或发布授权。
+
 ## 15. 授权设计参考
 
 - [Open Source Initiative — Open Source Definition](https://opensource.org/osd)
