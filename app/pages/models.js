@@ -101,7 +101,12 @@ export function focusView(domain, state, catalog) {
 /** Mistake Book: core's grouping by domain (empty groups already left out) plus the group names. */
 export function mistakesView(state, catalog) {
   const book = buildMistakeBook(catalog, relationsOf(state), studentLabel);
-  return { ...book, groups: book.groups.map((g) => ({ ...g, label: domainLabel(g.domain) })) };
+  return {
+    ...book,
+    emptyMessage: "现在没有需要重新写熟的题。",
+    practiceLabel: book.total === 1 ? "练这 1 题" : "练这些错题",
+    groups: book.groups.map((g) => ({ ...g, label: domainLabel(g.domain) })),
+  };
 }
 
 /** 「10月2日」 (h5/app.js formatDay). */

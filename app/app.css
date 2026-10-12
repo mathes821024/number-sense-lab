@@ -1363,11 +1363,13 @@ body {
 /* Mistake Book */
 .mistake-group .group-label { margin: 22px 0 0; }
 .mistake-group .list { margin-top: 8px; }
-.screen-mistakes .segmented { margin-top: 14px; }
-.screen-mistakes .segmented + .lede { margin-top: 14px; }
-/* Two actions side by side: print (secondary) and practice (solid). */
-.action-pair { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; gap: 10px; margin-top: 28px; }
-.action-pair .cta { margin-top: 0; }
+.mistake-scope { display: block; margin-top: 10px; color: var(--color-brand-primary); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+.mistake-scope + .lede { margin-top: 12px; }
+.mistake-actions { margin-top: 28px; }
+.mistake-actions .cta { margin-top: 0; }
+.quiet-action { display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 8px; color: var(--color-brand-primary); font-size: 14px; font-weight: 800; cursor: pointer; }
+.quiet-action-pressed { opacity: 0.72; }
+.quiet-action-mark { margin-right: 7px; font-size: 18px; }
 
 /* ---------- filters / chips ---------- */
 .filters { display: flex; flex-wrap: wrap; margin-top: 14px; }

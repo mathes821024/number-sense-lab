@@ -294,8 +294,8 @@ for (const [vp, width, height] of VPS) {
         ffText: ffRow && ffRow.querySelector(".row-prompt").textContent,
         stacked: Boolean(num && den && num.bottom <= den.top + 2 && Math.abs(num.left - den.left) < 2),
         badges: r.closest(".taro_page").querySelectorAll(".badge, .tab-badge, .dot, [class*=count]").length,
-        segs: [...r.querySelectorAll(".seg")].map((s) => s.textContent),
-        actions: [...r.querySelectorAll(".action-pair .cta")].map((s) => s.textContent.replace(/[\uE000-\uF8FF]/g, "").trim()),
+        scope: r.querySelector(".mistake-scope").textContent,
+        actions: [...r.querySelectorAll(".mistake-actions [data-action]")].map((s) => s.textContent.replace(/[\uE000-\uF8FF]/g, "").trim()),
       };
     });
     check(m.groups.map((g) => g.d).join() === DOMAIN_ORDER.join(), `groups ${m.groups.map((g) => g.d)}`);
@@ -305,7 +305,8 @@ for (const [vp, width, height] of VPS) {
     check(m.stacked && !/[/?]/.test(m.ffText), `fraction_fields row 「${m.ffText}」 stacked ${m.stacked}`);
     check(m.badges === 0, `badges ${m.badges}`);
     check((await navOn()) === "错题本", "nav 错题本 on");
-    check(m.actions.join("/") === "印这些题/练这些错题", `actions ${m.actions}`);
+    check(m.scope === "当前需要再写熟的题", `scope ${m.scope}`);
+    check(m.actions.join("/") === "练这些错题/印这些题", `actions ${m.actions}`);
     const lay = await layout("mistakes", "mistakes");
     await shot("04-mistakes");
     await toEnd();
@@ -320,7 +321,7 @@ for (const [vp, width, height] of VPS) {
     const shown = await page.$$eval(V(".mistake-group"), (els) => els.map((g) => g.dataset.domain));
     check(shown.join() === "halves,powers", `two groups ${shown}`);
     await shot("04c-mistakes-two-groups");
-    return `「${m.title}」 ${m.groups.map((g) => `${g.label}(${g.ids.length})`).join(" ")}; 0.5 = stacked empty bar 「${m.ffText}」; segments ${m.segs.join("/")}; no badges; only halves+powers → ${shown.length} groups; ${lay}`;
+    return `「${m.title}」 ${m.groups.map((g) => `${g.label}(${g.ids.length})`).join(" ")}; 0.5 = stacked empty bar 「${m.ffText}」; current-only scope; no badges; only halves+powers → ${shown.length} groups; ${lay}`;
   });
 
   await step(`${vp} 3b 错题本 empty / 练这些错题`, async () => {
@@ -329,7 +330,9 @@ for (const [vp, width, height] of VPS) {
     await open("mistakes", JSON.stringify(empty));
     await settle("mistakes");
     const isEmpty = await page.getAttribute(V('[data-testid="mistakes"]'), "data-empty");
+    const emptyMessage = await page.textContent(V('[data-testid="mistakes"] .empty .lede'));
     check(isEmpty === "true", "empty state");
+    check(emptyMessage === "现在没有需要重新写熟的题。", `empty copy ${emptyMessage}`);
     await shot("04d-mistakes-empty");
     await open("mistakes");
     await settle("mistakes");

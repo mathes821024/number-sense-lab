@@ -332,6 +332,22 @@ test("错题本: grouped by domain in DOMAIN_ORDER (new domains included), empty
   assert.equal(mistakesView({ relations: {} }, catalog).groups.length, 0);
   const page = read("app/pages/mistakes/index.jsx");
   assert.doesNotMatch(page, /className="[^"]*badge|items\.length\}|\.length\} 题/);
+  assert.doesNotMatch(page, /已掌握|seg-soon|data-soon=\{name\}/, "首版不展示不可用的未来标签");
+  assert.match(page, /book\.practiceLabel/);
+  assert.match(page, /book\.emptyMessage/);
+});
+
+test("错题本 presentation: one item gets a singular action and the approved calm empty copy", () => {
+  const only = catalog.find((item) => item.domain === "products");
+  const one = mistakesView({ relations: { [only.id]: wrongOnce() } }, catalog);
+  assert.equal(one.total, 1);
+  assert.equal(one.practiceLabel, "练这 1 题");
+  assert.equal(one.emptyMessage, "现在没有需要重新写熟的题。");
+
+  const two = catalog.filter((item) => item.domain === "products").slice(0, 2);
+  const many = mistakesView({ relations: Object.fromEntries(two.map((item) => [item.id, wrongOnce()])) }, catalog);
+  assert.equal(many.total, 2);
+  assert.equal(many.practiceLabel, "练这些错题");
 });
 
 test("错题本: a fraction_fields mistake is listed as 0.125 = an empty fraction bar (stacked, no slash)", () => {
