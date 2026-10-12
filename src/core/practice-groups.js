@@ -10,6 +10,8 @@
  */
 import { DOMAIN_ORDER, domainLabel, filterByDomain } from "./content.js";
 import { summarizeDomain } from "./mastery.js";
+import { domainSummaryLabel } from "./mastery.js";
+import { skillById, skillCatalog } from "./skill-catalog.js";
 
 /**
  * 05 §2 table: group, cards in reading order (left → right, then the next row).
@@ -32,6 +34,15 @@ export const CARD_STATUS_WORDS = Object.freeze(["还没怎么练", "正在熟悉
 
 /** A card whose domain has no released content yet: shown, but it only answers 敬请期待 (05 §3). */
 export const SOON_STATUS = "敬请期待";
+
+/** Student-facing names for the three frozen Grade 7 difficulty bands. */
+export const BAND_LABELS = Object.freeze({
+  foundation: "基础",
+  standard: "课内",
+  transfer: "迁移",
+});
+
+export const DEFAULT_SKILL_BAND = "foundation";
 
 /**
  * Safe fallback only. The icon of every domain is the F-B PNG named for its
@@ -88,6 +99,43 @@ export function practiceGroups(catalog, relations = {}) {
     tone: g.tone,
     cards: g.domains.map((domain) => practiceCard(domain, catalog, relations)),
   }));
+}
+
+/** One Grade 7 skill card. Skills stay separate from fact domains and their mastery. */
+export function skillPracticeCard(skill, skills = {}, band = DEFAULT_SKILL_BAND) {
+  if (!skill || !skill.bands.includes(band) || !BAND_LABELS[band]) return null;
+  const status = domainSummaryLabel(skills[skill.id]?.status);
+  return {
+    skillId: skill.id,
+    label: skill.label,
+    band,
+    bandLabel: BAND_LABELS[band],
+    status,
+    aria: `${skill.label}，${BAND_LABELS[band]}，${status}`,
+  };
+}
+
+/** The separate Grade 7 section. It is never appended to PRACTICE_GROUPS. */
+export function grade7Practice(skills = {}, band = DEFAULT_SKILL_BAND) {
+  return {
+    id: "grade7-rational",
+    label: "七年级有理数",
+    en: "RATIONAL NUMBERS",
+    band,
+    cards: skillCatalog().map((skill) => skillPracticeCard(skill, skills, band)),
+  };
+}
+
+/** Confirmation model for one skill and one explicitly selected band. */
+export function skillPracticeFocus(skillId, band, skills = {}) {
+  const skill = skillById(skillId);
+  const card = skillPracticeCard(skill, skills, band);
+  if (!card) return null;
+  return {
+    ...card,
+    bands: skill.bands.map((value) => ({ value, label: BAND_LABELS[value] })),
+    lede: "选一个层级，完成 10 道有理数练习。迁移层只在你主动选择时进入。",
+  };
 }
 
 /**

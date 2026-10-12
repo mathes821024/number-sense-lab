@@ -10,7 +10,7 @@ import BackButton from "../../components/BackButton";
 import useNotice from "../../components/useNotice";
 import { getRecord } from "../record.js";
 import { tabHandler, navPageStyle } from "../tabs.js";
-import { exploreView, focusView } from "../models.js";
+import { exploreView, focusView, grade7View, skillFocusView } from "../models.js";
 import { isLongLabel } from "../../../src/core/practice-groups.js";
 import { assetFor } from "../../theme/index.js";
 
@@ -32,14 +32,52 @@ export default function Explore() {
   const record = getRecord(getStore);
   const [state, setState] = useState(() => getActiveLearner(record.read()));
   const [focused, setFocused] = useState(null);
+  const [focusedSkill, setFocusedSkill] = useState(null);
+  const [skillBand, setSkillBand] = useState("foundation");
   const [notice, showSoon] = useNotice();
   useScreenLifecycle({ onShow: () => setState(getActiveLearner(record.read())) });
 
   const focus = focused ? focusView(focused, state, catalog) : null;
+  const skillFocus = focusedSkill ? skillFocusView(focusedSkill, skillBand, state) : null;
   const mascotSrc = assetFor("specialist.mascot");
   const [mascotOk, setMascotOk] = useState(true);
   let body;
-  if (focus) {
+  if (skillFocus) {
+    body = (
+      <View className="screen" data-testid="skill-confirm" data-skill={skillFocus.skillId} data-band={skillFocus.band}>
+        <BackButton label="返回练习" action="explore" onTap={() => setFocusedSkill(null)} />
+        <View className="card skill-focus-card">
+          <Text className="skill-focus-kicker">七年级有理数</Text>
+          <Text className="title">{skillFocus.label}</Text>
+          <Text className="lede">{skillFocus.lede}</Text>
+          <View className="band-options" role="group" aria-label="选择练习层级">
+            {skillFocus.bands.map((band) => (
+              <View
+                className={`band-option${band.value === skillFocus.band ? " is-on" : ""}`}
+                role="button"
+                aria-pressed={band.value === skillFocus.band}
+                key={band.value}
+                data-band={band.value}
+                onClick={() => setSkillBand(band.value)}
+              >
+                <Text>{band.label}</Text>
+              </View>
+            ))}
+          </View>
+          <Text className="body skill-focus-status">当前状态：{skillFocus.status}</Text>
+        </View>
+        <View
+          className="cta"
+          hoverClass="cta-pressed"
+          role="button"
+          data-action="start-skill"
+          onClick={() => navigate.toTraining("start-skill", { skill: skillFocus.skillId, band: skillFocus.band })}
+        >
+          <Text>开始 10 道 · {skillFocus.bandLabel}</Text>
+        </View>
+      </View>
+    );
+  } else if (focus) {
     body = (
       <View className="screen" data-testid="focus-confirm" data-domain={focus.domain}>
         <BackButton label="返回练习" action="explore" onTap={() => setFocused(null)} />
@@ -122,6 +160,41 @@ export default function Explore() {
             </View>
           ))}
         </View>
+        <View className="grade7-section" data-section="grade7-rational">
+          <View className="grade7-head">
+            <View>
+              <Text className="grade7-kicker">GRADE 7 · SKILLS</Text>
+              <Text className="grade7-title">七年级有理数</Text>
+            </View>
+            <Text className="grade7-count">8 项</Text>
+          </View>
+          <Text className="grade7-lede">从符号、绝对值到四则与乘方，按层级逐项练习。</Text>
+          <View className="skill-grid">
+            {grade7View(state).cards.map((card, index) => (
+              <View
+                className="skill-card"
+                hoverClass="skill-card-pressed"
+                role="button"
+                aria-label={card.aria}
+                key={card.skillId}
+                data-skill={card.skillId}
+                onClick={() => {
+                  setSkillBand(card.band);
+                  setFocusedSkill(card.skillId);
+                }}
+              >
+                <View className="skill-index" aria-hidden="true">
+                  <Text>{String(index + 1).padStart(2, "0")}</Text>
+                </View>
+                <Text className="skill-name">{card.label}</Text>
+                <View className="skill-meta">
+                  <Text className="skill-band">{card.bandLabel}</Text>
+                  <Text className="skill-status">{card.status}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
       </View>
     );
   }
@@ -131,7 +204,16 @@ export default function Explore() {
     <View className={`page has-nav ${motionClass}`} style={navPageStyle()}>
       <View className="stage">{body}</View>
       <Notice text={notice} />
-      <BottomNav active="explore" bottomInset={safeArea.bottom} onTap={(id, label) => (id === "explore" ? setFocused(null) : onTab(id, label))} />
+      <BottomNav
+        active="explore"
+        bottomInset={safeArea.bottom}
+        onTap={(id, label) => {
+          if (id === "explore") {
+            setFocused(null);
+            setFocusedSkill(null);
+          } else onTab(id, label);
+        }}
+      />
     </View>
   );
 }

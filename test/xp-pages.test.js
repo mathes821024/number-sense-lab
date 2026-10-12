@@ -15,6 +15,8 @@ import { listPromptText, printPrompt, mathTokens } from "../app/components/math/
 import {
   exploreView,
   focusView,
+  grade7View,
+  skillFocusView,
   mistakesView,
   progressView,
   printSelectView,
@@ -36,7 +38,16 @@ import { MISTAKE_BOOK_SOURCE } from "../src/core/schedule.js";
 import { defaultPrintSelection } from "../src/core/a4.js";
 import { summarizeDomain } from "../src/core/mastery.js";
 import { filterByDomain } from "../src/core/content.js";
-import { CARD_STATUS_WORDS, PRACTICE_GROUPS, SOON_STATUS, domainSlot, practiceCard, practiceGroups } from "../src/core/practice-groups.js";
+import {
+  BAND_LABELS,
+  CARD_STATUS_WORDS,
+  PRACTICE_GROUPS,
+  SOON_STATUS,
+  domainSlot,
+  practiceCard,
+  practiceGroups,
+} from "../src/core/practice-groups.js";
+import { SKILL_IDS } from "../src/core/skill-catalog.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(root, p), "utf8");
@@ -94,6 +105,53 @@ test("主题训练: exactly the three navigation groups of 05 §2, in order, eac
     assert.equal(c.label, LABELS[DOMAIN_ORDER.indexOf(c.domain)]);
     assert.equal(c.released, true, `${c.domain} is released`);
   }
+});
+
+test("七年级有理数: a separate eight-skill section, never a ninth fact-domain card", () => {
+  const factCards = exploreView({ relations: {}, skills: {} }, catalog).flatMap((g) => g.cards);
+  const grade7 = grade7View({ relations: {}, skills: {} });
+  assert.equal(factCards.length, 8, "the frozen fact grid stays exactly eight cards");
+  assert.deepEqual(factCards.map((c) => c.domain).sort(), [...DOMAIN_ORDER].sort());
+  assert.equal(grade7.label, "七年级有理数");
+  assert.deepEqual(grade7.cards.map((card) => card.skillId), SKILL_IDS);
+  assert.equal(grade7.cards.length, 8);
+  for (const card of grade7.cards) {
+    assert.equal(card.band, "foundation");
+    assert.equal(card.bandLabel, "基础");
+    assert.equal(DOMAIN_ORDER.includes(card.skillId), false, `${card.skillId} is a skill, not a fact domain`);
+  }
+});
+
+test("七年级有理数: confirmation chooses a named band and produces a safe skill intent", () => {
+  const skillId = SKILL_IDS[0];
+  for (const [band, label] of Object.entries(BAND_LABELS)) {
+    const focus = skillFocusView(skillId, band, { skills: {} });
+    assert.equal(focus.skillId, skillId);
+    assert.equal(focus.band, band);
+    assert.equal(focus.bandLabel, label);
+    assert.deepEqual(trainingIntent({ intent: "start-skill", skill: skillId, band }), {
+      kind: "begin-skill",
+      skillId,
+      band,
+    });
+  }
+  assert.equal(skillFocusView("nope", "foundation", { skills: {} }), null);
+  assert.equal(skillFocusView(skillId, "nope", { skills: {} }), null);
+});
+
+test("七年级有理数 page: cards open confirmation, bands are explicit, and training receives skill plus band", () => {
+  const page = read("app/pages/explore/index.jsx");
+  assert.match(page, /grade7View\(state\)\.cards\.map/);
+  assert.match(page, /data-section="grade7-rational"/);
+  assert.match(page, /data-skill=\{card\.skillId\}/);
+  assert.match(page, /setFocusedSkill\(card\.skillId\)/);
+  assert.match(page, /skillFocus\.bands\.map/);
+  assert.match(page, /setSkillBand\(band\.value\)/);
+  assert.match(page, /navigate\.toTraining\("start-skill", \{ skill: skillFocus\.skillId, band: skillFocus\.band \}\)/);
+  const css = read("app/app.css");
+  assert.match(css, /\.grade7-section \{/);
+  assert.match(css, /\.skill-grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(css, /\.band-option \{[^}]*min-height: 44px;/);
 });
 
 test("主题训练: the groups never reach learning — scheduler, mastery, mistakes and content do not know them", () => {

@@ -9,7 +9,7 @@
  */
 import { DOMAIN_ORDER, domainLabel } from "../../src/core/content.js";
 import { studentLabel } from "../../src/core/mastery.js";
-import { practiceCard, practiceGroups } from "../../src/core/practice-groups.js";
+import { grade7Practice, practiceCard, practiceGroups, skillPracticeFocus } from "../../src/core/practice-groups.js";
 import { buildMistakeBook } from "../../src/core/mistakes.js";
 import { listLatestOutcomes } from "../../src/core/progress.js";
 import { buildA4Sheet, buildPrintSelector } from "../../src/core/a4.js";
@@ -31,6 +31,16 @@ function relationsOf(state) {
 /** 主题训练: the three groups with their cards (shared model; the groups are navigation only). */
 export function exploreView(state, catalog) {
   return practiceGroups(catalog, relationsOf(state));
+}
+
+/** Seven-grade skills are a parallel track, not extra fact-domain cards. */
+export function grade7View(state) {
+  return grade7Practice((state && state.skills) || {});
+}
+
+/** Confirmation for one Grade 7 skill and an explicitly chosen difficulty band. */
+export function skillFocusView(skillId, band, state) {
+  return skillPracticeFocus(skillId, band, (state && state.skills) || {});
 }
 
 /** The focused-practice confirmation for one domain; null for anything that is not a released domain. */

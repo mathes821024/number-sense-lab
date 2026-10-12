@@ -13,7 +13,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DOMAIN_ORDER, DOMAIN_LABELS, loadCoreCatalog, filterByDomain } from "../src/core/content.js";
 import { DOMAIN_GLYPHS, PRACTICE_GROUPS, isLongLabel, practiceGroups } from "../src/core/practice-groups.js";
-import { focusView } from "../app/pages/models.js";
+import { focusView, grade7View } from "../app/pages/models.js";
+import { SKILL_IDS } from "../src/core/skill-catalog.js";
 import { trainingIntent } from "../app/pages/train/intent.js";
 import { startSession } from "../src/core/session.js";
 import {
@@ -73,6 +74,13 @@ test("F-B: exactly the eight domains, ids unchanged, each one entry on the page"
     assert.equal(c.label, DOMAIN_LABELS[c.domain]);
     assert.ok(filterByDomain(c.domain, catalog).length > 0, `${c.domain} has content`);
   }
+});
+
+test("F-B boundary: Grade 7 is a separate skill section and does not change the eight-card asset grid", () => {
+  const cards = practiceGroups(catalog, {}).flatMap((g) => g.cards);
+  assert.equal(cards.length, 8);
+  assert.deepEqual(grade7View({ skills: {} }).cards.map((card) => card.skillId), SKILL_IDS);
+  for (const id of SKILL_IDS) assert.equal(Object.hasOwn(manifest.domains, id), false, `${id} has no fact-domain asset slot`);
 });
 
 test("F-B: group assignment follows the manifest; group keys are navigation only", () => {

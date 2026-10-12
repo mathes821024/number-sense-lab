@@ -1054,6 +1054,47 @@ body {
 }
 .focus-card .tile { margin-bottom: 14px; }
 
+/* Grade 7 is a separate calculation-skill track, not a fourth fact group. */
+.grade7-section {
+  margin-top: 28px;
+  padding: 16px 12px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: 20px;
+  background: linear-gradient(155deg, var(--surface-card-strong), var(--color-brand-mist));
+}
+.grade7-head { display: flex; align-items: flex-end; justify-content: space-between; }
+.grade7-kicker { display: block; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: var(--text-secondary); }
+.grade7-title { display: block; margin-top: 3px; font-size: 19px; font-weight: 850; color: var(--text-primary); }
+.grade7-count { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.grade7-lede { display: block; margin-top: 7px; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+.skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.skill-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 112px;
+  padding: 10px;
+  border: 1PX solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface-card-strong);
+  cursor: pointer;
+}
+.skill-card:active, .skill-card-pressed { transform: translateY(1px); }
+.skill-index { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--color-brand-primary); }
+.skill-name { display: block; margin-top: 7px; font-size: 14px; font-weight: 800; line-height: 1.35; color: var(--text-primary); }
+.skill-meta { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 8px; }
+.skill-band { padding: 2px 6px; border-radius: 999px; background: var(--color-brand-mist); font-size: 10px; font-weight: 800; color: var(--color-brand-primary); }
+.skill-status { margin-left: 4px; font-size: 10px; white-space: nowrap; color: var(--text-secondary); }
+.skill-focus-card { border: 0; background: linear-gradient(155deg, var(--surface-card-strong), var(--color-brand-mist)); }
+.skill-focus-kicker { display: block; font-size: 11px; font-weight: 800; letter-spacing: 1.2px; color: var(--color-brand-primary); }
+.skill-focus-card .title { margin-top: 6px; }
+.band-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 18px; }
+.band-option { display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1PX solid var(--border-subtle); border-radius: 12px; background: var(--surface-card-strong); font-size: 13px; font-weight: 800; color: var(--text-secondary); cursor: pointer; }
+.band-option.is-on { border-color: var(--color-brand-primary); background: var(--color-brand-primary); color: var(--color-brand-primary-ink); }
+.skill-focus-status { margin-top: 14px; }
+
 /* ---------- lists (progress / mistake book / print selector) ---------- */
 .list {
   margin: 12px 0 0;
