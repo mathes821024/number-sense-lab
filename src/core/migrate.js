@@ -1,13 +1,13 @@
 /**
  * Versioned learner-state migrations. Each hop only knows two adjacent
- * versions:  v1 → migrateV1toV2 → v2 → migrateV2toV3 → v3
+ * versions:  v1 → migrateV1toV2 → v2 → migrateV2toV3 → v3 → migrateV3toV4 → v4
  *
  * Never: clear records, recompute stored mastery, drop attempts / sessions /
  * schedule, rebuild activeSession.queue, or regenerate an existing learner_id.
  * Core never creates the id — the Adapter passes `createLearnerId`.
  */
 import { migrateState, projectSchedule } from "./scheduler.js";
-import { STATE_VERSION, emptyState, isValidV3 } from "./store.js";
+import { STATE_VERSION, emptyState, isValidV3, isValidV4 } from "./store.js";
 
 export class MigrationError extends Error {
   constructor(message) {
@@ -42,7 +42,7 @@ export function migrateV2toV3(v2, { learnerId, createdOn } = {}) {
   if (v2.lastResult) learner.lastResult = v2.lastResult;
   // No parallel top-level relations remain after the move.
   return {
-    version: STATE_VERSION,
+    version: 3,
     active_learner_id: learnerId,
     learners: { [learnerId]: learner },
   };
@@ -99,8 +99,71 @@ export function normalizeV3(v3) {
   return { state: { ...v3, learners }, changed };
 }
 
+/** Adjacent migration: no old field is renamed, recalculated, or removed. */
+export function migrateV3toV4(v3) {
+  if (!isValidV3(v3)) throw new MigrationError("expected valid version 3");
+  const learners = {};
+  for (const [id, learner] of Object.entries(v3.learners)) {
+    if (learner && typeof learner === "object") {
+      if (Object.prototype.hasOwnProperty.call(learner, "skills") || Object.prototype.hasOwnProperty.call(learner, "activeSkillSession")) {
+        throw new MigrationError(`DATA_MIGRATION_RISK: reserved v4 field collision for ${id}`);
+      }
+      learners[id] = { ...learner, skills: {}, activeSkillSession: null };
+    } else {
+      learners[id] = learner;
+    }
+  }
+  return { ...v3, version: STATE_VERSION, learners };
+}
+
+function normalizeV4(v4) {
+  if (!isValidV4(v4)) throw new MigrationError("invalid version 4 record");
+  let changed = false;
+  const learners = {};
+  for (const [id, learner] of Object.entries(v4.learners)) {
+    if (!learner || typeof learner !== "object") {
+      learners[id] = learner;
+      continue;
+    }
+    const relations = {};
+    for (const [rid, relation] of Object.entries(learner.relations || {})) {
+      if (
+        relation &&
+        typeof relation === "object" &&
+        Array.isArray(relation.attempts) &&
+        relation.attempts.length > 0 &&
+        !hasValidSchedule(relation)
+      ) {
+        relations[rid] = { ...relation, schedule: projectSchedule(relation) };
+        changed = true;
+      } else {
+        relations[rid] = relation;
+      }
+    }
+    let profile = learner.profile;
+    if (!profile || profile.learner_id !== id) {
+      profile = { created_on: null, ...(profile || {}), learner_id: id };
+      changed = true;
+    }
+    const skills = learner.skills && typeof learner.skills === "object" ? learner.skills : {};
+    const activeSkillSession = learner.activeSkillSession ?? null;
+    if (skills !== learner.skills || activeSkillSession !== learner.activeSkillSession) changed = true;
+    learners[id] = {
+      ...learner,
+      profile,
+      relations,
+      sessions: Array.isArray(learner.sessions) ? learner.sessions : [],
+      activeSession: learner.activeSession ?? null,
+      skills,
+      activeSkillSession,
+      prefs: { sound: true, ...(learner.prefs || {}) },
+    };
+  }
+  return { state: { ...v4, learners }, changed };
+}
+
 /**
- * Upgrade whatever was stored to v3, one hop at a time.
+ * Upgrade whatever was stored to v4, one hop at a time.
  * @param {object|null} stored parsed JSON (null = nothing stored)
  * @param {{ createLearnerId: () => string, today: string }} deps
  * @returns {{ state: object, changed: boolean, from: number|null }}
@@ -118,7 +181,7 @@ export function upgradeState(stored, { createLearnerId, today } = {}) {
   }
   if (typeof stored !== "object") throw new MigrationError("stored value is not an object");
   const from = stored.version;
-  if (from !== 1 && from !== 2 && from !== 3) {
+  if (from !== 1 && from !== 2 && from !== 3 && from !== 4) {
     throw new MigrationError(`unknown version ${String(from)}`);
   }
   let current = stored;
@@ -126,8 +189,12 @@ export function upgradeState(stored, { createLearnerId, today } = {}) {
   if (current.version === 2) {
     // v2 → v2 repair keeps legal schedules and projects only missing ones.
     current = migrateV2toV3(migrateState(current), { learnerId: newId(), createdOn: today });
+  }
+  if (current.version === 3) {
+    current = normalizeV3(current).state;
+    current = migrateV3toV4(current);
     return { state: current, changed: true, from };
   }
-  const normalized = normalizeV3(current);
+  const normalized = normalizeV4(current);
   return { state: normalized.state, changed: normalized.changed, from };
 }

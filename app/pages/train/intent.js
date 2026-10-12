@@ -6,15 +6,22 @@
  */
 import { DOMAIN_ORDER } from "../../../src/core/content.js";
 import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
+import { skillById } from "../../../src/core/skill-catalog.js";
 
 export function trainingIntent(params = {}) {
   const intent = params.intent || "start-daily";
   if (intent === "resume") return { kind: "resume" };
+  if (intent === "resume-skill") return { kind: "resume-skill" };
   if (intent === "restart-daily") return { kind: "restart", mode: "daily", domain: null };
   if (intent === "see-last") return { kind: "last" };
   if (intent === "start-focus" && DOMAIN_ORDER.includes(params.domain)) {
     return { kind: "begin", mode: "focused", domain: params.domain };
   }
   if (intent === "start-mistakes") return { kind: "begin", mode: MISTAKE_BOOK_SOURCE, domain: null };
+  if (intent === "start-skill" && skillById(params.skill)) {
+    const skill = skillById(params.skill);
+    const band = skill.bands.includes(params.band) ? params.band : "foundation";
+    return { kind: "begin-skill", skillId: skill.id, band };
+  }
   return { kind: "begin", mode: "daily", domain: null };
 }

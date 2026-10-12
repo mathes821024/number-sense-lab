@@ -59,6 +59,8 @@ export default function Train() {
   useEffect(() => {
     const intent = trainingIntent(params);
     if (intent.kind === "resume") flow.resume();
+    else if (intent.kind === "resume-skill") flow.resumeSkill();
+    else if (intent.kind === "begin-skill") flow.beginSkill(intent.skillId, intent.band);
     else if (intent.kind === "restart") flow.restart(intent.mode, intent.domain);
     else if (intent.kind === "last") flow.showLast();
     else flow.begin(intent.mode, intent.domain);
@@ -158,7 +160,12 @@ export default function Train() {
   };
   /** 重新开始一小段 (pause screen): the flow's existing restart — drop the unfinished set, start a new daily one. */
   const restart = () => {
-    flow.restart("daily", null);
+    const current = flow.view();
+    if (current.sessionKind === "skill" && flow.session) {
+      flow.restartSkill(flow.session.skill_id, flow.session.band);
+    } else {
+      flow.restart("daily", null);
+    }
     rerender();
   };
 

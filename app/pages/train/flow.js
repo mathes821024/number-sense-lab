@@ -16,6 +16,13 @@ import { loadCoreCatalog, domainLabel } from "../../../src/core/content.js";
 import { getActiveLearner, withActiveLearner } from "../../../src/core/store.js";
 import { startSession, submitAnswer, peekCurrent, finishSession } from "../../../src/core/session.js";
 import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
+import {
+  finishSkillSession,
+  peekSkillExercise,
+  startSkillSession,
+  submitSkillAnswer,
+} from "../../../src/core/skill-session.js";
+import { skillById } from "../../../src/core/skill-catalog.js";
 import { localDay } from "../../../src/adapter/storage-contract.js";
 import {
   emptyFields,
@@ -99,6 +106,8 @@ export function createTrainingFlow({
   let root = store.read();
   let state = getActiveLearner(root);
   let session = null;
+  /** relation | skill */
+  let sessionKind = "relation";
   let item = null;
   let nearEnd = false;
   let revisit = false;
@@ -114,6 +123,7 @@ export function createTrainingFlow({
   let screen = "empty";
   let feedback = null;
   let lastOutcome = null;
+  let currentResult = null;
   /** Screen the pause dialog was opened from. */
   let pausedFrom = null;
 
@@ -129,10 +139,14 @@ export function createTrainingFlow({
   }
 
   function showQuestion() {
-    const peeked = peekCurrent(session, catalog);
+    const peeked = sessionKind === "skill"
+      ? peekSkillExercise(session)
+      : peekCurrent(session, catalog);
     session = peeked.session;
-    persist({ ...state, activeSession: session });
-    item = peeked.item;
+    persist(sessionKind === "skill"
+      ? { ...state, activeSkillSession: session }
+      : { ...state, activeSession: session });
+    item = sessionKind === "skill" ? peeked.exercise : peeked.item;
     nearEnd = peeked.nearEnd;
     revisit = peeked.revisit;
     if (!item) {
@@ -155,8 +169,11 @@ export function createTrainingFlow({
       screen = "end";
       return;
     }
-    const finished = finishSession(state, session, { earlyStop });
+    const finished = sessionKind === "skill"
+      ? finishSkillSession(state, session, { earlyStop })
+      : finishSession(state, session, { earlyStop });
     persist(finished.state);
+    currentResult = finished.summary;
     lastOutcome = earlyStop ? "stopped" : "finished";
     session = null;
     item = null;
@@ -164,6 +181,8 @@ export function createTrainingFlow({
   }
 
   function begin(mode = "daily", domain = null) {
+    sessionKind = "relation";
+    currentResult = null;
     session = startSession({
       mode,
       domain,
@@ -195,9 +214,23 @@ export function createTrainingFlow({
     showQuestion();
   }
 
+  function beginSkill(skillId, band = "foundation", seed = null) {
+    sessionKind = "skill";
+    currentResult = null;
+    session = startSkillSession({
+      skillId,
+      band,
+      day: today(),
+      seed: seed ?? `${today()}|${skillId}|${band}|${clock()}`,
+    });
+    persist({ ...state, activeSkillSession: session });
+    showQuestion();
+  }
+
   const api = {
     /** Home 「开始今天的练习」 / 「再练一小段」. */
     begin,
+    beginSkill,
     /** 「重新开始一小段」 (pause screen; was on Home): drop the unfinished set, start a new one. */
     restart(mode = "daily", domain = null) {
       persist({ ...state, activeSession: null });
@@ -206,6 +239,7 @@ export function createTrainingFlow({
     },
     /** Home 「继续刚才的练习」. */
     resume() {
+      sessionKind = "relation";
       if (!state.activeSession) {
         begin();
         return;
@@ -213,11 +247,26 @@ export function createTrainingFlow({
       session = state.activeSession;
       showQuestion();
     },
+    resumeSkill() {
+      if (!state.activeSkillSession) {
+        screen = "empty";
+        return;
+      }
+      sessionKind = "skill";
+      session = state.activeSkillSession;
+      showQuestion();
+    },
+    restartSkill(skillId, band = "foundation") {
+      persist({ ...state, activeSkillSession: null });
+      session = null;
+      beginSkill(skillId, band);
+    },
     /** Home 「看看这次」: the stored end summary. */
     showLast() {
       session = null;
       item = null;
       lastOutcome = null;
+      currentResult = state.lastResult || null;
       screen = "end";
     },
     /** One key from the on-screen keypad or (H5 only) the physical keyboard. */
@@ -279,22 +328,18 @@ export function createTrainingFlow({
       if (submitting || screen !== "train" || !item) return null;
       submitting = true;
       const mode = resolveInputMode(modes);
-      const result = submitAnswer({
-        item,
-        state,
-        session,
-        // fraction_fields: both boxes → ONE judging string (or "" = not an attempt).
-        raw: isFractionFields(item)
-          ? (isSignedFraction(item) ? signedFieldsAnswer(fields) : fieldsAnswer(fields))
-          : answer,
-        catalog,
-        meta: {
-          day: today(),
-          inputMode: mode.inputMode,
-          mixedInput: mode.mixedInput,
-          elapsedMs: Math.round(now() - startedAt),
-        },
-      });
+      const raw = isFractionFields(item)
+        ? (isSignedFraction(item) ? signedFieldsAnswer(fields) : fieldsAnswer(fields))
+        : answer;
+      const meta = {
+        day: today(),
+        inputMode: mode.inputMode,
+        mixedInput: mode.mixedInput,
+        elapsedMs: Math.round(now() - startedAt),
+      };
+      const result = sessionKind === "skill"
+        ? submitSkillAnswer({ state, session, raw, meta })
+        : submitAnswer({ item, state, session, raw, catalog, meta });
       if (!result.feedback.record) {
         // Not an attempt (empty / malformed / needs_simplification): stay
         // here, keep the answer editable, nothing recorded.
@@ -353,13 +398,22 @@ export function createTrainingFlow({
         nudge,
         nudgeSticky,
         feedback,
-        pill: nearEnd ? "快完成了" : revisit ? "再试一次" : item ? domainLabel(item.domain) : "",
+        pill: nearEnd
+          ? "快完成了"
+          : revisit
+            ? "再试一次"
+            : sessionKind === "skill"
+              ? (skillById(session?.skill_id)?.label || "七年级有理数")
+              : item
+                ? domainLabel(item.domain)
+                : "",
         position,
         total,
         extraKey: extraKeyFor(item),
         signKey: signKeyFor(item),
-        result: state.lastResult || null,
+        result: currentResult || state.lastResult || null,
         lastOutcome,
+        sessionKind,
         writeProtected: Boolean(store.writeProtected),
       };
     },

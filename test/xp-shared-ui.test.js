@@ -519,7 +519,7 @@ test("record keeper works without structuredClone (absent in the Mini Program JS
     const a = record.read();
     a.learners = {};
     assert.notDeepEqual(record.read().learners, {}, "a read copy is not the kept state");
-    assert.equal(JSON.parse(map.get(STATE_KEY)).version, 3);
+    assert.equal(JSON.parse(map.get(STATE_KEY)).version, 4);
   } finally {
     globalThis.structuredClone = saved;
   }

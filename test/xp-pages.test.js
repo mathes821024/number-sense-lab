@@ -360,9 +360,9 @@ test("print selection is page state: the pages never write the learner record", 
     const src = read(`app/pages/${p}/index.jsx`);
     assert.doesNotMatch(src, /\.write\(|withActiveLearner|recordAttempt|setStorage|localStorage/, p);
   }
-  // State version and key are untouched by the migration.
+  // The storage key stays stable while the additive learner schema is now v4.
   assert.equal(STATE_KEY, "nsl-v01-state");
-  assert.equal(STATE_VERSION, 3);
+  assert.equal(STATE_VERSION, 4);
 });
 
 test("home short-height mode (≤ 650px usable height): same blocks, a little less vertical room, text and nav unchanged (h5/ and Taro)", () => {

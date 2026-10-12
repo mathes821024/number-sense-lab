@@ -219,7 +219,7 @@ test("v0.4 registry: frozen domain order and card names; unknown or partial doma
   assert.throws(() => verifyContentCounts([...catalog, getRelationById("cube-5", catalog)]), /CONTENT_ID_CONFLICT/);
   // The old three stay exact as well.
   assert.throws(() => verifyContentCounts(catalog.filter((r) => r.id !== "square-6")), /CONTRACT_CONFLICT: squares/);
-  assert.equal(STATE_VERSION, 3, "no state schema change");
+  assert.equal(STATE_VERSION, 4, "Grade 7 skill evidence uses the frozen v4 schema");
 });
 
 test("daily training interleaves all 8 released domains with the existing round-robin", () => {
