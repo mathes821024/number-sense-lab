@@ -4,8 +4,8 @@
 // repeating / decimal input, a full set of 10, v1 → v3 migration in wx storage,
 // write protection (bad JSON, future version), and the migrated pages: 错题本
 // (grouped by domain) → 印到纸上 (selector → A4 preview; no print button in the
-// Mini Program), 最近练得怎么样, and 专项练习 (every domain → a focused set from
-// that domain only). Screenshots of each screen.
+// Mini Program), 最近练得怎么样, 专项练习 (every domain → a focused set from
+// that domain only), and 我的 / 产品介绍. Screenshots of each screen.
 //
 // Needs WeChat DevTools (logged in, 设置 → 安全设置 → 服务端口 on) and
 // miniprogram-automator, which is not a project dependency:
@@ -222,7 +222,7 @@ await step("1 Home", async () => {
   const cta = await textOf(page, ".home-cta .entry-name");
   const sub = await textOf(page, ".home-cta .entry-sub");
   const title = await textOf(page, ".bubble-title");
-  const cards = await Promise.all((await page.$$(".entry .entry-name")).map((e) => e.text()));
+  const cards = [cta, ...(await Promise.all((await page.$$(".home-next-name")).map((e) => e.text())))];
   const nav = await Promise.all((await page.$$(".tab-label")).map((e) => e.text()));
   const navOn = await textOf(page, ".tab.is-on .tab-label");
   const imgs = await Promise.all((await page.$$(".theme-img")).map((e) => e.attribute("src")));
@@ -233,7 +233,7 @@ await step("1 Home", async () => {
   check(!(await has(page, ".logo .theme-img")), "logo slot empty in the Mini Program");
   await shot("01-home");
   // 专项练习 is a page now (no longer 敬请期待).
-  await tapText(page, ".entry", "专项练习");
+  await tapText(page, ".home-next-item", "专项练习");
   await sleep(1500);
   const ex = await mp.currentPage();
   check(ex.path === "pages/explore/index", `专项练习 → ${ex.path}`);
@@ -395,14 +395,16 @@ await step("7 Fraction · needs_simplification · repeating · decimal", async (
     `resume lede lines ${JSON.stringify(ledeLines)} bubble right ${bubbleRight}`,
   );
   ledeLayout = { lines: ledeLines, bubbleRight };
-  // Above the fold on the 390×753 window: the resume hero and all four cards, fully.
+  // Above the fold on the 390×753 window: the resume hero, main action, and three next-step rows, fully.
   const sysH = (await mp.systemInfo()).windowHeight;
   const nav = await (await page.$(".tabbar")).offset();
   const fold = [];
-  for (const e of await page.$$(".entry")) {
+  const foldItems = [...(await page.$$(".home-cta")), ...(await page.$$(".home-next-item"))];
+  for (const e of foldItems) {
     const o = await e.offset();
     const s = await e.size();
-    fold.push({ name: (await (await e.$(".entry-name")).text()).trim(), top: Math.round(o.top), bottom: Math.round(o.top + s.height) });
+    const label = (await e.$(".entry-name")) || (await e.$(".home-next-name"));
+    fold.push({ name: (await label.text()).trim(), top: Math.round(o.top), bottom: Math.round(o.top + s.height) });
   }
   const navTop = Math.round(nav.top);
   const vis = (n) => fold.find((f) => f.name === n);
@@ -626,7 +628,7 @@ await step("11 错题本 → 印到纸上 (selector → A4 preview, no print but
 
 await step("12 最近练得怎么样 → 选题打印", async () => {
   page = await relaunch("/pages/home/index");
-  await tapText(page, ".entry", "最近练得怎么样");
+  await tapText(page, ".home-next-item", "最近练得怎么样");
   await sleep(1500);
   page = await mp.currentPage();
   check(page.path === "pages/progress/index", `path ${page.path}`);
@@ -758,6 +760,36 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
     sets.push(`${label} ${s.queue.length}`);
   }
   return `headings ${heads.join("/")}; grid ${order.join("/")}; ${geo.join("; ")}; tiles ${tiles.join(",")}; no 敬请期待 cards; 知识地图 → 「${note}」; list end clears the nav (${endClear}); focused sets ${sets.join(", ")} — each from its own domain`;
+});
+
+await step("15 我的昵称 / 产品介绍", async () => {
+  await boot(RAWP);
+  page = await relaunch("/pages/me/index");
+  check(page.path === "pages/me/index", `path ${page.path}`);
+  check((await textOf(page, ".profile-intro .title")).includes("小研究员"), "old record fallback name");
+  const input = await page.$(".nickname-input");
+  check(input, "nickname input missing");
+  await input.input("晨曦");
+  await (await page.$('[data-action="save-nickname"]')).tap();
+  await sleep(400);
+  check((await textOf(page, ".save-status")) === "已保存在这台设备", `save status ${await textOf(page, ".save-status")}`);
+  let saved = JSON.parse(await stored());
+  const activeId = saved.active_learner_id;
+  check(saved.learners[activeId].profile.nickname === "晨曦", "nickname not stored on active learner");
+  await shot("28-me-nickname");
+  page = await relaunch("/pages/me/index");
+  check((await textOf(page, ".profile-intro .title")).includes("晨曦"), "nickname did not survive relaunch");
+  await (await page.$('[data-action="about"]')).tap();
+  await sleep(800);
+  page = await mp.currentPage();
+  check(page.path === "pages/about/index", `about path ${page.path}`);
+  const about = await textOf(page, ".screen-about");
+  for (const line of ["父母陪孩子一起做的一间数学实验室", "不催速度，不比排名，不用题量制造压力", "错误不是惩罚的理由"]) {
+    check(about.includes(line), `about copy ${line}`);
+  }
+  check(!(await has(page, "a")), "about contains an external link");
+  await shot("29-about");
+  return "old record fallback → local nickname persisted after relaunch; parent-companion product story present; no external link";
 });
 
 phase = "teardown";

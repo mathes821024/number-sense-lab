@@ -1,7 +1,7 @@
 // Home resume hero (还有一小段) above the fold, for h5/ and the Taro H5 build
 // (lede exactly two lines 「刚才练到一半，」 / 「继续就好。」):
-// with an unfinished set, the hero, 继续刚才的练习, 专项练习, 错题本 and
-// 最近练得怎么样 sit fully above the bottom nav — including short-height phones
+// with an unfinished set, the hero, main resume action, and the three quiet
+// next-step rows sit fully above the bottom nav — including short-height phones
 // (≤ 650px, the short-height mode) — with no standalone 重新开始一小段 on Home.
 // Also shows the restart on the pause screen.
 //
@@ -20,7 +20,7 @@ const HOME = APP === "taro" ? `${BASE}#/pages/home/index` : BASE;
 mkdirSync(SHOTS, { recursive: true });
 
 // 375x603 is the iPhone 6/7/8 WeChat window (667 minus the native title bar) and 360x640 another
-// short phone: every case must show the hero and all four cards fully above the nav. 320x568
+// short phone: every case must show the hero, main action, and all three rows above the nav. 320x568
 // (first-gen iPhone SE) is reported only (INFO): it is below the short-height target.
 const VIEWPORTS = [
   ["375x603-short-wechat-6-7-8", 375, 603], ["360x640-short", 360, 640], ["320x568-short-info", 320, 568, "info"],
@@ -46,9 +46,9 @@ for (const [name, width, height, info] of VIEWPORTS) {
       const vis = (s) => [...document.querySelectorAll(s)].find((e) => e.checkVisibility());
       const r = (e) => e && e.getBoundingClientRect();
       const nav = r(vis(".tabbar"));
-      const cards = [...document.querySelectorAll(".entry")].filter((e) => e.checkVisibility()).map((e) => {
+      const cards = [...document.querySelectorAll(".home-cta, .home-next-item")].filter((e) => e.checkVisibility()).map((e) => {
         const b = e.getBoundingClientRect();
-        return { name: e.querySelector(".entry-name").textContent.trim(), top: Math.round(b.top), bottom: Math.round(b.bottom) };
+        return { name: e.querySelector(".entry-name, .home-next-name").textContent.trim(), top: Math.round(b.top), bottom: Math.round(b.bottom) };
       });
       return {
         navTop: Math.round(nav.top),

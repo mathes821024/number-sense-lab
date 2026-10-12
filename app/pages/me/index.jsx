@@ -78,7 +78,7 @@ export default function Me() {
                 aria-label="昵称"
                 onInput={(event) => { setDraft(event.detail.value); setSaved(false); }}
               />
-              <View className="nickname-save" role="button" hoverClass="nickname-save-pressed" onClick={saveNickname}>
+              <View className="nickname-save" role="button" hoverClass="nickname-save-pressed" data-action="save-nickname" onClick={saveNickname}>
                 <Text>保存称呼</Text>
               </View>
             </View>
@@ -100,7 +100,7 @@ export default function Me() {
               </View>
               <Text className="setting-value">跟随系统</Text>
             </View>
-            <View className="setting-row is-link" role="button" onClick={() => navigate.toPage("about")}>
+            <View className="setting-row is-link" role="button" data-action="about" onClick={() => navigate.toPage("about")}>
               <View className="setting-copy">
                 <Text className="setting-name">关于数感训练场</Text>
                 <Text className="setting-note">为什么做它，以及我们怎样陪伴学习</Text>

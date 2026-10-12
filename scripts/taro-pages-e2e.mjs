@@ -1,6 +1,6 @@
 // Taro H5 runtime check of the pages migrated from h5/ (shared with the Mini
-// Program): 专项练习 (the grouped two-column grid of docs/ux/05; every domain
-// card → its confirmation → a focused set from
+// Program): 专项练习 (three semantic shelves plus the Grade 7 learning path;
+// every domain item → its confirmation → a focused set from
 // that domain only), 错题本 (grouped by domain incl. the v0.4 domains, empty
 // groups hidden, fraction_fields drawn stacked), 最近练得怎么样, and the print
 // selector → A4 → answers, with print-media emulation and an A4 PDF. Each at
@@ -492,6 +492,28 @@ for (const [vp, width, height] of VPS) {
     check(JSON.stringify(r) === RAW, "stored record changed by viewing pages");
     check(r.version === 3, "version 3");
     return "viewing 错题本 → 选题 → A4 → 专项练习 → confirm leaves nsl-v01-state byte-identical (v3)";
+  });
+
+  await step(`${vp} 6b 我的 / 产品介绍: old record, local nickname, refresh persistence`, async () => {
+    await open("me");
+    await settle("me");
+    check((await page.textContent(V(".profile-intro .title"))).includes("小研究员"), "old record fallback name");
+    await page.fill(V(".nickname-input input"), " 晨曦 ");
+    await page.click(V('[data-action="save-nickname"]'));
+    check((await page.textContent(V(".save-status"))) === "已保存在这台设备", "nickname save status");
+    let saved = await stored();
+    check(saved.learners[saved.active_learner_id].profile.nickname === "晨曦", "nickname stored on current learner");
+    await page.reload();
+    await settle("me");
+    check((await page.textContent(V(".profile-intro .title"))).includes("晨曦"), "nickname survives refresh");
+    const meLayout = await layout("me", "me");
+    await page.click(V('[data-action="about"]'));
+    await settle("about");
+    const about = await page.textContent(V('[data-testid="about"]'));
+    for (const line of ["父母陪孩子一起做的一间数学实验室", "不催速度，不比排名，不用题量制造压力", "错误不是惩罚的理由"]) check(about.includes(line), `about copy ${line}`);
+    check(!(await page.$(V('[data-testid="about"] a'))), "about has no external link");
+    await shot("07-about");
+    return `old v3 record → local nickname persisted; product story present; ${meLayout}`;
   });
 
   await step(`${vp} 7 no errors, no outside requests`, async () => {
