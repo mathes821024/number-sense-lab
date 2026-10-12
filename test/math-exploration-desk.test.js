@@ -3,6 +3,8 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { profileView } from "../app/pages/me/model.js";
 import { homeView } from "../app/pages/home/model.js";
+import { SKILL_IDS } from "../src/core/skill-catalog.js";
+import { GRADE7_STAGES, structureKindForSkill } from "../app/pages/explore/structure.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -72,4 +74,17 @@ test("home next steps are a compact path and the data note lives in My", () => {
   const page = read("app/pages/home/index.jsx");
   assert.match(page, /home-next/);
   assert.doesNotMatch(page, /device-note|DEVICE_NOTE/);
+});
+
+test("the four Grade 7 stages contain every stable skill id exactly once", () => {
+  const ids = GRADE7_STAGES.flatMap((stage) => stage.skills);
+  assert.deepEqual([...ids].sort(), [...SKILL_IDS].sort());
+  assert.equal(new Set(ids).size, SKILL_IDS.length);
+  assert.deepEqual(GRADE7_STAGES.map((stage) => stage.label), [
+    "认识有理数", "掌握四则", "进入分数", "综合运用",
+  ]);
+});
+
+test("every Grade 7 skill has a mathematical structure kind", () => {
+  for (const id of SKILL_IDS) assert.ok(structureKindForSkill(id), id);
 });

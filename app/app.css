@@ -1276,6 +1276,41 @@ body {
 .band-option.is-on { border-color: var(--color-brand-primary); background: var(--color-brand-primary); color: var(--color-brand-primary-ink); }
 .skill-focus-status { margin-top: 14px; }
 
+/* Mathematical structure marks: CSS/DOM only, with the skill label beside them. */
+.math-structure-icon { position: relative; display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; flex: none; border-radius: 14px; background: var(--color-brand-mist); color: var(--color-brand-primary); overflow: hidden; }
+.ms-number-line { position: relative; width: 34px; height: 28px; }
+.ms-axis { position: absolute; left: 2px; right: 2px; top: 12px; height: 2px; border-radius: 2px; background: currentColor; }
+.ms-tick { position: absolute; top: 8px; width: 2px; height: 10px; background: currentColor; }
+.ms-tick.is-left { left: 5px; }
+.ms-tick.is-zero { left: 16px; }
+.ms-tick.is-right { right: 5px; }
+.ms-zero { position: absolute; left: 14px; top: 17px; font-size: 8px; font-weight: 800; }
+.ms-point { position: absolute; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ms-point.is-a { left: 4px; }
+.ms-point.is-b { right: 4px; opacity: 0.55; }
+.ms-move { position: absolute; left: 9px; top: -4px; font-size: 26px; font-weight: 400; transform: scaleX(1.5); }
+.ms-groups { display: flex; gap: 4px; font-size: 13px; letter-spacing: 1px; }
+.ms-groups > view { display: flex; align-items: center; justify-content: center; width: 16px; height: 24px; border: 1PX solid currentColor; border-radius: 8px; }
+.ms-fractions { display: flex; flex-direction: column; gap: 8px; width: 30px; }
+.ms-frac-line { height: 2px; background: currentColor; }
+.ms-frac-line.is-short { width: 20px; align-self: center; }
+.ms-area { display: grid; grid-template-columns: 1fr 1fr; width: 28px; height: 28px; border: 1PX solid currentColor; }
+.ms-area > view { border-right: 1PX solid currentColor; border-bottom: 1PX solid currentColor; }
+.ms-area > view:nth-child(2n) { border-right: 0; }
+.ms-area > view:nth-child(n+3) { border-bottom: 0; }
+.ms-area .is-fill { background: currentColor; opacity: 0.35; }
+.ms-power { display: flex; align-items: flex-start; font-family: var(--font-math); font-size: 25px; font-weight: 700; line-height: 1; }
+.ms-power-sup { margin-left: 1px; font-size: 12px; line-height: 1; }
+.ms-tree { position: relative; width: 32px; height: 32px; }
+.ms-tree-top, .ms-tree-dot { position: absolute; border-radius: 50%; background: currentColor; }
+.ms-tree-top { left: 13px; top: 2px; width: 7px; height: 7px; }
+.ms-tree-dot { bottom: 2px; width: 7px; height: 7px; }
+.ms-tree-dot.is-left { left: 3px; }
+.ms-tree-dot.is-right { right: 3px; }
+.ms-tree-branch { position: absolute; top: 10px; width: 2px; height: 15px; background: currentColor; transform-origin: top; }
+.ms-tree-branch.is-left { left: 14px; transform: rotate(42deg); }
+.ms-tree-branch.is-right { right: 14px; transform: rotate(-42deg); }
+
 /* ---------- lists (progress / mistake book / print selector) ---------- */
 .list {
   margin: 12px 0 0;
