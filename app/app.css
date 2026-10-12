@@ -102,7 +102,7 @@ body {
 /* Reduced motion: H5 reads the system preference; the Mini Program has no
    verified signal, so its pages carry .motion-low (things simply appear). */
 @media (prefers-reduced-motion: reduce) {
-  .screen, .math.question, .screen-correct .ok, .screen-correct .hero-spark, .screen-wrong .panel, .answer.tick, .fraction-fields.tick { animation: none; }
+  .screen, .math.question, .screen-correct .ok, .screen-correct .hero-spark, .screen-wrong .panel, .answer.tick, .fraction-fields.tick, .signed-fraction-fields.tick { animation: none; }
   .key, .cta, .quiet, .entry { transition: none; }
 }
 .motion-low .screen,
@@ -111,7 +111,8 @@ body {
 .motion-low .hero-spark,
 .motion-low .panel,
 .motion-low .answer.tick,
-.motion-low .fraction-fields.tick { animation: none; }
+.motion-low .fraction-fields.tick,
+.motion-low .signed-fraction-fields.tick { animation: none; }
 .motion-low .key, .motion-low .cta, .motion-low .quiet, .motion-low .entry { transition: none; }
 
 /* ---------- type ---------- */
@@ -552,6 +553,21 @@ body {
   background: var(--text-primary);
 }
 .fraction-fields.tick { animation: tick 0.14s ease; }
+.signed-fraction-fields {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+.signed-fraction-fields.tick { animation: tick 0.14s ease; }
+.sff-sign {
+  width: 24px;
+  margin-right: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-math);
+  font-size: var(--fs-answer);
+  font-weight: 800;
+  text-align: center;
+}
 .nudge {
   display: block;
   min-height: 22px;

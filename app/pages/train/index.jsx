@@ -14,6 +14,7 @@ import {
 import Keypad from "../../components/Keypad";
 import AnswerBox from "../../components/AnswerBox";
 import FractionFields from "../../components/FractionFields";
+import SignedFractionFields from "../../components/SignedFractionFields";
 import { promptStem } from "../../../src/core/fraction-fields.js";
 import SetProgress from "../../components/SetProgress";
 import MathText from "../../components/math/MathText";
@@ -109,6 +110,13 @@ export default function Train() {
       rerender();
     }
   };
+  const toggleSign = (mode = "onscreen_keypad") => {
+    if (flow.toggleSign(mode)) {
+      cue.tap();
+      bumpTick();
+      rerender();
+    }
+  };
 
   // Hidden or unloaded during the short pause: cancel it, and finish it
   // safely on return (the answer is already recorded; nothing is re-judged).
@@ -133,6 +141,7 @@ export default function Train() {
     if (flow.view().screen !== "train") return false;
     if (k === "enter") submit();
     else if (k === "backspace") erase("physical_keyboard");
+    else if (k === "toggle-sign") toggleSign("physical_keyboard");
     else key(k, "physical_keyboard");
     return true;
   });
@@ -169,7 +178,11 @@ export default function Train() {
           {view.fields ? (
             <View className="question-fields" key={view.item.id}>
               <MathText value={promptStem(view.item.prompt)} className="question" />
-              <FractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+              {view.item.answer_type === "signed_fraction_fields" ? (
+                <SignedFractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+              ) : (
+                <FractionFields fields={view.fields} onFocus={focusBox} tick={tick % 2 === 1} />
+              )}
             </View>
           ) : (
             <>
@@ -181,7 +194,14 @@ export default function Train() {
             {view.nudge ? <MathText value={view.nudge} /> : null}
           </View>
         </View>
-        <Keypad extraKey={view.extraKey} onKey={(k) => key(k)} onErase={() => erase()} onSubmit={submit} />
+        <Keypad
+          extraKey={view.extraKey}
+          signKey={view.signKey}
+          onKey={(k) => key(k)}
+          onSign={() => toggleSign()}
+          onErase={() => erase()}
+          onSubmit={submit}
+        />
       </View>
     );
   } else if (view.screen === "correct") {

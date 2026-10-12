@@ -117,6 +117,92 @@ test("input: integer takes digits only (max 8); decimal takes one 「.」; no an
   assert.deepEqual(resolveInputMode(new Set(["physical_keyboard"])), { inputMode: "physical_keyboard", mixedInput: false });
 });
 
+test("signed input: ± is independent from the decimal extra key and works after digits", () => {
+  const signed = {
+    id: "gx:test:signed:0",
+    domain: "squares",
+    answer_type: "signed_integer",
+    canonical_answer: "-7",
+    prompt: "3 - 10 = ?",
+    relation: "3 - 10 = -7",
+    hook: "先看方向",
+    pattern: { check: "", family: [] },
+    frames: [],
+    entry_after: null,
+  };
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog: [signed], today: () => DAY, clock: () => 1 });
+  flow.begin("focused", "squares");
+  assert.equal(flow.view().signKey, "±");
+  assert.equal(flow.view().extraKey, null);
+  flow.input("7");
+  assert.equal(flow.toggleSign(), true);
+  assert.equal(flow.view().answer, "-7");
+  flow.pause();
+  flow.unpause();
+  assert.equal(flow.view().answer, "-7", "pause/resume keeps the signed input");
+  assert.equal(flow.submit(), "correct");
+});
+
+test("signed input: a sign alone is not recorded and physical-keyboard mode is preserved", () => {
+  const signed = {
+    id: "gx:test:signed:1",
+    domain: "squares",
+    answer_type: "signed_integer",
+    canonical_answer: "-4",
+    prompt: "1 - 5 = ?",
+    relation: "1 - 5 = -4",
+    hook: "先看方向",
+    pattern: { check: "", family: [] },
+    frames: [],
+    entry_after: null,
+  };
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog: [signed], today: () => DAY, clock: () => 2 });
+  flow.begin("focused", "squares");
+  flow.toggleSign("physical_keyboard");
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.state.relations[signed.id], undefined);
+  flow.input("4", "physical_keyboard");
+  assert.equal(flow.submit(), "correct");
+  assert.equal(flow.state.relations[signed.id].attempts[0].inputMode, "physical_keyboard");
+});
+
+test("signed fraction input: denominator zero, simplification, erase and correct all stay in one shared flow", () => {
+  const signedFraction = {
+    id: "gx:test:signed-fraction:0",
+    domain: "squares",
+    answer_type: "signed_fraction_fields",
+    canonical_answer: "-1/2",
+    prompt: "(-3/4) + (1/4) = ?",
+    relation: "(-3/4) + (1/4) = -1/2",
+    hook: "先通分，再看符号",
+    pattern: { check: "", family: [] },
+    frames: [],
+    entry_after: null,
+  };
+  const { store } = memStore();
+  const flow = createTrainingFlow({ store, catalog: [signedFraction], today: () => DAY, clock: () => 3 });
+  flow.begin("focused", "squares");
+  flow.toggleSign();
+  flow.input("2");
+  flow.focus("denominator");
+  flow.input("0");
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.state.relations[signedFraction.id], undefined);
+  flow.erase();
+  flow.input("4");
+  assert.equal(flow.submit(), "nudge");
+  assert.equal(flow.view().nudgeSticky, true);
+  flow.erase();
+  flow.input("2");
+  flow.focus("numerator");
+  flow.erase();
+  flow.input("1");
+  assert.equal(flow.submit(), "correct");
+  assert.equal(flow.state.relations[signedFraction.id].attempts.length, 1);
+});
+
 // ---------- the flow over the real core ----------
 
 function memStore(initialRoot) {

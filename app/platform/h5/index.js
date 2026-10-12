@@ -60,7 +60,7 @@ export function useScreenLifecycle({ onShow, onHide, onUnload }) {
 
 /**
  * Physical keyboard (capability tier C, H5 only), the keys h5/app.js reads:
- * digits, 「.」, 「/」, Backspace, Enter. Training never depends on it.
+ * digits, 「.」, 「/」, 「-」, Backspace, Enter. Training never depends on it.
  */
 export function useHardwareKeys(onKey) {
   const latest = useRef(onKey);
@@ -72,6 +72,7 @@ export function useHardwareKeys(onKey) {
       if (/^\d$/.test(event.key)) key = event.key;
       else if (event.key === "." || event.key === "Decimal") key = ".";
       else if (event.key === "/" || event.key === "Divide") key = "/";
+      else if (event.key === "-" || event.key === "Subtract") key = "toggle-sign";
       else if (event.key === "Backspace") key = "backspace";
       else if (event.key === "Enter") key = "enter";
       if (!key) return;

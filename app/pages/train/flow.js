@@ -24,6 +24,14 @@ import {
   eraseDigit,
   fieldsAnswer,
 } from "../../../src/core/fraction-fields.js";
+import {
+  emptySignedFields,
+  eraseSignedDigit,
+  focusSignedField,
+  signedFieldsAnswer,
+  toggleSignedSign,
+  typeSignedDigit,
+} from "../../../src/core/signed-fraction-fields.js";
 
 /** UX contract: 400–700ms. Same value as h5/app.js (correctTimer). */
 export const CORRECT_PAUSE_MS = 700;
@@ -34,6 +42,20 @@ const MAX_DIGITS = 8;
 export function extraKeyFor(item) {
   if (item?.needsDecimalPoint) return ".";
   return null;
+}
+
+export function signKeyFor(item) {
+  return item?.answer_type === "signed_integer" || item?.answer_type === "signed_fraction_fields"
+    ? "±"
+    : null;
+}
+
+function isSignedFraction(item) {
+  return item?.answer_type === "signed_fraction_fields";
+}
+
+function isFractionFields(item) {
+  return Boolean(item?.fractionFields) || item?.answer_type === "fraction_fields" || isSignedFraction(item);
 }
 
 /** h5/app.js resolveInputMode. */
@@ -118,7 +140,7 @@ export function createTrainingFlow({
       return;
     }
     answer = "";
-    fields = emptyFields();
+    fields = isSignedFraction(item) ? emptySignedFields() : emptyFields();
     nudge = "";
     nudgeSticky = false;
     modes = new Set();
@@ -202,8 +224,10 @@ export function createTrainingFlow({
     input(key, inputMode = "onscreen_keypad") {
       if (screen !== "train" || submitting) return false;
       modes.add(inputMode);
-      if (item?.fractionFields) {
-        const nextFields = typeDigit(fields, key);
+      if (isFractionFields(item)) {
+        const nextFields = isSignedFraction(item)
+          ? typeSignedDigit(fields, key)
+          : typeDigit(fields, key);
         if (nextFields === null) return false;
         fields = nextFields;
       } else {
@@ -217,9 +241,11 @@ export function createTrainingFlow({
     erase(inputMode = "onscreen_keypad") {
       if (screen !== "train" || submitting) return false;
       modes.add(inputMode);
-      if (item?.fractionFields) {
+      if (isFractionFields(item)) {
         // Only the focused box; an empty box stays focused (no jump).
-        const nextFields = eraseDigit(fields);
+        const nextFields = isSignedFraction(item)
+          ? eraseSignedDigit(fields)
+          : eraseDigit(fields);
         if (nextFields) fields = nextFields;
       } else {
         answer = answer.slice(0, -1);
@@ -229,10 +255,23 @@ export function createTrainingFlow({
     },
     /** Tap the numerator or the denominator box (fraction_fields only). */
     focus(which) {
-      if (screen !== "train" || submitting || !item?.fractionFields) return false;
-      const next = focusField(fields, which);
+      if (screen !== "train" || submitting || !isFractionFields(item)) return false;
+      const next = isSignedFraction(item)
+        ? focusSignedField(fields, which)
+        : focusField(fields, which);
       if (next === null) return false;
       fields = next;
+      return true;
+    },
+    toggleSign(inputMode = "onscreen_keypad") {
+      if (screen !== "train" || submitting || !signKeyFor(item)) return false;
+      modes.add(inputMode);
+      if (isSignedFraction(item)) {
+        fields = toggleSignedSign(fields);
+      } else {
+        answer = answer.startsWith("-") ? answer.slice(1) : `-${answer}`;
+      }
+      if (!nudgeSticky) nudge = "";
       return true;
     },
     /** Judge once through Core. "correct" | "wrong" | "nudge" | null (ignored). */
@@ -245,7 +284,9 @@ export function createTrainingFlow({
         state,
         session,
         // fraction_fields: both boxes → ONE judging string (or "" = not an attempt).
-        raw: item.fractionFields ? fieldsAnswer(fields) : answer,
+        raw: isFractionFields(item)
+          ? (isSignedFraction(item) ? signedFieldsAnswer(fields) : fieldsAnswer(fields))
+          : answer,
         catalog,
         meta: {
           day: today(),
@@ -308,7 +349,7 @@ export function createTrainingFlow({
         screen,
         item,
         answer,
-        fields: item?.fractionFields ? fields : null,
+        fields: isFractionFields(item) ? fields : null,
         nudge,
         nudgeSticky,
         feedback,
@@ -316,6 +357,7 @@ export function createTrainingFlow({
         position,
         total,
         extraKey: extraKeyFor(item),
+        signKey: signKeyFor(item),
         result: state.lastResult || null,
         lastOutcome,
         writeProtected: Boolean(store.writeProtected),
