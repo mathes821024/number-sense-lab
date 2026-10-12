@@ -156,6 +156,7 @@ function manifestValue(key) {
 for (const [client, file] of [
   ["h5", "app/platform/h5/theme-assets.js"],
   ["wechat", "app/platform/wechat/theme-assets.js"],
+  ["douyin", "app/platform/douyin/theme-assets.js"],
 ]) {
   test(`theme assets (${client}): every slot is the manifest's file for that slot`, () => {
     const source = readFileSync(join(root, file), "utf8");
@@ -184,10 +185,12 @@ test("theme: no picture files copied into app/", () => {
   assert.deepEqual(pictures.map((f) => relative(root, f)), []);
 });
 
-test("wechat ships no SVG (待核) and no WebP (local WebP not relied on); h5 prefers WebP", () => {
-  const wx = readFileSync(join(root, "app/platform/wechat/theme-assets.js"), "utf8");
-  assert.equal(/\.svg"/.test(wx), false);
-  assert.equal(/\.webp"/.test(wx), false);
+test("wechat and douyin ship no SVG (待核) and no WebP (local WebP not relied on); h5 prefers WebP", () => {
+  for (const file of ["app/platform/wechat/theme-assets.js", "app/platform/douyin/theme-assets.js"]) {
+    const src = readFileSync(join(root, file), "utf8");
+    assert.equal(/\.svg"/.test(src), false, `${file}: no svg`);
+    assert.equal(/\.webp"/.test(src), false, `${file}: no webp`);
+  }
   const h5 = readFileSync(join(root, "app/platform/h5/theme-assets.js"), "utf8");
   assert.match(h5, /mascot-welcome-512\.webp/);
 });

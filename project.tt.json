@@ -1,0 +1,14 @@
+{
+  "miniprogramRoot": "dist/tt/",
+  "projectname": "number-sense-lab",
+  "description": "Number Sense Lab — Douyin Mini Program build (Taro 4 + React)",
+  "appid": "",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "enhance": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram"
+}
