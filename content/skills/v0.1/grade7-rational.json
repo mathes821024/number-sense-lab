@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "id": "g7-rational-sign-opposite-absolute",
+      "label": "正负数、相反数与绝对值",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 30, "standard": 60, "transfer": 100 },
+      "step_limits": { "foundation": 1, "standard": 2, "transfer": 2 },
+      "answer_types": ["signed_integer", "signed_fraction_fields"],
+      "exclusions": ["字母参数", "三层以上绝对值"],
+      "explanation_templates": ["direct-definition", "number-line-distance", "sign-check"]
+    },
+    {
+      "id": "g7-rational-compare",
+      "label": "有理数比较",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 20, "standard": 40, "transfer": 100 },
+      "step_limits": { "foundation": 1, "standard": 2, "transfer": 2 },
+      "answer_types": ["signed_integer", "signed_fraction_fields"],
+      "exclusions": ["浮点近似判题"],
+      "explanation_templates": ["direct-common-denominator", "number-line-position", "interval-check"]
+    },
+    {
+      "id": "g7-integer-add-sub",
+      "label": "整数加减",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 20, "standard": 100, "transfer": 100 },
+      "step_limits": { "foundation": 1, "standard": 2, "transfer": 3 },
+      "answer_types": ["signed_integer"],
+      "exclusions": ["四项以上连算"],
+      "explanation_templates": ["direct-sign-rule", "number-line-move", "magnitude-check"]
+    },
+    {
+      "id": "g7-integer-mul-div",
+      "label": "整数乘除",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 12, "standard": 20, "transfer": 25 },
+      "step_limits": { "foundation": 1, "standard": 2, "transfer": 2 },
+      "answer_types": ["signed_integer"],
+      "exclusions": ["除数为零", "非整除整数题"],
+      "explanation_templates": ["direct-sign-rule", "factor-regroup", "parity-last-digit-check"]
+    },
+    {
+      "id": "g7-fraction-add-sub",
+      "label": "分数加减",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 12, "standard": 20, "transfer": 20 },
+      "step_limits": { "foundation": 2, "standard": 3, "transfer": 3 },
+      "answer_types": ["signed_integer", "signed_fraction_fields"],
+      "exclusions": ["复杂分式", "小数近似判题"],
+      "explanation_templates": ["direct-common-denominator", "structure-sign", "interval-check"]
+    },
+    {
+      "id": "g7-fraction-mul-div",
+      "label": "分数乘除",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 12, "standard": 20, "transfer": 20 },
+      "step_limits": { "foundation": 2, "standard": 3, "transfer": 3 },
+      "answer_types": ["signed_integer", "signed_fraction_fields"],
+      "exclusions": ["除数为零", "复杂分式"],
+      "explanation_templates": ["direct-reciprocal", "cross-cancel", "sign-size-check"]
+    },
+    {
+      "id": "g7-rational-power",
+      "label": "有理数乘方",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 6, "standard": 8, "transfer": 10 },
+      "step_limits": { "foundation": 2, "standard": 3, "transfer": 3 },
+      "answer_types": ["signed_integer", "signed_fraction_fields"],
+      "exclusions": ["负指数", "指数大于 6"],
+      "explanation_templates": ["direct-power", "parenthesis-precedence", "sign-magnitude-check"]
+    },
+    {
+      "id": "g7-rational-mixed",
+      "label": "有理数混合运算",
+      "bands": ["foundation", "standard", "transfer"],
+      "operand_bounds": { "foundation": 12, "standard": 20, "transfer": 30 },
+      "step_limits": { "foundation": 3, "standard": 4, "transfer": 4 },
+      "answer_types": ["signed_integer", "signed_fraction_fields"],
+      "exclusions": ["字母式", "复杂分式", "五步以上运算"],
+      "explanation_templates": ["direct-order", "structure-regroup", "estimate-check"]
+    }
+  ]
+}
