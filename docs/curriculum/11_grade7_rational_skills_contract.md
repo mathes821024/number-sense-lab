@@ -201,7 +201,9 @@ gx:{skill_id}:{band}:{index}:{checksum}
 
 本阶段采用的方案是：从 `operands` 派生显示层。不采用「直接修改 `prompt` 并接受新 checksum」的方案。
 
-若以后必须修改 `prompt`、`canonical_answer` 或 `operands`，才允许另议生成器版本化，并且要同时满足：已经出现在尝试、`outcomes` 或 `reappearPlan` 中的坐标，仍由原版本生成原来的 `exercise_id`；新版本的区分不能塞进现行载荷，否则旧题的 checksum 会变；活动会话保留并继续，不得删除。本阶段不批准这条版本化路径，只把它记为以后的门槛，避免把改 `prompt` 当成无迁移变更。
+若以后必须修改 `prompt`、`canonical_answer` 或 `operands`，才允许另议生成器版本化，并且要同时满足：已经出现在尝试、`outcomes` 或 `reappearPlan` 中的坐标，仍由原版本生成原来的 `exercise_id`；新版本的区分不能塞进现行载荷，否则旧题的 checksum 会变；活动会话保留并继续，不得删除。本合同冻结时不批准这条版本化路径，只把它记为以后的门槛，避免把改 `prompt` 当成无迁移变更。
+
+后续 `docs/curriculum/12_first_release_content_completion_contract.md` 在经 Owner 确认并合入 `main` 后，可以对上述“不批准版本化”作窄范围后续授权：只允许新建会话使用显式 `generator_version: 2`，缺版本的旧坐标仍逐字节走 v1。本合同关于现有题面显示、读屏、历史坐标、活动会话和 v1 身份不变的其他规则不受影响。在第 12 号合同完成 Owner 确认并进入 `main` 前，本段不构成实现许可。
 
 实现必须用现有生成器测试和技能会话测试锁住上述身份不变，并另证相反数显示式与第 11 节的朗读例子。本次合同冻结不修改运行时代码。
 
