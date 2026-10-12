@@ -2,7 +2,7 @@
 
 状态：`FROZEN FOR FIRST-LAUNCH BUILD`
 
-冻结依据：Owner 于 2026-10-12 确认 `docs/superpowers/specs/2026-10-12-launch-scope-and-grade7-design.md` 与对应实施计划。
+冻结依据：Owner 于 2026-10-12 确认首版“一核四端”、七年级有理数与学习资产分层方向；本文件记录其中与当前仓库直接相关的稳定边界。
 
 ## 1. 三条轨道
 
