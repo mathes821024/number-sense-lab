@@ -64,6 +64,26 @@ test("math: fraction tokens carry a bar (numerator over denominator), stored tex
   assert.equal(mathLabel("1/8 = 0.125"), "1/8 = 0.125");
 });
 
+test("math: caret powers display as textbook superscripts in both shared renderers", () => {
+  const stored = "(-2)^2 + 5^3 + (3/4)^6 + 2^10 = ?";
+  assert.deepEqual(
+    mathTokens(stored).filter((token) => token.type === "superscript"),
+    [
+      { type: "superscript", exponent: "2", label: "2 次方" },
+      { type: "superscript", exponent: "3", label: "3 次方" },
+      { type: "superscript", exponent: "6", label: "6 次方" },
+      { type: "superscript", exponent: "10", label: "10 次方" },
+    ],
+  );
+  assert.equal(mathLabel("(-2)^2 = ?"), "(-2) 的 2 次方 = ?");
+
+  const html = formatMath(stored);
+  assert.doesNotMatch(html, /\^/);
+  assert.match(html, /\(-2\)<sup class="math-sup" aria-label="2 次方">2<\/sup>/);
+  assert.match(html, /5<sup class="math-sup" aria-label="3 次方">3<\/sup>/);
+  assert.match(html, /2<sup class="math-sup" aria-label="10 次方">10<\/sup>/);
+});
+
 test("math: a fraction_fields prompt 「0.125 = ?/?」 reads as 0.125 = an empty fraction bar, never 「?/?」", () => {
   const t = mathTokens("0.125 = ?/?");
   assert.deepEqual(t, [{ type: "text", text: "0.125 = " }, { type: "blank_fraction", label: "分数" }]);

@@ -51,6 +51,7 @@ export function repeatingHtml(intPart, block) {
 // 0.(6), 0.(142857); a single letter block such as 0.(n) in a pattern line;
 // n/d; and the empty fraction 「?/?」 of a fraction_fields prompt.
 const MATH_TOKEN = /(\d+)\.\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})|(\?\/\?)/g;
+const POWER_TOKEN = /\^(\d+)/g;
 
 /** An empty stacked fraction: a bar with nothing above or below (never 「?/?」 as text). */
 export const BLANK_FRACTION_HTML =
@@ -58,11 +59,13 @@ export const BLANK_FRACTION_HTML =
 
 export function formatMath(value) {
   const safe = escapeHtml(value);
-  return safe.replace(MATH_TOKEN, (_, intPart, block, numerator, denominator, blank) => {
-    if (blank !== undefined) return BLANK_FRACTION_HTML;
-    if (intPart !== undefined) return repeatingHtml(intPart, block);
-    return `<span class="frac" aria-label="${numerator}/${denominator}"><span class="num">${numerator}</span><span class="den">${denominator}</span></span>`;
-  });
+  return safe
+    .replace(MATH_TOKEN, (_, intPart, block, numerator, denominator, blank) => {
+      if (blank !== undefined) return BLANK_FRACTION_HTML;
+      if (intPart !== undefined) return repeatingHtml(intPart, block);
+      return `<span class="frac" aria-label="${numerator}/${denominator}"><span class="num">${numerator}</span><span class="den">${denominator}</span></span>`;
+    })
+    .replace(POWER_TOKEN, (_, exponent) => `<sup class="math-sup" aria-label="${exponent} 次方">${exponent}</sup>`);
 }
 
 const BLANK_MARK = "?/?";

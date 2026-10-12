@@ -931,6 +931,15 @@ body {
 
 /* ---------- math notation (fraction bar, repeating dots) ---------- */
 .math { display: inline; }
+.math-sup {
+  display: inline;
+  position: relative;
+  top: -0.55em;
+  margin-left: 0.04em;
+  font-size: 0.58em;
+  line-height: 0;
+  font-weight: inherit;
+}
 .frac {
   display: inline-flex;
   flex-direction: column;

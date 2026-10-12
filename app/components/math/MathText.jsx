@@ -55,6 +55,9 @@ export default function MathText(props) {
         if (t.type === "fraction") return <Fraction key={i} numerator={t.numerator} denominator={t.denominator} />;
         if (t.type === "repeating") return <Repeating key={i} token={t} />;
         if (t.type === "blank_fraction") return <BlankFraction key={i} />;
+        if (t.type === "superscript") {
+          return <Text className="math-sup" aria-label={t.label} key={i}>{t.exponent}</Text>;
+        }
         return (
           <Text className="math-text" key={i}>
             {t.text}

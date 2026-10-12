@@ -8,6 +8,7 @@
  *   { type: "fraction", numerator, denominator, label }   3/4
  *   { type: "repeating", intPart, digits, label }         0.(142857)
  *   { type: "blank_fraction", label }                     ?/?  (an empty bar)
+ *   { type: "superscript", exponent, label }               ^2 → textbook exponent
  *       digits: [{ ch, dot }] — a dot over the first and the last digit of
  *       the block (one digit: a dot over it). No brackets are shown.
  */
@@ -16,6 +17,18 @@
 // letter block such as 0.(n) in a pattern line, n/d with 1–3 digits, and the
 // empty fraction 「?/?」 of a fraction_fields prompt (never shown as text).
 const MATH_TOKEN = /(\d+)\.(\d*)\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})|(\?\/\?)/g;
+const POWER_TOKEN = /\^(\d+)/g;
+
+function pushTextWithSuperscripts(tokens, value) {
+  const text = String(value ?? "");
+  let last = 0;
+  for (const match of text.matchAll(POWER_TOKEN)) {
+    if (match.index > last) tokens.push({ type: "text", text: text.slice(last, match.index) });
+    tokens.push({ type: "superscript", exponent: match[1], label: `${match[1]} 次方` });
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) tokens.push({ type: "text", text: text.slice(last) });
+}
 
 /** Screen-reader text, e.g. "0.6，6 循环" (h5/math-text.js repeatingLabel). */
 export function repeatingLabel(intPart, block) {
@@ -40,7 +53,7 @@ export function mathTokens(value) {
   const tokens = [];
   let last = 0;
   for (const match of text.matchAll(MATH_TOKEN)) {
-    if (match.index > last) tokens.push({ type: "text", text: text.slice(last, match.index) });
+    if (match.index > last) pushTextWithSuperscripts(tokens, text.slice(last, match.index));
     if (match[6] !== undefined) {
       tokens.push({ type: "blank_fraction", label: "分数" });
     } else if (match[1] !== undefined) {
@@ -54,14 +67,14 @@ export function mathTokens(value) {
     }
     last = match.index + match[0].length;
   }
-  if (last < text.length) tokens.push({ type: "text", text: text.slice(last) });
+  if (last < text.length) pushTextWithSuperscripts(tokens, text.slice(last));
   return tokens;
 }
 
 /** Plain reading of the same text, for accessible names. */
 export function mathLabel(value) {
   return mathTokens(value)
-    .map((t) => (t.type === "text" ? t.text : t.label))
+    .map((t) => (t.type === "text" ? t.text : t.type === "superscript" ? ` 的 ${t.label}` : t.label))
     .join("");
 }
 
