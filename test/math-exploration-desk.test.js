@@ -5,6 +5,7 @@ import { profileView } from "../app/pages/me/model.js";
 import { homeView } from "../app/pages/home/model.js";
 import { SKILL_IDS } from "../src/core/skill-catalog.js";
 import { GRADE7_STAGES, structureKindForSkill } from "../app/pages/explore/structure.js";
+import { grade7PathView, grade7View } from "../app/pages/models.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -87,4 +88,17 @@ test("the four Grade 7 stages contain every stable skill id exactly once", () =>
 
 test("every Grade 7 skill has a mathematical structure kind", () => {
   for (const id of SKILL_IDS) assert.ok(structureKindForSkill(id), id);
+});
+
+test("Grade 7 path changes presentation only", () => {
+  const learner = {
+    relations: {},
+    skills: { "g7-integer-add-sub": { status: "learning", next_band: "standard" } },
+  };
+  const cards = grade7View(learner).cards;
+  const flat = grade7PathView(learner).stages.flatMap((stage) => stage.skills);
+  assert.deepEqual(flat.map((skill) => skill.skillId).sort(), [...SKILL_IDS].sort());
+  for (const skill of flat) {
+    assert.equal(skill.band, cards.find((card) => card.skillId === skill.skillId).band);
+  }
 });

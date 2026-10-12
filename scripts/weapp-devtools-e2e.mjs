@@ -666,7 +666,7 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   const tiles = [];
   const order = [];
   for (const [gi, g] of groups.entries()) {
-    const cards = await g.$$(".practice-card");
+    const cards = await g.$$(".practice-shelf-item[data-domain]");
     const names = [];
     const boxes = [];
     for (const c of cards) {
@@ -688,10 +688,10 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
       check(cls.includes(`tone-${GRID_GROUPS[gi][1]}`), `${names[names.length - 1]} tint ${cls}`);
     }
     check(names.join("/") === GRID_GROUPS[gi][2].join("/"), `group ${heads[gi]} cards ${names}`);
-    // Two columns: 1st left, 2nd right on the same row; an odd 3rd card sits under the 1st, same width (never stretched).
-    check(boxes[1].left > boxes[0].left + boxes[0].w - 1 && Math.abs(boxes[1].top - boxes[0].top) <= 1, `${heads[gi]} row 1 ${JSON.stringify(boxes)}`);
-    check(Math.abs(boxes[0].w - boxes[1].w) <= 1 && boxes[0].h >= 44 && boxes[0].w >= 44, `${heads[gi]} card size ${JSON.stringify(boxes)}`);
-    if (boxes[2]) check(Math.abs(boxes[2].left - boxes[0].left) <= 1 && Math.abs(boxes[2].w - boxes[0].w) <= 1 && boxes[2].top > boxes[0].top + boxes[0].h - 1, `${heads[gi]} 3rd card ${JSON.stringify(boxes)}`);
+    check(boxes.every((box) => box.h >= 44 && box.w >= 44), `${heads[gi]} row size ${JSON.stringify(boxes)}`);
+    for (let i = 1; i < boxes.length; i += 1) {
+      check(Math.abs(boxes[i].left - boxes[i - 1].left) <= 1 && Math.abs(boxes[i].w - boxes[i - 1].w) <= 1 && boxes[i].top >= boxes[i - 1].top + boxes[i - 1].h - 1, `${heads[gi]} shelf order ${JSON.stringify(boxes)}`);
+    }
     geo.push(`${heads[gi]} ${boxes.map((x) => `${x.left},${x.top} ${x.w}×${x.h}`).join(" | ")}`);
     order.push(...names);
   }
@@ -710,7 +710,8 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   // 05 §1: no 敬请期待 cards on the practice page; 概念 / 例题 / 动画 / 规律探索 belong to the future 知识地图.
   for (const sel of [".soon-tile", ".soon-chip", ".soon-name", ".section-label"]) check(!(await has(page, sel)), `no ${sel}`);
   await shot("25-explore");
-  const all = await page.$$(".practice-card");
+  const all = await page.$$(".skill-path-row[data-skill]");
+  check((await page.$$(".grade7-stage[data-stage]")).length === 4 && all.length === 8, "grade 7 path keeps four stages and eight skills");
   const lastCard = all[all.length - 1];
   const lastPageBottom = (await lastCard.offset()).top + (await lastCard.size()).height; // at scroll 0: page = viewport coordinates
   await mp.pageScrollTo(400);
@@ -733,14 +734,14 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   await sleep(400);
   const note = await textOf(page, ".toast.is-on");
   const after = await mp.currentPage();
-  check(after.path === "pages/explore/index" && (await after.$$(".practice-card")).length === 8, `知识地图 changed the page (${after.path})`);
+  check(after.path === "pages/explore/index" && (await after.$$(".practice-shelf-item[data-domain]")).length === 8, `知识地图 changed the page (${after.path})`);
   check(/敬请期待/.test(note || ""), `知识地图 notice 「${note}」`);
   await shot("25d-knowledge-map-soon");
   const sets = [];
   for (const [n, label] of GRID_ORDER.entries()) {
     const domain = DOMAIN_ORDER[LABELS.indexOf(label)];
     page = await relaunch("/pages/explore/index");
-    await (await page.$$(".practice-card"))[n].tap();
+    await (await page.$$(".practice-shelf-item[data-domain]"))[n].tap();
     await sleep(700);
     const t = await textOf(page, ".focus-card .title");
     check(t === label, `card ${n + 1} → confirm 「${t}」, want 「${label}」`);

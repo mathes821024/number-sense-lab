@@ -10,19 +10,17 @@ import BackButton from "../../components/BackButton";
 import useNotice from "../../components/useNotice";
 import { getRecord } from "../record.js";
 import { tabHandler, navPageStyle } from "../tabs.js";
-import { exploreView, focusView, grade7View, skillFocusView } from "../models.js";
+import { exploreView, focusView, grade7PathView, skillFocusView } from "../models.js";
 import { isLongLabel } from "../../../src/core/practice-groups.js";
 import { assetFor } from "../../theme/index.js";
+import MathStructureIcon from "../../components/MathStructureIcon";
 
 const catalog = loadCoreCatalog();
 
 /**
  * 专项练习 (h5/app.js renderExplore + renderFocusConfirm), 主题训练 as the
- * grouped two-column grid (docs/ux/05_specialist_grouped_grid.md) drawn as F-B,
- * the warm branded learning panel (docs/ui/08_fb_specialist_visual.md): a header
- * with the existing welcome mascot at one side, then three navigation groups,
- * each a light colour zone with two-column white tiles (F-B icon, name, one weak
- * status line). The whole tile is the button; a released card opens its confirmation, and
+ * three fact shelves and a four-stage Grade 7 path. Every row keeps the same
+ * domain / skill identity and opens the same confirmation; layout is display only.
  * 开始这一小段 starts a focused set from that one domain only (core
  * startSession, mode "focused"). A card without released content only answers
  * 敬请期待. 知识地图 is the other entry and, this round, only says 敬请期待;
@@ -153,11 +151,11 @@ export default function Explore() {
                   {g.en}
                 </Text>
               </View>
-              <View className="practice-grid">
+              <View className="practice-shelf">
                 {g.cards.map((c) => (
                   <View
-                    className={`practice-card${c.released ? "" : " is-soon"}`}
-                    hoverClass="practice-card-pressed"
+                    className={`practice-shelf-item${c.released ? "" : " is-soon"}`}
+                    hoverClass="practice-shelf-pressed"
                     role="button"
                     aria-label={c.aria}
                     key={c.domain}
@@ -171,6 +169,8 @@ export default function Explore() {
                       <Text className={`practice-name${isLongLabel(c.label) ? " is-long" : ""}`}>{c.label}</Text>
                       <Text className="practice-status">{c.status}</Text>
                     </View>
+                    <View className="practice-track" aria-hidden="true"><View className="practice-track-point" /></View>
+                    <Text className="practice-open" aria-hidden="true">进入</Text>
                   </View>
                 ))}
               </View>
@@ -186,27 +186,44 @@ export default function Explore() {
             <Text className="grade7-count">8 项</Text>
           </View>
           <Text className="grade7-lede">从符号、绝对值到四则与乘方，按层级逐项练习。</Text>
-          <View className="skill-grid">
-            {grade7View(state).cards.map((card, index) => (
-              <View
-                className="skill-card"
-                hoverClass="skill-card-pressed"
-                role="button"
-                aria-label={card.aria}
-                key={card.skillId}
-                data-skill={card.skillId}
-                onClick={() => {
-                  setSkillBand(card.band);
-                  setFocusedSkill(card.skillId);
-                }}
-              >
-                <View className="skill-index" aria-hidden="true">
-                  <Text>{String(index + 1).padStart(2, "0")}</Text>
+          <View className="grade7-path">
+            {grade7PathView(state).stages.map((stage, stageIndex) => (
+              <View className="grade7-stage" key={stage.id} data-stage={stage.id}>
+                <View className="stage-rail" aria-hidden="true">
+                  <View className="stage-node"><Text>{stageIndex + 1}</Text></View>
+                  {stageIndex < 3 ? <View className="stage-connector" /> : null}
                 </View>
-                <Text className="skill-name">{card.label}</Text>
-                <View className="skill-meta">
-                  <Text className="skill-band">{card.bandLabel}</Text>
-                  <Text className="skill-status">{card.status}</Text>
+                <View className="stage-content">
+                  <View className="stage-heading">
+                    <Text className="stage-title">{stage.label}</Text>
+                    <Text className="stage-note">{stage.note}</Text>
+                  </View>
+                  <View className="stage-skills">
+                    {stage.skills.map((card) => (
+                      <View
+                        className="skill-path-row"
+                        hoverClass="skill-path-row-pressed"
+                        role="button"
+                        aria-label={card.aria}
+                        key={card.skillId}
+                        data-skill={card.skillId}
+                        onClick={() => {
+                          setSkillBand(card.band);
+                          setFocusedSkill(card.skillId);
+                        }}
+                      >
+                        <MathStructureIcon kind={card.structureKind} />
+                        <View className="skill-path-copy">
+                          <Text className="skill-name">{card.label}</Text>
+                          <View className="skill-meta">
+                            <Text className="skill-band">{card.bandLabel}</Text>
+                            <Text className="skill-status">{card.status}</Text>
+                          </View>
+                        </View>
+                        <Text className="skill-arrow" aria-hidden="true">›</Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               </View>
             ))}

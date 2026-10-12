@@ -139,18 +139,24 @@ test("七年级有理数: confirmation chooses a named band and produces a safe 
   assert.equal(skillFocusView(skillId, "nope", { skills: {} }), null);
 });
 
-test("七年级有理数 page: cards open confirmation, bands are explicit, and training receives skill plus band", () => {
+test("七年级有理数 page: four-stage path opens the same confirmation and training intent", () => {
   const page = read("app/pages/explore/index.jsx");
-  assert.match(page, /grade7View\(state\)\.cards\.map/);
+  assert.match(page, /grade7PathView\(state\)\.stages\.map/);
   assert.match(page, /data-section="grade7-rational"/);
+  assert.match(page, /data-stage=\{stage\.id\}/);
+  assert.match(page, /stage\.skills\.map/);
   assert.match(page, /data-skill=\{card\.skillId\}/);
+  assert.match(page, /<MathStructureIcon kind=\{card\.structureKind\} \/>/);
   assert.match(page, /setFocusedSkill\(card\.skillId\)/);
   assert.match(page, /skillFocus\.bands\.map/);
   assert.match(page, /setSkillBand\(band\.value\)/);
   assert.match(page, /navigate\.toTraining\("start-skill", \{ skill: skillFocus\.skillId, band: skillFocus\.band \}\)/);
   const css = read("app/app.css");
   assert.match(css, /\.grade7-section \{/);
-  assert.match(css, /\.skill-grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(css, /\.grade7-path \{/);
+  assert.match(css, /\.grade7-stage \{[^}]*grid-template-columns: 36px minmax\(0, 1fr\);/);
+  assert.match(css, /\.skill-path-row \{[^}]*min-height: 70px;/);
+  assert.doesNotMatch(css, /\.skill-grid \{/);
   assert.match(css, /\.band-option \{[^}]*min-height: 44px;/);
 });
 
@@ -239,13 +245,15 @@ test("主题训练 pages (Taro + h5/): the same shared model, F-B header and gro
     assert.match(src, /practice-group-en/);
     assert.match(src, /is-long/);
   }
-  for (const css of [read("app/app.css"), read("h5/styles.css")]) {
-    assert.match(css, /\.practice-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
-    const card = css.match(/\n\.practice-card \{[\s\S]*?\n\}/)[0];
-    assert.match(card, /background: var\(--fb-tile-bg\);/, "white tiles on the group zone");
-    assert.match(card, /box-shadow: var\(--fb-tile-shadow\);/, "a very light shadow, not a floating card");
-    assert.match(card, /border-radius: 16px;/);
-    assert.match(card, /min-height: 76px;/, "compact tile, still well above 44×44");
+  const appCss = read("app/app.css");
+  assert.match(appCss, /\.practice-shelf \{[^}]*border-top:/);
+  const shelf = appCss.match(/\n\.practice-shelf-item \{[\s\S]*?\n\}/)[0];
+  assert.match(shelf, /display: flex;/, "facts are calm rows instead of a card wall");
+  assert.match(shelf, /min-height: 72px;/, "comfortable tap target");
+  assert.doesNotMatch(shelf, /box-shadow:/, "shelf rows do not float as individual cards");
+  assert.match(appCss, /\.practice-track \{/);
+
+  for (const css of [appCss, read("h5/styles.css")]) {
     for (const tone of ["sky", "amber"]) {
       assert.match(css, new RegExp(`\\.practice-group\\.tone-${tone} \\{ background: var\\(--fb-group-bg-${tone}\\); \\}`), `${tone} zone in CSS`);
       assert.match(css, new RegExp(`\\.tile\\.tone-${tone} \\{ background: var\\(--fb-chip-${tone}\\); \\}`), `${tone} chip`);
@@ -259,6 +267,11 @@ test("主题训练 pages (Taro + h5/): the same shared model, F-B header and gro
     assert.match(css, /\.fb-mascot \{[^}]*width: 74px; height: 74px;/, "mascot (≤ 80 token) no taller than the title block, even after rpx rounding at 430");
     assert.match(css, /width: 64px;\n  height: 64px;\n  flex: none;\n  border-radius: 14px;/, "64px icon chip");
   }
+  const legacyCss = read("h5/styles.css");
+  assert.match(legacyCss, /\.practice-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/, "legacy h5 reference remains unchanged");
+  const legacyCard = legacyCss.match(/\n\.practice-card \{[\s\S]*?\n\}/)[0];
+  assert.match(legacyCard, /background: var\(--fb-tile-bg\);/);
+  assert.match(legacyCard, /box-shadow: var\(--fb-tile-shadow\);/);
 });
 
 test("focus confirm: a released domain only; anything else is null", () => {

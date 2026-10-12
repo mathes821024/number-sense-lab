@@ -13,6 +13,7 @@ import { grade7Practice, practiceCard, practiceGroups, skillPracticeFocus } from
 import { buildMistakeBook } from "../../src/core/mistakes.js";
 import { listLatestOutcomes } from "../../src/core/progress.js";
 import { buildA4Sheet, buildPrintSelector } from "../../src/core/a4.js";
+import { GRADE7_STAGES, structureKindForSkill } from "./explore/structure.js";
 
 /**
  * 专项练习 · 主题训练 is the shared grouped grid (src/core/practice-groups.js,
@@ -36,6 +37,23 @@ export function exploreView(state, catalog) {
 /** Seven-grade skills are a parallel track, not extra fact-domain cards. */
 export function grade7View(state) {
   return grade7Practice((state && state.skills) || {});
+}
+
+/** The same eight skill cards, ordered into four display-only learning stages. */
+export function grade7PathView(state) {
+  const base = grade7View(state);
+  const byId = new Map(base.cards.map((card) => [card.skillId, card]));
+  return {
+    ...base,
+    stages: GRADE7_STAGES.map((stage) => ({
+      ...stage,
+      skills: stage.skills.map((skillId) => {
+        const card = byId.get(skillId);
+        if (!card) throw new Error(`CONTRACT_CONFLICT: unknown Grade 7 path skill ${skillId}`);
+        return { ...card, structureKind: structureKindForSkill(skillId) };
+      }),
+    })),
+  };
 }
 
 /** Confirmation for one Grade 7 skill and an explicitly chosen difficulty band. */

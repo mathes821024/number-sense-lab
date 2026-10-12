@@ -150,7 +150,7 @@ for (const [vp, width, height] of VPS) {
         groups: [...root.querySelectorAll(".practice-group")].map((g) => ({
           head: g.querySelector(".practice-group-title").textContent,
           role: g.querySelector(".practice-group-title").getAttribute("role"),
-          cards: [...g.querySelectorAll(".practice-card")].map((d) => {
+          cards: [...g.querySelectorAll(".practice-shelf-item[data-domain]")].map((d) => {
             const r = d.getBoundingClientRect();
             const tile = d.querySelector(".tile");
             return {
@@ -195,9 +195,11 @@ for (const [vp, width, height] of VPS) {
     }
     check(v.groups.every((g) => g.role === "heading" && g.cards.every((c) => c.tone === g.cards[0].tone)), "headings + one tint per group");
     for (const g of v.groups) {
-      const [a, b, c] = g.cards.map((x) => x.box);
-      check(b.l >= a.l + a.w - 1 && Math.abs(b.t - a.t) <= 1 && Math.abs(a.w - b.w) <= 1, `${g.head}: two columns ${JSON.stringify(g.cards.map((x) => x.box))}`);
-      if (c) check(Math.abs(c.l - a.l) <= 1 && Math.abs(c.w - a.w) <= 1 && c.t >= a.t + a.h - 1, `${g.head}: 3rd card left, not stretched ${JSON.stringify(c)}`);
+      for (let i = 1; i < g.cards.length; i += 1) {
+        const a = g.cards[i - 1].box;
+        const b = g.cards[i].box;
+        check(Math.abs(b.l - a.l) <= 1 && Math.abs(b.w - a.w) <= 1 && b.t >= a.t + a.h - 1, `${g.head}: shelf order ${JSON.stringify(g.cards.map((x) => x.box))}`);
+      }
     }
     check(v.soon === 0, "no 敬请期待 cards / 更多方向 on the practice page");
     check(v.kicker === "EXPLORE MATH" && v.title === "探索数学世界" && v.lede === "从一个主题开始，走更远的路" && v.hint === "今天想练哪个？", `header ${v.kicker}/${v.title}/${v.lede}/${v.hint}`);
@@ -211,14 +213,16 @@ for (const [vp, width, height] of VPS) {
     await page.click(V('.seg[data-soon="知识地图"]'));
     const toast = await page.textContent(V('[data-testid="toast"]'));
     check(toast === "知识地图 · 敬请期待", `toast ${toast}`);
-    check((await page.$$(V(".practice-card"))).length === 8, "知识地图 does not draw the cards again");
+    check((await page.$$(V(".practice-shelf-item[data-domain]"))).length === 8, "知识地图 does not draw the facts again");
+    check((await page.$$(V(".grade7-stage[data-stage]"))).length === 4, "grade 7 has four stages");
+    check((await page.$$(V(".skill-path-row[data-skill]"))).length === 8, "grade 7 keeps all eight skills");
     // the list end clears the bottom nav
     await toEnd();
     await page.waitForTimeout(150);
     const end = await page.evaluate(() => {
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
       const pg = root.closest(".taro_page") || document;
-      const last = [...root.querySelectorAll(".practice-card")].pop().getBoundingClientRect();
+      const last = [...root.querySelectorAll(".skill-path-row[data-skill]")].pop().getBoundingClientRect();
       const nav = [...pg.querySelectorAll(".tabbar")].find((e) => e.checkVisibility()).getBoundingClientRect();
       return { last: Math.round(last.bottom), nav: Math.round(nav.top) };
     });
@@ -231,7 +235,7 @@ for (const [vp, width, height] of VPS) {
     await page.waitForTimeout(400);
     const fb = await page.evaluate(() => {
       const root = [...document.querySelectorAll('[data-testid="explore"]')].find((e) => e.checkVisibility());
-      const t = root.querySelector('.practice-card[data-domain="cubes"] .tile');
+      const t = root.querySelector('.practice-shelf-item[data-domain="cubes"] .tile');
       const g = t.querySelector(".tile-glyph .icon");
       return { cls: t.className, glyph: Boolean(g && g.textContent.trim() && g.getBoundingClientRect().width > 4), img: Boolean(t.querySelector("img")) };
     });
@@ -247,7 +251,7 @@ for (const [vp, width, height] of VPS) {
     await step(`${vp} 2.${n + 1} ${LABELS[n]} card → confirm → focused set`, async () => {
       await open("explore");
       await settle("explore");
-      await page.click(V(`.practice-card[data-domain="${domain}"]`));
+      await page.click(V(`.practice-shelf-item[data-domain="${domain}"]`));
       await settle("focus-confirm");
       const c = await page.evaluate(() => {
         const r = [...document.querySelectorAll('[data-testid="focus-confirm"]')].find((e) => e.checkVisibility());
@@ -479,7 +483,7 @@ for (const [vp, width, height] of VPS) {
     await settle("a4");
     await page.click(V('.tabbar [data-tab="explore"]'));
     await settle("explore");
-    await page.click(V('.practice-card[data-domain="cubes"]'));
+    await page.click(V('.practice-shelf-item[data-domain="cubes"]'));
     await settle("focus-confirm");
     const r = await stored();
     check(JSON.stringify(r) === RAW, "stored record changed by viewing pages");
