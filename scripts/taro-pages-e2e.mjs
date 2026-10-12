@@ -145,7 +145,7 @@ for (const [vp, width, height] of VPS) {
         hintW: px(root.querySelector(".fb-hint"), "fontWeight"),
         groupPx: px(root.querySelector(".practice-group-title"), "fontSize"),
         groupW: px(root.querySelector(".practice-group-title"), "fontWeight"),
-        mascot: mascot ? { h: Math.round(mascot.getBoundingClientRect().height), src: mascot.querySelector("img").src, headH: Math.round(headText.height) } : null,
+        mascot: mascot ? { h: Math.round(mascot.querySelector("img").getBoundingClientRect().height), src: mascot.querySelector("img").src, headH: Math.round(headText.height), observe: Boolean(mascot.querySelector('[data-action="companion-observation"]')) } : null,
         zones: [...root.querySelectorAll(".practice-group")].map((g) => ({ bg: getComputedStyle(g).backgroundColor, img: getComputedStyle(g).backgroundImage, en: g.querySelector(".practice-group-en").textContent })),
         groups: [...root.querySelectorAll(".practice-group")].map((g) => ({
           head: g.querySelector(".practice-group-title").textContent,
@@ -204,7 +204,7 @@ for (const [vp, width, height] of VPS) {
     check(v.soon === 0, "no 敬请期待 cards / 更多方向 on the practice page");
     check(v.kicker === "EXPLORE MATH" && v.title === "探索数学世界" && v.lede === "从一个主题开始，走更远的路" && v.hint === "今天想练哪个？", `header ${v.kicker}/${v.title}/${v.lede}/${v.hint}`);
     check(v.hintPx < v.groupPx && v.hintW < v.groupW, `helper line ${v.hintPx}px/${v.hintW} vs group title ${v.groupPx}px/${v.groupW}`);
-    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(v.mascot.src), `mascot ${JSON.stringify(v.mascot)}`);
+    check(v.mascot && v.mascot.h <= 80 && v.mascot.h <= v.mascot.headH && /assets\/themes\/math-lab\/mascot\/mascot-welcome-512\.(png|webp)$/.test(v.mascot.src) && v.mascot.observe, `companion ${JSON.stringify(v.mascot)}`);
     check(JSON.stringify(v.zones.map((z) => [z.bg, z.img, z.en])) === JSON.stringify([["rgb(234, 242, 251)", "none", "POWERS"], ["rgb(253, 243, 231)", "none", "PRODUCTS"], ["rgb(233, 246, 240)", "none", "NUMBERS"]]), `zones ${JSON.stringify(v.zones)}`);
     check(v.segSoon.join("/") === "知识地图", `segment ${v.segSoon}`);
     check((await navOn()) === "练习", `nav on ${await navOn()}`);

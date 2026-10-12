@@ -699,11 +699,11 @@ await step("14 专项练习 · 主题训练 (F-B): header + mascot, 3 colour zon
   // F-B header (08 §2): kicker, title, subtitle, tabs, the quiet helper line; the reused welcome mascot.
   const head = [await textOf(page, ".fb-kicker"), await textOf(page, ".title"), await textOf(page, ".lede"), await textOf(page, ".fb-hint")];
   check(head.join("/") === "EXPLORE MATH/探索数学世界/从一个主题开始，走更远的路/今天想练哪个？", `header ${head}`);
-  const mascotImg = await page.$(".fb-mascot .fb-mascot-img");
+  const mascotImg = await page.$(".fb-mascot .mascot-companion-image .theme-img");
   const mascotSrc = mascotImg ? await mascotImg.attribute("src") : "";
-  const mascotH = mascotImg ? Math.round((await (await page.$(".fb-mascot")).size()).height) : 0;
+  const mascotH = mascotImg ? Math.round((await mascotImg.size()).height) : 0;
   const headH = Math.round((await (await page.$(".fb-head-text")).size()).height);
-  check(/\/assets\/themes\/math-lab\/specialist\/mascot\/specialist-mascot-512\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH, `mascot ${mascotSrc} ${mascotH}px (title block ${headH})`);
+  check(/\/assets\/themes\/math-lab\/mascot\/mascot-welcome-512\.png$/.test(mascotSrc || "") && mascotH <= 84 && mascotH <= headH && await has(page, '[data-action="companion-observation"]'), `companion ${mascotSrc} ${mascotH}px (title block ${headH})`);
   const zones = [];
   for (const g of groups) zones.push(`${(await g.attribute("class")).match(/tone-(\w+)/)[1]}:${(await (await g.$(".practice-group-en")).text()).trim()}`);
   check(zones.join("/") === "sky:POWERS/amber:PRODUCTS/mint:NUMBERS", `zones ${zones}`);

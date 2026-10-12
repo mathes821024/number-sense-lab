@@ -6,6 +6,7 @@ import { homeView } from "../app/pages/home/model.js";
 import { SKILL_IDS } from "../src/core/skill-catalog.js";
 import { GRADE7_STAGES, structureKindForSkill } from "../app/pages/explore/structure.js";
 import { grade7PathView, grade7View } from "../app/pages/models.js";
+import theme from "../app/theme/math-lab/index.js";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -101,4 +102,23 @@ test("Grade 7 path changes presentation only", () => {
   for (const skill of flat) {
     assert.equal(skill.band, cards.find((card) => card.skillId === skill.skillId).band);
   }
+});
+
+test("four semantic mascot states reuse the existing three runtime slots", () => {
+  assert.equal(theme.mascot.welcome, "mascot.welcome");
+  assert.equal(theme.mascot.thinking, "mascot.thinking");
+  assert.equal(theme.mascot.discover, "mascot.correct");
+  assert.equal(theme.mascot.rest, "mascot.thinking");
+  assert.equal(new Set(Object.values(theme.mascot)).size, 3);
+});
+
+test("the quiet companion is interactive only when explicitly requested", () => {
+  const component = read("app/components/MascotCompanion.jsx");
+  assert.match(component, /interactive === true/);
+  assert.match(component, /先看关系，再决定怎么算。/);
+  assert.doesNotMatch(component, /setTimeout|setInterval|record\.write|localStorage|wx\./);
+  const correct = read("app/components/CorrectFeedback.jsx");
+  const wrong = read("app/components/WrongFeedback.jsx");
+  assert.doesNotMatch(correct, /Mascot|MascotCompanion/);
+  assert.doesNotMatch(wrong, /Mascot|MascotCompanion/);
 });

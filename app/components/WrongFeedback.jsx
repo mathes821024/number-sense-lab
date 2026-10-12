@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { View, Text } from "@tarojs/components";
-import ThemeImage, { Mascot } from "./ThemeImage";
 import MathText from "./math/MathText";
 import Icon from "./icon/Icon";
 
@@ -24,10 +23,6 @@ export default function WrongFeedback({ prompt, feedback, onNext, onPause, promp
       </View>
       <View className="wrong-head">
         <MathText value={prompt} className="demoted" ariaLabel={promptAriaLabel} />
-        <View className="wrong-art">
-          <Mascot pose="thinking" className="mascot-side" />
-          <ThemeImage slot="decor.question" className="hero-question" />
-        </View>
       </View>
       <View className="panel">
         <MathText value={fb.relation || ""} className="eq" ariaLabel={relationAriaLabel} />

@@ -14,7 +14,6 @@ import BottomNav from "../../components/BottomNav";
 import Notice from "../../components/Notice";
 import Icon from "../../components/icon/Icon";
 import BackButton from "../../components/BackButton";
-import { Mascot } from "../../components/ThemeImage";
 import MathText from "../../components/math/MathText";
 import { listPromptText, printPrompt } from "../../components/math/tokens.js";
 import useNotice from "../../components/useNotice";
@@ -130,7 +129,6 @@ export default function Print() {
         {backLink}
         <Text className="title">{sel.title}</Text>
         <View className="empty">
-          <Mascot pose="welcome" className="mascot-empty" />
           <Text className="lede">{sel.noCandidates}</Text>
         </View>
         <View className="cta" hoverClass="cta-pressed" role="button" data-action="home" onClick={() => navigate.toHome()}>

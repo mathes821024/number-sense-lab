@@ -3,6 +3,7 @@ import { Input, Switch, Text, View } from "@tarojs/components";
 import { getActiveLearner, withActiveLearnerNickname, withActiveLearnerPrefs } from "../../../src/core/store.js";
 import BottomNav from "../../components/BottomNav";
 import Icon from "../../components/icon/Icon";
+import MascotCompanion from "../../components/MascotCompanion";
 import { getStore, motionClass, navigate, safeArea, useScreenLifecycle } from "../../platform/current";
 import { getRecord } from "../record.js";
 import { navPageStyle, tabHandler } from "../tabs.js";
@@ -45,7 +46,7 @@ export default function Me() {
       <View className="stage">
         <View className="screen screen-me" data-testid="me">
           <View className="profile-head">
-            <View className="profile-orbit" aria-hidden="true"><Text>∿</Text></View>
+            <MascotCompanion pose="thinking" className="profile-companion" />
             <View className="profile-intro">
               <Text className="profile-kicker">MY MATH DESK</Text>
               <Text className="title">{view.displayName}的数学桌</Text>

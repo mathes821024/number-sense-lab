@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Image } from "@tarojs/components";
+import { View, Text } from "@tarojs/components";
 import { loadCoreCatalog } from "../../../src/core/content.js";
 import { getActiveLearner } from "../../../src/core/store.js";
 import { getStore, navigate, safeArea, motionClass, useScreenLifecycle } from "../../platform/current";
@@ -12,8 +12,8 @@ import { getRecord } from "../record.js";
 import { tabHandler, navPageStyle } from "../tabs.js";
 import { exploreView, focusView, grade7PathView, skillFocusView } from "../models.js";
 import { isLongLabel } from "../../../src/core/practice-groups.js";
-import { assetFor } from "../../theme/index.js";
 import MathStructureIcon from "../../components/MathStructureIcon";
+import MascotCompanion from "../../components/MascotCompanion";
 
 const catalog = loadCoreCatalog();
 
@@ -37,8 +37,6 @@ export default function Explore() {
 
   const focus = focused ? focusView(focused, state, catalog) : null;
   const skillFocus = focusedSkill ? skillFocusView(focusedSkill, skillBand, state) : null;
-  const mascotSrc = assetFor("specialist.mascot");
-  const [mascotOk, setMascotOk] = useState(true);
   let body;
   if (skillFocus) {
     body = (
@@ -122,13 +120,7 @@ export default function Explore() {
             <Text className="title">探索数学世界</Text>
             <Text className="lede">从一个主题开始，走更远的路</Text>
           </View>
-          {mascotSrc && mascotOk ? (
-            <View className="fb-mascot" aria-hidden="true" data-slot="specialist.mascot">
-              <View className="fb-spark fb-spark-1" />
-              <View className="fb-spark fb-spark-2" />
-              <Image className="fb-mascot-img" src={mascotSrc} mode="aspectFit" onError={() => setMascotOk(false)} />
-            </View>
-          ) : null}
+          <MascotCompanion pose="welcome" interactive className="fb-mascot" observation="先看关系，再决定怎么算。" />
         </View>
         <View className="segmented" role="group" aria-label="练习方式">
           <View className="seg is-on" aria-pressed="true">

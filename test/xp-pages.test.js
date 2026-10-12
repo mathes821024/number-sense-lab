@@ -264,7 +264,7 @@ test("主题训练 pages (Taro + h5/): the same shared model, F-B header and gro
     assert.match(css, /\.practice-name \{[^}]*font-size: 15px;[^}]*white-space: nowrap;[^}]*color: var\(--text-primary\);/);
     assert.match(css, /\.practice-group-title \{[^}]*font-size: 16px; font-weight: 800;/);
     assert.match(css, /\.fb-hint \{[^}]*font-size: 13px; font-weight: 400;[^}]*color: var\(--text-secondary\);/, "helper line weaker than the group titles");
-    assert.match(css, /\.fb-mascot \{[^}]*width: 74px; height: 74px;/, "mascot (≤ 80 token) no taller than the title block, even after rpx rounding at 430");
+    assert.match(css, /\.fb-mascot \{[^}]*width: 74px;/, "companion picture keeps the compact 74px header token");
     assert.match(css, /width: 64px;\n  height: 64px;\n  flex: none;\n  border-radius: 14px;/, "64px icon chip");
   }
   const legacyCss = read("h5/styles.css");

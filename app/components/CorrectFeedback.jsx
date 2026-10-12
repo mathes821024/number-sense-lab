@@ -1,5 +1,4 @@
 import { View, Text } from "@tarojs/components";
-import ThemeImage, { Mascot } from "./ThemeImage";
 import MathText from "./math/MathText";
 
 /**
@@ -11,11 +10,7 @@ import MathText from "./math/MathText";
 export default function CorrectFeedback({ relation, relationAriaLabel }) {
   return (
     <View className="screen screen-correct" data-testid="correct">
-      <View className="feedback-hero">
-        <Mascot pose="correct" className="mascot-feedback" />
-        <ThemeImage slot="decor.sparkle" className="hero-spark" />
-      </View>
-      <Text className="feedback-title is-correct">太棒了！</Text>
+      <Text className="feedback-title is-correct">对</Text>
       <View className="card feedback-card is-correct">
         <View className="relation-row">
           <MathText value={relation} className="correct-eq" ariaLabel={relationAriaLabel} />

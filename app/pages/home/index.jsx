@@ -2,7 +2,8 @@ import { useState } from "react";
 import { View, Text } from "@tarojs/components";
 import { getActiveLearner } from "../../../src/core/store.js";
 import { getStore, navigate, safeArea, motionClass, useScreenLifecycle } from "../../platform/current";
-import ThemeImage, { Mascot } from "../../components/ThemeImage";
+import ThemeImage from "../../components/ThemeImage";
+import MascotCompanion from "../../components/MascotCompanion";
 import HomeDecor from "../../components/HomeDecor";
 import BottomNav from "../../components/BottomNav";
 import Icon from "../../components/icon/Icon";
@@ -56,7 +57,7 @@ export default function Home() {
             </View>
           </View>
           <View className={`home-hero${view.mode === "paused" ? " is-resume" : ""}`}>
-            <Mascot pose="welcome" className="mascot-hero" />
+            <MascotCompanion pose={view.mode === "done" ? "rest" : "welcome"} className="mascot-hero" />
             <View className="bubble">
               <View className="bubble-tail" aria-hidden="true" />
               <Text className="bubble-title">{view.title}</Text>

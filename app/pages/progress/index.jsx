@@ -7,7 +7,6 @@ import BottomNav from "../../components/BottomNav";
 import Notice from "../../components/Notice";
 import Icon from "../../components/icon/Icon";
 import BackButton from "../../components/BackButton";
-import { Mascot } from "../../components/ThemeImage";
 import MathText from "../../components/math/MathText";
 import { listPromptText } from "../../components/math/tokens.js";
 import useNotice from "../../components/useNotice";
@@ -37,7 +36,6 @@ export default function Progress() {
           <Text className="title">最近练得怎么样</Text>
           {view.sessions.length === 0 ? (
             <View className="empty">
-              <Mascot pose="welcome" className="mascot-empty" />
               <Text className="lede">还没有练习。回首页开始一小段吧。</Text>
             </View>
           ) : (

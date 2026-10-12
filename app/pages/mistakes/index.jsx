@@ -5,7 +5,7 @@ import { getActiveLearner } from "../../../src/core/store.js";
 import { getStore, navigate, safeArea, motionClass, useScreenLifecycle } from "../../platform/current";
 import BottomNav from "../../components/BottomNav";
 import Icon from "../../components/icon/Icon";
-import { Mascot } from "../../components/ThemeImage";
+import MascotCompanion from "../../components/MascotCompanion";
 import MathText from "../../components/math/MathText";
 import { listPromptText } from "../../components/math/tokens.js";
 import { getRecord } from "../record.js";
@@ -31,7 +31,7 @@ export default function Mistakes() {
       <Text className="title">{book.title}</Text>
       <Text className="mistake-scope">当前需要再写熟的题</Text>
       <View className="empty">
-        <Mascot pose="welcome" className="mascot-empty" />
+        <MascotCompanion pose="rest" className="mascot-empty" />
         <Text className="lede">{book.emptyMessage}</Text>
       </View>
       <View className="cta" hoverClass="cta-pressed" role="button" data-action="home" onClick={() => navigate.toHome()}>
