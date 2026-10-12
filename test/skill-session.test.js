@@ -6,6 +6,7 @@ import {
   startSkillSession,
   submitSkillAnswer,
 } from "../src/core/skill-session.js";
+import { generateExercise } from "../src/core/grade7-rational-generator.js";
 import { emptyState, getActiveLearner } from "../src/core/store.js";
 import { createMemoryStore } from "../src/core/store.js";
 import { createTrainingFlow } from "../app/pages/train/flow.js";
@@ -22,7 +23,7 @@ test("a 10-question skill session stores coordinates and regenerates the same ex
   const session = startSkillSession({ skillId: SKILL, band: "foundation", day: DAY, seed: "family", id: "ss-1" });
   assert.equal(session.targetCount, 10);
   assert.equal(session.coordinates.length, 10);
-  assert.deepEqual(session.coordinates[0], { skill_id: SKILL, band: "foundation", seed: "family", index: 0 });
+  assert.deepEqual(session.coordinates[0], { skill_id: SKILL, band: "foundation", seed: "family", index: 0, generator_version: 2 });
   assert.equal(JSON.stringify(session).includes("explanations"), false);
   assert.deepEqual(peekSkillExercise(session).exercise, peekSkillExercise(structuredClone(session)).exercise);
 });
@@ -122,20 +123,33 @@ test("a negative fraction answer never carries its sign into the next absolute-v
   const skill = "g7-rational-sign-opposite-absolute";
   const store = createMemoryStore(emptyState({ learnerId: "L-sign-reset", createdOn: DAY }));
   const flow = createTrainingFlow({ store, today: () => DAY, clock: () => 42, now: () => 100 });
-  flow.beginSkill(skill, "standard", "seq-1");
+  flow.beginSkill(skill, "standard", "sign-reset");
 
-  assert.equal(flow.view().item.canonical_answer, "-1/10");
-  flow.toggleSign();
-  flow.input("1");
-  flow.focus("denominator");
-  flow.input("1");
-  flow.input("0");
-  assert.equal(flow.submit(), "correct");
-  assert.equal(flow.advance(), "train");
-
-  assert.equal(flow.view().item.prompt, "|9/2| = ?");
-  assert.equal(flow.view().item.canonical_answer, "9/2");
-  assert.equal(flow.view().fields.sign, "");
+  let answeredNegative = false;
+  for (let guard = 0; guard < 12 && flow.view().screen === "train"; guard += 1) {
+    const item = flow.view().item;
+    const answer = item.canonical_answer;
+    const negative = answer.startsWith("-");
+    if (item.answer_type === "signed_fraction_fields") {
+      const [num, den] = answer.replace("-", "").split("/");
+      if (negative) flow.toggleSign();
+      for (const ch of num) flow.input(ch);
+      flow.focus("denominator");
+      for (const ch of den) flow.input(ch);
+    } else {
+      if (negative) flow.toggleSign();
+      for (const ch of answer.replace("-", "")) flow.input(ch);
+    }
+    assert.equal(flow.submit(), "correct");
+    if (negative && item.answer_type === "signed_fraction_fields") {
+      answeredNegative = true;
+      assert.equal(flow.advance(), "train");
+      assert.equal(flow.view().fields.sign, "");
+      break;
+    }
+    assert.equal(flow.advance(), "train");
+  }
+  assert.equal(answeredNegative, true);
 });
 
 test("training intent validates skill id and band before entering skill practice", () => {
@@ -179,4 +193,46 @@ test("skill mastery becomes stable across days and a later wrong demotes only sk
   }).state;
   assert.equal(state.skills[SKILL].status, "shaky");
   assert.deepEqual(state.relations, relationSnapshot);
+});
+
+test("new skill sessions stamp generator_version 2 on every coordinate", () => {
+  const session = startSkillSession({
+    skillId: "g7-integer-add-sub",
+    band: "foundation",
+    day: "2026-10-12",
+    seed: "v2-session",
+    size: 5,
+  });
+  assert.ok(session.coordinates.every((c) => c.generator_version === 2));
+  const peeked = peekSkillExercise(session);
+  assert.equal(peeked.exercise.generator_version, 2);
+  assert.equal(peeked.exercise.operands.template != null, true);
+});
+
+test("legacy coordinates without generator_version still regenerate v1", () => {
+  const legacy = {
+    skill_id: "g7-integer-add-sub",
+    band: "foundation",
+    seed: "v1-golden",
+    index: 0,
+  };
+  const session = {
+    ...startSkillSession({
+      skillId: "g7-integer-add-sub",
+      band: "foundation",
+      day: "2026-10-12",
+      seed: "legacy",
+      size: 1,
+    }),
+    coordinates: [legacy],
+  };
+  const peeked = peekSkillExercise(session);
+  const v1 = generateExercise({
+    skillId: "g7-integer-add-sub",
+    band: "foundation",
+    seed: "v1-golden",
+    index: 0,
+  });
+  assert.equal(peeked.exercise.id, v1.id);
+  assert.equal(peeked.exercise.generator_version, undefined);
 });

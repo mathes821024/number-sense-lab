@@ -9,16 +9,20 @@ import { displayRelationFor } from "./formula-first-display.js";
 const DEFAULT_SIZE = 10;
 const WRONG_REAPPEAR_GAP = 2;
 
-function coordinateOf(skillId, band, seed, index) {
-  return Object.freeze({ skill_id: skillId, band, seed: String(seed), index });
+function coordinateOf(skillId, band, seed, index, generatorVersion = 2) {
+  const coordinate = { skill_id: skillId, band, seed: String(seed), index };
+  if (generatorVersion != null) coordinate.generator_version = generatorVersion;
+  return Object.freeze(coordinate);
 }
 
 function generate(coordinate) {
+  const generatorVersion = coordinate.generator_version == null ? 1 : coordinate.generator_version;
   return generateExercise({
     skillId: coordinate.skill_id,
     band: coordinate.band,
     seed: coordinate.seed,
     index: coordinate.index,
+    generatorVersion,
   });
 }
 

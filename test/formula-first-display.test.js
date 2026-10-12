@@ -27,7 +27,7 @@ const SKILL = "g7-rational-sign-opposite-absolute";
 const DAY = "2026-10-12";
 
 function exerciseAt(seed, index, band = "standard") {
-  return generateExercise({ skillId: SKILL, band, seed, index });
+  return generateExercise({ skillId: SKILL, band, seed, index, generatorVersion: 2 });
 }
 
 test("formatOperandTerm matches identity prompt: negatives in parentheses", () => {
@@ -140,6 +140,7 @@ test("display layer never changes generator identity for opposite coordinates", 
     band: opposite.band,
     seed: "identity-lock",
     index: oppositeIndex,
+    generatorVersion: 2,
   });
   assert.equal(again.prompt, opposite.prompt);
   assert.equal(again.canonical_answer, opposite.canonical_answer);
@@ -161,7 +162,7 @@ test("training flow: opposite fraction blank accepts -4/5 and reveals formula re
   // Find a coordinate whose known value is 4/5 (answer -4/5).
   let seed = null;
   let index = null;
-  for (let s = 0; s < 200 && seed === null; s += 1) {
+  for (let s = 0; s < 800 && seed === null; s += 1) {
     for (let i = 0; i < 10; i += 1) {
       const ex = exerciseAt(`find-4-5-${s}`, i, "standard");
       if (
@@ -223,7 +224,7 @@ test("training flow: opposite fraction blank accepts -4/5 and reveals formula re
 test("training flow: -4/5 opposite accepts blank sign or + as positive 4/5", () => {
   let seed = null;
   let index = null;
-  for (let s = 0; s < 200 && seed === null; s += 1) {
+  for (let s = 0; s < 800 && seed === null; s += 1) {
     for (let i = 0; i < 10; i += 1) {
       const ex = exerciseAt(`find-n4-5-${s}`, i, "standard");
       if (
@@ -289,11 +290,48 @@ test("training flow: -4/5 opposite accepts blank sign or + as positive 4/5", () 
 });
 
 test("sign-only submit does not record an attempt; digits then judge", () => {
+  let seed = null;
+  let index = null;
+  for (let s = 0; s < 800 && seed === null; s += 1) {
+    for (let i = 0; i < 10; i += 1) {
+      const ex = exerciseAt(`find-sign-only-${s}`, i, "standard");
+      if (
+        ex.operands.operator === "opposite"
+        && ex.operands.value.numerator > 0
+        && ex.answer_type === "signed_fraction_fields"
+      ) {
+        seed = `find-sign-only-${s}`;
+        index = i;
+        break;
+      }
+    }
+  }
+  assert.ok(seed !== null, "expected a positive-value opposite sample");
+
   const store = createMemoryStore(emptyState({ learnerId: "L-sign-only", createdOn: DAY }));
   const flow = createTrainingFlow({ store, today: () => DAY, clock: () => 4, now: () => 100 });
-  flow.beginSkill(SKILL, "standard", "seq-1");
-  // seq-1 index 0 is opposite of 1/10 → answer -1/10
-  assert.equal(flow.view().item.canonical_answer, "-1/10");
+  flow.beginSkill(SKILL, "standard", seed);
+  for (let step = 0; step < index; step += 1) {
+    const item = flow.view().item;
+    const answer = item.canonical_answer;
+    if (item.answer_type === "signed_fraction_fields") {
+      if (answer.startsWith("-")) flow.toggleSign();
+      const [num, den] = answer.replace("-", "").split("/");
+      for (const d of num) flow.input(d);
+      flow.focus("denominator");
+      for (const d of den) flow.input(d);
+    } else {
+      if (answer.startsWith("-")) flow.toggleSign();
+      for (const d of answer.replace("-", "")) flow.input(d);
+    }
+    assert.equal(flow.submit(), "correct");
+    assert.equal(flow.advance(), "train");
+  }
+
+  const item = flow.view().item;
+  assert.equal(item.operands.operator, "opposite");
+  assert.match(item.canonical_answer, /^-/);
+  const [num, den] = item.canonical_answer.replace("-", "").split("/");
   flow.toggleSign(); // only "-"
   assert.equal(flow.submit(), "nudge");
   assert.equal(flow.view().screen, "train");
@@ -303,20 +341,19 @@ test("sign-only submit does not record an attempt; digits then judge", () => {
   assert.equal(flow.submit(), "nudge");
   assert.equal(flow.state.skills?.[SKILL]?.attempts?.length || 0, 0);
 
-  flow.toggleSign(); // back to blank
+  flow.toggleSign(); // blank
   flow.toggleSign(); // "-"
-  flow.input("1");
+  for (const d of num) flow.input(d);
   flow.focus("denominator");
-  flow.input("1");
-  flow.input("0");
+  for (const d of den) flow.input(d);
   assert.equal(flow.submit(), "correct");
-  assert.equal(flow.view().feedback.relation, "1/10 + (-1/10) = 0");
+  assert.equal(flow.view().feedback.relation, displayRelationFor(item));
 });
 
 test("|-5/6| stays abs form and accepts positive 5/6 by default", () => {
   let seed = null;
   let index = null;
-  for (let s = 0; s < 300 && seed === null; s += 1) {
+  for (let s = 0; s < 800 && seed === null; s += 1) {
     for (let i = 0; i < 10; i += 1) {
       const ex = exerciseAt(`find-abs-56-${s}`, i, "standard");
       if (
@@ -521,7 +558,7 @@ test("CorrectFeedback and WrongFeedback receive contract relation SR via ui bind
 test("training flow feedback relation for abs uses operands-derived reveal", () => {
   let seed = null;
   let index = null;
-  for (let s = 0; s < 300 && seed === null; s += 1) {
+  for (let s = 0; s < 800 && seed === null; s += 1) {
     for (let i = 0; i < 10; i += 1) {
       const ex = exerciseAt(`find-abs-sr-${s}`, i, "standard");
       if (

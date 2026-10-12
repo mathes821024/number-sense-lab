@@ -12,6 +12,7 @@ import {
   subtract
 } from "./rational.js";
 import { skillById } from "./skill-catalog.js";
+import { generateExerciseV2 } from "./grade7-rational-generator-v2.js";
 
 const BANDS = ["foundation", "standard", "transfer"];
 const FRACTION_DENOMINATORS = [2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 20];
@@ -300,7 +301,7 @@ function generateMixed(skill, coordinates, rng) {
   });
 }
 
-export function generateExercise({ skillId, band, seed, index }) {
+export function generateExerciseV1({ skillId, band, seed, index }) {
   const skill = skillById(skillId);
   if (!skill) throw new Error(`unknown skill: ${skillId}`);
   if (!BANDS.includes(band) || !skill.bands.includes(band)) throw new Error(`unknown band: ${band}`);
@@ -319,4 +320,15 @@ export function generateExercise({ skillId, band, seed, index }) {
   if (skillId === "g7-rational-power") return generatePower(skill, coordinates, rng);
   if (skillId === "g7-rational-mixed") return generateMixed(skill, coordinates, rng);
   throw new Error(`unknown skill: ${skillId}`);
+}
+
+/**
+ * @param {{ skillId: string, band: string, seed: string|number, index: number, generatorVersion?: number }} opts
+ * Missing generatorVersion (or 1) keeps the immutable v1 path.
+ */
+export function generateExercise(opts) {
+  const version = opts.generatorVersion == null ? 1 : Number(opts.generatorVersion);
+  if (version === 1) return generateExerciseV1(opts);
+  if (version === 2) return generateExerciseV2(opts);
+  throw new Error(`unknown generator_version: ${version}`);
 }

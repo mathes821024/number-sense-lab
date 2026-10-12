@@ -167,3 +167,35 @@ test("invalid skills, bands and generator coordinates fail closed", () => {
   assert.throws(() => generateExercise({ skillId: SKILL_IDS[0], band: "expert", seed: "x", index: 0 }), /unknown band/);
   assert.throws(() => generateExercise({ skillId: SKILL_IDS[0], band: "foundation", seed: "x", index: -1 }), /index/);
 });
+
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const goldenPath = join(dirname(fileURLToPath(import.meta.url)), "fixtures/grade7-v1-golden.json");
+const V1_GOLDEN = JSON.parse(readFileSync(goldenPath, "utf8"));
+
+test("v1 golden: missing generatorVersion regenerates byte-identical fixtures", () => {
+  assert.equal(V1_GOLDEN.length, 480);
+  for (const row of V1_GOLDEN) {
+    const exercise = generateExercise({
+      skillId: row.skillId,
+      band: row.band,
+      seed: row.seed,
+      index: row.index,
+    });
+    assert.equal(exercise.id, row.id);
+    assert.equal(exercise.checksum, row.checksum);
+    assert.equal(exercise.prompt, row.prompt);
+    assert.equal(exercise.canonical_answer, row.canonical_answer);
+    assert.deepEqual(exercise.operands, row.operands);
+    assert.deepEqual(exercise.explanations, row.explanations);
+    assert.equal(exercise.generator_version, undefined);
+  }
+});
+
+test("explicit generatorVersion 1 matches missing-version v1 path", () => {
+  const a = generateExercise({ skillId: "g7-integer-add-sub", band: "foundation", seed: "v1-golden", index: 3 });
+  const b = generateExercise({ skillId: "g7-integer-add-sub", band: "foundation", seed: "v1-golden", index: 3, generatorVersion: 1 });
+  assert.deepEqual(a, b);
+});
