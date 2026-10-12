@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { STATE_KEY } from "../src/adapter/storage-contract.js";
 import { createBrowserStore } from "../app/platform/h5/browser-store.js";
 import { createWechatStore, wxBackend } from "../app/platform/wechat/wx-store.js";
+import { createDouyinStore } from "../app/platform/douyin/tt-store.js";
 import { getActiveLearner, withActiveLearner, withActiveLearnerNickname, isValidV4, STATE_VERSION } from "../src/core/store.js";
 import { loadCoreCatalog } from "../src/core/content.js";
 import { startSession, submitAnswer, peekCurrent } from "../src/core/session.js";
@@ -56,6 +57,11 @@ function fakeWx(initial) {
   };
 }
 
+/** tt-shaped storage: same *StorageSync shape as wx (Douyin Mini Program). */
+function fakeTt(initial) {
+  return fakeWx(initial);
+}
+
 /** Both targets behind one shape: { make(initial, deps), raw(key), keys(), writes() }. */
 const TARGETS = {
   h5: (initial) => {
@@ -97,6 +103,27 @@ const TARGETS = {
           removeStorageSync: (k) => writes.push([k, null]),
         };
         return { store: createWechatStore(a, STATE_KEY, { createId: () => "tmp" }), writes };
+      },
+    };
+  },
+  douyin: (initial) => {
+    const api = fakeTt(initial);
+    return {
+      storage: api,
+      store: (deps) => createDouyinStore(api, STATE_KEY, deps),
+      raw: () => api.raw(STATE_KEY),
+      keys: () => api.keys(),
+      writes: () => api.log.filter(([op]) => op !== "get").length,
+      throwing: () => {
+        const writes = [];
+        const a = {
+          getStorageSync: () => {
+            throw new Error("denied");
+          },
+          setStorageSync: (k, v) => writes.push([k, v]),
+          removeStorageSync: (k) => writes.push([k, null]),
+        };
+        return { store: createDouyinStore(a, STATE_KEY, { createId: () => "tmp" }), writes };
       },
     };
   },
@@ -315,15 +342,22 @@ test("[wechat] wx's empty string means nothing stored", () => {
   assert.equal(backend.getItem("other"), "x");
 });
 
-test("h5 and wechat write the same text and read each other's records identically", () => {
+test("h5, wechat and douyin write the same text and read each other's records identically", () => {
+  const clients = ["h5", "wechat", "douyin"];
   for (const name of ["state-v1.json", "state-v2.json"]) {
-    const h5 = TARGETS.h5([[STATE_KEY, fixtureRaw(name)]]);
-    const wx = TARGETS.wechat([[STATE_KEY, fixtureRaw(name)]]);
-    h5.store({ createId: () => "same", today: () => DAY }).read();
-    wx.store({ createId: () => "same", today: () => DAY }).read();
-    assert.equal(h5.raw(), wx.raw(), `${name}: same migrated text`);
-    const crossA = TARGETS.wechat([[STATE_KEY, h5.raw()]]).store({ createId: () => "never" }).read();
-    const crossB = TARGETS.h5([[STATE_KEY, wx.raw()]]).store({ createId: () => "never" }).read();
-    assert.deepEqual(crossA, crossB);
+    const made = {};
+    for (const target of clients) {
+      const t = TARGETS[target]([[STATE_KEY, fixtureRaw(name)]]);
+      t.store({ createId: () => "same", today: () => DAY }).read();
+      made[target] = t.raw();
+    }
+    for (const target of clients) {
+      assert.equal(made[target], made.h5, `${name}: same migrated text as h5`);
+    }
+    for (const target of clients) {
+      const cross = TARGETS[target]([[STATE_KEY, made.h5]]).store({ createId: () => "never" }).read();
+      const ref = TARGETS.h5([[STATE_KEY, made.h5]]).store({ createId: () => "never" }).read();
+      assert.deepEqual(cross, ref, `${name}: ${target} reads h5's migrated record identically`);
+    }
   }
 });
