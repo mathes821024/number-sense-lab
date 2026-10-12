@@ -68,6 +68,7 @@ export default function Train() {
     if (intent.kind === "resume") flow.resume();
     else if (intent.kind === "resume-skill") flow.resumeSkill();
     else if (intent.kind === "begin-skill") flow.beginSkill(intent.skillId, intent.band);
+    else if (intent.kind === "begin-reference") flow.beginReference(intent.domain);
     else if (intent.kind === "restart") flow.restart(intent.mode, intent.domain);
     else if (intent.kind === "last") flow.showLast();
     else flow.begin(intent.mode, intent.domain);

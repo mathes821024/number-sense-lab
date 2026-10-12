@@ -96,6 +96,23 @@ export default function Explore() {
         >
           <Text>开始这一小段</Text>
         </View>
+        {focus.hasCompletePractice ? (
+          <View className="reference-entry">
+            <View
+              className="cta secondary"
+              hoverClass="cta-pressed"
+              role="button"
+              data-action="start-reference"
+              aria-label={focus.referenceAria}
+              onClick={() => navigate.toTraining("start-reference", { domain: focus.domain })}
+            >
+              <Text>{focus.referenceLabel || "完整关系练习"}</Text>
+            </View>
+            {focus.referenceSubtitle ? (
+              <Text className="body reference-subtitle">{focus.referenceSubtitle}</Text>
+            ) : null}
+          </View>
+        ) : null}
       </View>
     );
   } else {

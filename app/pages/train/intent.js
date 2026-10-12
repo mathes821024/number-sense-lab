@@ -14,6 +14,9 @@ export function trainingIntent(params = {}) {
   if (intent === "resume-skill") return { kind: "resume-skill" };
   if (intent === "restart-daily") return { kind: "restart", mode: "daily", domain: null };
   if (intent === "see-last") return { kind: "last" };
+  if (intent === "start-reference" && DOMAIN_ORDER.includes(params.domain)) {
+    return { kind: "begin-reference", domain: params.domain };
+  }
   if (intent === "start-focus" && DOMAIN_ORDER.includes(params.domain)) {
     return { kind: "begin", mode: "focused", domain: params.domain };
   }

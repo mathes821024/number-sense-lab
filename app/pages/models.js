@@ -7,7 +7,7 @@
  * listLatestOutcomes, buildPrintSelector, buildA4Sheet). Nothing here
  * decides anything about learning, and nothing is written.
  */
-import { DOMAIN_ORDER, domainLabel } from "../../src/core/content.js";
+import { DOMAIN_ORDER, domainLabel, completeDomainCatalog, productPracticeVariantStats } from "../../src/core/content.js";
 import { studentLabel } from "../../src/core/mastery.js";
 import { grade7Practice, practiceCard, practiceGroups, skillPracticeFocus } from "../../src/core/practice-groups.js";
 import { buildMistakeBook } from "../../src/core/mistakes.js";
@@ -48,6 +48,20 @@ export function focusView(domain, state, catalog) {
   if (typeof domain !== "string" || !DOMAIN_ORDER.includes(domain)) return null;
   const card = practiceCard(domain, catalog, relationsOf(state));
   if (!card.released) return null;
+  let completeCount = 0;
+  try {
+    completeCount = completeDomainCatalog(domain).length;
+  } catch {
+    completeCount = 0;
+  }
+  const isProducts = domain === "products";
+  const referenceLabel = isProducts ? "乘除关系练习" : "完整关系练习";
+  const referenceSubtitle = isProducts ? "从乘积反推因数，也从因数得到乘积" : null;
+  if (isProducts && completeCount > 0) {
+    const stats = productPracticeVariantStats();
+    // Keep completeCount as fact-family count; expose directions separately.
+    completeCount = stats.directions || completeCount;
+  }
   return {
     domain,
     label: card.label,
@@ -56,6 +70,13 @@ export function focusView(domain, state, catalog) {
     slot: card.slot,
     glyph: card.glyph,
     tone: card.tone,
+    completeCount,
+    hasCompletePractice: completeCount > 0,
+    referenceLabel,
+    referenceSubtitle,
+    referenceAria: completeCount > 0
+      ? `${card.label}·${referenceLabel}，共 ${completeCount} 条`
+      : null,
   };
 }
 

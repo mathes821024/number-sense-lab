@@ -109,10 +109,22 @@ export function composeSignedFractionFields(negative, numerator, denominator) {
   return `${sign}${numeratorValue}/${denominatorValue}`;
 }
 
-/** "0.(142857)" → "142857"; null when not a repeating canonical form. */
+/**
+ * Parse textbook repeating forms:
+ *   "0.(3)" → { prefix: "", block: "3", fixed: "0." }
+ *   "0.1(6)" → { prefix: "1", block: "6", fixed: "0.1" }
+ */
+export function parseRepeatingCanonical(canonical) {
+  const match = /^0\.(\d*)\((\d+)\)$/.exec(String(canonical ?? "").trim());
+  if (!match) return null;
+  const prefix = match[1];
+  const block = match[2];
+  return { prefix, block, fixed: prefix ? `0.${prefix}` : "0." };
+}
+
+/** "0.(142857)" / "0.1(6)" → repeating block digits; null when not repeating. */
 export function repeatingBlockOf(canonical) {
-  const match = /^0\.\((\d+)\)$/.exec(String(canonical ?? "").trim());
-  return match ? match[1] : null;
+  return parseRepeatingCanonical(canonical)?.block ?? null;
 }
 
 function judgeFraction(item, text) {
@@ -176,14 +188,14 @@ function judgeSignedFraction(item, text) {
 }
 
 function judgeRepeating(item, text) {
-  const expected = repeatingBlockOf(item.canonical_answer);
-  // The student types only the repeating block. A full "0.(3)" is also read.
-  const block = repeatingBlockOf(text) ?? text;
+  const parsed = parseRepeatingCanonical(item.canonical_answer);
+  // The student types only the repeating block. A full canonical form is also read.
+  const block = parseRepeatingCanonical(text)?.block ?? text;
   if (!block) return { kind: "empty", normalized: null };
   if (!/^\d+$/.test(block)) return { kind: "invalid", normalized: null };
-  if (expected === null) return { kind: "invalid", normalized: null };
-  const normalized = `0.(${block})`;
-  return block === expected
+  if (!parsed) return { kind: "invalid", normalized: null };
+  const normalized = parsed.prefix ? `0.${parsed.prefix}(${block})` : `0.(${block})`;
+  return block === parsed.block
     ? { kind: "correct", normalized }
     : { kind: "wrong", normalized };
 }
@@ -211,6 +223,29 @@ function judgeRaw(item, raw) {
   if (item.answer_type === "fraction_fields") return judgeFraction(item, text);
   if (item.answer_type === "signed_fraction_fields") return judgeSignedFraction(item, text);
   if (item.answer_type === "decimal_repeating") return judgeRepeating(item, text);
+
+  // Percent answers: student types the numeric part only. A typed "%" is invalid.
+  // Canonical stores the numeric string with no "%" (exact decimal, no floats).
+  if (item.answer_type === "percent_number" || item.percentNumber) {
+    if (!text || text === "." || text === "-") {
+      return { kind: "empty", normalized: null };
+    }
+    if (text.includes("%")) {
+      return { kind: "invalid", normalized: null };
+    }
+    const normalized = normalizeAnswer(text, "decimal");
+    if (normalized === null) {
+      return { kind: "invalid", normalized: null };
+    }
+    const expected = normalizeAnswer(item.canonical_answer, "decimal");
+    if (expected === null) {
+      return { kind: "invalid", normalized };
+    }
+    if (normalized === expected) {
+      return { kind: "correct", normalized };
+    }
+    return { kind: "wrong", normalized };
+  }
 
   const answerType =
     item.answer_type === "decimal" || item.needsDecimalPoint

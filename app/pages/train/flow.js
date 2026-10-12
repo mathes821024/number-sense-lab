@@ -12,9 +12,17 @@
  * State is the full v3 record. The flow only reads and writes the active
  * learner, exactly like h5/app.js (getActiveLearner / withActiveLearner).
  */
-import { loadCoreCatalog, domainLabel } from "../../../src/core/content.js";
+import { loadCoreCatalog, domainLabel, completeDomainCatalog } from "../../../src/core/content.js";
 import { getActiveLearner, withActiveLearner } from "../../../src/core/store.js";
 import { startSession, submitAnswer, peekCurrent, finishSession } from "../../../src/core/session.js";
+import {
+  finishReferenceSession,
+  isReferenceSession,
+  peekReferenceItem,
+  startReferenceSession,
+  submitReferenceAnswer,
+  REFERENCE_MODE,
+} from "../../../src/core/reference-session.js";
 import { MISTAKE_BOOK_SOURCE } from "../../../src/core/schedule.js";
 import {
   finishSkillSession,
@@ -141,7 +149,9 @@ export function createTrainingFlow({
   function showQuestion() {
     const peeked = sessionKind === "skill"
       ? peekSkillExercise(session)
-      : peekCurrent(session, catalog);
+      : sessionKind === "reference"
+        ? peekReferenceItem(session, completeDomainCatalog(session.domain))
+        : peekCurrent(session, catalog);
     session = peeked.session;
     persist(sessionKind === "skill"
       ? { ...state, activeSkillSession: session }
@@ -171,7 +181,9 @@ export function createTrainingFlow({
     }
     const finished = sessionKind === "skill"
       ? finishSkillSession(state, session, { earlyStop })
-      : finishSession(state, session, { earlyStop });
+      : sessionKind === "reference" || isReferenceSession(session)
+        ? finishReferenceSession(state, session, { earlyStop })
+        : finishSession(state, session, { earlyStop });
     persist(finished.state);
     currentResult = finished.summary;
     lastOutcome = earlyStop ? "stopped" : "finished";
@@ -227,10 +239,23 @@ export function createTrainingFlow({
     showQuestion();
   }
 
+  function beginReference(domain) {
+    sessionKind = "reference";
+    currentResult = null;
+    session = startReferenceSession({
+      domain,
+      day: today(),
+      seed: sessionSeed(REFERENCE_MODE, domain),
+    });
+    persist({ ...state, activeSession: session });
+    showQuestion();
+  }
+
   const api = {
     /** Home 「开始今天的练习」 / 「再练一小段」. */
     begin,
     beginSkill,
+    beginReference,
     /** 「重新开始一小段」 (pause screen; was on Home): drop the unfinished set, start a new one. */
     restart(mode = "daily", domain = null) {
       persist({ ...state, activeSession: null });
@@ -239,12 +264,12 @@ export function createTrainingFlow({
     },
     /** Home 「继续刚才的练习」. */
     resume() {
-      sessionKind = "relation";
       if (!state.activeSession) {
         begin();
         return;
       }
       session = state.activeSession;
+      sessionKind = isReferenceSession(session) ? "reference" : "relation";
       showQuestion();
     },
     resumeSkill() {
@@ -339,7 +364,16 @@ export function createTrainingFlow({
       };
       const result = sessionKind === "skill"
         ? submitSkillAnswer({ state, session, raw, meta })
-        : submitAnswer({ item, state, session, raw, catalog, meta });
+        : sessionKind === "reference" || isReferenceSession(session)
+          ? submitReferenceAnswer({
+              item,
+              state,
+              session,
+              raw,
+              meta,
+              catalog: completeDomainCatalog(session.domain),
+            })
+          : submitAnswer({ item, state, session, raw, catalog, meta });
       if (!result.feedback.record) {
         // Not an attempt (empty / malformed / needs_simplification): stay
         // here, keep the answer editable, nothing recorded.
@@ -406,9 +440,11 @@ export function createTrainingFlow({
             ? "再试一次"
             : sessionKind === "skill"
               ? (skillById(session?.skill_id)?.label || "七年级有理数")
-              : item
-                ? domainLabel(item.domain)
-                : "",
+              : sessionKind === "reference"
+                ? `完整·${domainLabel(session?.domain || item?.domain)}`
+                : item
+                  ? domainLabel(item.domain)
+                  : "",
         position,
         total,
         extraKey: extraKeyFor(item),

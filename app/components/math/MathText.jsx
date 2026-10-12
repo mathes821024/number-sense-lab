@@ -25,7 +25,7 @@ export function BlankFraction({ className = "" }) {
 export function Repeating({ token }) {
   return (
     <View className="rep" role="math" aria-label={token.label}>
-      <Text className="rep-lead">{`${token.intPart}.`}</Text>
+      <Text className="rep-lead">{String(token.intPart).includes(".") ? token.intPart : `${token.intPart}.`}</Text>
       {token.digits.map((d, j) => (
         <Text className={d.dot ? "rd" : "rn"} key={j}>
           {d.ch}

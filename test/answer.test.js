@@ -41,3 +41,36 @@ test("display answer remains canonical_answer", () => {
   assert.equal(half.canonical_answer, "0.5");
   assert.equal(sq17.canonical_answer, "289");
 });
+
+test("percent_number: exact decimal strings, no floating compare, % typed is invalid", () => {
+  const item = {
+    id: "ref-pct-1-8",
+    prompt: "1/8 = ?%",
+    canonical_answer: "12.5",
+    answer_type: "percent_number",
+    percentNumber: true,
+  };
+  assert.equal(judgeAnswer(item, "12.5").kind, "correct");
+  assert.equal(judgeAnswer(item, "12.50").kind, "correct");
+  assert.equal(judgeAnswer(item, "12.500").kind, "correct");
+  assert.equal(judgeAnswer(item, "12.4").kind, "wrong");
+  assert.equal(judgeAnswer(item, "12.5%").kind, "invalid");
+  assert.equal(judgeAnswer(item, "%").kind, "invalid");
+  assert.equal(judgeAnswer(item, "").kind, "empty");
+  assert.equal(judgeAnswer(item, ".").kind, "empty");
+  assert.equal(item.canonical_answer.includes("%"), false);
+});
+
+test("repeating: mixed form 0.1(6) judges the block only", () => {
+  const item = {
+    id: "ref-rep-1-6",
+    prompt: "1/6 = ?",
+    canonical_answer: "0.1(6)",
+    answer_type: "decimal_repeating",
+    repeatingBlock: true,
+  };
+  assert.equal(judgeAnswer(item, "6").kind, "correct");
+  assert.equal(judgeAnswer(item, "0.1(6)").kind, "correct");
+  assert.equal(judgeAnswer(item, "1").kind, "wrong");
+  assert.equal(judgeAnswer(item, "").kind, "empty");
+});

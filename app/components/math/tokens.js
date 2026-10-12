@@ -15,11 +15,14 @@
 // Same pattern as h5/math-text.js MATH_TOKEN: 0.(6), 0.(142857), a single
 // letter block such as 0.(n) in a pattern line, n/d with 1–3 digits, and the
 // empty fraction 「?/?」 of a fraction_fields prompt (never shown as text).
-const MATH_TOKEN = /(\d+)\.\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})|(\?\/\?)/g;
+const MATH_TOKEN = /(\d+)\.(\d*)\((\d+|[a-z])\)|(\d{1,3})\/(\d{1,3})|(\?\/\?)/g;
 
 /** Screen-reader text, e.g. "0.6，6 循环" (h5/math-text.js repeatingLabel). */
 export function repeatingLabel(intPart, block) {
-  return `${intPart}.${block}，${block} 循环`;
+  const fixed = String(intPart ?? "");
+  // Pure form passes "0"; mixed form passes "0.1".
+  const head = fixed.includes(".") ? fixed : `${fixed}.`;
+  return `${head}${block}，${block} 循环`;
 }
 
 /** Digits of a repeating block, dotted on the first and the last. */
@@ -38,12 +41,16 @@ export function mathTokens(value) {
   let last = 0;
   for (const match of text.matchAll(MATH_TOKEN)) {
     if (match.index > last) tokens.push({ type: "text", text: text.slice(last, match.index) });
-    if (match[5] !== undefined) {
+    if (match[6] !== undefined) {
       tokens.push({ type: "blank_fraction", label: "分数" });
     } else if (match[1] !== undefined) {
-      tokens.push(repeatingToken(match[1], match[2]));
+      const intPart = match[1];
+      const prefix = match[2] || "";
+      const block = match[3];
+      const fixed = prefix ? `${intPart}.${prefix}` : intPart;
+      tokens.push(repeatingToken(fixed, block));
     } else {
-      tokens.push({ type: "fraction", numerator: match[3], denominator: match[4], label: `${match[3]}/${match[4]}` });
+      tokens.push({ type: "fraction", numerator: match[4], denominator: match[5], label: `${match[4]}/${match[5]}` });
     }
     last = match.index + match[0].length;
   }
@@ -67,8 +74,26 @@ export function mathLabel(value) {
  */
 export function answerDisplay(item, answer) {
   if (item?.repeatingBlock) {
-    const intPart = (/^(\d+)\.\(/.exec(item.canonical_answer || "") || [])[1] || "0";
-    return { kind: "repeating", intPart, token: answer ? repeatingToken(intPart, answer) : null };
+    const match = /^(\d+)\.(\d*)\(/.exec(item.canonical_answer || "");
+    const intPart = match ? match[1] : "0";
+    const prefix = match ? (match[2] || "") : "";
+    if (prefix) {
+      const fixed = `${intPart}.${prefix}`;
+      return {
+        kind: "repeating",
+        intPart: fixed,
+        fixed,
+        token: answer ? repeatingToken(fixed, answer) : null,
+      };
+    }
+    return {
+      kind: "repeating",
+      intPart,
+      token: answer ? repeatingToken(intPart, answer) : null,
+    };
+  }
+  if (item?.percentNumber || item?.answer_type === "percent_number") {
+    return { kind: "percent", text: answer || "", suffix: "%" };
   }
   return { kind: "plain", text: answer };
 }

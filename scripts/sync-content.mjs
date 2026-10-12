@@ -1,6 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  buildProductPracticeVariants,
+  buildReferenceRelations,
+} from "../src/core/reference-facts.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -35,23 +39,6 @@ const body = `/** Auto-synced from content/v0.1 + content/v0.2c + content/v0.4 *
 writeFileSync(out, body);
 console.log(`Synced ${relations.length} relations → src/core/catalog-data.js`);
 
-const superscriptDigits = {
-  "0": "⁰",
-  "1": "¹",
-  "2": "²",
-  "3": "³",
-  "4": "⁴",
-  "5": "⁵",
-  "6": "⁶",
-  "7": "⁷",
-  "8": "⁸",
-  "9": "⁹",
-};
-
-function superscript(value) {
-  return String(value).split("").map((digit) => superscriptDigits[digit]).join("");
-}
-
 function productKey(a, b) {
   return `product:${Math.min(a, b)}:${Math.max(a, b)}`;
 }
@@ -75,159 +62,79 @@ function semanticKey(item) {
   if (match) return `power:forward:${Number(match[1])}:${Number(match[2])}`;
   match = item.id?.match(/^ipow-(\d+)-(\d+)$/);
   if (match) return `power:inverse:${Number(match[1])}:${Number(match[2])}`;
+  match = item.id?.match(/^half-(\d+)$/);
+  if (match) return `half:${Number(match[1])}`;
+  match = item.prompt?.match(/^(\d+) 的一半是？$/);
+  if (item.domain === "halves" && match) return `half:${Number(match[1])}`;
+  match = item.id?.match(/^i?fraction-(\d+)-(\d+)$/);
+  if (match && item.domain === "fraction_decimal") {
+    const frac = `${Number(match[1])}/${Number(match[2])}`;
+    if (item.answer_type === "decimal_repeating") return `fraction_decimal:repeating_to_decimal:${frac}`;
+    if (item.answer_type === "fraction_fields") return `fraction_decimal:to_fraction:${frac}`;
+    return `fraction_decimal:to_decimal:${frac}`;
+  }
   return `legacy:${item.id}`;
 }
 
-function referenceRelation({ id, domain, key, prompt, answer, direction, relation, hook }) {
-  return {
-    id,
-    domain,
-    collection: "reference_practice",
-    semantic_key: key,
-    level: "reference_practice",
-    tier: 3,
-    hook_type: "definition",
-    prompt,
-    canonical_answer: String(answer),
-    answer_type: "integer",
-    direction,
-    relation,
-    hook,
-    pattern: {
-      check: "先判断结果范围，再用逆运算或相邻事实检查。",
-      family: [],
-    },
-    frames: [
-      { title: "直接算", detail: hook },
-      { title: "检查", detail: "用逆运算或相邻事实检查结果。" },
-    ],
-    families: [],
-    entry_after: null,
-  };
-}
-
 const manifest = JSON.parse(readFileSync(join(root, "content/v0.5/manifest.json"), "utf8"));
-const knownKeys = new Map(relations.map((item) => [semanticKey(item), item.id]));
-const referenceRelations = [];
+const knownKeys = new Set(relations.map((item) => semanticKey(item)));
+const knownIds = new Set(relations.map((item) => item.id));
+const referenceRelations = buildReferenceRelations(knownKeys, {
+  complementTargets: manifest.complements.targets,
+  knownIds,
+});
 
-function addReference(spec) {
-  if (knownKeys.has(spec.key)) return;
-  knownKeys.set(spec.key, spec.id);
-  referenceRelations.push(referenceRelation(spec));
+// Compact, field-stripped JSON keeps the WeChat package under 2 MB.
+function compactReference(item) {
+  const out = {
+    id: item.id,
+    domain: item.domain,
+    semantic_key: item.semantic_key,
+    prompt: item.prompt,
+    canonical_answer: item.canonical_answer,
+    direction: item.direction,
+    relation: item.relation,
+    hook: item.hook,
+  };
+  if (item.answer_type && item.answer_type !== "integer") {
+    out.answer_type = item.answer_type;
+  }
+  // collection is always reference_practice for this file; restore in loader.
+  return out;
 }
 
-for (let a = 1; a <= 19; a += 1) {
-  for (let b = a; b <= 19; b += 1) {
-    const answer = a * b;
-    addReference({
-      id: `ref-product-${a}-${b}`,
-      domain: "products",
-      key: productKey(a, b),
-      prompt: `${a} × ${b} = ?`,
-      answer,
-      direction: "forward",
-      relation: `${a} × ${b} = ${answer}`,
-      hook: `${a} 个 ${b}，按乘法定义得到 ${answer}。`,
+function compactProductVariants(byRelation) {
+  // Compact rows: [suffix, direction-code, prompt, answer]
+  // suffix is multiply|divide-a|divide-b; family_key rebuilt as product:a:b from prompt/operands.
+  const out = {};
+  for (const [relationId, variants] of Object.entries(byRelation)) {
+    out[relationId] = variants.map((variant) => {
+      const suffix = variant.practice_variant_id.slice(relationId.length + 1);
+      return [suffix, variant.prompt, variant.canonical_answer];
     });
   }
-}
-
-for (const target of manifest.complements.targets) {
-  for (let operand = 1; operand < target; operand += 1) {
-    const answer = target - operand;
-    addReference({
-      id: `ref-complement-${target}-${operand}`,
-      domain: "complements",
-      key: `complement:${target}:${operand}`,
-      prompt: `${operand} + ? = ${target}`,
-      answer,
-      direction: "forward",
-      relation: `${operand} + ${answer} = ${target}`,
-      hook: `从 ${operand} 补到 ${target}，还差 ${answer}。`,
-    });
-  }
-}
-
-for (let value = 1; value <= 100; value += 1) {
-  const answer = value * value;
-  addReference({
-    id: `ref-square-${value}`,
-    domain: "squares",
-    key: `square:forward:${value}`,
-    prompt: `${value}² = ?`,
-    answer,
-    direction: "forward",
-    relation: `${value}² = ${answer}`,
-    hook: `${value}² 就是 ${value} × ${value}。`,
-  });
-  addReference({
-    id: `ref-isquare-${value}`,
-    domain: "squares",
-    key: `square:inverse:${value}`,
-    prompt: `哪个正数的平方是 ${answer}？`,
-    answer: value,
-    direction: "inverse",
-    relation: `${value}² = ${answer}`,
-    hook: `寻找平方等于 ${answer} 的正数。`,
-  });
-}
-
-for (let value = 1; value <= 20; value += 1) {
-  const answer = value * value * value;
-  addReference({
-    id: `ref-cube-${value}`,
-    domain: "cubes",
-    key: `cube:forward:${value}`,
-    prompt: `${value}³ = ?`,
-    answer,
-    direction: "forward",
-    relation: `${value}³ = ${answer}`,
-    hook: `${value}³ 就是 ${value} × ${value} × ${value}。`,
-  });
-  addReference({
-    id: `ref-icube-${value}`,
-    domain: "cubes",
-    key: `cube:inverse:${value}`,
-    prompt: `哪个正数的立方是 ${answer}？`,
-    answer: value,
-    direction: "inverse",
-    relation: `${value}³ = ${answer}`,
-    hook: `寻找立方等于 ${answer} 的正数。`,
-  });
-}
-
-for (const [base, end] of [[2, 10], [3, 6], [5, 5], [10, 6]]) {
-  for (let exponent = 1; exponent <= end; exponent += 1) {
-    const answer = base ** exponent;
-    const forwardKey = exponent === 2
-      ? `square:forward:${base}`
-      : exponent === 3
-        ? `cube:forward:${base}`
-        : `power:forward:${base}:${exponent}`;
-    addReference({
-      id: `ref-power-${base}-${exponent}`,
-      domain: "powers",
-      key: forwardKey,
-      prompt: `${base}${superscript(exponent)} = ?`,
-      answer,
-      direction: "forward",
-      relation: `${base}${superscript(exponent)} = ${answer}`,
-      hook: `${base} 连乘 ${exponent} 次。`,
-    });
-    addReference({
-      id: `ref-ipower-${base}-${exponent}`,
-      domain: "powers",
-      key: `power:inverse:${base}:${exponent}`,
-      prompt: `${answer} = ${base} 的几次方？`,
-      answer: exponent,
-      direction: "inverse",
-      relation: `${answer} = ${base}${superscript(exponent)}`,
-      hook: `沿 ${base} 的幂链定位指数。`,
-    });
-  }
+  return out;
 }
 
 const referenceOut = join(root, "src/core/reference-catalog-data.js");
-const referenceBody = `/** Auto-synced from content/v0.5/manifest.json — do not edit by hand. */\nexport const REFERENCE_RELATIONS = ${JSON.stringify(referenceRelations, null, 2)};\n`;
+const compactRefs = referenceRelations.map(compactReference);
+const referenceBody = `/** Auto-synced from content/v0.5/manifest.json via reference-facts.js — do not edit by hand. */\nexport const REFERENCE_RELATIONS = ${JSON.stringify(compactRefs)};\n`;
 writeFileSync(referenceOut, referenceBody);
-console.log(`Synced ${referenceRelations.length} reference relations → src/core/reference-catalog-data.js`);
+console.log(`Synced ${compactRefs.length} reference relations → src/core/reference-catalog-data.js`);
+
+const productVariants = buildProductPracticeVariants(knownIds);
+
+const variantsOut = join(root, "src/core/practice-variants-data.js");
+const compactProducts = compactProductVariants(productVariants.byRelation);
+const variantsBody = `/** Auto-synced practice variants (not mastery relation ids) — do not edit by hand. */\nexport const PRODUCT_PRACTICE_VARIANTS = ${JSON.stringify(compactProducts)};\nexport const PRODUCT_PRACTICE_VARIANT_STATS = ${JSON.stringify({
+  families: productVariants.families,
+  multiply: productVariants.multiply,
+  divide: productVariants.divide,
+  directions: productVariants.directions,
+})};\n`;
+writeFileSync(variantsOut, variantsBody);
+console.log(
+  `Synced product practice variants: ${productVariants.families} families, ` +
+  `${productVariants.multiply} multiply, ${productVariants.divide} divide, ` +
+  `${productVariants.directions} directions → src/core/practice-variants-data.js`
+);
