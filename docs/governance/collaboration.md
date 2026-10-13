@@ -29,9 +29,9 @@ Professional roles analyze, design, and propose
         ↓
 contract-document-editor organizes the documents
         ↓
-docs/* branch → commit → push → Pull Request
+docs/* branch → commit → push → Cursor opens the Pull Request
         ↓
-ChatGPT orchestrates and reviews
+ChatGPT Gate Review
         ↓
 Owner decides
         ↓
@@ -42,7 +42,7 @@ Grok Bot builds against the frozen contract
 
 Documentation work uses a branch such as `docs/governance-v01`. A documentation change is ready for review when that branch is pushed and a pull request is open.
 
-After Contract Freeze, Grok Bot is the implementation agent. If implementation conflicts with a frozen contract, report `CONTRACT_CONFLICT`. Do not silently redesign the product.
+After Contract Freeze, Grok Bot is the implementation agent. Delivery is the branch, the commits, and a suggested pull-request title and body. Cursor opens the pull request. If implementation conflicts with a frozen contract, report `CONTRACT_CONFLICT`. Do not silently redesign the product.
 
 ## Branch hygiene
 
@@ -59,13 +59,15 @@ After Contract Freeze, Grok Bot is the implementation agent. If implementation c
 
 ## Roles
 
-- Professional roles analyze, design, and propose.
-- `contract-document-editor` organizes the documents.
-- ChatGPT orchestrates and reviews.
-- Grok Bot builds.
-- GitHub keeps the evidence.
-- The Owner decides.
+- **Owner** decides product, scope, experience, merge, and release.
+- **ChatGPT** coordinates and performs Gate Review. ChatGPT does not do daily implementation.
+- **Cursor** owns professional SDD documents and GitHub pull requests.
+- **Kimi** designs curriculum and learning content. Kimi does not change Product, UX, or runtime contracts.
+- **Grok Bot** implements after Contract Freeze. Opening the pull request belongs to Cursor.
+- **GitHub** keeps the evidence.
 
-Professional roles do not hold final decision authority. The Owner decides.
+Repository execution rules are in [`AGENTS.md`](../../AGENTS.md).
+
+Professional roles analyze, design, and propose. They do not hold final decision authority. The Owner decides.
 
 `contract-document-editor` organizes documents produced by professional roles. It does not decide, redefine the product, change UX, UI, or architecture conclusions, write business code, or merge to `main`.
